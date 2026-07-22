@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"> <!-- character encoding -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- responsive viewport -->
+    <title>ZTB Super App — Admin Login</title> <!-- page title -->
+    <style>
+        /* ── Reset & Base ── */
+        * { margin: 0; padding: 0; box-sizing: border-box; } /* reset all elements */
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif; /* clean sans-serif font */
+            background: linear-gradient(135deg, #001a33 0%, #003366 50%, #0055a5 100%); /* dark blue gradient */
+            min-height: 100vh; /* full viewport height */
+            display: flex; /* flexbox layout */
+            align-items: center; /* vertical center */
+            justify-content: center; /* horizontal center */
+        }
+        /* ── Login Card ── */
+        .login-card {
+            background: #ffffff; /* white card */
+            border-radius: 12px; /* rounded corners */
+            padding: 48px 40px; /* generous padding */
+            width: 100%; /* full width */
+            max-width: 420px; /* max width */
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4); /* deep shadow */
+        }
+        /* ── Logo Area ── */
+        .logo-area {
+            text-align: center; /* center logo */
+            margin-bottom: 32px; /* space below */
+        }
+        .logo-area h1 {
+            font-size: 28px; /* large title */
+            color: #003366; /* dark navy */
+            font-weight: 700; /* bold */
+            letter-spacing: -0.5px; /* tight spacing */
+        }
+        .logo-area p {
+            color: #666; /* grey subtitle */
+            font-size: 14px; /* small text */
+            margin-top: 6px; /* small space above */
+        }
+        .logo-badge {
+            display: inline-block; /* inline block */
+            background: #003366; /* dark navy */
+            color: white; /* white text */
+            font-size: 11px; /* small font */
+            font-weight: 600; /* semi-bold */
+            padding: 3px 10px; /* small padding */
+            border-radius: 20px; /* pill shape */
+            text-transform: uppercase; /* uppercase text */
+            letter-spacing: 1px; /* spaced letters */
+            margin-bottom: 12px; /* space below */
+        }
+        /* ── Form Elements ── */
+        .form-group {
+            margin-bottom: 20px; /* space between fields */
+        }
+        label {
+            display: block; /* block label */
+            font-size: 13px; /* small label */
+            font-weight: 600; /* semi-bold */
+            color: #333; /* dark text */
+            margin-bottom: 6px; /* space below label */
+        }
+        input[type="password"] {
+            width: 100%; /* full width */
+            padding: 12px 16px; /* comfortable padding */
+            border: 2px solid #e0e0e0; /* light border */
+            border-radius: 8px; /* rounded */
+            font-size: 15px; /* readable font */
+            transition: border-color 0.2s; /* smooth border transition */
+            outline: none; /* remove outline */
+        }
+        input[type="password"]:focus {
+            border-color: #0070c0; /* blue border on focus */
+        }
+        /* ── Submit Button ── */
+        .btn-login {
+            width: 100%; /* full width */
+            padding: 13px; /* comfortable padding */
+            background: #003366; /* dark navy */
+            color: white; /* white text */
+            border: none; /* no border */
+            border-radius: 8px; /* rounded */
+            font-size: 16px; /* readable font */
+            font-weight: 600; /* semi-bold */
+            cursor: pointer; /* pointer cursor */
+            transition: background 0.2s; /* smooth hover */
+            margin-top: 8px; /* space above */
+        }
+        .btn-login:hover {
+            background: #0070c0; /* blue on hover */
+        }
+        /* ── Error Message ── */
+        .error-msg {
+            display: none; /* hidden by default */
+            background: #fff0f0; /* light red bg */
+            color: #cc0000; /* red text */
+            border: 1px solid #ffcccc; /* red border */
+            border-radius: 6px; /* rounded */
+            padding: 10px 14px; /* padding */
+            font-size: 13px; /* small text */
+            margin-bottom: 16px; /* space below */
+        }
+        /* ── Footer ── */
+        .login-footer {
+            text-align: center; /* centered */
+            margin-top: 24px; /* space above */
+            font-size: 12px; /* small */
+            color: #999; /* grey */
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Card Container -->
+    <div class="login-card">
+        <!-- Logo & Title -->
+        <div class="logo-area">
+            <div class="logo-badge">Admin Portal</div> <!-- admin badge -->
+            <h1>ZTB Super App</h1> <!-- app title -->
+            <p>Zero Trust Branch — Sales Tools Platform</p> <!-- subtitle -->
+        </div>
+
+        <!-- Error Message (shown on failed login) -->
+        <div class="error-msg" id="errorMsg">
+            ❌ Invalid password. Please try again. <!-- error text -->
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="password">Admin Password</label> <!-- password label -->
+                <input type="password" id="password" placeholder="Enter admin password" autofocus> <!-- password input -->
+            </div>
+            <button type="submit" class="btn-login">Sign In →</button> <!-- submit button -->
+        </form>
+
+        <!-- Footer -->
+        <div class="login-footer">
+            Zscaler Zero Trust Branch — Internal Tool <!-- footer text -->
+        </div>
+    </div>
+
+    <script>
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); // prevent default form submission
+            const password = document.getElementById('password').value; // get password value
+            const errorMsg = document.getElementById('errorMsg'); // get error element
+            errorMsg.style.display = 'none'; // hide error message
+
+            try {
+                const response = await fetch('/admin/login', { // POST to admin login endpoint
+                    method: 'POST', // HTTP method
+                    headers: { 'Content-Type': 'application/json' }, // JSON content type
+                    body: JSON.stringify({ password }) // send password as JSON
+                });
+                const data = await response.json(); // parse JSON response
+                if (data.success) { // if login successful
+                    window.location.href = '/admin/dashboard'; // redirect to dashboard
+                } else {
+                    errorMsg.style.display = 'block'; // show error message
+                }
+            } catch (err) {
+                errorMsg.style.display = 'block'; // show error on network failure
+            }
+        });
+    </script>
+</body>
+</html>

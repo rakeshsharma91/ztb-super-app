@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZTB Super App — Admin Dashboard</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<style>
+:root {
+  --navy: #003366;
+  --blue: #0070c0;
+  --light-blue: #e8f4fd;
+  --white: #ffffff;
+  --gray: #f5f7fa;
+  --border: #dee2e6;
+  --text: #333333;
+  --danger: #dc3545;
+  --success: #28a745;
+  --warning: #ffc107;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--text); background: var(--gray); }
+
+/* NAVBAR */
+#navbar {
+  position: fixed; top: 0; left: 0; right: 0; height: 56px;
+  background: var(--navy); display: flex; align-items: center;
+  padding: 0 20px; z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+#navbar .brand { color: #fff; font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+#navbar .subtitle { color: #90c8f0; font-size: 14px; margin-left: 14px; }
+#navbar .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+#navbar .user-badge { background: rgba(255,255,255,0.15); color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 13px; }
+#navbar .logout-btn { background: transparent; border: 1px solid rgba(255,255,255,0.5); color: #fff; padding: 5px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; transition: background 0.2s; }
+#navbar .logout-btn:hover { background: rgba(255,255,255,0.15); }
+
+/* SIDEBAR */
+#sidebar {
+  position: fixed; top: 56px; left: 0; bottom: 0; width: 220px;
+  background: #fff; border-right: 1px solid var(--border); overflow-y: auto; z-index: 900;
+}
+#sidebar ul { list-style: none; padding: 12px 0; }
+#sidebar ul li a {
+  display: block; padding: 11px 20px; color: var(--text); text-decoration: none;
+  font-size: 14px; transition: background 0.15s, color 0.15s; border-left: 3px solid transparent;
+}
+#sidebar ul li a:hover { background: var(--light-blue); color: var(--blue); }
+#sidebar ul li a.active { background: var(--light-blue); color: var(--blue); font-weight: 600; border-left-color: var(--blue); }
+
+/* MAIN CONTENT */
+#main { margin-left: 220px; margin-top: 56px; padding: 24px; min-height: calc(100vh - 56px); }
+
+/* SECTION PANELS */
+.section-panel { display: none; }
+.section-panel.active { display: block; }
+.section-panel h2 { font-size: 22px; color: var(--navy); margin-bottom: 18px; font-weight: 700; }
+
+/* TOOLBAR */
+.toolbar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+.toolbar button, .btn {
+  padding: 7px 14px; border-radius: 4px; cursor: pointer; font-size: 13px;
+  border: none; transition: opacity 0.2s; font-weight: 500;
+}
+.toolbar button:hover, .btn:hover { opacity: 0.85; }
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-secondary { background: #6c757d; color: #fff; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+
+/* TABLE WRAPPER */
+.table-wrapper { overflow-x: auto; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.lib-table { width: 100%; border-collapse: collapse; background: #fff; }
+.lib-table th {
+  background: var(--navy); color: #fff; padding: 10px 12px;
+  font-weight: 600; font-size: 13px; white-space: nowrap;
+  position: relative; user-select: none;
+}
+.lib-table th[contenteditable="true"] { cursor: text; }
+.lib-table th[contenteditable="true"]:hover::after { content: ' ✎'; font-size: 11px; opacity: 0.7; }
+.lib-table th .col-delete-btn {
+  display: none; position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+  background: transparent; border: none; color: #ff9999; font-size: 14px; cursor: pointer;
+  line-height: 1; padding: 0 2px;
+}
+.lib-table th:hover .col-delete-btn { display: inline-block; }
+.lib-table th.no-delete .col-delete-btn { display: none !important; }
+.lib-table th.drag-over { border-left: 3px solid #90c8f0; }
+.lib-table td {
+  padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px;
+  vertical-align: top;
+}
+.lib-table tr:hover td { background: #f0f7ff; }
+.lib-table td[contenteditable="true"]:focus {
+  outline: 2px solid var(--blue); background: #fff; border-radius: 2px;
+}
+.lib-table td[contenteditable="true"] { cursor: text; min-width: 80px; }
+.row-del-btn {
+  background: transparent; color: var(--danger); border: none;
+  font-size: 16px; cursor: pointer; padding: 0 6px; line-height: 1;
+  opacity: 0.7; transition: opacity 0.2s;
+}
+.row-del-btn:hover { opacity: 1; }
+.th-dragging { opacity: 0.5; }
+
+/* QUESTIONS ACCORDION */
+.q-card {
+  background: #fff; border-radius: 8px; border: 1px solid var(--border);
+  margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.q-card-header {
+  padding: 14px 18px; cursor: pointer; display: flex;
+  justify-content: space-between; align-items: center;
+  user-select: none;
+}
+.q-card-header:hover { background: #fafbfc; border-radius: 8px; }
+.q-card-header .q-title { font-weight: 600; font-size: 14px; flex: 1; margin-right: 12px; }
+.q-card-header .q-meta { display: flex; gap: 8px; align-items: center; }
+.q-badge { background: var(--light-blue); color: var(--blue); padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.q-arrow { font-size: 12px; color: #888; transition: transform 0.2s; }
+.q-card.open .q-arrow { transform: rotate(180deg); }
+.q-card-body { display: none; padding: 18px; border-top: 1px solid var(--border); }
+.q-card.open .q-card-body { display: block; }
+.form-row { margin-bottom: 14px; }
+.form-row label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+.form-row textarea, .form-row input[type="text"], .form-row select {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border);
+  border-radius: 4px; font-size: 13px; color: var(--text);
+  transition: border-color 0.2s;
+}
+.form-row textarea:focus, .form-row input:focus, .form-row select:focus {
+  outline: none; border-color: var(--blue);
+}
+.form-row textarea { resize: vertical; min-height: 60px; }
+.form-row .checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.form-row .checkbox-row input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+.options-section { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px; }
+.options-section h4 { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.4px; }
+.option-row {
+  display: flex; gap: 8px; align-items: center; margin-bottom: 8px;
+  padding: 8px 10px; background: #f8f9fa; border-radius: 4px; flex-wrap: wrap;
+}
+.option-row input[type="text"] { flex: 1; min-width: 120px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; }
+.option-row select { padding: 6px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; min-width: 100px; }
+.option-row .opt-del-btn { background: transparent; border: none; color: var(--danger); cursor: pointer; font-size: 16px; padding: 0 4px; }
+.q-del-btn { background: var(--danger); color: #fff; border: none; padding: 7px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; margin-top: 16px; }
+
+/* ASSESSMENT CONFIG */
+.assessment-list { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.assessment-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+  border-bottom: 1px solid var(--border); font-size: 13px;
+}
+.assessment-item:last-child { border-bottom: none; }
+.assessment-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+.assessment-item .q-text { flex: 1; }
+.assessment-item .mandatory-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; white-space: nowrap; }
+.assessment-item .mandatory-toggle input { width: 14px; height: 14px; }
+.assessment-item .order-btns { display: flex; gap: 4px; }
+.order-btn { background: #e9ecef; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+.order-btn:hover { background: #ced4da; }
+.save-config-btn { margin-top: 16px; }
+
+/* TOAST */
+#toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  padding: 12px 20px; border-radius: 6px; color: #fff; font-size: 13px; font-weight: 500;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2); max-width: 280px;
+  animation: toastIn 0.25s ease;
+}
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+.toast.warning { background: var(--warning); color: #333; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+</style>
+<body>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <span class="brand">ZTB Super App</span>
+  <span class="subtitle">Admin Dashboard</span>
+  <div class="nav-right">
+    <span class="user-badge" id="user-badge">&#128100; Admin</span>
+    <button class="logout-btn" onclick="window.location.href='/admin/logout'">Logout</button>
+  </div>
+</nav>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <ul>
+    <li><a href="#" class="nav-link" data-section="valueprops" onclick="showSection('valueprops');return false;">&#127775; Value Props</a></li>
+    <li><a href="#" class="nav-link" data-section="assets" onclick="showSection('assets');return false;">&#128196; Assets</a></li>
+    <li><a href="#" class="nav-link" data-section="testcases" onclick="showSection('testcases');return false;">&#9989; Test Cases</a></li>
+    <li><a href="#" class="nav-link" data-section="povplanner" onclick="showSection('povplanner');return false;">&#128203; POV Planner</a></li>
+    <li><a href="#" class="nav-link" data-section="roadblocks" onclick="showSection('roadblocks');return false;">&#128683; Roadblocks</a></li>
+    <li><a href="#" class="nav-link" data-section="questions" onclick="showSection('questions');return false;">&#10067; Questions Library</a></li>
+    <li><a href="#" class="nav-link" data-section="assessment" onclick="showSection('assessment');return false;">&#9881; Assessment Config</a></li>
+  </ul>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main id="main">
+
+  <!-- SECTION: Value Props -->
+  <section class="section-panel" id="panel-valueprops">
+    <h2>&#127775; Value Propositions</h2>
+    <div class="toolbar" id="toolbar-valueprops">
+      <button class="btn btn-primary" onclick="libraryTables.valueprops.addRow()">&#65291; Add Row</button>
+      <button class="btn btn-primary" onclick="libraryTables.valueprops.addColumn()">&#65291; Add Column</button>
+      <button class="btn btn-secondary" onclick="libraryTables.valueprops.triggerImport()">&#128229; Import Excel</button>
+      <button class="btn btn-success" onclick="libraryTables.valueprops.exportExcel()">&#128228; Export Excel</button>
+      <input type="file" id="import-file-valueprops" accept=".xlsx,.xls" style="display:none" onchange="libraryTables.valueprops.handleImport(this)">
+    </div>
+    <div class="table-wrapper">
+      <table class="lib-table" id="table-valueprops"><thead><tr></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- SECTION: Assets -->
+  <section class="section-panel" id="panel-assets">
+    <h2>&#128196; Assets</h2>
+    <div class="toolbar" id="toolbar-assets">
+      <button class="btn btn-primary" onclick="libraryTables.assets.addRow()">&#65291; Add Row</button>
+      <button class="btn btn-primary" onclick="libraryTables.assets.addColumn()">&#65291; Add Column</button>
+      <button class="btn btn-secondary" onclick="libraryTables.assets.triggerImport()">&#128229; Import Excel</button>
+      <button class="btn btn-success" onclick="libraryTables.assets.exportExcel()">&#128228; Export Excel</button>
+      <input type="file" id="import-file-assets" accept=".xlsx,.xls" style="display:none" onchange="libraryTables.assets.handleImport(this)">
+    </div>
+    <div class="table-wrapper">
+      <table class="lib-table" id="table-assets"><thead><tr></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- SECTION: Test Cases -->
+  <section class="section-panel" id="panel-testcases">
+    <h2>&#9989; Test Cases</h2>
+    <div class="toolbar" id="toolbar-testcases">
+      <button class="btn btn-primary" onclick="libraryTables.testcases.addRow()">&#65291; Add Row</button>
+      <button class="btn btn-primary" onclick="libraryTables.testcases.addColumn()">&#65291; Add Column</button>
+      <button class="btn btn-secondary" onclick="libraryTables.testcases.triggerImport()">&#128229; Import Excel</button>
+      <button class="btn btn-success" onclick="libraryTables.testcases.exportExcel()">&#128228; Export Excel</button>
+      <input type="file" id="import-file-testcases" accept=".xlsx,.xls" style="display:none" onchange="libraryTables.testcases.handleImport(this)">
+    </div>
+    <div class="table-wrapper">
+      <table class="lib-table" id="table-testcases"><thead><tr></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- SECTION: POV Planner -->
+  <section class="section-panel" id="panel-povplanner">
+    <h2>&#128203; POV Planner</h2>
+    <div class="toolbar" id="toolbar-povplanner">
+      <button class="btn btn-primary" onclick="libraryTables.povplanner.addRow()">&#65291; Add Row</button>
+      <button class="btn btn-primary" onclick="libraryTables.povplanner.addColumn()">&#65291; Add Column</button>
+      <button class="btn btn-secondary" onclick="libraryTables.povplanner.triggerImport()">&#128229; Import Excel</button>
+      <button class="btn btn-success" onclick="libraryTables.povplanner.exportExcel()">&#128228; Export Excel</button>
+      <input type="file" id="import-file-povplanner" accept=".xlsx,.xls" style="display:none" onchange="libraryTables.povplanner.handleImport(this)">
+    </div>
+    <div class="table-wrapper">
+      <table class="lib-table" id="table-povplanner"><thead><tr></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- SECTION: Roadblocks -->
+  <section class="section-panel" id="panel-roadblocks">
+    <h2>&#128683; Roadblocks</h2>
+    <div class="toolbar" id="toolbar-roadblocks">
+      <button class="btn btn-primary" onclick="libraryTables.roadblocks.addRow()">&#65291; Add Row</button>
+      <button class="btn btn-primary" onclick="libraryTables.roadblocks.addColumn()">&#65291; Add Column</button>
+      <button class="btn btn-secondary" onclick="libraryTables.roadblocks.triggerImport()">&#128229; Import Excel</button>
+      <button class="btn btn-success" onclick="libraryTables.roadblocks.exportExcel()">&#128228; Export Excel</button>
+      <input type="file" id="import-file-roadblocks" accept=".xlsx,.xls" style="display:none" onchange="libraryTables.roadblocks.handleImport(this)">
+    </div>
+    <div class="table-wrapper">
+      <table class="lib-table" id="table-roadblocks"><thead><tr></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- SECTION: Questions Library -->
+  <section class="section-panel" id="panel-questions">
+    <h2>&#10067; Questions Library</h2>
+    <div class="toolbar">
+      <button class="btn btn-primary" onclick="addQuestion()">&#65291; Add Question</button>
+    </div>
+    <div id="questions-list"></div>
+  </section>
+
+  <!-- SECTION: Assessment Config -->
+  <section class="section-panel" id="panel-assessment">
+    <h2>&#9881; Assessment Configuration</h2>
+    <div class="assessment-list" id="assessment-list"></div>
+    <button class="btn btn-primary save-config-btn" onclick="saveAssessmentConfig()">&#128190; Save Configuration</button>
+  </section>
+
+</main>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<script>
+// ─── GLOBALS ────────────────────────────────────────────────────────────────
+const libraryTables = {};
+const libraryData = { valueprops: [], assets: [], testcases: [], povplanner: [], roadblocks: [] };
+
+// ─── NAVIGATION ─────────────────────────────────────────────────────────────
+function showSection(name) {
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+  const panel = document.getElementById('panel-' + name);
+  if (panel) panel.classList.add('active');
+  const link = document.querySelector(`.nav-link[data-section="${name}"]`);
+  if (link) link.classList.add('active');
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'toastOut 0.3s ease forwards';
+    setTimeout(() => toast.remove(), 300);
+  }, 2500);
+}
+
+// ─── FETCH HELPERS ───────────────────────────────────────────────────────────
+async function apiFetch(url, options = {}) {
+  options.credentials = 'include';
+  options.headers = options.headers || {};
+  try {
+    const res = await fetch(url, options);
+    if (res.status === 401) { window.location.href = '/admin/login'; return null; }
+    return res;
+  } catch (e) {
+    showToast('Network error: ' + e.message, 'error');
+    return null;
+  }
+}
+
+async function apiGet(url) {
+  const res = await apiFetch(url);
+  if (!res) return null;
+  if (!res.ok) { showToast('Error ' + res.status, 'error'); return null; }
+  return res.json();
+}
+
+async function apiPost(url, data) {
+  const res = await apiFetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res) return null;
+  if (!res.ok) { showToast('Save failed: ' + res.status, 'error'); return null; }
+  showToast('Saved ✓', 'success');
+  return res.json().catch(() => ({}));
+}
+
+async function apiPatch(url, data) {
+  const res = await apiFetch(url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res) return null;
+  if (!res.ok) { showToast('Save failed: ' + res.status, 'error'); return null; }
+  showToast('Saved ✓', 'success');
+  return res.json().catch(() => ({}));
+}
+
+async function apiDelete(url) {
+  const res = await apiFetch(url, { method: 'DELETE' });
+  if (!res) return false;
+  if (!res.ok) { showToast('Delete failed: ' + res.status, 'error'); return false; }
+  showToast('Deleted ✓', 'success');
+  return true;
+}
+
+// ─── LIBRARY TABLE CLASS ─────────────────────────────────────────────────────
+class LibraryTable {
+  constructor(section, defaultColumns) {
+    this.section   = section;          // e.g. 'valueprops'
+    this.columns   = [...defaultColumns]; // mutable list of column names (excl. 'id' & delete)
+    this.tableEl   = document.getElementById('table-' + section);
+    this.thead     = this.tableEl.querySelector('thead tr');
+    this.tbody     = this.tableEl.querySelector('tbody');
+    this._dragSrc  = null;             // dragged th index
+    this._buildHeader();
+  }
+
+  // ── Header ────────────────────────────────────────────────────────────────
+  _buildHeader() {
+    this.thead.innerHTML = '';
+    // ID column
+    const thId = this._makeThFixed('ID');
+    this.thead.appendChild(thId);
+    // Data columns
+    this.columns.forEach((col, idx) => {
+      this.thead.appendChild(this._makeTh(col, idx + 1)); // +1 because of ID
+    });
+    // Delete column
+    const thDel = this._makeThFixed('');
+    thDel.style.width = '40px';
+    this.thead.appendChild(thDel);
+  }
+
+  _makeThFixed(label) {
+    const th = document.createElement('th');
+    th.textContent = label;
+    th.classList.add('no-delete');
+    th.draggable = false;
+    return th;
+  }
+
+  _makeTh(colName, colIndex) {
+    const th = document.createElement('th');
+    th.setAttribute('contenteditable', 'true');
+    th.setAttribute('data-col', colName);
+    th.draggable = true;
+
+    // Text node for the name
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'th-name';
+    nameSpan.textContent = colName;
+    th.appendChild(nameSpan);
+
+    // Delete column button
+    const delBtn = document.createElement('button');
+    delBtn.className = 'col-delete-btn';
+    delBtn.innerHTML = '&#10005;';
+    delBtn.title = 'Delete column';
+    delBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this._confirmDeleteColumn(colName, th);
+    });
+    th.appendChild(delBtn);
+
+    // Make contenteditable work on the span, not the whole th
+    th.addEventListener('click', (e) => {
+      if (e.target !== delBtn) nameSpan.focus();
+    });
+    th.setAttribute('contenteditable', 'false'); // th itself not editable
+    nameSpan.setAttribute('contenteditable', 'true');
+    nameSpan.setAttribute('spellcheck', 'false');
+
+    // Save on blur
+    let oldName = colName;
+    nameSpan.addEventListener('focus', () => { oldName = nameSpan.textContent.trim(); });
+    nameSpan.addEventListener('blur', () => {
+      const newName = nameSpan.textContent.trim();
+      if (!newName) { nameSpan.textContent = oldName; return; }
+      if (newName === oldName) return;
+      this._renameColumn(oldName, newName, th, nameSpan);
+    });
+
+    // Drag-and-drop
+    th.addEventListener('dragstart', (e) => this._onDragStart(e, th));
+    th.addEventListener('dragover',  (e) => this._onDragOver(e, th));
+    th.addEventListener('dragleave', (e) => th.classList.remove('drag-over'));
+    th.addEventListener('drop',      (e) => this._onDrop(e, th));
+    th.addEventListener('dragend',   (e) => this._onDragEnd(e));
+
+    return th;
+  }
+
+  // ── Render data ──────────────────────────────────────────────────────────
+  renderRows(data) {
+    libraryData[this.section] = data;
+    this.tbody.innerHTML = '';
+    data.forEach(row => this._appendRow(row));
+  }
+
+  _appendRow(row) {
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-id', row.id);
+
+    // ID cell (not editable)
+    const tdId = document.createElement('td');
+    tdId.textContent = row.id;
+    tdId.style.fontWeight = '600';
+    tdId.style.color = '#888';
+    tr.appendChild(tdId);
+
+    // Data cells
+    this.columns.forEach(col => {
+      const td = this._makeCell(row.id, col, row[col] != null ? String(row[col]) : '');
+      tr.appendChild(td);
+    });
+
+    // Delete button cell
+    tr.appendChild(this._makeDeleteCell(row.id, tr));
+    this.tbody.appendChild(tr);
+    return tr;
+  }
+
+  _makeCell(rowId, colName, value) {
+    const td = document.createElement('td');
+    td.setAttribute('contenteditable', 'true');
+    td.setAttribute('data-col', colName);
+    td.setAttribute('spellcheck', 'false');
+    td.textContent = value;
+    let oldVal = value;
+    td.addEventListener('focus', () => { oldVal = td.textContent; });
+    td.addEventListener('blur', () => {
+      const newVal = td.textContent;
+      if (newVal === oldVal) return;
+      oldVal = newVal;
+      apiPatch(`/admin/${this.section}/cell`, { id: rowId, field: colName, value: newVal });
+    });
+    return td;
+  }
+
+  _makeDeleteCell(rowId, tr) {
+    const td = document.createElement('td');
+    td.style.textAlign = 'center';
+    const btn = document.createElement('button');
+    btn.className = 'row-del-btn';
+    btn.innerHTML = '&#10005;';
+    btn.title = 'Delete row';
+    btn.addEventListener('click', () => {
+      if (!confirm('Delete this row?')) return;
+      apiDelete(`/admin/${this.section}/${rowId}`).then(ok => {
+        if (ok) tr.remove();
+      });
+    });
+    td.appendChild(btn);
+    return td;
+  }
+
+  // ── Add Row ──────────────────────────────────────────────────────────────
+  addRow() {
+    const rows = this.tbody.querySelectorAll('tr');
+    let maxId = 0;
+    rows.forEach(r => { const id = parseInt(r.getAttribute('data-id')); if (id > maxId) maxId = id; });
+    const newId = maxId + 1;
+    const newRow = { id: newId };
+    this.columns.forEach(col => { newRow[col] = ''; });
+    const tr = this._appendRow(newRow);
+    apiPost(`/admin/${this.section}/`, newRow);
+    // Focus first editable cell
+    const firstCell = tr.querySelector('td[contenteditable="true"]');
+    if (firstCell) firstCell.focus();
+  }
+
+  // ── Add Column ───────────────────────────────────────────────────────────
+  addColumn() {
+    const colName = prompt('Enter column name:');
+    if (!colName || !colName.trim()) return;
+    const name = colName.trim();
+    if (this.columns.includes(name)) { showToast('Column already exists', 'warning'); return; }
+    this.columns.push(name);
+
+    // Add th before delete column
+    const lastTh = this.thead.lastElementChild;
+    const newTh = this._makeTh(name, this.columns.length);
+    this.thead.insertBefore(newTh, lastTh);
+
+    // Add td to every row before the delete cell
+    this.tbody.querySelectorAll('tr').forEach(tr => {
+      const rowId = tr.getAttribute('data-id');
+      const lastTd = tr.lastElementChild;
+      const td = this._makeCell(rowId, name, '');
+      tr.insertBefore(td, lastTd);
+    });
+
+    apiPost(`/admin/${this.section}/columns`, { name });
+  }
+
+  // ── Delete Column ────────────────────────────────────────────────────────
+  _confirmDeleteColumn(colName, th) {
+    if (!confirm(`Delete column "${colName}"?`)) return;
+    const colIndex = this._getThIndex(th);
+    th.remove();
+    this.tbody.querySelectorAll('tr').forEach(tr => {
+      const tds = tr.querySelectorAll('td');
+      if (tds[colIndex]) tds[colIndex].remove();
+    });
+    this.columns = this.columns.filter(c => c !== colName);
+    apiDelete(`/admin/${this.section}/columns/${encodeURIComponent(colName)}`);
+  }
+
+  _getThIndex(th) {
+    return Array.from(this.thead.children).indexOf(th);
+  }
+
+  // ── Rename Column ────────────────────────────────────────────────────────
+  _renameColumn(oldName, newName, th, nameSpan) {
+    if (this.columns.includes(newName)) {
+      showToast('Column name already exists', 'warning');
+      nameSpan.textContent = oldName;
+      return;
+    }
+    const idx = this.columns.indexOf(oldName);
+    if (idx > -1) this.columns[idx] = newName;
+    th.setAttribute('data-col', newName);
+    // Update all td data-col attributes
+    this.tbody.querySelectorAll(`td[data-col="${oldName}"]`).forEach(td => td.setAttribute('data-col', newName));
+    apiPatch(`/admin/${this.section}/column`, { old_name: oldName, new_name: newName });
+  }
+
+  // ── Drag-and-drop ────────────────────────────────────────────────────────
+  _onDragStart(e, th) {
+    if (th.classList.contains('no-delete')) { e.preventDefault(); return; }
+    this._dragSrc = th;
+    th.classList.add('th-dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', this._getThIndex(th));
+  }
+
+  _onDragOver(e, th) {
+    if (!this._dragSrc || th === this._dragSrc || th.classList.contains('no-delete')) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    th.classList.add('drag-over');
+  }
+
+  _onDrop(e, targetTh) {
+    e.preventDefault();
+    if (!this._dragSrc || targetTh === this._dragSrc || targetTh.classList.contains('no-delete')) return;
+    targetTh.classList.remove('drag-over');
+
+    const srcIdx = this._getThIndex(this._dragSrc);
+    const tgtIdx = this._getThIndex(targetTh);
+
+    // Reorder headers
+    const ths = Array.from(this.thead.children);
+    if (srcIdx < tgtIdx) {
+      this.thead.insertBefore(this._dragSrc, targetTh.nextSibling);
+    } else {
+      this.thead.insertBefore(this._dragSrc, targetTh);
+    }
+
+    // Reorder tds in every row
+    this.tbody.querySelectorAll('tr').forEach(tr => {
+      const tds = Array.from(tr.children);
+      const movingTd = tds[srcIdx];
+      if (srcIdx < tgtIdx) {
+        tr.insertBefore(movingTd, tds[tgtIdx].nextSibling);
+      } else {
+        tr.insertBefore(movingTd, tds[tgtIdx]);
+      }
+    });
+
+    // Rebuild columns array from current th order
+    this.columns = [];
+    Array.from(this.thead.children).forEach(th => {
+      if (!th.classList.contains('no-delete') && th.querySelector('.th-name')) {
+        this.columns.push(th.querySelector('.th-name').textContent.trim());
+      }
+    });
+
+    apiPatch(`/admin/${this.section}/columns/reorder`, { order: this.columns });
+  }
+
+  _onDragEnd(e) {
+    document.querySelectorAll('.th-dragging').forEach(el => el.classList.remove('th-dragging'));
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    this._dragSrc = null;
+  }
+
+  // ── Load from API ─────────────────────────────────────────────────────────
+  async load() {
+    const data = await apiGet(`/admin/${this.section}/`);
+    if (data) {
+      if (data.columns) {
+        this.columns = data.columns.filter(c => c !== 'id');
+        this._buildHeader();
+      }
+      this.renderRows(data.rows || data);
+    }
+  }
+
+  // ── Import Excel ─────────────────────────────────────────────────────────
+  triggerImport() {
+    document.getElementById('import-file-' + this.section).click();
+  }
+
+  handleImport(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const wb = XLSX.read(e.target.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+        if (!rows.length) { showToast('No data found in Excel', 'warning'); return; }
+        // Validate headers
+        const excelCols = Object.keys(rows[0]).filter(k => k !== 'id' && k !== 'ID');
+        const missing = this.columns.filter(c => !excelCols.includes(c));
+        if (missing.length) {
+          if (!confirm(`Warning: Excel is missing columns: ${missing.join(', ')}. Continue anyway?`)) return;
+        }
+        // Get max id
+        let maxId = 0;
+        this.tbody.querySelectorAll('tr').forEach(r => { const id = parseInt(r.getAttribute('data-id')); if (id > maxId) maxId = id; });
+        rows.forEach(row => {
+          maxId++;
+          const newRow = { id: maxId };
+          this.columns.forEach(col => { newRow[col] = row[col] != null ? String(row[col]) : ''; });
+          this._appendRow(newRow);
+          apiPost(`/admin/${this.section}/`, newRow);
+        });
+        showToast(`Imported ${rows.length} rows ✓`, 'success');
+      } catch (err) {
+        showToast('Import error: ' + err.message, 'error');
+      }
+      input.value = '';
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  // ── Export Excel ─────────────────────────────────────────────────────────
+  exportExcel() {
+    const headers = ['id', ...this.columns];
+    const data = [headers];
+    this.tbody.querySelectorAll('tr').forEach(tr => {
+      const tds = tr.querySelectorAll('td');
+      const row = [tr.getAttribute('data-id')];
+      this.columns.forEach((col, i) => {
+        const td = tr.querySelector(`td[data-col="${col}"]`);
+        row.push(td ? td.textContent : '');
+      });
+      data.push(row);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, this.section);
+    XLSX.writeFile(wb, `${this.section}_export.xlsx`);
+    showToast('Export ready ✓', 'success');
+  }
+}
+</script>
+
+<script>
+// ─── QUESTIONS STATE ─────────────────────────────────────────────────────────
+let questionsData = [];
+
+// ─── LOAD QUESTIONS ───────────────────────────────────────────────────────────
+async function loadQuestions() {
+  const data = await apiGet('/admin/questions/');
+  if (data) {
+    questionsData = data;
+    renderAllQuestions();
+  }
+}
+
+function renderAllQuestions() {
+  const container = document.getElementById('questions-list');
+  container.innerHTML = '';
+  questionsData.forEach(q => container.appendChild(buildQuestionCard(q)));
+}
+
+// ─── BUILD QUESTION CARD ──────────────────────────────────────────────────────
+function buildQuestionCard(q) {
+  const card = document.createElement('div');
+  card.className = 'q-card';
+  card.setAttribute('data-qid', q.id);
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'q-card-header';
+  header.innerHTML = `
+    <span class="q-title">${escHtml(q.question_text || 'New Question')}</span>
+    <div class="q-meta">
+      ${q.keyword ? `<span class="q-badge">${escHtml(q.keyword)}</span>` : ''}
+      <span class="q-arrow">&#9660;</span>
+    </div>`;
+  header.addEventListener('click', () => toggleQCard(card));
+
+  // Body
+  const body = document.createElement('div');
+  body.className = 'q-card-body';
+  body.appendChild(buildQuestionBody(q));
+
+  card.appendChild(header);
+  card.appendChild(body);
+  return card;
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toggleQCard(card) {
+  card.classList.toggle('open');
+}
+
+// ─── BUILD QUESTION BODY ──────────────────────────────────────────────────────
+function buildQuestionBody(q) {
+  const frag = document.createDocumentFragment();
+  const qId = q.id;
+
+  // Question Text
+  frag.appendChild(makeFormRow('Question Text', () => {
+    const ta = document.createElement('textarea');
+    ta.value = q.question_text || '';
+    ta.rows = 3;
+    ta.addEventListener('change', () => patchQuestion(qId, 'question_text', ta.value));
+    ta.addEventListener('blur', () => patchQuestion(qId, 'question_text', ta.value));
+    return ta;
+  }));
+
+  // Additional Details
+  frag.appendChild(makeFormRow('Additional Details', () => {
+    const ta = document.createElement('textarea');
+    ta.value = q.additional_details || '';
+    ta.rows = 2;
+    ta.addEventListener('blur', () => patchQuestion(qId, 'additional_details', ta.value));
+    return ta;
+  }));
+
+  // Keyword
+  frag.appendChild(makeFormRow('Keyword', () => {
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.value = q.keyword || '';
+    inp.addEventListener('blur', () => patchQuestion(qId, 'keyword', inp.value));
+    return inp;
+  }));
+
+  // Options Type
+  frag.appendChild(makeFormRow('Options Type', () => {
+    const sel = document.createElement('select');
+    ['Select All', 'Select One', 'Textbox'].forEach(opt => {
+      const o = document.createElement('option');
+      o.value = opt; o.textContent = opt;
+      if (q.options_type === opt) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener('change', () => patchQuestion(qId, 'options_type', sel.value));
+    return sel;
+  }));
+
+  // Info Only checkbox
+  const infoRow = document.createElement('div');
+  infoRow.className = 'form-row';
+  const infoLabel = document.createElement('label');
+  infoLabel.className = 'checkbox-row';
+  const infoChk = document.createElement('input');
+  infoChk.type = 'checkbox';
+  infoChk.checked = !!q.info_only;
+  infoLabel.appendChild(infoChk);
+  const infoText = document.createTextNode(' Info Only (hide options)');
+  infoLabel.appendChild(infoText);
+  infoRow.appendChild(infoLabel);
+  frag.appendChild(infoRow);
+
+  // Options section
+  const optSection = document.createElement('div');
+  optSection.className = 'options-section';
+  optSection.id = `options-section-${qId}`;
+  if (q.info_only) optSection.style.display = 'none';
+
+  const optTitle = document.createElement('h4');
+  optTitle.textContent = 'Options';
+  optSection.appendChild(optTitle);
+
+  const optList = document.createElement('div');
+  optList.id = `options-list-${qId}`;
+  (q.options || []).forEach(opt => optList.appendChild(buildOptionRow(qId, opt)));
+  optSection.appendChild(optList);
+
+  const addOptBtn = document.createElement('button');
+  addOptBtn.className = 'btn btn-primary';
+  addOptBtn.style.marginTop = '8px';
+  addOptBtn.innerHTML = '&#65291; Add Option';
+  addOptBtn.addEventListener('click', () => addOption(qId));
+  optSection.appendChild(addOptBtn);
+
+  // Toggle options on info_only change
+  infoChk.addEventListener('change', () => {
+    patchQuestion(qId, 'info_only', infoChk.checked);
+    optSection.style.display = infoChk.checked ? 'none' : 'block';
+  });
+
+  frag.appendChild(optSection);
+
+  // Delete question button
+  const delBtn = document.createElement('button');
+  delBtn.className = 'q-del-btn';
+  delBtn.innerHTML = '&#128465; Delete Question';
+  delBtn.addEventListener('click', () => deleteQuestion(qId));
+  frag.appendChild(delBtn);
+
+  return frag;
+}
+
+function makeFormRow(labelText, inputFn) {
+  const row = document.createElement('div');
+  row.className = 'form-row';
+  const lbl = document.createElement('label');
+  lbl.textContent = labelText;
+  row.appendChild(lbl);
+  row.appendChild(inputFn());
+  return row;
+}
+
+// ─── OPTION ROW ───────────────────────────────────────────────────────────────
+function buildOptionRow(qId, opt) {
+  const row = document.createElement('div');
+  row.className = 'option-row';
+  row.setAttribute('data-oid', opt.id);
+
+  // Option text
+  const txtInput = document.createElement('input');
+  txtInput.type = 'text';
+  txtInput.value = opt.option_text || '';
+  txtInput.placeholder = 'Option text...';
+  txtInput.style.flex = '1';
+  txtInput.addEventListener('blur', () => patchOption(qId, opt.id, 'option_text', txtInput.value));
+  row.appendChild(txtInput);
+
+  // 5 linked dropdowns
+  const dropdowns = [
+    { label: 'Asset',      field: 'asset_id',      source: 'assets',      nameKey: 'Asset Name' },
+    { label: 'Value Prop', field: 'valueprop_id',   source: 'valueprops',  nameKey: 'Value Proposition Name' },
+    { label: 'Test Case',  field: 'testcase_id',    source: 'testcases',   nameKey: 'Test Case Name' },
+    { label: 'POV Step',   field: 'povstep_id',     source: 'povplanner',  nameKey: 'POV Step Name' },
+    { label: 'Action',     field: 'action',         source: null,          nameKey: null }
+  ];
+
+  dropdowns.forEach(dd => {
+    const sel = document.createElement('select');
+    sel.title = dd.label;
+    sel.style.minWidth = '110px';
+
+    const blank = document.createElement('option');
+    blank.value = '';
+    blank.textContent = dd.label;
+    sel.appendChild(blank);
+
+    if (dd.source) {
+      // Populate from library data
+      const items = libraryData[dd.source] || [];
+      items.forEach(item => {
+        const o = document.createElement('option');
+        o.value = item.id;
+        // Try to find a name field
+        const nameVal = item[dd.nameKey] || item['name'] || `#${item.id}`;
+        o.textContent = nameVal;
+        if (String(opt[dd.field]) === String(item.id)) o.selected = true;
+        sel.appendChild(o);
+      });
+    } else {
+      // Action dropdown
+      const noAction = document.createElement('option');
+      noAction.value = 'no_action'; noAction.textContent = 'No Action';
+      sel.appendChild(noAction);
+      // Custom actions could be extended here
+      ['Email Rep', 'Schedule Demo', 'Send Asset', 'Log Roadblock'].forEach(a => {
+        const o = document.createElement('option');
+        o.value = a.toLowerCase().replace(/ /g,'_');
+        o.textContent = a;
+        if (opt[dd.field] === o.value) o.selected = true;
+        sel.appendChild(o);
+      });
+    }
+
+    sel.addEventListener('change', () => patchOption(qId, opt.id, dd.field, sel.value));
+    row.appendChild(sel);
+  });
+
+  // Delete option button
+  const delBtn = document.createElement('button');
+  delBtn.className = 'opt-del-btn';
+  delBtn.innerHTML = '&#10005;';
+  delBtn.title = 'Delete option';
+  delBtn.addEventListener('click', () => deleteOption(qId, opt.id, row));
+  row.appendChild(delBtn);
+
+  return row;
+}
+
+// ─── QUESTIONS CRUD ───────────────────────────────────────────────────────────
+async function addQuestion() {
+  const newQ = await apiPost('/admin/questions/', { question_text: 'New Question', options: [] });
+  if (newQ && newQ.id) {
+    newQ.options = newQ.options || [];
+    questionsData.push(newQ);
+    const card = buildQuestionCard(newQ);
+    document.getElementById('questions-list').appendChild(card);
+    // Auto-open it
+    card.classList.add('open');
+    showToast('Question added ✓', 'success');
+  }
+}
+
+async function deleteQuestion(qId) {
+  if (!confirm('Delete this question?')) return;
+  const ok = await apiDelete(`/admin/questions/${qId}`);
+  if (ok) {
+    questionsData = questionsData.filter(q => q.id !== qId);
+    const card = document.querySelector(`.q-card[data-qid="${qId}"]`);
+    if (card) card.remove();
+  }
+}
+
+async function patchQuestion(qId, field, value) {
+  await apiPatch(`/admin/questions/${qId}`, { field, value });
+  // Update header title if question_text changed
+  if (field === 'question_text') {
+    const card = document.querySelector(`.q-card[data-qid="${qId}"]`);
+    if (card) {
+      const titleEl = card.querySelector('.q-title');
+      if (titleEl) titleEl.textContent = value || 'New Question';
+    }
+  }
+  if (field === 'keyword') {
+    const card = document.querySelector(`.q-card[data-qid="${qId}"]`);
+    if (card) {
+      let badge = card.querySelector('.q-badge');
+      if (value) {
+        if (!badge) {
+          badge = document.createElement('span');
+          badge.className = 'q-badge';
+          card.querySelector('.q-meta').prepend(badge);
+        }
+        badge.textContent = value;
+      } else if (badge) {
+        badge.remove();
+      }
+    }
+  }
+}
+
+// ─── OPTIONS CRUD ─────────────────────────────────────────────────────────────
+async function addOption(qId) {
+  const newOpt = await apiPost(`/admin/questions/${qId}/options`, { option_text: '' });
+  if (newOpt && newOpt.id) {
+    const optList = document.getElementById(`options-list-${qId}`);
+    if (optList) optList.appendChild(buildOptionRow(qId, newOpt));
+    // Update local data
+    const q = questionsData.find(q => q.id === qId);
+    if (q) { q.options = q.options || []; q.options.push(newOpt); }
+  }
+}
+
+async function deleteOption(qId, optId, rowEl) {
+  const ok = await apiDelete(`/admin/questions/$${qId}/options/$${optId}`);
+  if (ok) {
+    rowEl.remove();
+    const q = questionsData.find(q => q.id === qId);
+    if (q && q.options) q.options = q.options.filter(o => o.id !== optId);
+  }
+}
+
+async function patchOption(qId, optId, field, value) {
+  await apiPatch(`/admin/questions/$${qId}/options/$${optId}`, { field, value });
+}
+</script>
+
+<script>
+// ─── ASSESSMENT CONFIG ────────────────────────────────────────────────────────
+let assessmentConfig = []; // [{id, question_text, included, mandatory, order}]
+
+async function loadAssessmentConfig() {
+  const data = await apiGet('/admin/assessment/config');
+  if (data) {
+    assessmentConfig = data;
+  } else {
+    // Build from questionsData if no config yet
+    assessmentConfig = questionsData.map((q, i) => ({
+      id: q.id,
+      question_text: q.question_text || 'Question ' + q.id,
+      included: false,
+      mandatory: false,
+      order: i
+    }));
+  }
+  renderAssessmentConfig();
+}
+
+function renderAssessmentConfig() {
+  const list = document.getElementById('assessment-list');
+  list.innerHTML = '';
+  assessmentConfig.forEach((item, idx) => {
+    const row = document.createElement('div');
+    row.className = 'assessment-item';
+    row.setAttribute('data-id', item.id);
+
+    // Include checkbox
+    const inclChk = document.createElement('input');
+    inclChk.type = 'checkbox';
+    inclChk.checked = !!item.included;
+    inclChk.title = 'Include in assessment';
+    inclChk.addEventListener('change', () => { item.included = inclChk.checked; });
+    row.appendChild(inclChk);
+
+    // Question text
+    const qtxt = document.createElement('span');
+    qtxt.className = 'q-text';
+    qtxt.textContent = item.question_text || '(no text)';
+    row.appendChild(qtxt);
+
+    // Mandatory toggle
+    const mandDiv = document.createElement('div');
+    mandDiv.className = 'mandatory-toggle';
+    const mandChk = document.createElement('input');
+    mandChk.type = 'checkbox';
+    mandChk.checked = !!item.mandatory;
+    mandChk.addEventListener('change', () => { item.mandatory = mandChk.checked; });
+    const mandLbl = document.createTextNode('Mandatory');
+    mandDiv.appendChild(mandChk);
+    mandDiv.appendChild(mandLbl);
+    row.appendChild(mandDiv);
+
+    // Up/down buttons
+    const btnDiv = document.createElement('div');
+    btnDiv.className = 'order-btns';
+
+    const upBtn = document.createElement('button');
+    upBtn.className = 'order-btn';
+    upBtn.innerHTML = '&#8593;';
+    upBtn.title = 'Move up';
+    upBtn.disabled = idx === 0;
+    upBtn.addEventListener('click', () => {
+      if (idx === 0) return;
+      [assessmentConfig[idx - 1], assessmentConfig[idx]] = [assessmentConfig[idx], assessmentConfig[idx - 1]];
+      renderAssessmentConfig();
+    });
+
+    const dnBtn = document.createElement('button');
+    dnBtn.className = 'order-btn';
+    dnBtn.innerHTML = '&#8595;';
+    dnBtn.title = 'Move down';
+    dnBtn.disabled = idx === assessmentConfig.length - 1;
+    dnBtn.addEventListener('click', () => {
+      if (idx === assessmentConfig.length - 1) return;
+      [assessmentConfig[idx], assessmentConfig[idx + 1]] = [assessmentConfig[idx + 1], assessmentConfig[idx]];
+      renderAssessmentConfig();
+    });
+
+    btnDiv.appendChild(upBtn);
+    btnDiv.appendChild(dnBtn);
+    row.appendChild(btnDiv);
+    list.appendChild(row);
+  });
+}
+
+async function saveAssessmentConfig() {
+  const payload = assessmentConfig.map((item, idx) => ({
+    id: item.id,
+    included: item.included,
+    mandatory: item.mandatory,
+    order: idx
+  }));
+  const res = await apiFetch('/admin/assessment/config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (res && res.ok) {
+    showToast('Assessment config saved ✓', 'success');
+  } else if (res) {
+    showToast('Save failed: ' + res.status, 'error');
+  }
+}
+
+// ─── PAGE INIT ────────────────────────────────────────────────────────────────
+const LIBRARY_CONFIGS = {
+  valueprops: ['Value Proposition Name', 'Description', 'Business Value', 'Mandatory?'],
+  assets:     ['Asset Name', 'Asset Type', 'Link/URL', 'Description', 'Tags'],
+  testcases:  ['Test Case Name', 'Description', 'Steps', 'Expected Result', 'Tags'],
+  povplanner: ['POV Step Name', 'Description', 'Duration', 'Owner', 'Status'],
+  roadblocks: ['Roadblock Name', 'Description', 'Category', 'Severity', 'Mitigation']
+};
+
+async function initPage() {
+  // Init all 5 library tables
+  Object.entries(LIBRARY_CONFIGS).forEach(([section, cols]) => {
+    libraryTables[section] = new LibraryTable(section, cols);
+  });
+
+  // Load all 5 library tables in parallel
+  await Promise.all(Object.values(libraryTables).map(t => t.load()));
+
+  // Load questions (needs library data for dropdowns)
+  await loadQuestions();
+
+  // Load assessment config (needs questionsData)
+  await loadAssessmentConfig();
+
+  // Show default section
+  showSection('valueprops');
+}
+
+document.addEventListener('DOMContentLoaded', initPage);
+</script>
+</body>
+</html>

@@ -1,0 +1,1362 @@
+/* =============================================================================
+   ZTB SUPER APP — USER-FACING STYLESHEET
+   Covers: Landing Page, Assessment, Results
+   Author: ZTB Design System
+   ============================================================================= */
+
+
+/* =============================================================================
+   1. CSS VARIABLES
+   Centralised design tokens — colours, spacing, radii, transitions.
+   ============================================================================= */
+
+:root {
+  /* Brand colours */
+  --navy:       #003366;
+  --blue:       #0070c0;
+  --light-blue: #e8f4fd;
+  --white:      #ffffff;
+  --gray:       #f5f7fa;
+
+  /* Semantic / status colours */
+  --success: #28a745;
+  --warning: #ffc107;
+  --danger:  #dc3545;
+
+  /* Text */
+  --text:       #333333;
+  --text-light: #666666;
+
+  /* Borders & shadows */
+  --border: #dee2e6;
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+
+  /* Border radii */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-pill: 50px;
+
+  /* Global transition */
+  --transition: 0.25s ease;
+}
+
+
+/* =============================================================================
+   2. RESET & BASE
+   Normalise browser defaults; enforce box-model and sensible root font.
+   ============================================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: var(--text);
+  background-color: var(--gray);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+img,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+a {
+  color: var(--blue);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+a:hover {
+  color: var(--navy);
+  text-decoration: underline;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+
+/* =============================================================================
+   3. TYPOGRAPHY
+   Heading hierarchy, body copy, lead text, section-title accent underline.
+   ============================================================================= */
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--navy);
+  margin-bottom: var(--space-3);
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+p {
+  margin-bottom: var(--space-3);
+  color: var(--text);
+}
+
+small,
+.text-sm {
+  font-size: 0.875rem;
+  color: var(--text-light);
+}
+
+strong, b { font-weight: 700; }
+em, i     { font-style: italic; }
+
+.lead {
+  font-size: 1.2rem;
+  color: var(--text-light);
+  line-height: 1.7;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: var(--space-5);
+  position: relative;
+}
+
+/* Blue accent underline on section titles */
+.section-title::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: var(--blue);
+  border-radius: var(--radius-pill);
+  margin: var(--space-2) auto 0;
+}
+
+
+/* =============================================================================
+   4. NAVBAR  (.user-nav)
+   Sticky top bar — navy background, exactly 56 px tall.
+   .nav-brand holds logo/name; .nav-info holds user session details.
+   ============================================================================= */
+
+.user-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 56px;
+  background-color: var(--navy);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* Brand / logo */
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--white);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.nav-brand:hover {
+  color: var(--light-blue);
+  text-decoration: none;
+}
+
+.nav-brand img {
+  height: 32px;
+  width: auto;
+}
+
+/* Push right-side content to the far end */
+.nav-spacer {
+  flex: 1;
+}
+
+/* Right-side user/session info cluster */
+.nav-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9rem;
+}
+
+.nav-info .nav-user-name {
+  font-weight: 600;
+  color: var(--white);
+}
+
+.nav-info .nav-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.nav-info a,
+.nav-info button {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+  transition: color var(--transition);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.nav-info a:hover,
+.nav-info button:hover {
+  color: var(--white);
+  text-decoration: underline;
+}
+
+/* Mobile hamburger — hidden on desktop */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-1);
+  margin-left: var(--space-3);
+}
+
+.nav-toggle span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--white);
+  border-radius: 2px;
+  transition: transform var(--transition), opacity var(--transition);
+}
+
+
+/* =============================================================================
+   5. HERO SECTION  (.hero)
+   Full-width gradient banner, minimum 400 px tall, centred white text.
+   A radial highlight overlay adds depth to the gradient.
+   ============================================================================= */
+
+.hero {
+  min-height: 400px;
+  background: linear-gradient(135deg, #003366 0%, #004080 60%, #005099 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-6) var(--space-5);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Soft radial highlight */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%,
+    rgba(0, 112, 192, 0.35) 0%,
+    transparent 70%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  animation: fadeIn 0.8s ease both;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--white);
+  margin-bottom: var(--space-3);
+  line-height: 1.15;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.88);
+  margin-bottom: var(--space-5);
+  line-height: 1.6;
+}
+
+.hero-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: var(--white);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  margin-bottom: var(--space-4);
+}
+
+
+/* =============================================================================
+   6. FEATURE CARDS  (.features-grid / .feature-card)
+   Three-column responsive CSS grid. Cards lift on hover.
+   Collapses to 2 columns at 1024 px and 1 column at 768 px.
+   ============================================================================= */
+
+.features-section {
+  padding: var(--space-6) var(--space-5);
+  background: var(--gray);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: var(--space-5);
+  text-align: center;
+  transition: transform var(--transition), box-shadow var(--transition);
+  border: 1px solid transparent;
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+  border-color: var(--light-blue);
+}
+
+/* Circular icon container */
+.feature-card-icon {
+  width: 56px;
+  height: 56px;
+  background: var(--light-blue);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-3);
+  font-size: 1.5rem;
+  color: var(--blue);
+}
+
+.feature-card h3 {
+  font-size: 1.125rem;
+  color: var(--navy);
+  margin-bottom: var(--space-2);
+}
+
+.feature-card p {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  margin-bottom: 0;
+  line-height: 1.6;
+}
+
+
+/* =============================================================================
+   7. LANDING FORM  (.landing-form-wrap / .form-card)
+   Centred, max-width 480 px wrapper with a white shadow card inside.
+   ============================================================================= */
+
+.landing-form-wrap {
+  max-width: 480px;
+  margin: var(--space-6) auto;
+  padding: 0 var(--space-3);
+  animation: slideUp 0.5s ease both;
+}
+
+.form-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 40px;
+}
+
+.form-card-title {
+  font-size: 1.5rem;
+  color: var(--navy);
+  text-align: center;
+  margin-bottom: var(--space-4);
+}
+
+.form-card-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  text-align: center;
+  margin-top: calc(-1 * var(--space-3));
+  margin-bottom: var(--space-4);
+}
+
+
+/* =============================================================================
+   8. FORM ELEMENTS  (.form-group, label, input, focus rings)
+   Consistent labelled input stacks with a blue focus ring per brand.
+   ============================================================================= */
+
+.form-group {
+  margin-bottom: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="number"],
+.form-group input[type="tel"],
+.form-group select {
+  width: 100%;
+  height: 44px;
+  padding: 0 var(--space-3);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  color: var(--text);
+  font-size: 1rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="email"]:focus,
+.form-group input[type="password"]:focus,
+.form-group input[type="number"]:focus,
+.form-group input[type="tel"]:focus,
+.form-group select:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(0, 112, 192, 0.18);
+}
+
+.form-group input::placeholder {
+  color: var(--text-light);
+  opacity: 0.7;
+}
+
+/* Inline validation feedback */
+.form-error {
+  font-size: 0.8rem;
+  color: var(--danger);
+  margin-top: var(--space-1);
+}
+
+.form-hint {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-top: var(--space-1);
+}
+
+
+/* =============================================================================
+   9. BUTTONS  (.btn-*)
+   Shared base class + modifier variants: primary, large, outline, success.
+   ============================================================================= */
+
+/* Shared base */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 44px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: background var(--transition), color var(--transition),
+              border-color var(--transition), box-shadow var(--transition),
+              transform var(--transition);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* Navy primary button */
+.btn-primary {
+  background-color: var(--navy);
+  color: var(--white);
+  border-color: var(--navy);
+}
+
+.btn-primary:hover {
+  background-color: #002255;
+  border-color: #002255;
+  box-shadow: 0 4px 12px rgba(0, 51, 102, 0.4);
+  color: var(--white);
+  text-decoration: none;
+}
+
+/* Large variant — 52 px tall, 18 px font */
+.btn-large {
+  height: 52px;
+  font-size: 1.125rem;
+  padding: 0 var(--space-5);
+  border-radius: var(--radius-md);
+}
+
+/* Outline (ghost) button */
+.btn-outline {
+  background-color: transparent;
+  color: var(--navy);
+  border-color: var(--navy);
+}
+
+.btn-outline:hover {
+  background-color: var(--navy);
+  color: var(--white);
+  text-decoration: none;
+}
+
+/* Success / green button */
+.btn-success {
+  background-color: var(--success);
+  color: var(--white);
+  border-color: var(--success);
+}
+
+.btn-success:hover {
+  background-color: #218838;
+  border-color: #218838;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.35);
+  color: var(--white);
+  text-decoration: none;
+}
+
+/* Full-width button modifier */
+.btn-block {
+  width: 100%;
+  display: flex;
+}
+
+
+/* =============================================================================
+   10. ASSESSMENT PAGE — PROGRESS BAR
+   .progress-wrap is the track; .progress-fill animates via CSS transition.
+   ============================================================================= */
+
+.progress-wrap {
+  width: 100%;
+  background: var(--border);
+  border-radius: var(--radius-pill);
+  height: 10px;
+  overflow: hidden;
+  margin-bottom: var(--space-2);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 100%;
+  background: var(--border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), #00a8e8);
+  border-radius: var(--radius-pill);
+  width: 0%;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: progressFill 0.6s ease forwards;
+}
+
+/* Step label beneath the progress bar */
+.step-indicator {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  text-align: right;
+  margin-bottom: var(--space-4);
+  font-weight: 500;
+}
+
+.step-indicator strong {
+  color: var(--navy);
+}
+
+
+/* =============================================================================
+   11. ASSESSMENT PAGE — CATEGORY HEADING  (.category-heading)
+   Navy text with a 3 px blue left border accent (CSS border-left).
+   ============================================================================= */
+
+.category-heading {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--navy);
+  border-left: 4px solid var(--blue);
+  padding-left: var(--space-3);
+  margin-bottom: var(--space-4);
+  line-height: 1.3;
+}
+
+.category-heading small {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--text-light);
+  margin-top: var(--space-1);
+}
+
+
+/* =============================================================================
+   12. ASSESSMENT PAGE — QUESTION CARD  (.question-card)
+   White rounded shadow card for each individual question.
+   ============================================================================= */
+
+.question-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  transition: box-shadow var(--transition);
+  animation: slideUp 0.35s ease both;
+}
+
+.question-card:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14);
+}
+
+/* Bold question text */
+.question-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: var(--space-2);
+  line-height: 1.4;
+}
+
+/* Italic supplementary detail in gray */
+.question-details {
+  font-size: 0.875rem;
+  font-style: italic;
+  color: var(--text-light);
+  margin-bottom: var(--space-3);
+  line-height: 1.5;
+}
+
+
+/* =============================================================================
+   13. ASSESSMENT PAGE — OPTION PILLS  (.options-group / .option-pill)
+   Visually styled radio/checkbox inputs rendered as pill buttons.
+   Selected state: blue background + white text.
+   Unselected: white background + border.
+   ============================================================================= */
+
+.options-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+/* Hide the native input */
+.options-group input[type="radio"],
+.options-group input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The visible pill label */
+.option-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--white);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition), color var(--transition),
+              border-color var(--transition), box-shadow var(--transition);
+}
+
+.option-pill:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--light-blue);
+}
+
+/* When the hidden input is checked, style the adjacent label */
+.options-group input[type="radio"]:checked + .option-pill,
+.options-group input[type="checkbox"]:checked + .option-pill {
+  background: var(--blue);
+  color: var(--white);
+  border-color: var(--blue);
+  box-shadow: 0 2px 8px rgba(0, 112, 192, 0.35);
+}
+
+.options-group input[type="radio"]:focus-visible + .option-pill,
+.options-group input[type="checkbox"]:focus-visible + .option-pill {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+
+/* =============================================================================
+   14. ASSESSMENT PAGE — NOTES AREA  (.notes-area)
+   Full-width textarea; vertical resize only; blue focus ring.
+   ============================================================================= */
+
+.notes-area {
+  width: 100%;
+  min-height: 80px;
+  padding: var(--space-3);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+}
+
+.notes-area:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(0, 112, 192, 0.18);
+}
+
+.notes-area::placeholder {
+  color: var(--text-light);
+  opacity: 0.75;
+}
+
+
+/* =============================================================================
+   15. ASSESSMENT PAGE — NAV BUTTONS ROW  (.nav-buttons)
+   Flex row with Previous on the left and Next/Submit on the right.
+   ============================================================================= */
+
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.nav-buttons .btn:first-child {
+  margin-right: auto;
+}
+
+
+/* =============================================================================
+   16. RESULTS PAGE  (.results-wrap / .results-heading / .results-table)
+   Max-width 800 px centred container. Heading has a CSS green checkmark.
+   Results table uses alternating row colours.
+   Stat cards are displayed as a flex row.
+   ============================================================================= */
+
+/* Centred container */
+.results-wrap {
+  max-width: 800px;
+  margin: var(--space-6) auto;
+  padding: 0 var(--space-3);
+  animation: fadeIn 0.6s ease both;
+}
+
+/* Heading with ::before green checkmark */
+.results-heading {
+  font-size: 2rem;
+  color: var(--navy);
+  text-align: center;
+  margin-bottom: var(--space-4);
+}
+
+.results-heading::before {
+  content: '\2713\0020'; /* ✓ */
+  color: var(--success);
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+/* Full-width results table */
+.results-table {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  margin-bottom: var(--space-5);
+}
+
+.results-table thead {
+  background: var(--navy);
+  color: var(--white);
+}
+
+.results-table thead th {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--white);
+}
+
+.results-table tbody tr {
+  background: var(--white);
+  transition: background var(--transition);
+}
+
+/* Striped rows */
+.results-table tbody tr:nth-child(even) {
+  background: var(--gray);
+}
+
+.results-table tbody tr:hover {
+  background: var(--light-blue);
+}
+
+.results-table tbody td {
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.95rem;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+/* Flex row of summary stat cards */
+.results-stats {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-5);
+}
+
+.stat-card {
+  flex: 1;
+  min-width: 140px;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.stat-card-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--blue);
+  line-height: 1;
+  margin-bottom: var(--space-1);
+}
+
+.stat-card-label {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+/* Large green download button */
+.download-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 52px;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+  background: var(--success);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1.125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--transition), box-shadow var(--transition),
+              transform var(--transition);
+  text-decoration: none;
+}
+
+.download-btn:hover {
+  background: #218838;
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+  transform: translateY(-2px);
+  color: var(--white);
+  text-decoration: none;
+}
+
+.download-btn:active {
+  transform: scale(0.97);
+}
+
+
+/* =============================================================================
+   17. TOAST NOTIFICATIONS  (.toast / .toast-success / .toast-error)
+   Fixed bottom-right notification toasts.
+   ============================================================================= */
+
+.toast-container {
+  position: fixed;
+  bottom: var(--space-5);
+  right: var(--space-5);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+
+.toast {
+  min-width: 280px;
+  max-width: 380px;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  pointer-events: all;
+  animation: slideUp 0.35s ease both;
+  border-left: 4px solid var(--border);
+}
+
+.toast-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.toast-body {
+  flex: 1;
+}
+
+.toast-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+  color: var(--text);
+}
+
+.toast-message {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  margin-bottom: 0;
+}
+
+/* Success variant — green left border */
+.toast-success {
+  border-left-color: var(--success);
+}
+
+.toast-success .toast-icon {
+  color: var(--success);
+}
+
+/* Error variant — red left border */
+.toast-error {
+  border-left-color: var(--danger);
+}
+
+.toast-error .toast-icon {
+  color: var(--danger);
+}
+
+/* Warning variant */
+.toast-warning {
+  border-left-color: var(--warning);
+}
+
+.toast-warning .toast-icon {
+  color: var(--warning);
+}
+
+/* Close button inside toast */
+.toast-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--text-light);
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
+  transition: color var(--transition);
+}
+
+.toast-close:hover {
+  color: var(--text);
+}
+
+/* Fade-out when dismissed */
+.toast.toast-hide {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+
+/* =============================================================================
+   18. ANIMATIONS
+   fadeIn, slideUp, progressFill, fadeOut keyframes.
+   ============================================================================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes progressFill {
+  from {
+    width: 0%;
+  }
+  to {
+    /* Width driven by inline style / JS; this ensures smooth entry */
+    width: var(--progress-target, 0%);
+  }
+}
+
+/* Pulse used on active/loading states */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+.loading {
+  animation: pulse 1.4s ease infinite;
+}
+
+
+/* =============================================================================
+   19. RESPONSIVE — TABLET  (max-width: 1024px)
+   Features grid collapses to 2 columns; hero font scales down.
+   ============================================================================= */
+
+@media (max-width: 1024px) {
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .results-stats {
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    flex: 1 1 calc(50% - var(--space-3));
+  }
+
+  .user-nav {
+    padding: 0 var(--space-4);
+  }
+}
+
+
+/* =============================================================================
+   20. RESPONSIVE — MOBILE  (max-width: 768px)
+   Single column layout, stacked nav, adjusted typography.
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  /* Single column grid */
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Shrink hero */
+  .hero {
+    min-height: 280px;
+    padding: var(--space-5) var(--space-3);
+  }
+
+  .hero-title {
+    font-size: 1.875rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  /* Stacked nav — show hamburger, hide info by default */
+  .user-nav {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 56px;
+    padding: var(--space-2) var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .nav-toggle {
+    display: flex;
+  }
+
+  .nav-info {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: var(--space-2) 0 var(--space-3);
+    gap: var(--space-2);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .nav-info.open {
+    display: flex;
+  }
+
+  .nav-info .nav-divider {
+    display: none;
+  }
+
+  /* Form card padding shrinks */
+  .form-card {
+    padding: var(--space-4);
+  }
+
+  .landing-form-wrap {
+    margin: var(--space-4) auto;
+  }
+
+  /* Option pills wrap more aggressively */
+  .options-group {
+    gap: var(--space-1);
+  }
+
+  .option-pill {
+    font-size: 0.85rem;
+    padding: var(--space-1) var(--space-2);
+  }
+
+  /* Stat cards go full-width */
+  .stat-card {
+    flex: 1 1 100%;
+  }
+
+  /* Toast repositions to bottom-center */
+  .toast-container {
+    right: var(--space-3);
+    left: var(--space-3);
+    bottom: var(--space-3);
+  }
+
+  .toast {
+    min-width: unset;
+    max-width: 100%;
+  }
+
+  /* Nav buttons stack on very narrow screens */
+  .nav-buttons {
+    flex-direction: column-reverse;
+  }
+
+  .nav-buttons .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  h1 { font-size: 1.875rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+
+  .results-wrap {
+    padding: 0 var(--space-3);
+    margin: var(--space-4) auto;
+  }
+
+  .results-heading {
+    font-size: 1.5rem;
+  }
+}
+
+
+/* =============================================================================
+   21. UTILITY CLASSES
+   Minimal single-purpose helpers — visibility, alignment, spacing.
+   ============================================================================= */
+
+/* Visibility */
+.hidden {
+  display: none !important;
+}
+
+.invisible {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Text alignment */
+.text-center { text-align: center; }
+.text-left   { text-align: left; }
+.text-right  { text-align: right; }
+
+/* Margin top scale */
+.mt-1 { margin-top: var(--space-1); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-3 { margin-top: var(--space-3); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-5 { margin-top: var(--space-5); }
+.mt-6 { margin-top: var(--space-6); }
+
+/* Margin bottom scale */
+.mb-1 { margin-bottom: var(--space-1); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-5 { margin-bottom: var(--space-5); }
+.mb-6 { margin-bottom: var(--space-6); }
+
+/* Padding utilities */
+.p-2  { padding: var(--space-2); }
+.p-3  { padding: var(--space-3); }
+.p-4  { padding: var(--space-4); }
+.px-3 { padding-left: var(--space-3); padding-right: var(--space-3); }
+.py-3 { padding-top: var(--space-3); padding-bottom: var(--space-3); }
+
+/* Flex helpers */
+.d-flex     { display: flex; }
+.flex-col   { flex-direction: column; }
+.align-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center  { justify-content: center; }
+.flex-wrap  { flex-wrap: wrap; }
+.gap-2      { gap: var(--space-2); }
+.gap-3      { gap: var(--space-3); }
+.gap-4      { gap: var(--space-4); }
+
+/* Width helpers */
+.w-full  { width: 100%; }
+.w-auto  { width: auto; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+
+/* Colour text helpers */
+.text-navy    { color: var(--navy); }
+.text-blue    { color: var(--blue); }
+.text-success { color: var(--success); }
+.text-danger  { color: var(--danger); }
+.text-warning { color: var(--warning); }
+.text-muted   { color: var(--text-light); }
+
+/* Background helpers */
+.bg-white      { background-color: var(--white); }
+.bg-gray       { background-color: var(--gray); }
+.bg-light-blue { background-color: var(--light-blue); }
+.bg-navy       { background-color: var(--navy); }
+
+/* Border radius helper */
+.rounded    { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-pill { border-radius: var(--radius-pill); }
+
+/* Shadow helper */
+.shadow { box-shadow: var(--shadow); }
+
+/* Overflow */
+.overflow-hidden { overflow: hidden; }
+
+/* Cursor */
+.pointer { cursor: pointer; }

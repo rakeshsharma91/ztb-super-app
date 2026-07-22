@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZTB Super App — Admin Portal</title>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <style>
+    /* ── CSS Variables ─────────────────────────────────────────── */
+    :root {
+      --navy:       #003366;
+      --blue:       #0070c0;
+      --light-blue: #e8f4fd;
+      --white:      #ffffff;
+      --gray:       #f5f7fa;
+      --border:     #dee2e6;
+      --text:       #333333;
+      --danger:     #dc3545;
+      --success:    #28a745;
+    }
+
+    /* ── Base ──────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; color: var(--text); }
+
+    /* ── Navbar ────────────────────────────────────────────────── */
+    #navbar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 56px; background: var(--navy); color: var(--white);
+      z-index: 1000; display: flex; align-items: center;
+      padding: 0 24px; justify-content: space-between;
+    }
+    #navbar .nav-left { display: flex; align-items: center; gap: 12px; }
+    #navbar .app-title { font-weight: 700; font-size: 1.1rem; color: var(--white); }
+    #navbar .admin-badge {
+      background: var(--light-blue); color: var(--navy);
+      border-radius: 999px; padding: 2px 12px; font-size: 0.78rem; font-weight: 600;
+    }
+    #navbar .nav-right { display: flex; align-items: center; gap: 12px; }
+    #navbar .logged-in { font-size: 0.85rem; color: #cce4f7; }
+    #navbar .btn-logout {
+      background: transparent; border: 1px solid rgba(255,255,255,0.45);
+      color: var(--white); padding: 5px 14px; border-radius: 5px;
+      cursor: pointer; font-size: 0.85rem;
+    }
+    #navbar .btn-logout:hover { background: rgba(255,255,255,0.15); }
+
+    /* ── Sidebar ───────────────────────────────────────────────── */
+    #sidebar {
+      position: fixed; left: 0; top: 56px;
+      width: 220px; height: calc(100vh - 56px);
+      background: var(--white); border-right: 1px solid var(--border);
+      overflow-y: auto; padding: 16px 0;
+    }
+    #sidebar .sidebar-heading {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #999; padding: 8px 24px 4px;
+    }
+    .nav-link {
+      display: block; padding: 10px 24px; color: var(--text);
+      text-decoration: none; cursor: pointer;
+      border-left: 3px solid transparent; font-size: 0.9rem;
+    }
+    .nav-link:hover, .nav-link.active {
+      background: var(--light-blue);
+      border-left-color: var(--blue);
+      color: var(--blue);
+    }
+
+    /* ── Main Content ──────────────────────────────────────────── */
+    #main {
+      margin-left: 220px; margin-top: 56px;
+      padding: 24px; background: var(--gray);
+      min-height: calc(100vh - 56px);
+    }
+
+    /* ── Section Panels ────────────────────────────────────────── */
+    .section-panel { display: none; }
+    .section-panel.active { display: block; }
+
+    .panel-header {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;
+    }
+    .panel-title { font-size: 1.4rem; font-weight: 600; color: var(--navy); }
+
+    /* ── Toolbar ───────────────────────────────────────────────── */
+    .toolbar {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 12px; align-items: center;
+    }
+
+    /* ── Buttons ───────────────────────────────────────────────── */
+    .btn {
+      padding: 7px 16px; border-radius: 5px; border: none;
+      cursor: pointer; font-size: 0.875rem; font-weight: 500;
+    }
+    .btn-primary  { background: var(--blue);    color: var(--white); }
+    .btn-primary:hover  { background: #005fa3; }
+    .btn-danger   { background: var(--danger);  color: var(--white); }
+    .btn-danger:hover   { background: #b02a37; }
+    .btn-success  { background: var(--success); color: var(--white); }
+    .btn-success:hover  { background: #1e7e34; }
+    .btn-secondary{ background: #6c757d;        color: var(--white); }
+    .btn-secondary:hover{ background: #545b62; }
+    .btn-sm { padding: 3px 8px; font-size: 0.78rem; }
+
+    /* ── Table ─────────────────────────────────────────────────── */
+    .lib-table-wrapper {
+      overflow-x: auto; background: var(--white);
+      border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    table.lib-table {
+      width: 100%; border-collapse: collapse; min-width: 600px;
+    }
+    table.lib-table th {
+      background: var(--navy); color: var(--white);
+      padding: 10px 12px; text-align: left; font-weight: 600;
+      position: relative; white-space: nowrap; user-select: none;
+    }
+    table.lib-table th[contenteditable="true"] { cursor: text; }
+    table.lib-table th[contenteditable="true"]:focus {
+      background: #004080; outline: none;
+    }
+    table.lib-table td {
+      padding: 8px 12px; border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    table.lib-table td[contenteditable="true"]:focus {
+      background: #fff9e6; outline: 2px solid var(--blue);
+    }
+    table.lib-table tr:hover td { background: #f0f7ff; }
+
+    /* ── Column drag ───────────────────────────────────────────── */
+    .col-drag-handle {
+      cursor: grab; margin-right: 6px; opacity: 0.5; font-size: 0.85rem;
+    }
+    .col-delete-btn {
+      position: absolute; top: 4px; right: 4px;
+      background: rgba(255,255,255,0.2); border: none; color: var(--white);
+      cursor: pointer; border-radius: 3px; font-size: 0.7rem;
+      padding: 1px 4px; display: none;
+    }
+    table.lib-table th:hover .col-delete-btn { display: inline-block; }
+    .th-inner { display: flex; align-items: center; gap: 4px; }
+    .dragging-col  { opacity: 0.4; }
+    .drag-over-col { border-left: 3px solid #ffd700; }
+
+    /* ── Import file input ─────────────────────────────────────── */
+    input[type="file"].import-input { display: none; }
+
+    /* ── Toast ─────────────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #333; color: var(--white);
+      padding: 10px 20px; border-radius: 6px;
+      font-size: 0.875rem; z-index: 9999; display: none;
+      transition: opacity 0.3s;
+    }
+    #toast.show { display: block; }
+    #toast.error { background: var(--danger); }
+  </style>
+</head>
+<body>
+
+<!-- ── Toast ─────────────────────────────────────────────────────── -->
+<div id="toast"></div>
+
+<!-- ── Navbar ─────────────────────────────────────────────────────── -->
+<nav id="navbar">
+  <div class="nav-left">
+    <span class="app-title">ZTB Super App</span>
+    <span class="admin-badge">Admin Portal</span>
+  </div>
+  <div class="nav-right">
+    <span class="logged-in" id="logged-in-user">● Admin</span>
+    <button class="btn-logout" onclick="window.location.href='/admin/logout'">Logout</button>
+  </div>
+</nav>
+
+<!-- ── Sidebar ─────────────────────────────────────────────────────── -->
+<aside id="sidebar">
+  <div class="sidebar-heading">Content Library</div>
+  <a class="nav-link active" data-section="valueprops"      onclick="showSection('valueprops')">Value Props</a>
+  <a class="nav-link"        data-section="assets"          onclick="showSection('assets')">Assets</a>
+  <a class="nav-link"        data-section="testcases"       onclick="showSection('testcases')">Test Cases</a>
+  <a class="nav-link"        data-section="povplanner"      onclick="showSection('povplanner')">POV Planner</a>
+  <a class="nav-link"        data-section="roadblocks"      onclick="showSection('roadblocks')">Roadblocks</a>
+  <div class="sidebar-heading" style="margin-top:12px;">Configuration</div>
+  <a class="nav-link"        data-section="questions"       onclick="showSection('questions')">Questions Library</a>
+  <a class="nav-link"        data-section="assessmentconfig" onclick="showSection('assessmentconfig')">Assessment Config</a>
+</aside>
+
+<!-- ── Main ────────────────────────────────────────────────────────── -->
+<main id="main">
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       VALUE PROPS SECTION PANEL
+  ═══════════════════════════════════════════════════════════════════ -->
+  <section id="valueprops-panel" class="section-panel active">
+
+    <div class="panel-header">
+      <h2 class="panel-title">Value Props Library</h2>
+      <div class="toolbar">
+        <button class="btn btn-primary"   onclick="vpAddRow()">+ Add Row</button>
+        <button class="btn btn-secondary" onclick="vpAddColumn()">+ Add Column</button>
+        <button class="btn btn-success"   onclick="document.getElementById('vp-import-file').click()">⬆ Import Excel</button>
+        <button class="btn btn-primary"   onclick="vpExportExcel()">⬇ Export Excel</button>
+        <input  type="file" id="vp-import-file" class="import-input" accept=".xlsx" onchange="vpImportExcel(this)" />
+      </div>
+    </div>
+
+    <div class="lib-table-wrapper">
+      <table id="vp-table" class="lib-table">
+        <thead>
+          <tr id="vp-thead-row">
+            <th data-col="id" style="width:60px;">ID</th>
+            <th data-col="Value Proposition Name" contenteditable="true" draggable="true">
+              <div class="th-inner">
+                <span class="col-drag-handle" aria-hidden="true">⠿</span>
+                <span class="th-label">Value Proposition Name</span>
+                <button class="col-delete-btn" onclick="vpDeleteColumn(this)" title="Delete column">❌</button>
+              </div>
+            </th>
+            <th data-col="Description" contenteditable="true" draggable="true">
+              <div class="th-inner">
+                <span class="col-drag-handle" aria-hidden="true">⠿</span>
+                <span class="th-label">Description</span>
+                <button class="col-delete-btn" onclick="vpDeleteColumn(this)" title="Delete column">❌</button>
+              </div>
+            </th>
+            <th data-col="Business Value" contenteditable="true" draggable="true">
+              <div class="th-inner">
+                <span class="col-drag-handle" aria-hidden="true">⠿</span>
+                <span class="th-label">Business Value</span>
+                <button class="col-delete-btn" onclick="vpDeleteColumn(this)" title="Delete column">❌</button>
+              </div>
+            </th>
+            <th data-col="Mandatory?" contenteditable="true" draggable="true">
+              <div class="th-inner">
+                <span class="col-drag-handle" aria-hidden="true">⠿</span>
+                <span class="th-label">Mandatory?</span>
+                <button class="col-delete-btn" onclick="vpDeleteColumn(this)" title="Delete column">❌</button>
+              </div>
+            </th>
+            <th data-col="actions" style="width:90px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="vp-tbody">
+          <!-- rows loaded dynamically -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- PART 2: Assets, Test Cases, POV Planner, Roadblocks will be inserted here -->
+
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   UTILITIES
+════════════════════════════════════════════════════════════════════ */
+
+/** Show/hide sections and update sidebar active state */
+function showSection(id) {
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  const panel = document.getElementById(id + '-panel');
+  if (panel) panel.classList.add('active');
+  const link = document.querySelector(`.nav-link[data-section="${id}"]`);
+  if (link) link.classList.add('active');
+  loadSectionData(id);
+}
+
+/** Toast notification */
+let toastTimer = null;
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('error', isError);
+  t.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.classList.remove('show'); }, 2500);
+}
+
+/** Return 0-based column index of a <th> in its row */
+function getColIndex(th) {
+  return Array.from(th.parentElement.children).indexOf(th);
+}
+
+/** Lazy section loader — extend when Parts 2+ are added */
+function loadSectionData(id) {
+  if (id === 'valueprops') vpLoadData();
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   VALUE PROPS — CELL AUTO-SAVE
+════════════════════════════════════════════════════════════════════ */
+
+function cellAutoSave(section, rowId, fieldName, newValue) {
+  fetch(`/admin/${section}/cell`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: rowId, field: fieldName, value: newValue })
+  })
+  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); showToast('Saved ✓'); })
+  .catch(() => showToast('Save failed ✗', true));
+}
+
+function headerAutoSave(section, oldName, newName) {
+  if (!newName || oldName === newName) return;
+  fetch(`/admin/${section}/column`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ old_name: oldName, new_name: newName })
+  })
+  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); showToast('Column renamed ✓'); })
+  .catch(() => showToast('Rename failed ✗', true));
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   VALUE PROPS — LISTENER HELPERS
+════════════════════════════════════════════════════════════════════ */
+
+/**
+ * Attach blur auto-save to every contenteditable <td> in the table.
+ * fieldName is derived from the corresponding <th> data-col attribute.
+ */
+function reattachCellListeners(table, section) {
+  const thead = table.querySelector('thead tr');
+  table.querySelectorAll('tbody tr').forEach(tr => {
+    const rowId = tr.dataset.id;
+    Array.from(tr.cells).forEach((td, ci) => {
+      if (!td.isContentEditable) return;
+      const th = thead.cells[ci];
+      if (!th) return;
+      const field = th.dataset.col;
+      td.dataset.origVal = td.textContent;
+      td.onblur = () => {
+        const val = td.textContent.trim();
+        if (val !== td.dataset.origVal) {
+          td.dataset.origVal = val;
+          cellAutoSave(section, rowId, field, val);
+        }
+      };
+    });
+  });
+}
+
+/** Attach focus/blur auto-save to every contenteditable <th>. */
+function attachHeaderListeners(table, section) {
+  table.querySelectorAll('thead th[contenteditable="true"]').forEach(th => {
+    th.addEventListener('focus', () => { th.dataset.oldName = th.dataset.col; });
+    th.addEventListener('blur', () => {
+      // th-inner layout: drag-handle | th-label | delete-btn
+      const labelSpan = th.querySelector('.th-label');
+      const newName = labelSpan ? labelSpan.textContent.trim() : th.textContent.trim();
+      if (newName && newName !== th.dataset.oldName) {
+        th.dataset.col = newName;
+        headerAutoSave(section, th.dataset.oldName, newName);
+      }
+    });
+  });
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   VALUE PROPS — COLUMN DRAG & DROP
+════════════════════════════════════════════════════════════════════ */
+
+let vpDragSrcIdx = null;
+
+function vpInitDragDrop() {
+  const theadRow = document.getElementById('vp-thead-row');
+  Array.from(theadRow.cells).forEach(th => {
+    if (!th.draggable) return;
+    th.addEventListener('dragstart', e => {
+      vpDragSrcIdx = getColIndex(th);
+      th.classList.add('dragging-col');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    th.addEventListener('dragend', () => {
+      th.classList.remove('dragging-col');
+      theadRow.querySelectorAll('th').forEach(t => t.classList.remove('drag-over-col'));
+    });
+    th.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      theadRow.querySelectorAll('th').forEach(t => t.classList.remove('drag-over-col'));
+      th.classList.add('drag-over-col');
+    });
+    th.addEventListener('dragleave', () => { th.classList.remove('drag-over-col'); });
+    th.addEventListener('drop', e => {
+      e.preventDefault();
+      const dropIdx = getColIndex(th);
+      if (vpDragSrcIdx === null || vpDragSrcIdx === dropIdx) return;
+      vpMoveColumn(vpDragSrcIdx, dropIdx);
+      vpDragSrcIdx = null;
+    });
+  });
+}
+
+function vpMoveColumn(fromIdx, toIdx) {
+  const table = document.getElementById('vp-table');
+  Array.from(table.rows).forEach(row => {
+    const cells = Array.from(row.cells);
+    const moving = cells[fromIdx];
+    const reference = cells[toIdx];
+    if (!moving || !reference) return;
+    if (fromIdx < toIdx) row.insertBefore(moving, reference.nextSibling);
+    else                  row.insertBefore(moving, reference);
+  });
+  // clean up drag classes
+  document.getElementById('vp-thead-row').querySelectorAll('th')
+    .forEach(t => t.classList.remove('drag-over-col', 'dragging-col'));
+  // re-attach listeners (indices changed)
+  reattachCellListeners(table, 'valueprops');
+  attachHeaderListeners(table, 'valueprops');
+  saveColumnOrder('valueprops');
+}
+
+function saveColumnOrder(section) {
+  const order = [];
+  document.getElementById('vp-thead-row').querySelectorAll('th').forEach(th => {
+    if (th.dataset.col !== 'id' && th.dataset.col !== 'actions') order.push(th.dataset.col);
+  });
+  fetch(`/admin/${section}/columns/reorder`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ order })
+  }).catch(() => {});
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   VALUE PROPS — LOAD DATA
+════════════════════════════════════════════════════════════════════ */
+
+function vpLoadData() {
+  fetch('/admin/valueprops/')
+    .then(r => r.json())
+    .then(rows => {
+      const tbody = document.getElementById('vp-tbody');
+      tbody.innerHTML = '';
+      rows.forEach(row => vpAppendRow(row));
+      const table = document.getElementById('vp-table');
+      reattachCellListeners(table, 'valueprops');
+      attachHeaderListeners(table, 'valueprops');
+      vpInitDragDrop();
+    })
+    .catch(() => showToast('Failed to load Value Props ✗', true));
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   VALUE PROPS — ROW HELPERS
+════════════════════════════════════════════════════════════════════ */
+
+/** Build a <tr> from a data object and append it to vp-tbody */
+function vpAppendRow(data) {
+  const tbody = document.getElementById('vp-tbody');
+  const theadRow = document.getElementById('vp-thead-row');
+  const tr = document.createElement('tr');
+  tr.dataset.id = data.id;
+
+  Array.from(theadRow.cells).forEach(th => {
+    const col = th.dataset.col;
+    const td = document.createElement('td');
+    if (col === 'id') {
+      td.textContent = data.id;
+    } else if (col === 'actions') {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-danger btn-sm';
+      btn.innerHTML = '🗑 Delete';
+      btn.onclick = () => vpDeleteRow(btn);
+      td.appendChild(btn);
+    } else {
+      td.textContent = (data[col] !== undefined && data[col] !== null) ? data[col] : '';
+      td.contentEditable = 'true';
+      td.dataset.origVal = td.textContent;
+    }
+    tr.appendChild(td);
+  });
+  tbody.appendChild(tr);
+  return tr;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   VALUE PROPS — ADD ROW
+════════════════════════════════════════════════════════════════════ */
+
+function vpAddRow() {
+  const tbody = document.getElementById('vp-tbody');
+  const theadRow = document.getElementById('vp-thead-row');
+  // compute next ID
+  let maxId = 0;
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const id = parseInt(tr.dataset.id || 0, 10);
+    if (id > maxId) maxId = id;
+  });
+  const newId = maxId + 1;
+
+  // build payload with empty fields
+  const payload = { id: newId };
+  Array.from(theadRow.cells).forEach(th => {
+    const col = th.dataset.col;
+    if (col !== 'id' && col !== 'actions') payload[col] = '';
+  });
+
+  fetch('/admin/valueprops/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(saved => {
+    const tr = vpAppendRow(saved.id ? saved : payload);
+    const table = document.getElementById('vp-table');
+    reattachCellListeners(table, 'valueprops');
+    showToast('Row added ✓');
+  })
+  .catch(() => {
+    // optimistic: still add row locally
+    vpAppendRow(payload);
+    const table = document.getElementById('vp-table');
+    reattachCellListeners(table, 'valueprops');
+    showToast('Row added locally (server error) ✗', true);
+  });
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   VALUE PROPS — DELETE ROW
+════════════════════════════════════════════════════════════════════ */
+
+function vpDeleteRow(btn) {
+  const tr = btn.closest('tr');
+  const id = tr.dataset.id;
+  if (!confirm('Delete this row?')) return;
+  fetch(`/admin/valueprops/${id}`, { method: 'DELETE' })
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); tr.remove(); showToast('Deleted ✓'); })
+    .catch(() => { tr.remove(); showToast('Deleted locally (server error) ✗', true); });
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   VALUE PROPS — ADD COLUMN
+════════════════════════════════════════════════════════════════════ */
+
+function vpAddColumn() {
+  const colName = prompt('Column name?');
+  if (!colName || !colName.trim()) return;
+  const name = colName.trim();
+
+  const theadRow = document.getElementById('vp-thead-row');
+  const actionsTh = Array.from(theadRow.cells).find(th => th.dataset.col === 'actions');
+
+  // add <th>
+  const th = document.createElement('th');
+  th.dataset.col = name;
+  th.contentEditable = 'true';
+  th.draggable = true;
+  th.innerHTML = `<div class="th-inner">
+    <span class="col-drag-handle" aria-hidden="true">⠿</span>
+    <span class="th-label">${name}</span>
+    <button class="col-delete-btn" onclick="vpDeleteColumn(this)" title="Delete column">❌</button>
+  </div>`;
+  theadRow.insertBefore(th, actionsTh);
+
+  // add <td> to every existing row
+  const tbody = document.getElementById('vp-tbody');
+  const newColIdx = getColIndex(th);
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const td = document.createElement('td');
+    td.contentEditable = 'true';
+    td.dataset.origVal = '';
+    tr.insertBefore(td, tr.cells[newColIdx] || null);
+  });
+
+  const table = document.getElementById('vp-table');
+  reattachCellListeners(table, 'valueprops');
+  attachHeaderListeners(table, 'valueprops');
+  vpInitDragDrop();
+
+  fetch('/admin/valueprops/columns', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name })
+  }).then(() => showToast('Column added ✓')).catch(() => showToast('Column added locally (server error) ✗', true));
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   VALUE PROPS — DELETE COLUMN
+════════════════════════════════════════════════════════════════════ */
+
+function vpDeleteColumn(btn) {
+  const th = btn.closest('th');
+  const colName = th.dataset.col;
+  if (!confirm(`Delete column: "${colName}"?`)) return;
+  const colIdx = getColIndex(th);
+  // remove th
+  th.remove();
+  // remove all corresponding tds
+  document.getElementById('vp-tbody').querySelectorAll('tr').forEach(tr => {
+    if (tr.cells[colIdx]) tr.cells[colIdx].remove();
+  });
+  fetch(`/admin/valueprops/columns/${encodeURIComponent(colName)}`, { method: 'DELETE' })
+    .then(() => showToast('Column deleted ✓'))
+    .catch(() => showToast('Column deleted locally (server error) ✗', true));
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   VALUE PROPS — IMPORT EXCEL
+════════════════════════════════════════════════════════════════════ */
+
+function vpImportExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    if (!data || data.length < 2) { alert('Empty sheet.'); return; }
+
+    // expected headers (exclude ID and Actions)
+    const theadRow = document.getElementById('vp-thead-row');
+    const expectedCols = Array.from(theadRow.cells)
+      .map(th => th.dataset.col)
+      .filter(c => c !== 'id' && c !== 'actions');
+
+    const fileHeaders = data[0].map(h => String(h).trim()).filter(h => h !== 'ID' && h !== '');
+    const mismatch = expectedCols.some((c, i) => c !== fileHeaders[i])
+      || expectedCols.length !== fileHeaders.length;
+
+    if (mismatch) {
+      alert(`Column mismatch.\nExpected: ${expectedCols.join(', ')}\nGot: ${fileHeaders.join(', ')}`);
+      input.value = '';
+      return;
+    }
+
+    const tbody = document.getElementById('vp-tbody');
+    let maxId = 0;
+    tbody.querySelectorAll('tr').forEach(tr => {
+      const id = parseInt(tr.dataset.id || 0, 10);
+      if (id > maxId) maxId = id;
+    });
+
+    const rows = [];
+    data.slice(1).forEach(row => {
+      if (row.every(c => c === '')) return; // skip blank rows
+      maxId++;
+      const obj = { id: maxId };
+      expectedCols.forEach((col, i) => { obj[col] = String(row[i] !== undefined ? row[i] : ''); });
+      rows.push(obj);
+    });
+
+    rows.forEach(r => vpAppendRow(r));
+    const table = document.getElementById('vp-table');
+    reattachCellListeners(table, 'valueprops');
+
+    fetch('/admin/valueprops/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rows })
+    })
+    .then(() => showToast(`Imported ${rows.length} rows ✓`))
+    .catch(() => showToast(`Imported ${rows.length} rows locally (server error) ✗`, true));
+  };
+  reader.readAsArrayBuffer(file);
+  input.value = '';
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   VALUE PROPS — EXPORT EXCEL
+════════════════════════════════════════════════════════════════════ */
+
+function vpExportExcel() {
+  const table = document.getElementById('vp-table');
+  const theadRow = document.getElementById('vp-thead-row');
+  // headers (exclude Actions)
+  const headers = Array.from(theadRow.cells)
+    .filter(th => th.dataset.col !== 'actions')
+    .map(th => {
+      const label = th.querySelector('.th-label');
+      return label ? label.textContent.trim() : th.textContent.trim();
+    });
+
+  const rowData = [];
+  table.querySelectorAll('tbody tr').forEach(tr => {
+    const rowArr = [];
+    Array.from(tr.cells).forEach((td, ci) => {
+      const th = theadRow.cells[ci];
+      if (th && th.dataset.col === 'actions') return;
+      rowArr.push(td.textContent.trim());
+    });
+    rowData.push(rowArr);
+  });
+
+  const wsData = [headers, ...rowData];
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  XLSX.utils.book_append_sheet(wb, ws, 'ValueProps');
+  XLSX.writeFile(wb, 'valueprops_export.xlsx');
+  showToast('Exported ✓');
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  vpLoadData();
+});
+</script>
+
+</main>
+</body>
+</html>

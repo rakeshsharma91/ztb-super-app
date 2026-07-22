@@ -1,0 +1,1571 @@
+/* =============================================================================
+   ZTB SUPER APP — ADMIN INTERFACE STYLESHEET
+   admin.css
+   Main stylesheet for the ZTB Super App administrative panel.
+   Covers layout, components, utilities, and responsive design.
+   ============================================================================= */
+
+
+/* =============================================================================
+   SECTION 1: CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+   Central palette and spacing variables used throughout the stylesheet.
+   ============================================================================= */
+
+:root {
+  /* Brand colors */
+  --navy:        #003366;
+  --blue:        #0070c0;
+  --light-blue:  #e8f4fd;
+  --white:       #ffffff;
+  --gray:        #f5f7fa;
+  --dark:        #1a1a2e;
+  --text:        #333333;
+  --border:      #dee2e6;
+
+  /* Semantic / status colors */
+  --danger:      #dc3545;
+  --success:     #28a745;
+  --warning:     #ffc107;
+
+  /* Effects */
+  --shadow:      0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md:   0 4px 16px rgba(0, 0, 0, 0.15);
+  --radius:      6px;
+  --radius-lg:   10px;
+  --transition:  0.2s ease;
+
+  /* Layout dimensions */
+  --navbar-h:    56px;
+  --sidebar-w:   220px;
+}
+
+
+/* =============================================================================
+   SECTION 2: RESET & BASE STYLES
+   Normalise browser defaults, set box-sizing, and establish base defaults.
+   ============================================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9375rem;   /* 15px */
+  color: var(--text);
+  background-color: var(--gray);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+[contenteditable]:focus {
+  outline: none;
+}
+
+
+/* =============================================================================
+   SECTION 3: TYPOGRAPHY
+   Headings h1–h4, paragraphs, and anchor links.
+   ============================================================================= */
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--navy);
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; }
+h3 { font-size: 1.125rem; }
+h4 { font-size: 1rem; }
+
+p {
+  margin-bottom: 0.875rem;
+  color: var(--text);
+}
+
+a {
+  color: var(--blue);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+a:hover {
+  color: var(--navy);
+  text-decoration: underline;
+}
+
+small {
+  font-size: 0.8125rem;
+  color: #666;
+}
+
+strong {
+  font-weight: 600;
+}
+
+code,
+pre {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 0.875rem;
+  background: #f0f4f8;
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+}
+
+
+/* =============================================================================
+   SECTION 4: LAYOUT — NAVBAR, SIDEBAR, MAIN CONTENT
+   Fixed top navbar (56px), fixed left sidebar (220px), and scrollable main area.
+   ============================================================================= */
+
+/* ---- Top Navbar ---- */
+#navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--navbar-h);
+  background-color: var(--navy);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+#navbar .brand {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--white);
+  text-decoration: none;
+}
+
+#navbar .brand img {
+  height: 32px;
+  width: auto;
+}
+
+#navbar .nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+#navbar .nav-actions .user-info {
+  font-size: 0.875rem;
+  opacity: 0.85;
+}
+
+/* ---- Left Sidebar ---- */
+#sidebar {
+  position: fixed;
+  top: var(--navbar-h);
+  left: 0;
+  width: var(--sidebar-w);
+  height: calc(100vh - var(--navbar-h));
+  background-color: var(--dark);
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 900;
+  transition: transform var(--transition);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+
+#sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+#sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 4px;
+}
+
+#sidebar .sidebar-header {
+  padding: 1rem 1.25rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* ---- Main Content Area ---- */
+#main {
+  margin-left: var(--sidebar-w);
+  margin-top: var(--navbar-h);
+  padding: 1.5rem;
+  min-height: calc(100vh - var(--navbar-h));
+  transition: margin-left var(--transition);
+}
+
+
+/* =============================================================================
+   SECTION 5: SIDEBAR NAVIGATION LINKS
+   Vertical nav links with hover and active states.
+   ============================================================================= */
+
+#sidebar nav ul {
+  padding: 0.5rem 0;
+}
+
+#sidebar nav ul li {
+  position: relative;
+}
+
+#sidebar nav ul li a,
+#sidebar nav ul li button.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.625rem 1.25rem;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.9rem;
+  font-weight: 400;
+  background: transparent;
+  border: none;
+  text-align: left;
+  text-decoration: none;
+  transition: background var(--transition), color var(--transition);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#sidebar nav ul li a .nav-icon,
+#sidebar nav ul li button.nav-btn .nav-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  opacity: 0.75;
+  transition: opacity var(--transition);
+}
+
+/* Hover state */
+#sidebar nav ul li a:hover,
+#sidebar nav ul li button.nav-btn:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--white);
+  text-decoration: none;
+}
+
+#sidebar nav ul li a:hover .nav-icon,
+#sidebar nav ul li button.nav-btn:hover .nav-icon {
+  opacity: 1;
+}
+
+/* Active / current state */
+#sidebar nav ul li a.active,
+#sidebar nav ul li button.nav-btn.active {
+  background-color: var(--blue);
+  color: var(--white);
+  font-weight: 600;
+}
+
+#sidebar nav ul li a.active .nav-icon,
+#sidebar nav ul li button.nav-btn.active .nav-icon {
+  opacity: 1;
+}
+
+/* Active left accent bar */
+#sidebar nav ul li a.active::before,
+#sidebar nav ul li button.nav-btn.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--warning);
+  border-radius: 0 3px 3px 0;
+}
+
+/* Sidebar divider */
+#sidebar .sidebar-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0.5rem 1rem;
+}
+
+
+/* =============================================================================
+   SECTION 6: SECTION PANELS
+   Content panels that show/hide based on navigation state.
+   ============================================================================= */
+
+.section-panel {
+  display: none;
+  animation: fadeIn 0.18s ease;
+}
+
+.section-panel.show {
+  display: block;
+}
+
+.section-panel .panel-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--light-blue);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-panel .panel-subtitle {
+  color: #666;
+  font-size: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Fade-in keyframe */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* =============================================================================
+   SECTION 7: TOOLBAR
+   Flex row toolbar for action buttons and filters above tables / panels.
+   ============================================================================= */
+
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.625rem 0.75rem;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.toolbar .toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.toolbar .toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.toolbar .toolbar-title {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--navy);
+  margin-right: 0.25rem;
+}
+
+.toolbar .toolbar-search {
+  padding: 0.3rem 0.625rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color var(--transition);
+  min-width: 180px;
+}
+
+.toolbar .toolbar-search:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(0, 112, 192, 0.12);
+}
+
+
+/* =============================================================================
+   SECTION 8: BUTTON STYLES
+   Base button, variants (primary / secondary / danger / success),
+   small size modifier, and icon-only buttons.
+   ============================================================================= */
+
+/* Base button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.4375rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background-color var(--transition), border-color var(--transition),
+              color var(--transition), box-shadow var(--transition),
+              opacity var(--transition);
+  white-space: nowrap;
+  user-select: none;
+  vertical-align: middle;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* Primary — navy/blue fill */
+.btn-primary {
+  background-color: var(--blue);
+  border-color: var(--blue);
+  color: var(--white);
+}
+
+.btn-primary:hover {
+  background-color: #005fa3;
+  border-color: #005fa3;
+  color: var(--white);
+  text-decoration: none;
+}
+
+.btn-primary:active {
+  background-color: var(--navy);
+  border-color: var(--navy);
+}
+
+/* Secondary — outlined */
+.btn-secondary {
+  background-color: var(--white);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.btn-secondary:hover {
+  background-color: var(--gray);
+  border-color: #adb5bd;
+  color: var(--navy);
+  text-decoration: none;
+}
+
+/* Danger — red */
+.btn-danger {
+  background-color: var(--danger);
+  border-color: var(--danger);
+  color: var(--white);
+}
+
+.btn-danger:hover {
+  background-color: #b02a37;
+  border-color: #b02a37;
+  color: var(--white);
+  text-decoration: none;
+}
+
+/* Success — green */
+.btn-success {
+  background-color: var(--success);
+  border-color: var(--success);
+  color: var(--white);
+}
+
+.btn-success:hover {
+  background-color: #1e7e34;
+  border-color: #1e7e34;
+  color: var(--white);
+  text-decoration: none;
+}
+
+/* Small modifier */
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+  border-radius: 4px;
+}
+
+/* Icon-only square button */
+.btn-icon {
+  padding: 0.375rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius);
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.btn-icon:hover {
+  background: var(--gray);
+  border-color: #adb5bd;
+  color: var(--navy);
+  text-decoration: none;
+}
+
+
+/* =============================================================================
+   SECTION 9: TABLE STYLES
+   Full-width collapsible-bordered table with navy header, row hover,
+   and contenteditable cell focus highlight.
+   ============================================================================= */
+
+.lib-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  background: var(--white);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+/* Table header */
+.lib-table thead {
+  background-color: var(--navy);
+  color: var(--white);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.lib-table thead th {
+  padding: 0.625rem 0.875rem;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  text-align: left;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  user-select: none;
+  position: relative;
+}
+
+.lib-table thead th:last-child {
+  border-right: none;
+}
+
+/* Table body cells */
+.lib-table tbody td {
+  padding: 0.5rem 0.875rem;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  vertical-align: middle;
+  color: var(--text);
+}
+
+.lib-table tbody td:last-child {
+  border-right: none;
+}
+
+/* Row hover */
+.lib-table tbody tr {
+  transition: background-color var(--transition);
+}
+
+.lib-table tbody tr:hover {
+  background-color: var(--light-blue);
+}
+
+.lib-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Contenteditable cell */
+.lib-table td[contenteditable='true'] {
+  cursor: text;
+  outline: none;
+  transition: background-color var(--transition), box-shadow var(--transition);
+}
+
+.lib-table td[contenteditable='true']:focus {
+  background-color: #fffbe6;
+  box-shadow: inset 0 0 0 2px var(--warning);
+  border-radius: 2px;
+}
+
+/* Actions column */
+.lib-table td.col-actions {
+  white-space: nowrap;
+  text-align: right;
+  width: 1%;
+  padding-right: 0.625rem;
+}
+
+/* Striped rows (opt-in modifier) */
+.lib-table.striped tbody tr:nth-child(even) {
+  background-color: var(--gray);
+}
+
+/* Table wrapper for horizontal scroll */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+
+/* =============================================================================
+   SECTION 10: DRAG-AND-DROP COLUMN STYLES
+   Visual feedback classes applied during column drag reorder operations.
+   ============================================================================= */
+
+/* Column being dragged */
+.lib-table th.dragging,
+.lib-table td.dragging {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+/* Column being dragged over */
+.lib-table th.drag-over {
+  border-left: 3px solid var(--blue) !important;
+  background-color: var(--light-blue) !important;
+}
+
+/* Drag handle icon in headers */
+.lib-table th .drag-handle {
+  display: inline-block;
+  cursor: grab;
+  margin-right: 0.375rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  vertical-align: middle;
+  transition: color var(--transition);
+}
+
+.lib-table th:hover .drag-handle {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+
+/* =============================================================================
+   SECTION 11: DELETE COLUMN BUTTON
+   Small red ×/trash button that appears in table column headers.
+   ============================================================================= */
+
+.col-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background-color: var(--danger);
+  color: var(--white);
+  font-size: 0.625rem;
+  line-height: 1;
+  cursor: pointer;
+  margin-left: 0.375rem;
+  opacity: 0;
+  transition: opacity var(--transition), background-color var(--transition);
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* Show delete button on header hover */
+.lib-table th:hover .col-delete-btn {
+  opacity: 1;
+}
+
+.col-delete-btn:hover {
+  background-color: #8b0000;
+  opacity: 1;
+}
+
+
+/* =============================================================================
+   SECTION 12: MODAL STYLES
+   Overlay, centred box, header/body/footer structure.
+   ============================================================================= */
+
+/* Overlay backdrop */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+  animation: overlayFadeIn 0.15s ease;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+/* Modal box */
+.modal-box {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 540px;
+  max-height: calc(100vh - 2rem);
+  display: flex;
+  flex-direction: column;
+  animation: modalSlideIn 0.18s ease;
+  overflow: hidden;
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(-12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-box.modal-lg {
+  max-width: 780px;
+}
+
+.modal-box.modal-sm {
+  max-width: 380px;
+}
+
+/* Modal header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--navy);
+  color: var(--white);
+  flex-shrink: 0;
+}
+
+.modal-header h3,
+.modal-header .modal-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.modal-header .modal-close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  transition: background var(--transition), color var(--transition);
+}
+
+.modal-header .modal-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--white);
+}
+
+/* Modal body */
+.modal-body {
+  padding: 1.25rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Modal footer */
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.875rem 1.25rem;
+  border-top: 1px solid var(--border);
+  background: var(--gray);
+  flex-shrink: 0;
+}
+
+
+/* =============================================================================
+   SECTION 13: FORM STYLES
+   Form groups, labels, inputs, selects, textareas, and focus states.
+   ============================================================================= */
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label,
+label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 0.3125rem;
+}
+
+.form-group label span.required {
+  color: var(--danger);
+  margin-left: 2px;
+}
+
+/* Base input / select / textarea */
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='number'],
+input[type='search'],
+input[type='url'],
+input[type='tel'],
+input[type='date'],
+select,
+textarea {
+  width: 100%;
+  padding: 0.4375rem 0.75rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--text);
+  background-color: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* Focus state */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(0, 112, 192, 0.15);
+}
+
+/* Disabled / read-only */
+input:disabled,
+select:disabled,
+textarea:disabled,
+input[readonly] {
+  background-color: var(--gray);
+  color: #888;
+  cursor: not-allowed;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2rem;
+}
+
+/* Checkbox / radio */
+input[type='checkbox'],
+input[type='radio'] {
+  width: auto;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  accent-color: var(--blue);
+  cursor: pointer;
+}
+
+/* Inline label-checkbox pair */
+.check-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+/* Form help / hint text */
+.form-hint {
+  font-size: 0.8125rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+/* Validation states */
+.form-group.is-invalid input,
+.form-group.is-invalid select,
+.form-group.is-invalid textarea {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.12);
+}
+
+.form-group.is-valid input,
+.form-group.is-valid select,
+.form-group.is-valid textarea {
+  border-color: var(--success);
+}
+
+.form-error-msg {
+  font-size: 0.8125rem;
+  color: var(--danger);
+  margin-top: 0.25rem;
+}
+
+
+/* =============================================================================
+   SECTION 14: BADGE STYLES
+   Inline status / category chips.
+   ============================================================================= */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1875rem 0.5625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: 20px;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.badge-primary {
+  background-color: var(--light-blue);
+  color: var(--navy);
+}
+
+.badge-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.badge-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.badge-warning {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.badge-neutral {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+
+/* =============================================================================
+   SECTION 15: TOAST NOTIFICATION
+   Fixed-position toast with slide-in animation, success and error variants.
+   ============================================================================= */
+
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  min-width: 240px;
+  max-width: 380px;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  background-color: var(--dark);
+  color: var(--white);
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  z-index: 3000;
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* Show state triggers the slide-up */
+.toast.toast-show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  animation: toastIn 0.25s ease forwards;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Success variant */
+.toast.toast-success {
+  background-color: var(--success);
+  color: var(--white);
+}
+
+/* Error variant */
+.toast.toast-error {
+  background-color: var(--danger);
+  color: var(--white);
+}
+
+/* Warning variant */
+.toast.toast-warning {
+  background-color: var(--warning);
+  color: var(--dark);
+}
+
+/* Icon inside toast */
+.toast .toast-icon {
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}
+
+/* Dismiss button */
+.toast .toast-dismiss {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 1rem;
+  margin-left: auto;
+  padding: 0.125rem 0.25rem;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity var(--transition);
+}
+
+.toast .toast-dismiss:hover {
+  opacity: 1;
+}
+
+
+/* =============================================================================
+   SECTION 16: LOADING SPINNER
+   CSS-only animated spinner for async operations.
+   ============================================================================= */
+
+.spinner {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(0, 112, 192, 0.2);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.spinner.spinner-sm {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+}
+
+.spinner.spinner-lg {
+  width: 44px;
+  height: 44px;
+  border-width: 4px;
+}
+
+.spinner.spinner-white {
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: var(--white);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Full-page loading overlay */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1500;
+}
+
+.loading-overlay.hidden {
+  display: none;
+}
+
+
+/* =============================================================================
+   SECTION 17: QUESTIONS ACCORDION
+   Card-based accordion for question builder: header, collapsible body,
+   option rows, and the add-option button.
+   ============================================================================= */
+
+/* Question card */
+.q-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 0.625rem;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: box-shadow var(--transition);
+}
+
+.q-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Question header (clickable toggle) */
+.q-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--gray);
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid var(--border);
+  transition: background-color var(--transition);
+}
+
+.q-header:hover {
+  background-color: var(--light-blue);
+}
+
+.q-card.open .q-header {
+  background-color: var(--light-blue);
+  border-bottom-color: var(--blue);
+}
+
+.q-header .q-number {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--white);
+  background: var(--blue);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.q-header .q-text {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.q-header .q-type-badge {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  background: var(--navy);
+  color: var(--white);
+  flex-shrink: 0;
+}
+
+.q-header .q-toggle-icon {
+  font-size: 0.875rem;
+  color: var(--blue);
+  transition: transform var(--transition);
+  flex-shrink: 0;
+}
+
+.q-card.open .q-toggle-icon {
+  transform: rotate(180deg);
+}
+
+/* Question body (collapsible) */
+.q-body {
+  display: none;
+  padding: 1rem;
+  animation: fadeIn 0.15s ease;
+}
+
+.q-card.open .q-body {
+  display: block;
+}
+
+/* Option row inside question body */
+.q-option-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4375rem;
+}
+
+.q-option-row input[type='text'] {
+  flex: 1;
+}
+
+.q-option-row .q-correct-toggle {
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--success);
+}
+
+.q-option-row .q-remove-opt {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--danger);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.125rem;
+  border-radius: 3px;
+  transition: background var(--transition);
+}
+
+.q-option-row .q-remove-opt:hover {
+  background: #f8d7da;
+}
+
+/* Add option button */
+.q-add-option-btn {
+  margin-top: 0.5rem;
+  background: transparent;
+  border: 1px dashed var(--blue);
+  color: var(--blue);
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background var(--transition), border-style var(--transition);
+}
+
+.q-add-option-btn:hover {
+  background: var(--light-blue);
+  border-style: solid;
+}
+
+
+/* =============================================================================
+   SECTION 18: ASSESSMENT CONFIG LIST
+   Reorderable configuration items with drag handles.
+   ============================================================================= */
+
+.config-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
+}
+
+.config-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: box-shadow var(--transition), background var(--transition);
+  cursor: default;
+}
+
+.config-item:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Drag handle on config items */
+.config-item .config-drag-handle {
+  color: #adb5bd;
+  font-size: 1rem;
+  cursor: grab;
+  flex-shrink: 0;
+  transition: color var(--transition);
+  user-select: none;
+}
+
+.config-item .config-drag-handle:hover {
+  color: var(--navy);
+}
+
+.config-item.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+  box-shadow: none;
+}
+
+.config-item.drag-over {
+  border-color: var(--blue);
+  background-color: var(--light-blue);
+}
+
+/* Config item text */
+.config-item .config-label {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.config-item .config-meta {
+  font-size: 0.8125rem;
+  color: #888;
+}
+
+/* Config item actions */
+.config-item .config-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+
+/* =============================================================================
+   SECTION 19: RESPONSIVE BREAKPOINTS
+   Tablet (≤1024px) and mobile (≤768px) overrides.
+   ============================================================================= */
+
+/* ---- Tablet (max-width: 1024px) ---- */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-w: 200px;
+  }
+
+  #main {
+    padding: 1.125rem;
+  }
+
+  .lib-table thead th,
+  .lib-table tbody td {
+    padding: 0.5rem 0.625rem;
+    font-size: 0.8125rem;
+  }
+
+  .modal-box {
+    max-width: 94vw;
+  }
+
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+}
+
+/* ---- Mobile (max-width: 768px) ---- */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-w: 0px;
+  }
+
+  /* Sidebar collapses off-screen; toggled via .sidebar-open class on body */
+  #sidebar {
+    transform: translateX(-220px);
+    width: 220px;
+    z-index: 950;
+    box-shadow: none;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  body.sidebar-open #sidebar {
+    transform: translateX(0);
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.25);
+  }
+
+  #main {
+    margin-left: 0;
+    padding: 0.875rem;
+  }
+
+  /* Stack toolbar items vertically */
+  .toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .toolbar .toolbar-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  /* Full-width buttons on mobile */
+  .modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  h1 { font-size: 1.25rem; }
+  h2 { font-size: 1.125rem; }
+  h3 { font-size: 1rem; }
+
+  /* Hide non-essential table columns via utility class */
+  .lib-table .col-hide-mobile {
+    display: none;
+  }
+
+  /* Toast fills width on mobile */
+  .toast {
+    left: 1rem;
+    right: 1rem;
+    max-width: none;
+    min-width: 0;
+  }
+}
+
+
+/* =============================================================================
+   SECTION 20: UTILITY CLASSES
+   Commonly reused helpers: visibility, flex, text alignment, spacing.
+   ============================================================================= */
+
+/* ---- Visibility ---- */
+.hidden {
+  display: none !important;
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+/* ---- Display ---- */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+/* ---- Text alignment ---- */
+.text-center  { text-align: center; }
+.text-right   { text-align: right; }
+.text-left    { text-align: left; }
+
+/* ---- Text helpers ---- */
+.text-muted   { color: #6c757d; }
+.text-danger  { color: var(--danger); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-navy    { color: var(--navy); }
+.text-blue    { color: var(--blue); }
+
+/* ---- Gap ---- */
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+
+/* ---- Margin top ---- */
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+
+/* ---- Margin bottom ---- */
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+
+/* ---- Margin horizontal ---- */
+.mx-auto { margin-left: auto; margin-right: auto; }
+
+/* ---- Padding ---- */
+.p-1 { padding: 0.25rem; }
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 1rem; }
+.p-4 { padding: 1.5rem; }
+
+/* ---- Width helpers ---- */
+.w-full  { width: 100%; }
+.w-half  { width: 50%; }
+.w-auto  { width: auto; }
+
+/* ---- Border & card helpers ---- */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1rem 0;
+}
