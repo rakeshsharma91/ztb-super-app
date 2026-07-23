@@ -170,6 +170,16 @@ class AssessmentConfig(db.Model):
 
     question      = db.relationship('Question', backref='assessment_config', lazy=True)
 
+    def to_dict(self):  # serialize to dict
+        return {
+            'id':            self.id,
+            'question_id':   self.question_id,
+            'is_active':     self.is_active,
+            'display_order': self.display_order,
+            'created_at':    self.created_at.isoformat() if self.created_at else None,
+            'updated_at':    self.updated_at.isoformat() if self.updated_at else None,
+        }
+
 # ─────────────────────────────────────────
 # USER RESPONSE
 # ─────────────────────────────────────────
