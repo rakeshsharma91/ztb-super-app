@@ -135,6 +135,52 @@ def delete_column(col_id):  # delete column definition
     db.session.commit()  # commit to database
     return jsonify({'success': True})  # return success
 
+# ─────────────────────────────────────────────
+# Value Propositions Library (A)
+# ─────────────────────────────────────────────
+@admin_bp.route('/valueprops', methods=['GET'])  # get all value props
+@require_admin  # require admin auth
+def get_valueprops():  # return all value props
+    items = ValueProp.query.order_by(ValueProp.id).all()  # get all ordered by id
+    return jsonify({'success': True, 'items': [i.to_dict() for i in items]})  # return as JSON
+
+@admin_bp.route('/valueprops', methods=['POST'])  # create value prop
+@require_admin  # require admin auth
+def create_valueprop():  # create a new value prop
+    data = request.get_json()  # get JSON body
+    item = ValueProp(  # create new instance
+        vp_name=data.get('vp_name', ''),  # value prop name
+        use_case=data.get('use_case', ''),  # use case description
+        technical_use_case=data.get('technical_use_case', ''),  # technical use case
+        business_outcome=data.get('business_outcome', ''),  # business outcome
+        extra_data=data.get('extra_data', {})  # extra dynamic columns
+    )
+    db.session.add(item)  # add to session
+    db.session.commit()  # commit to database
+    return jsonify({'success': True, 'item': item.to_dict()})  # return created item
+
+@admin_bp.route('/valueprops/<int:item_id>', methods=['PUT'])  # update value prop
+@require_admin  # require admin auth
+def update_valueprop(item_id):  # update existing value prop
+    item = ValueProp.query.get_or_404(item_id)  # get or 404
+    data = request.get_json()  # get JSON body
+    item.vp_name = data.get('vp_name', item.vp_name)  # update name
+    item.use_case = data.get('use_case', item.use_case)  # update use case
+    item.technical_use_case = data.get('technical_use_case', item.technical_use_case)  # update technical use case
+    item.business_outcome = data.get('business_outcome', item.business_outcome)  # update business outcome
+    item.extra_data = data.get('extra_data', item.extra_data)  # update extra data
+    db.session.commit()  # commit changes
+    return jsonify({'success': True, 'item': item.to_dict()})  # return updated item
+
+@admin_bp.route('/valueprops/<int:item_id>', methods=['DELETE'])  # delete value prop
+@require_admin  # require admin auth
+def delete_valueprop(item_id):  # delete value prop
+    item = ValueProp.query.get_or_404(item_id)  # get or 404
+    db.session.delete(item)  # delete from session
+    db.session.commit()  # commit to database
+    return jsonify({'success': True})  # return success
+
+# ─────────────────────────────────────────────
 # Assets Library (B)
 # ─────────────────────────────────────────────
 @admin_bp.route('/assets', methods=['GET'])  # get all assets

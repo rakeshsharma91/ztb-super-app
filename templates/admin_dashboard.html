@@ -694,17 +694,19 @@ class LibraryTable {
         if (missing.length) {
           if (!confirm(`Warning: Excel is missing columns: ${missing.join(', ')}. Continue anyway?`)) return;
         }
-        // Get max id
-        let maxId = 0;
-        this.tbody.querySelectorAll('tr').forEach(r => { const id = parseInt(r.getAttribute('data-id')); if (id > maxId) maxId = id; });
-        rows.forEach(row => {
-          maxId++;
-          const newRow = { id: maxId };
-          this.columns.forEach(col => { newRow[col] = row[col] != null ? String(row[col]) : ''; });
-          this._appendRow(newRow);
-          apiPost(`/admin/${this.section}/`, newRow);
-        });
-        showToast(`Imported ${rows.length} rows ✓`, 'success');
+        // Send all rows to backend import endpoint (handles label→key mapping)
+        fetch(`/admin/${this.section}/import`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rows: rows })
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.error) { showToast('Import error: ' + data.error, 'error'); return; }
+          showToast(`Imported ${data.count} rows ✓`, 'success');
+          this.loadData();
+        })
+        .catch(err => showToast('Import error: ' + err.message, 'error'));
       } catch (err) {
         showToast('Import error: ' + err.message, 'error');
       }

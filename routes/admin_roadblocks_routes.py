@@ -1,204 +1,211 @@
 from flask import Blueprint, request, jsonify, send_file
 from models import db, ColumnDefinition
+from sqlalchemy import text
 import io
 
-roadblocks_bp = Blueprint('roadblocks', __name__)
+TABLE    = 'roadblocks'
+BP_NAME  = 'admin_roadblocks'
+URL_BASE = '/admin/roadblocks'
+bp = Blueprint(BP_NAME, __name__)
 
-def get_columns():
-    return ColumnDefinition.query.filter_by(table_name='roadblocks') \
-        .order_by(ColumnDefinition.display_order).all()
+DEFAULT_COLUMNS = ['Issue Name', 'Description', 'JIRA Feature Link', 'Explanation', 'Status', 'Mandatory']
+DEFAULT_KEYS    = ['issue_name', 'description', 'jira_feature_link', 'explanation', 'status', 'mandatory']
 
-def key_from_name(name):
-    return name.lower().strip().replace(' ', '_').replace('-', '_')
+def get_col_defs():
+    cols = ColumnDefinition.query.filter_by(table_name=TABLE).order_by(ColumnDefinition.display_order).all()
+    if not cols:
+        _init_defaults()
+        cols = ColumnDefinition.query.filter_by(table_name=TABLE).order_by(ColumnDefinition.display_order).all()
+    return cols
 
-@roadblocks_bp.route('/admin/roadblocks/', methods=['GET'])
+def _init_defaults():
+    for i, (label, key) in enumerate(zip(DEFAULT_COLUMNS, DEFAULT_KEYS), 1):
+        if not ColumnDefinition.query.filter_by(table_name=TABLE, column_key=key).first():
+            db.session.add(ColumnDefinition(table_name=TABLE, column_key=key, column_label=label,
+                column_type='text', display_order=i, is_active=True, is_required=False))
+    db.session.commit()
+
+def key_from_label(label):
+    return label.strip().lower().replace(' ', '_').replace('-', '_').replace('/', '_').replace('?', '')
+
+def get_all_rows():
+    result = db.session.execute(text(f"SELECT * FROM {TABLE} ORDER BY id"))
+    keys = list(result.keys())
+    return [dict(zip(keys, row)) for row in result.fetchall()]
+
+@bp.route(URL_BASE + '/', methods=['GET'])
 def list_rows():
     try:
-        from models import Roadblock
-        cols = get_columns()
-        rows = Roadblock.query.order_by(Roadblock.id).all()
-        result = []
-        for r in rows:
-            d = {'id': r.id}
-            for col in cols:
-                d[col.column_key] = getattr(r, col.column_key, '') or ''
-            result.append(d)
-        return jsonify(result)
-    except Exception:
-        return jsonify([])
+        cols = get_col_defs()
+        col_names = [c.column_label for c in cols]
+        raw_rows = get_all_rows()
+        remapped = []
+        for row in raw_rows:
+            new_row = {"id": row.get("id")}
+            for c in cols:
+                new_row[c.column_label] = row.get(c.column_key)
+            remapped.append(new_row)
+        return jsonify({"rows": remapped, "columns": col_names})
+    except Exception as e:
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
 
-@roadblocks_bp.route('/admin/roadblocks/', methods=['POST'])
+@bp.route(URL_BASE + '/', methods=['POST'])
 def add_row():
     try:
-        from models import Roadblock
-        data = request.get_json() or {}
-        obj = Roadblock(
-            title       = data.get('title', '')       or '',
-            description = data.get('description', '') or '',
-            owner       = data.get('owner', '')       or '',
-            priority    = data.get('priority', '')    or '',
-            status      = data.get('status', '')      or '',
+        cols = get_col_defs()
+        keys = [c.column_key for c in cols if c.column_key not in ('id','created_at','updated_at')]
+        if not keys:
+            return jsonify({"error": "No columns defined"}), 400
+        params = {k: None for k in keys}
+        result = db.session.execute(
+            text(f"INSERT INTO {TABLE} ({', '.join(keys)}) VALUES ({', '.join([':'+k for k in keys])}) RETURNING id"),
+            params
         )
-        db.session.add(obj)
         db.session.commit()
-        cols = get_columns()
-        d = {'id': obj.id}
-        for col in cols:
-            d[col.column_key] = getattr(obj, col.column_key, '') or ''
-        return jsonify(d), 201
+        new_id = result.fetchone()[0]
+        raw = db.session.execute(text(f"SELECT * FROM {TABLE} WHERE id = :id"), {"id": new_id}).fetchone()
+        raw_dict = dict(raw._mapping) if raw else {}
+        new_row = {"id": new_id}
+        for c in cols:
+            new_row[c.column_label] = raw_dict.get(c.column_key)
+        return jsonify(new_row), 201
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
 
-@roadblocks_bp.route('/admin/roadblocks/<int:row_id>', methods=['DELETE'])
+@bp.route(URL_BASE + '/<int:row_id>', methods=['DELETE'])
 def delete_row(row_id):
     try:
-        from models import Roadblock
-        obj = Roadblock.query.get(row_id)
-        if not obj:
-            return jsonify({'error': 'Not found'}), 404
-        db.session.delete(obj)
-        db.session.commit()
-        return jsonify({'success': True})
+        db.session.execute(text("UPDATE question_options SET roadblock_id = NULL WHERE roadblock_id = :id"), {"id": row_id})
+        db.session.execute(text(f"DELETE FROM {TABLE} WHERE id = :id"), {"id": row_id})
+        db.session.commit(); return jsonify({"success": True})
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
 
-@roadblocks_bp.route('/admin/roadblocks/cell', methods=['PATCH'])
+@bp.route(URL_BASE + '/cell', methods=['PATCH'])
 def update_cell():
     try:
-        from models import Roadblock
-        data  = request.get_json() or {}
-        obj   = Roadblock.query.get(data.get('id'))
-        if not obj:
-            return jsonify({'error': 'Not found'}), 404
-        field = data.get('field')
-        value = data.get('value', '')
-        if hasattr(obj, field):
-            setattr(obj, field, value)
-            db.session.commit()
-        return jsonify({'success': True})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
-
-@roadblocks_bp.route('/admin/roadblocks/columns', methods=['GET'])
-def get_cols():
-    return jsonify([c.column_key for c in get_columns()])
-
-@roadblocks_bp.route('/admin/roadblocks/columns', methods=['POST'])
-def add_col():
-    try:
-        data = request.get_json() or {}
-        name = data.get('name', 'New Column')
-        key  = key_from_name(name)
-        existing = [c.column_key for c in get_columns()]
-        base = key; i = 1
-        while key in existing:
-            key = f"{base}_{i}"; i += 1
-        max_order = db.session.query(db.func.max(ColumnDefinition.display_order)) \
-            .filter_by(table_name='roadblocks').scalar() or 0
-        col = ColumnDefinition(table_name='roadblocks', column_key=key,
-            column_label=name, column_type='text',
-            display_order=max_order+1, is_active=True, is_required=False)
-        db.session.add(col)
-        db.session.commit()
-        return jsonify([c.column_key for c in get_columns()]), 201
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
-
-@roadblocks_bp.route('/admin/roadblocks/columns/<string:name>', methods=['DELETE'])
-def delete_col(name):
-    try:
-        col = ColumnDefinition.query.filter_by(
-            table_name='roadblocks', column_key=name).first()
+        data = request.json or {}
+        row_id = data.get("id")
+        field  = data.get("field", "").strip()
+        value  = data.get("value", "")
+        if not row_id or not field:
+            return jsonify({"error": "id and field required"}), 400
+        col = ColumnDefinition.query.filter_by(table_name=TABLE, column_label=field).first()
         if not col:
-            return jsonify({'error': 'Not found'}), 404
-        if col.is_required:
-            return jsonify({'error': 'Cannot delete required column'}), 400
+            col = ColumnDefinition.query.filter_by(table_name=TABLE, column_key=field).first()
+        if not col:
+            return jsonify({"error": f"Unknown field: {field}"}), 400
+        db.session.execute(
+            text(f"UPDATE {TABLE} SET {col.column_key} = :value WHERE id = :id"),
+            {"value": value, "id": row_id}
+        )
+        db.session.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
+
+@bp.route(URL_BASE + '/columns', methods=['POST'])
+def add_column():
+    try:
+        name = (request.json or {}).get("name", "").strip()
+        if not name: return jsonify({"error": "name required"}), 400
+        key = key_from_label(name)
+        existing = [c.column_key for c in get_col_defs()]
+        base, i = key, 1
+        while key in existing: key = f"{base}_{i}"; i += 1
+        db.session.execute(text(f"ALTER TABLE {TABLE} ADD COLUMN IF NOT EXISTS {key} TEXT"))
+        if not ColumnDefinition.query.filter_by(table_name=TABLE, column_key=key).first():
+            max_o = db.session.execute(text("SELECT COALESCE(MAX(display_order),0) FROM column_definitions WHERE table_name=:t"), {"t": TABLE}).scalar()
+            db.session.add(ColumnDefinition(table_name=TABLE, column_key=key, column_label=name,
+                column_type='text', display_order=max_o+1, is_active=True, is_required=False))
+        db.session.commit()
+        return jsonify({"success": True, "name": name, "key": key}), 201
+    except Exception as e:
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
+
+@bp.route(URL_BASE + '/columns/<path:col_name>', methods=['DELETE'])
+def delete_column(col_name):
+    try:
+        PROTECTED = {'id', 'created_at', 'updated_at'}
+        col = ColumnDefinition.query.filter_by(table_name=TABLE, column_label=col_name).first()
+        if not col:
+            col = ColumnDefinition.query.filter_by(table_name=TABLE, column_key=col_name).first()
+        if not col:
+            return jsonify({"error": f"Column not found: {col_name}"}), 404
+        if col.column_key in PROTECTED:
+            return jsonify({"error": f"Cannot delete system column: {col.column_key}"}), 400
         db.session.delete(col)
         db.session.commit()
-        return jsonify({'success': True})
+        return jsonify({"success": True})
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
 
-@roadblocks_bp.route('/admin/roadblocks/column', methods=['PATCH'])
-def rename_col():
+@bp.route(URL_BASE + '/column', methods=['PATCH'])
+def rename_column():
     try:
-        data = request.get_json() or {}
-        col  = ColumnDefinition.query.filter_by(
-            table_name='roadblocks', column_key=data.get('oldName')).first()
+        data = request.json or {}
+        old_name = (data.get('old_name') or data.get('oldName') or data.get('old_label') or data.get('oldLabel') or '').strip()
+        new_name = (data.get('new_name') or data.get('newName') or data.get('new_label') or data.get('newLabel') or '').strip()
+        if not old_name or not new_name:
+            return jsonify({"error": f"oldName and newName required, got: {list(data.keys())}"}), 400
+        col = ColumnDefinition.query.filter_by(table_name=TABLE, column_label=old_name).first()
         if not col:
-            return jsonify({'error': 'Not found'}), 404
-        col.column_label = data.get('newName')
+            col = ColumnDefinition.query.filter_by(table_name=TABLE, column_key=old_name).first()
+        if not col:
+            return jsonify({"error": f"Column not found: {old_name}"}), 404
+        col.column_label = new_name
         db.session.commit()
-        return jsonify({'success': True})
+        return jsonify({"success": True, "old": old_name, "new": new_name})
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
 
-@roadblocks_bp.route('/admin/roadblocks/columns/reorder', methods=['PATCH'])
-def reorder_cols():
+@bp.route(URL_BASE + '/columns/reorder', methods=['PATCH'])
+def reorder_columns():
     try:
-        order = (request.get_json() or {}).get('order', [])
-        for i, key in enumerate(order):
-            col = ColumnDefinition.query.filter_by(
-                table_name='roadblocks', column_key=key).first()
-            if col:
-                col.display_order = i
-        db.session.commit()
-        return jsonify({'success': True})
+        for i, name in enumerate((request.json or {}).get("order", []), 1):
+            col = ColumnDefinition.query.filter_by(table_name=TABLE, column_label=name).first()
+            if col: col.display_order = i
+        db.session.commit(); return jsonify({"success": True})
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
 
-@roadblocks_bp.route('/admin/roadblocks/import', methods=['POST'])
+@bp.route(URL_BASE + '/import', methods=['POST'])
 def import_rows():
     try:
-        from models import Roadblock
-        rows = (request.get_json() or {}).get('rows', [])
+        rows = (request.json or {}).get("rows", [])
+        cols = get_col_defs()
+        l2k  = {c.column_label.lower(): c.column_key for c in cols}
+        SKIP = {'id', 'ID', 'Id'}
+        count = 0
         for row in rows:
-            obj = Roadblock(
-                title       = row.get('title', '')       or '',
-                description = row.get('description', '') or '',
-                owner       = row.get('owner', '')       or '',
-                priority    = row.get('priority', '')    or '',
-                status      = row.get('status', '')      or '',
-            )
-            db.session.add(obj)
+            params = {}
+            for h, v in row.items():
+                if h in SKIP: continue
+                k = l2k.get(h.lower(), key_from_label(h))
+                params[k] = str(v) if v is not None else ''
+            if params:
+                keys = list(params.keys())
+                db.session.execute(
+                    text(f"INSERT INTO {TABLE} ({', '.join(keys)}) VALUES ({', '.join([':'+k for k in keys])})"),
+                    params
+                )
+                count += 1
         db.session.commit()
-        cols = get_columns()
-        result = []
-        for r in Roadblock.query.order_by(Roadblock.id).all():
-            d = {'id': r.id}
-            for col in cols:
-                d[col.column_key] = getattr(r, col.column_key, '') or ''
-            result.append(d)
-        return jsonify(result)
+        return jsonify({"count": count})
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
 
-@roadblocks_bp.route('/admin/roadblocks/export', methods=['GET'])
+@bp.route(URL_BASE + '/export', methods=['GET'])
 def export_rows():
     try:
-        from models import Roadblock
         from openpyxl import Workbook
-        cols = get_columns()
-        rows = Roadblock.query.order_by(Roadblock.id).all()
+        cols = get_col_defs()
         wb = Workbook(); ws = wb.active; ws.title = 'Roadblocks'
-        headers = [c.column_key for c in cols]
-        ws.append(headers)
-        for r in rows:
-            d = {'id': r.id}
-            for col in cols:
-                d[col.column_key] = getattr(r, col.column_key, '') or ''
-            ws.append([d.get(h, '') for h in headers])
+        ws.append([c.column_label for c in cols])
+        for row in get_all_rows():
+            ws.append([row.get(c.column_key, '') for c in cols])
         buf = io.BytesIO(); wb.save(buf); buf.seek(0)
-        return send_file(buf,
-            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        return send_file(buf, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             as_attachment=True, download_name='roadblocks_export.xlsx')
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500

@@ -1,188 +1,211 @@
 from flask import Blueprint, request, jsonify, send_file
-from models import db, Asset, ColumnDefinition
+from models import db, ColumnDefinition
+from sqlalchemy import text
 import io
 
-assets_bp = Blueprint('assets', __name__)
+TABLE    = 'assets'
+BP_NAME  = 'admin_assets'
+URL_BASE = '/admin/assets'
+bp = Blueprint(BP_NAME, __name__)
 
-def get_columns():
-    return ColumnDefinition.query.filter_by(table_name='assets') \
-        .order_by(ColumnDefinition.display_order).all()
+DEFAULT_COLUMNS = ['Asset Name', 'Asset Type', 'URL', 'Description', 'Mandatory', 'How to use?', 'Detailed Explanation']
+DEFAULT_KEYS    = ['asset_name', 'asset_type', 'url', 'description', 'mandatory', 'how_it_uses_asset', 'detailed_explanation']
 
-SYSTEM_FIELDS = ['title', 'asset_type', 'url', 'description']
+def get_col_defs():
+    cols = ColumnDefinition.query.filter_by(table_name=TABLE).order_by(ColumnDefinition.display_order).all()
+    if not cols:
+        _init_defaults()
+        cols = ColumnDefinition.query.filter_by(table_name=TABLE).order_by(ColumnDefinition.display_order).all()
+    return cols
 
-def row_to_dict(obj, columns):
-    row = {'id': obj.id}
-    system_map = {
-        'title':       obj.title       or '',
-        'asset_type':  obj.asset_type  or '',
-        'url':         obj.url         or '',
-        'description': obj.description or '',
-    }
-    for col in columns:
-        row[col.column_key] = system_map.get(col.column_key, '')
-    return row
+def _init_defaults():
+    for i, (label, key) in enumerate(zip(DEFAULT_COLUMNS, DEFAULT_KEYS), 1):
+        if not ColumnDefinition.query.filter_by(table_name=TABLE, column_key=key).first():
+            db.session.add(ColumnDefinition(table_name=TABLE, column_key=key, column_label=label,
+                column_type='text', display_order=i, is_active=True, is_required=False))
+    db.session.commit()
 
-def key_from_name(name):
-    return name.lower().strip().replace(' ', '_').replace('-', '_')
+def key_from_label(label):
+    return label.strip().lower().replace(' ', '_').replace('-', '_').replace('/', '_').replace('?', '')
 
-@assets_bp.route('/admin/assets/', methods=['GET'])
+def get_all_rows():
+    result = db.session.execute(text(f"SELECT * FROM {TABLE} ORDER BY id"))
+    keys = list(result.keys())
+    return [dict(zip(keys, row)) for row in result.fetchall()]
+
+@bp.route(URL_BASE + '/', methods=['GET'])
 def list_rows():
-    cols = get_columns()
-    rows = Asset.query.order_by(Asset.id).all()
-    return jsonify([row_to_dict(r, cols) for r in rows])
+    try:
+        cols = get_col_defs()
+        col_names = [c.column_label for c in cols]
+        raw_rows = get_all_rows()
+        remapped = []
+        for row in raw_rows:
+            new_row = {"id": row.get("id")}
+            for c in cols:
+                new_row[c.column_label] = row.get(c.column_key)
+            remapped.append(new_row)
+        return jsonify({"rows": remapped, "columns": col_names})
+    except Exception as e:
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
 
-@assets_bp.route('/admin/assets/', methods=['POST'])
+@bp.route(URL_BASE + '/', methods=['POST'])
 def add_row():
     try:
-        data = request.get_json() or {}
-        obj = Asset(
-            title       = data.get('title', '')       or '',
-            asset_type  = data.get('asset_type', '')  or '',
-            url         = data.get('url', '')         or '',
-            description = data.get('description', '') or '',
+        cols = get_col_defs()
+        keys = [c.column_key for c in cols if c.column_key not in ('id','created_at','updated_at')]
+        if not keys:
+            return jsonify({"error": "No columns defined"}), 400
+        params = {k: None for k in keys}
+        result = db.session.execute(
+            text(f"INSERT INTO {TABLE} ({', '.join(keys)}) VALUES ({', '.join([':'+k for k in keys])}) RETURNING id"),
+            params
         )
-        db.session.add(obj)
         db.session.commit()
-        return jsonify(row_to_dict(obj, get_columns())), 201
+        new_id = result.fetchone()[0]
+        raw = db.session.execute(text(f"SELECT * FROM {TABLE} WHERE id = :id"), {"id": new_id}).fetchone()
+        raw_dict = dict(raw._mapping) if raw else {}
+        new_row = {"id": new_id}
+        for c in cols:
+            new_row[c.column_label] = raw_dict.get(c.column_key)
+        return jsonify(new_row), 201
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
 
-@assets_bp.route('/admin/assets/<int:row_id>', methods=['DELETE'])
+@bp.route(URL_BASE + '/<int:row_id>', methods=['DELETE'])
 def delete_row(row_id):
     try:
-        obj = Asset.query.get(row_id)
-        if not obj:
-            return jsonify({'error': 'Not found'}), 404
-        db.session.delete(obj)
-        db.session.commit()
-        return jsonify({'success': True})
+        db.session.execute(text("UPDATE question_options SET asset_id = NULL WHERE asset_id = :id"), {"id": row_id})
+        db.session.execute(text(f"DELETE FROM {TABLE} WHERE id = :id"), {"id": row_id})
+        db.session.commit(); return jsonify({"success": True})
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
 
-@assets_bp.route('/admin/assets/cell', methods=['PATCH'])
+@bp.route(URL_BASE + '/cell', methods=['PATCH'])
 def update_cell():
     try:
-        data  = request.get_json() or {}
-        obj   = Asset.query.get(data.get('id'))
-        if not obj:
-            return jsonify({'error': 'Not found'}), 404
-        field = data.get('field')
-        value = data.get('value', '')
-        if field in SYSTEM_FIELDS:
-            setattr(obj, field, value)
-            db.session.commit()
-        return jsonify({'success': True})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
-
-@assets_bp.route('/admin/assets/columns', methods=['GET'])
-def get_cols():
-    return jsonify([c.column_key for c in get_columns()])
-
-@assets_bp.route('/admin/assets/columns', methods=['POST'])
-def add_col():
-    try:
-        data = request.get_json() or {}
-        name = data.get('name', 'New Column')
-        key  = key_from_name(name)
-        existing = [c.column_key for c in get_columns()]
-        base = key; i = 1
-        while key in existing:
-            key = f"{base}_{i}"; i += 1
-        max_order = db.session.query(db.func.max(ColumnDefinition.display_order)) \
-            .filter_by(table_name='assets').scalar() or 0
-        col = ColumnDefinition(table_name='assets', column_key=key,
-            column_label=name, column_type='text',
-            display_order=max_order+1, is_active=True, is_required=False)
-        db.session.add(col)
-        db.session.commit()
-        return jsonify([c.column_key for c in get_columns()]), 201
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
-
-@assets_bp.route('/admin/assets/columns/<string:name>', methods=['DELETE'])
-def delete_col(name):
-    try:
-        col = ColumnDefinition.query.filter_by(table_name='assets', column_key=name).first()
+        data = request.json or {}
+        row_id = data.get("id")
+        field  = data.get("field", "").strip()
+        value  = data.get("value", "")
+        if not row_id or not field:
+            return jsonify({"error": "id and field required"}), 400
+        col = ColumnDefinition.query.filter_by(table_name=TABLE, column_label=field).first()
         if not col:
-            return jsonify({'error': 'Not found'}), 404
-        if col.is_required:
-            return jsonify({'error': 'Cannot delete required column'}), 400
+            col = ColumnDefinition.query.filter_by(table_name=TABLE, column_key=field).first()
+        if not col:
+            return jsonify({"error": f"Unknown field: {field}"}), 400
+        db.session.execute(
+            text(f"UPDATE {TABLE} SET {col.column_key} = :value WHERE id = :id"),
+            {"value": value, "id": row_id}
+        )
+        db.session.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
+
+@bp.route(URL_BASE + '/columns', methods=['POST'])
+def add_column():
+    try:
+        name = (request.json or {}).get("name", "").strip()
+        if not name: return jsonify({"error": "name required"}), 400
+        key = key_from_label(name)
+        existing = [c.column_key for c in get_col_defs()]
+        base, i = key, 1
+        while key in existing: key = f"{base}_{i}"; i += 1
+        db.session.execute(text(f"ALTER TABLE {TABLE} ADD COLUMN IF NOT EXISTS {key} TEXT"))
+        if not ColumnDefinition.query.filter_by(table_name=TABLE, column_key=key).first():
+            max_o = db.session.execute(text("SELECT COALESCE(MAX(display_order),0) FROM column_definitions WHERE table_name=:t"), {"t": TABLE}).scalar()
+            db.session.add(ColumnDefinition(table_name=TABLE, column_key=key, column_label=name,
+                column_type='text', display_order=max_o+1, is_active=True, is_required=False))
+        db.session.commit()
+        return jsonify({"success": True, "name": name, "key": key}), 201
+    except Exception as e:
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
+
+@bp.route(URL_BASE + '/columns/<path:col_name>', methods=['DELETE'])
+def delete_column(col_name):
+    try:
+        PROTECTED = {'id', 'created_at', 'updated_at'}
+        col = ColumnDefinition.query.filter_by(table_name=TABLE, column_label=col_name).first()
+        if not col:
+            col = ColumnDefinition.query.filter_by(table_name=TABLE, column_key=col_name).first()
+        if not col:
+            return jsonify({"error": f"Column not found: {col_name}"}), 404
+        if col.column_key in PROTECTED:
+            return jsonify({"error": f"Cannot delete system column: {col.column_key}"}), 400
         db.session.delete(col)
         db.session.commit()
-        return jsonify({'success': True})
+        return jsonify({"success": True})
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
 
-@assets_bp.route('/admin/assets/column', methods=['PATCH'])
-def rename_col():
+@bp.route(URL_BASE + '/column', methods=['PATCH'])
+def rename_column():
     try:
-        data = request.get_json() or {}
-        col  = ColumnDefinition.query.filter_by(
-            table_name='assets', column_key=data.get('oldName')).first()
+        data = request.json or {}
+        old_name = (data.get('old_name') or data.get('oldName') or data.get('old_label') or data.get('oldLabel') or '').strip()
+        new_name = (data.get('new_name') or data.get('newName') or data.get('new_label') or data.get('newLabel') or '').strip()
+        if not old_name or not new_name:
+            return jsonify({"error": f"oldName and newName required, got: {list(data.keys())}"}), 400
+        col = ColumnDefinition.query.filter_by(table_name=TABLE, column_label=old_name).first()
         if not col:
-            return jsonify({'error': 'Not found'}), 404
-        col.column_label = data.get('newName')
+            col = ColumnDefinition.query.filter_by(table_name=TABLE, column_key=old_name).first()
+        if not col:
+            return jsonify({"error": f"Column not found: {old_name}"}), 404
+        col.column_label = new_name
         db.session.commit()
-        return jsonify({'success': True})
+        return jsonify({"success": True, "old": old_name, "new": new_name})
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
 
-@assets_bp.route('/admin/assets/columns/reorder', methods=['PATCH'])
-def reorder_cols():
+@bp.route(URL_BASE + '/columns/reorder', methods=['PATCH'])
+def reorder_columns():
     try:
-        order = (request.get_json() or {}).get('order', [])
-        for i, key in enumerate(order):
-            col = ColumnDefinition.query.filter_by(
-                table_name='assets', column_key=key).first()
-            if col:
-                col.display_order = i
-        db.session.commit()
-        return jsonify({'success': True})
+        for i, name in enumerate((request.json or {}).get("order", []), 1):
+            col = ColumnDefinition.query.filter_by(table_name=TABLE, column_label=name).first()
+            if col: col.display_order = i
+        db.session.commit(); return jsonify({"success": True})
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
 
-@assets_bp.route('/admin/assets/import', methods=['POST'])
+@bp.route(URL_BASE + '/import', methods=['POST'])
 def import_rows():
     try:
-        rows = (request.get_json() or {}).get('rows', [])
+        rows = (request.json or {}).get("rows", [])
+        cols = get_col_defs()
+        l2k  = {c.column_label.lower(): c.column_key for c in cols}
+        SKIP = {'id', 'ID', 'Id'}
+        count = 0
         for row in rows:
-            obj = Asset(
-                title       = row.get('title', '')       or '',
-                asset_type  = row.get('asset_type', '')  or '',
-                url         = row.get('url', '')         or '',
-                description = row.get('description', '') or '',
-            )
-            db.session.add(obj)
+            params = {}
+            for h, v in row.items():
+                if h in SKIP: continue
+                k = l2k.get(h.lower(), key_from_label(h))
+                params[k] = str(v) if v is not None else ''
+            if params:
+                keys = list(params.keys())
+                db.session.execute(
+                    text(f"INSERT INTO {TABLE} ({', '.join(keys)}) VALUES ({', '.join([':'+k for k in keys])})"),
+                    params
+                )
+                count += 1
         db.session.commit()
-        cols = get_columns()
-        return jsonify([row_to_dict(r, cols) for r in Asset.query.order_by(Asset.id).all()])
+        return jsonify({"count": count})
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        db.session.rollback(); return jsonify({"error": str(e)}), 500
 
-@assets_bp.route('/admin/assets/export', methods=['GET'])
+@bp.route(URL_BASE + '/export', methods=['GET'])
 def export_rows():
     try:
         from openpyxl import Workbook
-        cols = get_columns()
-        rows = Asset.query.order_by(Asset.id).all()
+        cols = get_col_defs()
         wb = Workbook(); ws = wb.active; ws.title = 'Assets'
-        headers = [c.column_key for c in cols]
-        ws.append(headers)
-        for r in rows:
-            d = row_to_dict(r, cols)
-            ws.append([d.get(h, '') for h in headers])
+        ws.append([c.column_label for c in cols])
+        for row in get_all_rows():
+            ws.append([row.get(c.column_key, '') for c in cols])
         buf = io.BytesIO(); wb.save(buf); buf.seek(0)
-        return send_file(buf,
-            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        return send_file(buf, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             as_attachment=True, download_name='assets_export.xlsx')
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500

@@ -21,11 +21,11 @@ def create_app():
     from routes.admin_questions_routes import admin_questions_bp
     from routes.admin_assessment_routes import admin_assessment_bp
     from routes.user_routes import user_bp
-    from routes.admin_valueprops_routes import valueprops_bp
-    from routes.admin_assets_routes import assets_bp
-    from routes.admin_testcases_routes import testcases_bp
-    from routes.admin_povplanner_routes import povplanner_bp
-    from routes.admin_roadblocks_routes import roadblocks_bp
+    from routes.admin_valueprops_routes import bp as valueprops_bp
+    from routes.admin_assets_routes import bp as assets_bp
+    from routes.admin_testcases_routes import bp as testcases_bp
+    from routes.admin_povplanner_routes import bp as povplanner_bp
+    from routes.admin_roadblocks_routes import bp as roadblocks_bp
 
     app.register_blueprint(admin_bp)
     app.register_blueprint(admin_questions_bp)
