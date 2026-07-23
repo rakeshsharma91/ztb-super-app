@@ -806,15 +806,6 @@ function buildQuestionBody(q) {
     return ta;
   }));
 
-  // Additional Details
-  frag.appendChild(makeFormRow('Additional Details', () => {
-    const ta = document.createElement('textarea');
-    ta.value = q.additional_details || '';
-    ta.rows = 2;
-    ta.addEventListener('blur', () => patchQuestion(qId, 'additional_details', ta.value));
-    return ta;
-  }));
-
   // Keyword
   frag.appendChild(makeFormRow('Keyword', () => {
     const inp = document.createElement('input');
@@ -846,7 +837,7 @@ function buildQuestionBody(q) {
   infoChk.type = 'checkbox';
   infoChk.checked = !!q.info_only;
   infoLabel.appendChild(infoChk);
-  const infoText = document.createTextNode(' Info Only (hide options)');
+  const infoText = document.createTextNode(' Info Only');
   infoLabel.appendChild(infoText);
   infoRow.appendChild(infoLabel);
   frag.appendChild(infoRow);
@@ -855,7 +846,7 @@ function buildQuestionBody(q) {
   const optSection = document.createElement('div');
   optSection.className = 'options-section';
   optSection.id = `options-section-${qId}`;
-  if (q.info_only) optSection.style.display = 'none';
+  
 
   const optTitle = document.createElement('h4');
   optTitle.textContent = 'Options';
@@ -876,7 +867,6 @@ function buildQuestionBody(q) {
   // Toggle options on info_only change
   infoChk.addEventListener('change', () => {
     patchQuestion(qId, 'info_only', infoChk.checked);
-    optSection.style.display = infoChk.checked ? 'none' : 'block';
   });
 
   frag.appendChild(optSection);
@@ -1042,7 +1032,7 @@ async function addOption(qId) {
 }
 
 async function deleteOption(qId, optId, rowEl) {
-  const ok = await apiDelete(`/admin/questions/$${qId}/options/$${optId}`);
+  const ok = await apiDelete(`/admin/questions/${qId}/options/${optId}`);
   if (ok) {
     rowEl.remove();
     const q = questionsData.find(q => q.id === qId);
@@ -1051,7 +1041,7 @@ async function deleteOption(qId, optId, rowEl) {
 }
 
 async function patchOption(qId, optId, field, value) {
-  await apiPatch(`/admin/questions/$${qId}/options/$${optId}`, { field, value });
+  await apiPatch(`/admin/questions/${qId}/options/${optId}`, { field, value });
 }
 </script>
 

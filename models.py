@@ -168,7 +168,7 @@ class AssessmentConfig(db.Model):
     created_at    = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at    = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    question      = db.relationship('Question', backref='assessment_config', lazy=True)
+    question      = db.relationship('Question', backref=db.backref('assessment_configs', cascade='all, delete-orphan'), lazy=True)
 
     def to_dict(self):  # serialize to dict
         return {
