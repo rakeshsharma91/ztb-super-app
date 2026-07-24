@@ -1,6 +1,7 @@
 # admin_questions_routes.py
 from flask import Blueprint, request, jsonify, session
-from models import db, Question, QuestionCategory, QuestionOption
+from models import (db, Question, QuestionCategory, QuestionOption,
+                    Asset, ValueProp, TestCase, POVPlanner, Roadblock)
 from functools import wraps
 from datetime import datetime
 
@@ -14,30 +15,28 @@ def require_admin(f):
         return f(*args, **kwargs)
     return decorated
 
-def q_to_dict(q):
-    """Serialize Question using field names the HTML frontend expects."""
-    return {
-        'id':           q.id,
-        'question_text': q.text,
-        'keyword':      q.category_ref.name if q.category_ref else '',
-        'category_id':  q.category_id,
-        'options_type': q.options_type or 'Select One',
-        'info_only':    q.info_only,
-        'order':        q.order,
-        'options': [opt_to_dict(o) for o in
-                    sorted(q.options, key=lambda o: o.id)]
-    }
-
 def opt_to_dict(o):
     return {
-        'id':           o.id,
-        'question_id':  o.question_id,
-        'option_text':  o.label,
-        'asset_id':     o.asset_id,
-        'valueprop_id': o.value_prop_id,
-        'testcase_id':  o.test_case_id,
-        'povstep_id':   o.pov_step_id,
-        'roadblock_id': o.roadblock_id,
+        'id':            o.id,
+        'question_id':   o.question_id,
+        'option_text':   o.label,
+        'asset_ids':     [a.id for a in o.assets],
+        'valueprop_ids': [v.id for v in o.value_props],
+        'testcase_ids':  [t.id for t in o.test_cases],
+        'povstep_ids':   [p.id for p in o.pov_steps],
+        'roadblock_ids': [r.id for r in o.roadblocks],
+    }
+
+def q_to_dict(q):
+    return {
+        'id':            q.id,
+        'question_text': q.text,
+        'keyword':       q.category_ref.name if q.category_ref else '',
+        'category_id':   q.category_id,
+        'options_type':  q.options_type or 'Select One',
+        'info_only':     q.info_only,
+        'order':         q.order,
+        'options':       [opt_to_dict(o) for o in sorted(q.options, key=lambda o: o.id)],
     }
 
 def get_or_create_category(name):
@@ -48,6 +47,11 @@ def get_or_create_category(name):
         db.session.add(cat)
         db.session.flush()
     return cat
+
+def _sync_m2m(opt, field, ids, model):
+    ids  = [int(i) for i in (ids or []) if i]
+    objs = model.query.filter(model.id.in_(ids)).all() if ids else []
+    setattr(opt, field, objs)
 
 # ── GET /admin/questions/ ─────────────────────────────────────────────────────
 @admin_questions_bp.route('/', methods=['GET'])
@@ -73,12 +77,25 @@ def create_question():
     db.session.commit()
     return jsonify(q_to_dict(q)), 201
 
+# ── POST /admin/questions/reorder ─────────────────────────────────────────────
+@admin_questions_bp.route('/reorder', methods=['POST'])
+@require_admin
+def reorder_questions():
+    data  = request.get_json() or {}
+    items = data.get('order', [])
+    for item in items:
+        q = Question.query.get(item.get('id'))
+        if q:
+            q.order = int(item.get('order', 0))
+    db.session.commit()
+    return jsonify({'message': 'reordered'}), 200
+
 # ── PATCH /admin/questions/<id> ───────────────────────────────────────────────
 @admin_questions_bp.route('/<int:qid>', methods=['PATCH'])
 @require_admin
 def patch_question(qid):
-    q    = Question.query.get_or_404(qid)
-    data = request.get_json() or {}
+    q     = Question.query.get_or_404(qid)
+    data  = request.get_json() or {}
     field = data.get('field')
     value = data.get('value', '')
 
@@ -94,7 +111,6 @@ def patch_question(qid):
     elif field == 'order':
         try: q.order = int(value)
         except: pass
-    # additional_details has no DB column — silently ignore
 
     q.updated_at = datetime.utcnow()
     db.session.commit()
@@ -116,15 +132,16 @@ def add_option(qid):
     Question.query.get_or_404(qid)
     data = request.get_json() or {}
     opt  = QuestionOption(
-        question_id   = qid,
-        label         = data.get('option_text') or data.get('label') or '',
-        value_prop_id = data.get('valueprop_id') or data.get('value_prop_id'),
-        asset_id      = data.get('asset_id'),
-        test_case_id  = data.get('testcase_id') or data.get('test_case_id'),
-        pov_step_id   = data.get('povstep_id')  or data.get('pov_step_id'),
-        roadblock_id  = data.get('roadblock_id'),
+        question_id = qid,
+        label       = data.get('option_text') or data.get('label') or '',
     )
     db.session.add(opt)
+    db.session.flush()
+    _sync_m2m(opt, 'assets',      data.get('asset_ids'),     Asset)
+    _sync_m2m(opt, 'value_props', data.get('valueprop_ids'), ValueProp)
+    _sync_m2m(opt, 'test_cases',  data.get('testcase_ids'),  TestCase)
+    _sync_m2m(opt, 'pov_steps',   data.get('povstep_ids'),   POVPlanner)
+    _sync_m2m(opt, 'roadblocks',  data.get('roadblock_ids'), Roadblock)
     db.session.commit()
     return jsonify(opt_to_dict(opt)), 201
 
@@ -132,24 +149,23 @@ def add_option(qid):
 @admin_questions_bp.route('/<int:qid>/options/<int:oid>', methods=['PATCH'])
 @require_admin
 def patch_option(qid, oid):
-    opt  = QuestionOption.query.filter_by(id=oid, question_id=qid).first_or_404()
-    data = request.get_json() or {}
+    opt   = QuestionOption.query.filter_by(id=oid, question_id=qid).first_or_404()
+    data  = request.get_json() or {}
     field = data.get('field')
-    value = data.get('value') or None
+    value = data.get('value')
 
-    mapping = {
-        'option_text':  'label',
-        'label':        'label',
-        'asset_id':     'asset_id',
-        'valueprop_id': 'value_prop_id',
-        'testcase_id':  'test_case_id',
-        'povstep_id':   'pov_step_id',
-        'roadblock_id': 'roadblock_id',
-        'action':       None,   # no DB column, ignore
-    }
-    db_field = mapping.get(field)
-    if db_field:
-        setattr(opt, db_field, value)
+    if field in ('option_text', 'label'):
+        opt.label = value or ''
+    elif field == 'asset_ids':
+        _sync_m2m(opt, 'assets',      value, Asset)
+    elif field == 'valueprop_ids':
+        _sync_m2m(opt, 'value_props', value, ValueProp)
+    elif field == 'testcase_ids':
+        _sync_m2m(opt, 'test_cases',  value, TestCase)
+    elif field == 'povstep_ids':
+        _sync_m2m(opt, 'pov_steps',   value, POVPlanner)
+    elif field == 'roadblock_ids':
+        _sync_m2m(opt, 'roadblocks',  value, Roadblock)
 
     db.session.commit()
     return jsonify(opt_to_dict(opt)), 200

@@ -142,19 +142,75 @@ class Question(db.Model):
                                     cascade='all, delete-orphan')
 
 # ─────────────────────────────────────────
+# M2M ASSOCIATION TABLES
+# ─────────────────────────────────────────
+option_assets = db.Table(
+    'option_assets',
+    db.Column('id',        db.Integer, primary_key=True),
+    db.Column('option_id', db.Integer, db.ForeignKey('question_options.id', ondelete='CASCADE'), nullable=False),
+    db.Column('asset_id',  db.Integer, db.ForeignKey('assets.id',           ondelete='CASCADE'), nullable=False),
+    db.UniqueConstraint('option_id', 'asset_id', name='uq_opt_asset'),
+)
+
+option_valueprops = db.Table(
+    'option_valueprops',
+    db.Column('id',            db.Integer, primary_key=True),
+    db.Column('option_id',     db.Integer, db.ForeignKey('question_options.id', ondelete='CASCADE'), nullable=False),
+    db.Column('value_prop_id', db.Integer, db.ForeignKey('value_props.id',      ondelete='CASCADE'), nullable=False),
+    db.UniqueConstraint('option_id', 'value_prop_id', name='uq_opt_vp'),
+)
+
+option_testcases = db.Table(
+    'option_testcases',
+    db.Column('id',           db.Integer, primary_key=True),
+    db.Column('option_id',    db.Integer, db.ForeignKey('question_options.id', ondelete='CASCADE'), nullable=False),
+    db.Column('test_case_id', db.Integer, db.ForeignKey('test_cases.id',       ondelete='CASCADE'), nullable=False),
+    db.UniqueConstraint('option_id', 'test_case_id', name='uq_opt_tc'),
+)
+
+option_povsteps = db.Table(
+    'option_povsteps',
+    db.Column('id',          db.Integer, primary_key=True),
+    db.Column('option_id',   db.Integer, db.ForeignKey('question_options.id', ondelete='CASCADE'), nullable=False),
+    db.Column('pov_step_id', db.Integer, db.ForeignKey('pov_planner.id',      ondelete='CASCADE'), nullable=False),
+    db.UniqueConstraint('option_id', 'pov_step_id', name='uq_opt_pov'),
+)
+
+option_roadblocks = db.Table(
+    'option_roadblocks',
+    db.Column('id',           db.Integer, primary_key=True),
+    db.Column('option_id',    db.Integer, db.ForeignKey('question_options.id', ondelete='CASCADE'), nullable=False),
+    db.Column('roadblock_id', db.Integer, db.ForeignKey('roadblocks.id',       ondelete='CASCADE'), nullable=False),
+    db.UniqueConstraint('option_id', 'roadblock_id', name='uq_opt_rb'),
+)
+
+# ─────────────────────────────────────────
 # QUESTION OPTIONS
 # ─────────────────────────────────────────
 class QuestionOption(db.Model):
     __tablename__ = 'question_options'
-    id            = db.Column(db.Integer, primary_key=True)
-    question_id   = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
-    label         = db.Column(db.String(255), nullable=False)
-    value_prop_id = db.Column(db.Integer, db.ForeignKey('value_props.id'), nullable=True)
-    asset_id      = db.Column(db.Integer, db.ForeignKey('assets.id'), nullable=True)
-    test_case_id  = db.Column(db.Integer, db.ForeignKey('test_cases.id'), nullable=True)
-    pov_step_id   = db.Column(db.Integer, db.ForeignKey('pov_planner.id'), nullable=True)
-    roadblock_id  = db.Column(db.Integer, db.ForeignKey('roadblocks.id'), nullable=True)
-    created_at    = db.Column(db.DateTime, default=datetime.utcnow)
+    id          = db.Column(db.Integer, primary_key=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    label       = db.Column(db.String(255), nullable=False)
+    created_at  = db.Column(db.DateTime, default=datetime.utcnow)
+
+    assets      = db.relationship('Asset',      secondary='option_assets',     lazy='subquery')
+    value_props = db.relationship('ValueProp',  secondary='option_valueprops', lazy='subquery')
+    test_cases  = db.relationship('TestCase',   secondary='option_testcases',  lazy='subquery')
+    pov_steps   = db.relationship('POVPlanner', secondary='option_povsteps',   lazy='subquery')
+    roadblocks  = db.relationship('Roadblock',  secondary='option_roadblocks', lazy='subquery')
+
+    def to_dict(self):
+        return {
+            'id':            self.id,
+            'question_id':   self.question_id,
+            'option_text':   self.label,
+            'asset_ids':     [a.id for a in self.assets],
+            'valueprop_ids': [v.id for v in self.value_props],
+            'testcase_ids':  [t.id for t in self.test_cases],
+            'povstep_ids':   [p.id for p in self.pov_steps],
+            'roadblock_ids': [r.id for r in self.roadblocks],
+        }
 
 # ─────────────────────────────────────────
 # ASSESSMENT CONFIG
@@ -170,7 +226,7 @@ class AssessmentConfig(db.Model):
 
     question      = db.relationship('Question', backref=db.backref('assessment_configs', cascade='all, delete-orphan'), lazy=True)
 
-    def to_dict(self):  # serialize to dict
+    def to_dict(self):
         return {
             'id':            self.id,
             'question_id':   self.question_id,
@@ -194,3 +250,29 @@ class UserResponse(db.Model):
     results       = db.Column(db.JSON, default=dict)
     created_at    = db.Column(db.DateTime, default=datetime.utcnow)
 
+# ─────────────────────────────────────────
+# MIGRATION HELPER
+# ─────────────────────────────────────────
+def run_migration(db):
+    import sqlalchemy as sa
+    engine    = db.engine
+    inspector = sa.inspect(engine)
+    existing  = inspector.get_table_names()
+    new_tables = ['option_assets','option_valueprops','option_testcases',
+                  'option_povsteps','option_roadblocks']
+    for tname in new_tables:
+        if tname not in existing:
+            db.metadata.tables[tname].create(engine)
+            print(f'[migration] Created table: {tname}')
+    # Drop old single-FK columns if they exist
+    with engine.connect() as conn:
+        cols     = [c['name'] for c in inspector.get_columns('question_options')]
+        old_cols = ['asset_id','value_prop_id','test_case_id','pov_step_id','roadblock_id']
+        for col in old_cols:
+            if col in cols:
+                try:
+                    conn.execute(sa.text(f'ALTER TABLE question_options DROP COLUMN {col}'))
+                    print(f'[migration] Dropped column question_options.{col}')
+                except Exception as e:
+                    print(f'[migration] Could not drop {col}: {e}')
+        conn.commit()
