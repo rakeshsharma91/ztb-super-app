@@ -1,146 +1,187 @@
-# user_routes.py — User-facing routes Blueprint for ZTB Super App
-from flask import Blueprint, request, jsonify, session, render_template, send_file  # flask imports
-from models import db, UserResponse, Question, QuestionCategory, AssessmentConfig, ValueProp, Asset, TestCase, POVPlanner, Roadblock  # import models
-import json  # import json for data handling
-import io  # import io for in-memory file handling
-from openpyxl import Workbook  # import openpyxl for Excel generation
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side  # import styles
-from datetime import datetime  # import datetime for timestamps
+# user_routes.py — Complete User-Facing Routes for ZTB Super App
+from flask import Blueprint, request, jsonify, session, render_template, send_file
+from models import (db, UserResponse, Question, QuestionOption,
+                    AssessmentConfig, QuestionCategory,
+                    ValueProp, Asset, TestCase, POVPlanner, Roadblock,
+                    ColumnDefinition)
+import json, io
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+from datetime import datetime
 
-user_bp = Blueprint('user', __name__, url_prefix='/user')  # create user blueprint
+user_bp = Blueprint('user', __name__, url_prefix='/user')
 
-# ─────────────────────────────────────────────
-# Assessment Session Routes
-# ─────────────────────────────────────────────
-@user_bp.route('/start', methods=['POST'])  # route to start a new assessment
-def start_assessment():  # function to start assessment
-    data = request.get_json()  # get JSON data from request
-    customer_name = data.get('customer_name', '').strip()  # get customer name
-    se_name = data.get('se_name', '').strip()  # get SE name
-    if not customer_name or not se_name:  # validate required fields
-        return jsonify({'error': 'Customer name and SE name are required'}), 400  # return error
-    session['customer_name'] = customer_name  # store customer name in session
-    session['se_name'] = se_name  # store SE name in session
-    session['assessment_started'] = True  # mark assessment as started
-    session['responses'] = {}  # initialize empty responses dict
-    return jsonify({'success': True, 'message': 'Assessment started'})  # return success
+def _hdr(cell, text, bg='003366', fg='FFFFFF', sz=11, bold=True):
+    cell.value = text
+    cell.font = Font(bold=bold, color=fg, size=sz)
+    cell.fill = PatternFill(start_color=bg, end_color=bg, fill_type='solid')
+    cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
-@user_bp.route('/questions', methods=['GET'])  # route to get assessment questions
-def get_questions():  # function to fetch questions
-    config = AssessmentConfig.query.first()  # get assessment config
-    if not config:  # if no config exists
-        return jsonify({'error': 'Assessment not configured'}), 404  # return error
-    categories = QuestionCategory.query.order_by(QuestionCategory.order_index).all()  # get ordered categories
-    result = []  # initialize result list
-    for cat in categories:  # loop through categories
-        questions = Question.query.filter_by(  # get questions for this category
-            category_id=cat.id, is_active=True  # filter active questions
-        ).order_by(Question.order_index).all()  # order by index
-        result.append({  # append category with questions
-            'category_id': cat.id,  # category ID
-            'category_name': cat.name,  # category name
-            'questions': [q.to_dict() for q in questions]  # list of question dicts
+def _thin_border():
+    s = Side(style='thin', color='CCCCCC')
+    return Border(left=s, right=s, top=s, bottom=s)
+
+def _autosize(ws, max_width=60):
+    for col in ws.columns:
+        best = 10
+        for cell in col:
+            try:
+                best = max(best, len(str(cell.value or '')))
+            except Exception:
+                pass
+        ws.column_dimensions[col[0].column_letter].width = min(best + 4, max_width)
+
+def _collect(model, triggered_ids):
+    from sqlalchemy import text
+    table_name = model.__tablename__
+
+    # Check if mandatory column exists in the actual DB table
+    with db.engine.connect() as conn:
+        result = conn.execute(text("""
+            SELECT column_name FROM information_schema.columns
+            WHERE table_name = :tname AND column_name = 'mandatory'
+        """), {"tname": table_name})
+        has_mandatory = result.fetchone() is not None
+
+    if has_mandatory:
+        with db.engine.connect() as conn:
+            rows = conn.execute(
+                text(f"SELECT id FROM {table_name} WHERE mandatory = TRUE")
+            ).fetchall()
+        mandatory_ids = {row[0] for row in rows}
+        all_rows = {row[0]: model.query.get(row[0]) for row in rows}
+    else:
+        mandatory_ids = set()
+        all_rows = {}
+
+    for rid in triggered_ids:
+        if rid not in mandatory_ids:
+            obj = model.query.get(rid)
+            if obj:
+                all_rows[rid] = obj
+
+    return list(all_rows.values())
+
+def _get_col_defs(table_name):
+    return ColumnDefinition.query.filter_by(table_name=table_name)\
+        .order_by(ColumnDefinition.display_order).all()
+
+@user_bp.route('/')
+def landing():
+    return render_template('user_landing.html')
+
+@user_bp.route('/start', methods=['POST'])
+def start_assessment():
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form.to_dict()
+    customer_name = (data.get('customer_name') or '').strip()
+    se_name = (data.get('se_name') or '').strip()
+    if not customer_name:
+        return jsonify({'error': 'Customer name is required'}), 400
+    session['customer_name'] = customer_name
+    session['se_name'] = se_name
+    session['assessment_started'] = True
+    session['responses'] = {}
+    return jsonify({'success': True, 'message': 'Assessment started'})
+
+@user_bp.route('/questions', methods=['GET'])
+def get_questions():
+    # Load all questions sorted globally by order
+    all_questions = Question.query.order_by(Question.order).all()
+    result = []
+    for q in all_questions:
+        cat = QuestionCategory.query.get(q.category_id)
+        opts = []
+        for o in sorted(q.options, key=lambda x: x.id):
+            opts.append({'id': o.id, 'label': o.label})
+        result.append({
+            'question_id':  q.id,
+            'category':     cat.name if cat else '',
+            'text':         q.text,
+            'options_type': q.options_type,
+            'info_only':    q.info_only,
+            'options':      opts
         })
-    return jsonify({'categories': result})  # return all categories with questions
+    return render_template('user_assessment.html', questions=result)
 
-@user_bp.route('/submit', methods=['POST'])  # route to submit assessment responses
-def submit_responses():  # function to save responses
-    if not session.get('assessment_started'):  # check if assessment is active
-        return jsonify({'error': 'No active assessment session'}), 400  # return error
-    data = request.get_json()  # get JSON data
-    responses = data.get('responses', {})  # get responses dict
-    customer_name = session.get('customer_name', '')  # get customer name from session
-    se_name = session.get('se_name', '')  # get SE name from session
-    user_response = UserResponse(  # create UserResponse record
-        customer_name=customer_name,  # set customer name
-        se_name=se_name,  # set SE name
-        responses=json.dumps(responses),  # serialize responses to JSON
-        submitted_at=datetime.utcnow()  # set submission timestamp
+@user_bp.route('/submit', methods=['POST'])
+def submit_responses():
+    data = request.get_json()
+    responses = data.get('responses', {})
+    customer_name = session.get('customer_name') or data.get('customer_name', 'Unknown')
+    se_name       = session.get('se_name')        or data.get('se_name', '')
+    vp_ids    = set()
+    asset_ids = set()
+    tc_ids    = set()
+    rb_ids    = set()
+    pov_ids   = set()
+    for q_id_str, value in responses.items():
+        try:
+            q_id = int(q_id_str)
+        except (ValueError, TypeError):
+            continue
+        question = Question.query.get(q_id)
+        if not question or question.info_only:
+            continue
+        selected_option_ids = []
+        if question.options_type == 'select_all':
+            if isinstance(value, list):
+                selected_option_ids = [int(v) for v in value if str(v).isdigit()]
+        elif question.options_type == 'select_one':
+            if value and str(value).isdigit():
+                selected_option_ids = [int(value)]
+        for opt_id in selected_option_ids:
+            opt = QuestionOption.query.get(opt_id)
+            if not opt:
+                continue
+    user_response = UserResponse(
+        customer_name=customer_name,
+        se_name=se_name,
+        answers=responses,
+        completed_at=datetime.utcnow()
     )
-    db.session.add(user_response)  # add to session
-    db.session.commit()  # commit to database
-    session['response_id'] = user_response.id  # store response ID in session
-    return jsonify({'success': True, 'response_id': user_response.id})  # return success
-
-@user_bp.route('/results/<int:response_id>', methods=['GET'])  # route to get assessment results
-def get_results(response_id):  # function to get results
-    response = UserResponse.query.get_or_404(response_id)  # get response by ID
-    responses_dict = json.loads(response.responses)  # deserialize responses
-    value_props = ValueProp.query.filter_by(is_active=True).all()  # get active value props
-    matched = []  # initialize matched value props list
-    for vp in value_props:  # loop through value props
-        trigger_ids = json.loads(vp.trigger_question_ids) if vp.trigger_question_ids else []  # get trigger IDs
-        if any(str(tid) in responses_dict for tid in trigger_ids):  # check if any trigger matches
-            matched.append(vp.to_dict())  # add to matched list
-    return jsonify({  # return results
-        'customer_name': response.customer_name,  # customer name
-        'se_name': response.se_name,  # SE name
-        'submitted_at': response.submitted_at.isoformat(),  # submission time
-        'matched_value_props': matched  # matched value propositions
+    db.session.add(user_response)
+    db.session.commit()
+    session['response_id'] = user_response.id
+    return jsonify({
+        'success':     True,
+        'response_id': user_response.id
     })
 
-# ─────────────────────────────────────────────
-# Excel Export Route
-# ─────────────────────────────────────────────
-@user_bp.route('/export/<int:response_id>', methods=['GET'])  # route to export results as Excel
-def export_excel(response_id):  # function to generate Excel file
-    response = UserResponse.query.get_or_404(response_id)  # get response by ID
-    wb = Workbook()  # create new workbook
-    ws = wb.active  # get active worksheet
-    ws.title = 'ZTB Assessment Results'  # set worksheet title
+@user_bp.route('/export', methods=['GET'])
+def export_excel():
+    customer_name = session.get('customer_name', 'Customer')
+    se_name       = session.get('se_name', '')
+    vp_ids        = session.get('vp_ids',    [])
+    asset_ids     = session.get('asset_ids', [])
+    tc_ids        = session.get('tc_ids',    [])
+    rb_ids        = session.get('rb_ids',    [])
+    pov_ids       = session.get('pov_ids',   [])
+    vp_rows    = _collect(ValueProp,  vp_ids)
+    asset_rows = _collect(Asset,      asset_ids)
+    tc_rows    = _collect(TestCase,   tc_ids)
+    rb_rows    = _collect(Roadblock,  rb_ids)
+    pov_rows   = _collect(POVPlanner, pov_ids)
+    wb = Workbook()
 
-    # --- Header styling ---
-    header_font = Font(bold=True, color='FFFFFF', size=12)  # white bold font for headers
-    header_fill = PatternFill(start_color='003366', end_color='003366', fill_type='solid')  # dark blue fill
-    header_alignment = Alignment(horizontal='center', vertical='center')  # center alignment
+    ws_a = wb.active
+    ws_a.title = 'Assessment'
+    _hdr(ws_a['A1'], 'Customer Name')
+    ws_a['B1'] = customer_name
+    ws_a.column_dimensions['A'].width = 22
+    ws_a.column_dimensions['B'].width = 40
 
-    # --- Title row ---
-    ws.merge_cells('A1:D1')  # merge cells for title
-    ws['A1'] = 'ZTB Super App — Assessment Results'  # set title text
-    ws['A1'].font = Font(bold=True, size=14, color='003366')  # style title
-    ws['A1'].alignment = Alignment(horizontal='center')  # center title
-
-    # --- Metadata rows ---
-    ws['A3'] = 'Customer:'  # label
-    ws['B3'] = response.customer_name  # value
-    ws['A4'] = 'SE Name:'  # label
-    ws['B4'] = response.se_name  # value
-    ws['A5'] = 'Submitted:'  # label
-    ws['B5'] = response.submitted_at.strftime('%Y-%m-%d %H:%M')  # formatted datetime
-
-    # --- Column headers ---
-    headers = ['#', 'Question', 'Response', 'Notes']  # column header labels
-    for col_idx, header in enumerate(headers, 1):  # loop through headers
-        cell = ws.cell(row=7, column=col_idx, value=header)  # write header
-        cell.font = header_font  # apply font
-        cell.fill = header_fill  # apply fill
-        cell.alignment = header_alignment  # apply alignment
-
-    # --- Data rows ---
-    responses_dict = json.loads(response.responses)  # deserialize responses
-    row = 8  # start data at row 8
-    for q_id, answer in responses_dict.items():  # loop through responses
-        question = Question.query.get(int(q_id))  # get question by ID
-        ws.cell(row=row, column=1, value=row - 7)  # row number
-        ws.cell(row=row, column=2, value=question.text if question else f'Q{q_id}')  # question text
-        ws.cell(row=row, column=3, value=answer)  # answer
-        ws.cell(row=row, column=4, value='')  # empty notes column
-        row += 1  # increment row
-
-    # --- Auto-size columns ---
-    for col in ws.columns:  # loop through all columns
-        max_len = max(len(str(cell.value or '')) for cell in col)  # find max content length
-        ws.column_dimensions[col[0].column_letter].width = min(max_len + 4, 60)  # set width
-
-    # --- Save to in-memory buffer ---
-    buffer = io.BytesIO()  # create in-memory buffer
-    wb.save(buffer)  # save workbook to buffer
-    buffer.seek(0)  # rewind buffer to start
-
-    filename = f"ZTB_Assessment_{response.customer_name.replace(' ', '_')}_{response.submitted_at.strftime('%Y%m%d')}.xlsx"  # dynamic filename
-    return send_file(  # send file to client
-        buffer,  # file buffer
-        as_attachment=True,  # force download
-        download_name=filename,  # set filename
-        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'  # Excel MIME type
+    buffer = io.BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+    safe_name = customer_name.replace(' ', '-').replace('/', '-')
+    filename  = f"{safe_name}-ztb.xlsx"
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name=filename,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )

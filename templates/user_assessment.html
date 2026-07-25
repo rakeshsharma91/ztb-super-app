@@ -3,555 +3,189 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZTB Super App — User Assessment</title>
+<title>ZTB Assessment</title>
 <style>
-  :root {
-    --navy: #003366;
-    --blue: #0070c0;
-    --blue-light: #e8f3fb;
-    --gray: #f5f7fa;
-    --gray-mid: #e2e8f0;
-    --gray-dark: #64748b;
-    --text: #1e293b;
-    --white: #ffffff;
-    --shadow: 0 2px 12px rgba(0,0,0,0.08);
-    --radius: 10px;
-  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--gray); color: var(--text); min-height: 100vh; }
-
-  /* NAVBAR */
-  .navbar {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    background: var(--navy); height: 58px;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 28px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  }
-  .navbar-brand { color: #fff; font-size: 1.15rem; font-weight: 700; letter-spacing: .01em; display: flex; align-items: center; gap: 10px; }
-  .brand-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #4fc3f7; }
-  .navbar-meta { color: rgba(255,255,255,.85); font-size: .875rem; display: flex; align-items: center; gap: 22px; }
-  .meta-item { display: flex; align-items: center; gap: 5px; }
-  .meta-label { opacity: .6; font-size: .74rem; text-transform: uppercase; letter-spacing: .05em; }
-  .meta-sep { color: rgba(255,255,255,.3); }
-
-  /* LAYOUT */
-  .main { margin-top: 58px; padding: 32px 20px 70px; max-width: 860px; margin-left: auto; margin-right: auto; }
-
-  /* PROGRESS */
-  .progress-wrap { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 24px 16px; margin-bottom: 28px; }
-  .progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
-  .progress-label { font-weight: 600; font-size: .92rem; color: var(--navy); }
-  .progress-step { font-size: .82rem; color: var(--gray-dark); }
-  .progress-track { height: 8px; background: var(--gray-mid); border-radius: 99px; overflow: hidden; }
-  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--blue), #4fc3f7); border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); width: 0%; }
-  .step-dots { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
-  .step-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--gray-mid); transition: background .3s, transform .2s; cursor: default; }
-  .step-dot.done { background: var(--blue); }
-  .step-dot.active { background: var(--navy); transform: scale(1.35); }
-
-  /* WIZARD */
-  .wizard-panel { opacity: 0; transform: translateY(16px); transition: opacity .35s ease, transform .35s ease; pointer-events: none; display: none; }
-  .wizard-panel.active { opacity: 1; transform: translateY(0); pointer-events: auto; display: block; }
-  .category-heading { font-size: 1.28rem; font-weight: 700; color: var(--navy); margin-bottom: 22px; display: flex; align-items: center; gap: 12px; }
-  .cat-icon { width: 38px; height: 38px; border-radius: 9px; background: var(--blue-light); color: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
-
-  /* QUESTION CARD */
-  .q-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 24px 18px; margin-bottom: 18px; border-left: 4px solid var(--blue); transition: box-shadow .2s; }
-  .q-card:hover { box-shadow: 0 4px 20px rgba(0,112,192,.12); }
-  .q-card.info-only { border-left-color: #94a3b8; background: #f8fafc; }
-  .q-num { font-size: .74rem; color: var(--gray-dark); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; }
-  .q-text { font-weight: 600; font-size: .97rem; color: var(--text); margin-bottom: 7px; line-height: 1.45; }
-  .q-details { font-size: .84rem; color: var(--gray-dark); margin-bottom: 14px; line-height: 1.55; }
-  .info-badge { display: inline-block; background: var(--gray-mid); color: var(--gray-dark); font-size: .74rem; padding: 2px 10px; border-radius: 99px; margin-bottom: 8px; }
-
-  /* OPTIONS */
-  .options-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-  .option-item { display: flex; align-items: flex-start; gap: 10px; background: var(--gray); border-radius: 7px; padding: 10px 14px; cursor: pointer; border: 2px solid transparent; transition: background .15s, border-color .15s; }
-  .option-item:hover { background: var(--blue-light); }
-  .option-item.selected { background: var(--blue-light); border-color: var(--blue); }
-  .option-item input { margin-top: 2px; accent-color: var(--blue); flex-shrink: 0; }
-  .option-label { font-size: .9rem; color: var(--text); cursor: pointer; line-height: 1.4; }
-
-  /* INPUTS */
-  .q-textarea, .notes-textarea { width: 100%; resize: vertical; border: 1.5px solid var(--gray-mid); border-radius: 7px; padding: 10px 12px; font-size: .9rem; font-family: inherit; color: var(--text); background: var(--gray); transition: border-color .2s, background .2s; }
-  .q-textarea { min-height: 80px; margin-bottom: 14px; }
-  .notes-textarea { min-height: 52px; }
-  .q-textarea:focus, .notes-textarea:focus { outline: none; border-color: var(--blue); background: var(--white); }
-  .notes-label { font-size: .75rem; color: var(--gray-dark); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .05em; }
-  .notes-section { border-top: 1px solid var(--gray-mid); padding-top: 12px; margin-top: 6px; }
-
-  /* NAV BAR */
-  .nav-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 28px; background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 24px; }
-  .btn { padding: 10px 26px; border-radius: 7px; font-size: .93rem; font-weight: 600; cursor: pointer; border: none; transition: all .18s; display: inline-flex; align-items: center; gap: 7px; }
-  .btn-prev { background: var(--gray); color: var(--navy); border: 1.5px solid var(--gray-mid); }
-  .btn-prev:hover:not(:disabled) { background: var(--gray-mid); }
-  .btn-prev:disabled { opacity: .38; cursor: not-allowed; }
-  .btn-next { background: var(--blue); color: #fff; box-shadow: 0 2px 8px rgba(0,112,192,.25); }
-  .btn-next:hover { background: #005fa3; box-shadow: 0 4px 16px rgba(0,112,192,.35); transform: translateY(-1px); }
-  .btn-submit { background: linear-gradient(135deg, #003366, #0070c0); color: #fff; box-shadow: 0 2px 12px rgba(0,51,102,.3); }
-  .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 4px 18px rgba(0,51,102,.4); }
-  .btn-outline { background: var(--white); color: var(--navy); border: 2px solid var(--navy); }
-  .btn-outline:hover { background: var(--navy); color: #fff; }
-  .btn-green { background: #16a34a; color: #fff; box-shadow: 0 2px 8px rgba(22,163,74,.25); }
-  .btn-green:hover { background: #15803d; transform: translateY(-1px); }
-
-  /* LOADING / ERROR */
-  .loading-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px; gap: 18px; }
-  .spinner { width: 48px; height: 48px; border: 5px solid var(--gray-mid); border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { color: var(--gray-dark); font-size: .95rem; }
-  .error-card { background: #fff5f5; border: 1.5px solid #fca5a5; border-radius: var(--radius); padding: 28px; text-align: center; color: #991b1b; }
-  .error-card h3 { margin-bottom: 8px; font-size: 1.05rem; }
-  .error-card p { font-size: .88rem; }
-
-  /* RESULTS */
-  .results-wrap { display: none; animation: fadeIn .4s ease; }
-  .results-wrap.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-  .results-hero { background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%); color: #fff; border-radius: var(--radius); padding: 36px 32px; text-align: center; margin-bottom: 28px; box-shadow: 0 4px 24px rgba(0,51,102,.25); }
-  .results-hero .hero-icon { font-size: 2.8rem; margin-bottom: 10px; }
-  .results-hero h2 { font-size: 1.75rem; margin-bottom: 8px; }
-  .results-hero p { opacity: .85; font-size: .95rem; }
-  .results-stats { display: flex; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
-  .stat-card { flex: 1; min-width: 130px; background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; text-align: center; }
-  .stat-num { font-size: 2rem; font-weight: 700; color: var(--blue); }
-  .stat-label { font-size: .78rem; color: var(--gray-dark); margin-top: 4px; text-transform: uppercase; letter-spacing: .04em; }
-  .results-table-wrap { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 24px; }
-  .results-table-title { padding: 14px 20px; background: var(--navy); color: #fff; font-weight: 600; font-size: .92rem; }
-  table { width: 100%; border-collapse: collapse; }
-  th { background: #f1f5f9; color: var(--gray-dark); font-size: .76rem; text-transform: uppercase; letter-spacing: .05em; padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--gray-mid); }
-  td { padding: 11px 16px; font-size: .87rem; border-bottom: 1px solid var(--gray-mid); vertical-align: top; }
-  tr:last-child td { border-bottom: none; }
-  tr:nth-child(even) td { background: #fafbfc; }
-  tr:hover td { background: var(--blue-light); }
-  .td-q { max-width: 340px; font-weight: 500; }
-  .td-r { color: var(--navy); }
-  .td-n { color: var(--gray-dark); font-style: italic; }
-  .results-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
-
-  @media (max-width: 600px) {
-    .navbar { padding: 0 14px; }
-    .navbar-meta { gap: 10px; font-size: .78rem; }
-    .main { padding: 20px 12px 50px; }
-    .q-card { padding: 16px 14px 12px; }
-    .nav-bar { padding: 12px 14px; }
-    .btn { padding: 9px 16px; font-size: .87rem; }
-    .results-hero { padding: 24px 16px; }
-    .results-hero h2 { font-size: 1.4rem; }
-  }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 40px 20px; }
+  .progress-bar-wrap { width: 100%; max-width: 700px; background: #dde3ea; border-radius: 8px; height: 8px; margin-bottom: 24px; }
+  .progress-bar-fill { height: 8px; background: #003366; border-radius: 8px; transition: width 0.3s ease; }
+  .progress-label { width: 100%; max-width: 700px; font-size: 13px; color: #666; margin-bottom: 8px; display: flex; justify-content: space-between; }
+  .card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 40px; width: 100%; max-width: 700px; }
+  .category-tag { display: inline-block; background: #e8f0fe; color: #003366; font-size: 12px; font-weight: 600; border-radius: 20px; padding: 4px 14px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .question-text { font-size: 20px; font-weight: 600; color: #1a1a2e; line-height: 1.5; margin-bottom: 28px; }
+  .hint { font-size: 13px; color: #888; margin-bottom: 16px; font-style: italic; }
+  .options { display: flex; flex-direction: column; gap: 12px; }
+  .option-btn { background: #f7f9fc; border: 2px solid #dde3ea; border-radius: 10px; padding: 14px 18px; font-size: 15px; color: #333; cursor: pointer; text-align: left; transition: all 0.2s; }
+  .option-btn:hover { border-color: #003366; background: #e8f0fe; }
+  .option-btn.selected { border-color: #003366; background: #003366; color: #fff; }
+  textarea { width: 100%; border: 2px solid #dde3ea; border-radius: 10px; padding: 14px 18px; font-size: 15px; font-family: inherit; color: #333; resize: vertical; min-height: 120px; outline: none; transition: border 0.2s; }
+  textarea:focus { border-color: #003366; }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; }
+  .btn { padding: 12px 28px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn-back { background: #f0f4f8; color: #555; }
+  .btn-back:hover { background: #dde3ea; }
+  .btn-next { background: #003366; color: #fff; }
+  .btn-next:hover { background: #00509e; }
+  .btn-next:disabled { background: #aab4c4; cursor: not-allowed; }
+  .btn-submit { background: #00875a; color: #fff; }
+  .btn-submit:hover { background: #006644; }
 </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
-<nav class="navbar">
-  <div class="navbar-brand">
-    <span class="brand-dot"></span>
-    ZTB Super App
-  </div>
-  <div class="navbar-meta">
-    <div class="meta-item">
-      <span class="meta-label">Customer</span>
-      <span id="customerName">—</span>
-    </div>
-    <span class="meta-sep">|</span>
-    <div class="meta-item">
-      <span class="meta-label">SE</span>
-      <span id="seName">—</span>
-    </div>
-  </div>
-</nav>
+<div class="progress-label">
+  <span id="categoryLabel"></span>
+  <span id="counterLabel"></span>
+</div>
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+</div>
 
-<div class="main">
-  <!-- LOADING STATE -->
-  <div id="loadingWrap" class="loading-wrap">
-    <div class="spinner"></div>
-    <div class="loading-text">Loading assessment questions…</div>
-  </div>
-
-  <!-- ERROR STATE -->
-  <div id="errorWrap" style="display:none;">
-    <div class="error-card">
-      <h3>Unable to load questions</h3>
-      <p id="errorMsg">Could not reach the server. Please try again.</p>
-      <br>
-      <button class="btn btn-next" style="margin:0 auto;" onclick="loadQuestions()">Retry</button>
-    </div>
-  </div>
-
-  <!-- ASSESSMENT WIZARD -->
-  <div id="assessmentWrap" style="display:none;">
-    <!-- Progress -->
-    <div class="progress-wrap">
-      <div class="progress-header">
-        <span class="progress-label" id="progressLabel">Category 1</span>
-        <span class="progress-step" id="progressStep">Step 1 of 1</span>
-      </div>
-      <div class="progress-track">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
-      <div class="step-dots" id="stepDots"></div>
-    </div>
-
-    <!-- Category panels (generated dynamically) -->
-    <div id="panelsContainer"></div>
-
-    <!-- Navigation -->
-    <div class="nav-bar">
-      <button class="btn btn-prev" id="btnPrev" onclick="navigate(-1)" disabled>
-        &#8592; Previous
-      </button>
-      <button class="btn btn-next" id="btnNext" onclick="navigate(1)">
-        Next &#8594;
-      </button>
-    </div>
-  </div>
-
-  <!-- RESULTS PAGE -->
-  <div id="resultsWrap" class="results-wrap">
-    <div class="results-hero">
-      <div class="hero-icon">&#10003;</div>
-      <h2>Assessment Complete!</h2>
-      <p>Your responses have been submitted successfully.</p>
-    </div>
-    <div class="results-stats" id="resultsStats"></div>
-    <div class="results-table-wrap">
-      <div class="results-table-title">&#128203; Response Summary</div>
-      <div style="overflow-x:auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Question</th>
-              <th>Response</th>
-              <th>Notes</th>
-            </tr>
-          </thead>
-          <tbody id="resultsTbody"></tbody>
-        </table>
-      </div>
-    </div>
-    <div class="results-actions">
-      <button class="btn btn-green" onclick="downloadExport()">&#11015; Download Excel Report</button>
-      <button class="btn btn-outline" onclick="location.reload()">&#8635; Start New Assessment</button>
-    </div>
+<div class="card" id="questionCard">
+  <div class="category-tag" id="catTag"></div>
+  <div class="question-text" id="qText"></div>
+  <div class="hint" id="qHint"></div>
+  <div class="options" id="optionsArea"></div>
+  <div class="nav">
+    <button class="btn btn-back" id="backBtn" onclick="goBack()">← Back</button>
+    <button class="btn btn-next" id="nextBtn">Next →</button>
   </div>
 </div>
 
 <script>
-// ─── State ───────────────────────────────────────────────────────────────────
-let categories = [];       // [{category, questions:[]}]
-let currentStep = 0;       // 0-based index into categories
-let responses = {};        // { questionId: { answer, notes } }
-let questionCounter = 0;
+const questions = {{ questions | tojson }};
+let current = 0;
+const responses = {};
 
-// ─── Boot ─────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  // Read sessionStorage
-  const cust = sessionStorage.getItem('customer_name') || '—';
-  const se   = sessionStorage.getItem('se_name')       || '—';
-  document.getElementById('customerName').textContent = cust;
-  document.getElementById('seName').textContent       = se;
-  loadQuestions();
-});
-
-// ─── Load questions ───────────────────────────────────────────────────────────
-async function loadQuestions() {
-  show('loadingWrap'); hide('errorWrap'); hide('assessmentWrap'); hide('resultsWrap');
-  try {
-    const res = await fetch('/user/questions');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (!Array.isArray(data) || data.length === 0) throw new Error('No categories returned');
-    categories = data;
-    buildWizard();
-    hide('loadingWrap');
-    show('assessmentWrap');
-    renderStep(0);
-  } catch (err) {
-    hide('loadingWrap');
-    document.getElementById('errorMsg').textContent = err.message || 'Unknown error.';
-    show('errorWrap');
-  }
+function normalise(t) {
+  return (t || '').toLowerCase().replace(/[^a-z]/g, '');
 }
 
-// ─── Build wizard panels ──────────────────────────────────────────────────────
-function buildWizard() {
-  const container = document.getElementById('panelsContainer');
-  container.innerHTML = '';
-  const dots = document.getElementById('stepDots');
-  dots.innerHTML = '';
-  questionCounter = 0;
+function render() {
+  const q = questions[current];
+  const total = questions.length;
+  const type = normalise(q.options_type); // 'selectone', 'selectallthatapply', 'text'
 
-  categories.forEach((cat, ci) => {
-    // Panel
-    const panel = document.createElement('div');
-    panel.className = 'wizard-panel';
-    panel.id = `panel-${ci}`;
+  // Progress
+  const pct = Math.round(((current + 1) / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('counterLabel').textContent = (current + 1) + ' of ' + total;
+  document.getElementById('categoryLabel').textContent = q.category;
+  document.getElementById('catTag').textContent = q.category;
+  document.getElementById('qText').textContent = q.text;
 
-    const catIcons = ['&#128196;','&#128200;','&#128202;','&#128203;','&#9881;','&#128269;','&#127919;','&#128161;'];
-    const icon = catIcons[ci % catIcons.length];
+  // Hint line
+  const hint = document.getElementById('qHint');
+  if (type === 'selectone') hint.textContent = 'Select one answer';
+  else if (type === 'selectallthatapply' || type === 'selectall') hint.textContent = 'Select all that apply';
+  else if (type === 'text' || type === 'textbox') hint.textContent = 'Type your answer below';
+  else hint.textContent = '';
 
-    let html = `<div class="category-heading"><div class="cat-icon">${icon}</div><span>${escHtml(cat.category)}</span></div>`;
+  const area = document.getElementById('optionsArea');
+  area.innerHTML = '';
 
-    (cat.questions || []).forEach((q, qi) => {
-      questionCounter++;
-      const qId = `q_${ci}_${qi}`;
-      responses[qId] = { answer: null, notes: '' };
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.disabled = true;
 
-      html += `<div class="q-card${q.info_only ? ' info-only' : ''}" id="card-${qId}">`;
-      html += `<div class="q-num">Question ${questionCounter}</div>`;
-      html += `<div class="q-text">${escHtml(q.question || q.text || '')}</div>`;
-      if (q.details) html += `<div class="q-details">${escHtml(q.details)}</div>`;
+  if (q.info_only) {
+    // Info-only: just show text, auto-allow next
+    hint.textContent = '';
+    nextBtn.disabled = false;
 
-      if (q.info_only) {
-        html += `<span class="info-badge">&#8505; Info Only</span>`;
-      } else {
-        const optType = (q.options_type || q.optionsType || '').toLowerCase();
-        const opts    = q.options || [];
-
-        if (optType === 'select all' || optType === 'select_all') {
-          html += `<div class="options-list" id="opts-${qId}">`;
-          opts.forEach((opt, oi) => {
-            const optId = `${qId}_opt_${oi}`;
-            const optVal = escHtml(typeof opt === 'string' ? opt : opt.label || opt.value || String(opt));
-            html += `<label class="option-item" id="lbl-${optId}">
-              <input type="checkbox" id="${optId}" name="${qId}" value="${optVal}"
-                     onchange="onCheckChange('${qId}','${optId}',this)">
-              <span class="option-label">${optVal}</span>
-            </label>`;
-          });
-          html += `</div>`;
-        } else if (optType === 'select one' || optType === 'select_one') {
-          html += `<div class="options-list" id="opts-${qId}">`;
-          opts.forEach((opt, oi) => {
-            const optId = `${qId}_opt_${oi}`;
-            const optVal = escHtml(typeof opt === 'string' ? opt : opt.label || opt.value || String(opt));
-            html += `<label class="option-item" id="lbl-${optId}">
-              <input type="radio" id="${optId}" name="${qId}" value="${optVal}"
-                     onchange="onRadioChange('${qId}','${optId}',this)">
-              <span class="option-label">${optVal}</span>
-            </label>`;
-          });
-          html += `</div>`;
-        } else if (optType === 'textbox') {
-          html += `<textarea class="q-textarea" id="txt-${qId}" placeholder="Enter your response…"
-            oninput="responses['${qId}'].answer = this.value"></textarea>`;
-        }
-      }
-
-      // Notes
-      html += `<div class="notes-section">
-        <div class="notes-label">Notes</div>
-        <textarea class="notes-textarea" id="notes-${qId}" placeholder="Add notes…"
-          oninput="responses['${qId}'].notes = this.value"></textarea>
-      </div>`;
-
-      html += `</div>`; // end q-card
+  } else if (type === 'selectone') {
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn' + (responses[q.question_id] === opt.id ? ' selected' : '');
+      btn.textContent = opt.label;
+      btn.onclick = () => {
+        responses[q.question_id] = opt.id;
+        document.querySelectorAll('#optionsArea .option-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        nextBtn.disabled = false;
+      };
+      area.appendChild(btn);
     });
+    if (responses[q.question_id] !== undefined) nextBtn.disabled = false;
 
-    panel.innerHTML = html;
-    container.appendChild(panel);
+  } else if (type === 'selectallthatapply' || type === 'selectall') {
+    if (!Array.isArray(responses[q.question_id])) responses[q.question_id] = [];
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      const alreadySel = responses[q.question_id].includes(opt.id);
+      btn.className = 'option-btn' + (alreadySel ? ' selected' : '');
+      btn.textContent = opt.label;
+      btn.onclick = () => {
+        const arr = responses[q.question_id];
+        const idx = arr.indexOf(opt.id);
+        if (idx > -1) { arr.splice(idx, 1); btn.classList.remove('selected'); }
+        else { arr.push(opt.id); btn.classList.add('selected'); }
+        nextBtn.disabled = arr.length === 0;
+      };
+      area.appendChild(btn);
+    });
+    if (Array.isArray(responses[q.question_id]) && responses[q.question_id].length > 0) nextBtn.disabled = false;
 
-    // Dot
-    const dot = document.createElement('div');
-    dot.className = 'step-dot';
-    dot.id = `dot-${ci}`;
-    dot.title = cat.category;
-    dots.appendChild(dot);
-  });
-}
+  } else if (type === 'text' || type === 'textbox') {
+    const ta = document.createElement('textarea');
+    ta.placeholder = 'Type your answer here...';
+    ta.value = responses[q.question_id] || '';
+    ta.oninput = () => {
+      responses[q.question_id] = ta.value;
+      nextBtn.disabled = ta.value.trim() === '';
+    };
+    area.appendChild(ta);
+    if (responses[q.question_id] && responses[q.question_id].trim() !== '') nextBtn.disabled = false;
+  }
 
-// ─── Option change handlers ────────────────────────────────────────────────────
-function onCheckChange(qId, optId, el) {
-  const lbl = document.getElementById(`lbl-${optId}`);
-  if (el.checked) lbl.classList.add('selected'); else lbl.classList.remove('selected');
-  // Collect all checked values
-  const checked = [...document.querySelectorAll(`input[name="${qId}"]:checked`)].map(i => i.value);
-  responses[qId].answer = checked.length ? checked : null;
-}
+  // Back button
+  document.getElementById('backBtn').style.visibility = current === 0 ? 'hidden' : 'visible';
 
-function onRadioChange(qId, optId, el) {
-  // Clear all labels in group
-  document.querySelectorAll(`input[name="${qId}"]`).forEach(i => {
-    const p = i.closest('.option-item');
-    if (p) p.classList.remove('selected');
-  });
-  const lbl = document.getElementById(`lbl-${optId}`);
-  if (lbl) lbl.classList.add('selected');
-  responses[qId].answer = el.value;
-}
-
-// ─── Step rendering ────────────────────────────────────────────────────────────
-function renderStep(index) {
-  // Hide all panels
-  categories.forEach((_, i) => {
-    const p = document.getElementById(`panel-${i}`);
-    if (p) p.classList.remove('active');
-  });
-
-  currentStep = index;
-
-  // Show current panel (use rAF for transition)
-  requestAnimationFrame(() => {
-    const panel = document.getElementById(`panel-${index}`);
-    if (panel) {
-      panel.style.display = 'block';
-      requestAnimationFrame(() => panel.classList.add('active'));
-    }
-  });
-
-  // Progress bar
-  const pct = categories.length > 1
-    ? Math.round(((index) / (categories.length - 1)) * 100)
-    : 100;
-  document.getElementById('progressFill').style.width = `${pct}%`;
-  document.getElementById('progressLabel').textContent = categories[index].category;
-  document.getElementById('progressStep').textContent  = `Step ${index + 1} of ${categories.length}`;
-
-  // Dots
-  categories.forEach((_, i) => {
-    const dot = document.getElementById(`dot-${i}`);
-    dot.classList.remove('done', 'active');
-    if (i < index)      dot.classList.add('done');
-    else if (i === index) dot.classList.add('active');
-  });
-
-  // Buttons
-  const btnPrev = document.getElementById('btnPrev');
-  const btnNext = document.getElementById('btnNext');
-  btnPrev.disabled = (index === 0);
-
-  const isLast = (index === categories.length - 1);
-  if (isLast) {
-    btnNext.textContent = '';
-    btnNext.innerHTML   = '&#10003; Submit Assessment';
-    btnNext.classList.remove('btn-next');
-    btnNext.classList.add('btn-submit');
-    btnNext.onclick = submitAssessment;
+  // Next vs Submit
+  if (current === total - 1) {
+    nextBtn.textContent = 'Submit ✓';
+    nextBtn.className = 'btn btn-submit';
+    nextBtn.onclick = submitAll;
   } else {
-    btnNext.innerHTML = 'Next &#8594;';
-    btnNext.classList.remove('btn-submit');
-    btnNext.classList.add('btn-next');
-    btnNext.onclick = () => navigate(1);
+    nextBtn.textContent = 'Next →';
+    nextBtn.className = 'btn btn-next';
+    if (q.info_only) nextBtn.className += '';
+    nextBtn.onclick = goNext;
   }
+  // Re-apply disabled after class change
+  if (q.info_only) nextBtn.disabled = false;
 }
 
-// ─── Navigation ───────────────────────────────────────────────────────────────
-function navigate(dir) {
-  const next = currentStep + dir;
-  if (next < 0 || next >= categories.length) return;
-  // Fade out current
-  const cur = document.getElementById(`panel-${currentStep}`);
-  if (cur) cur.classList.remove('active');
-  setTimeout(() => {
-    if (cur) cur.style.display = 'none';
-    renderStep(next);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, 200);
+function goNext() {
+  if (current < questions.length - 1) { current++; render(); }
 }
 
-// ─── Submit ────────────────────────────────────────────────────────────────────
-async function submitAssessment() {
-  const btnNext = document.getElementById('btnNext');
-  btnNext.disabled = true;
-  btnNext.innerHTML = '<span style="display:inline-block;width:18px;height:18px;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;"></span> Submitting…';
-
-  // Build payload
-  const payload = [];
-  categories.forEach((cat, ci) => {
-    (cat.questions || []).forEach((q, qi) => {
-      const qId = `q_${ci}_${qi}`;
-      const r   = responses[qId] || {};
-      payload.push({
-        category: cat.category,
-        question: q.question || q.text || '',
-        answer:   r.answer,
-        notes:    r.notes || ''
-      });
-    });
-  });
-
-  try {
-    const res = await fetch('/user/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ responses: payload })
-    });
-    if (!res.ok) throw new Error(`Server returned ${res.status}`);
-    const data = await res.json();
-    showResults(payload, data);
-  } catch (err) {
-    btnNext.disabled = false;
-    btnNext.innerHTML = '&#10003; Submit Assessment';
-    alert('Submission failed: ' + (err.message || 'Unknown error'));
-  }
+function goBack() {
+  if (current > 0) { current--; render(); }
 }
 
-// ─── Results ──────────────────────────────────────────────────────────────────
-function showResults(payload, serverData) {
-  hide('assessmentWrap');
-  const rw = document.getElementById('resultsWrap');
-  rw.classList.add('active');
-
-  // Stats
-  const total    = payload.length;
-  const answered = payload.filter(r => r.answer !== null && r.answer !== '' && !(Array.isArray(r.answer) && r.answer.length === 0)).length;
-  const scored   = serverData && serverData.score != null ? serverData.score : null;
-  const matched  = serverData && serverData.value_props_matched != null ? serverData.value_props_matched : null;
-
-  const statsEl  = document.getElementById('resultsStats');
-  statsEl.innerHTML = `
-    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Total Questions</div></div>
-    <div class="stat-card"><div class="stat-num">${answered}</div><div class="stat-label">Answered</div></div>
-    ${scored !== null ? `<div class="stat-card"><div class="stat-num">${scored}</div><div class="stat-label">Total Score</div></div>` : ''}
-    ${matched !== null ? `<div class="stat-card"><div class="stat-num">${matched}</div><div class="stat-label">Value Props Matched</div></div>` : ''}
-  `;
-
-  // Table
-  const tbody = document.getElementById('resultsTbody');
-  tbody.innerHTML = payload.map(r => {
-    const ans = Array.isArray(r.answer) ? r.answer.join(', ') : (r.answer || '<em style="color:#94a3b8">—</em>');
-    const notes = r.notes ? escHtml(r.notes) : '<em style="color:#94a3b8">—</em>';
-    return `<tr>
-      <td>${escHtml(r.category)}</td>
-      <td class="td-q">${escHtml(r.question)}</td>
-      <td class="td-r">${ans}</td>
-      <td class="td-n">${notes}</td>
-    </tr>`;
-  }).join('');
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+function submitAll() {
+  fetch('/user/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ responses })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById('questionCard').innerHTML =
+        '<div style="text-align:center;padding:40px 0;">' +
+        '<div style="font-size:48px;margin-bottom:16px;">✅</div>' +
+        '<h2 style="color:#003366;margin-bottom:12px;">Assessment Complete!</h2>' +
+        '<p style="color:#555;font-size:16px;margin-bottom:28px;">Thank you. Your responses have been saved.</p>' +
+        '<a href="/user/export" style="background:#003366;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;">📥 Download Report</a>' +
+        '</div>';
+      document.getElementById('progressFill').style.width = '100%';
+    }
+  })
+  .catch(() => alert('Submission failed. Please try again.'));
 }
 
-// ─── Export ───────────────────────────────────────────────────────────────────
-async function downloadExport() {
-  try {
-    const res = await fetch('/user/export');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const blob = await res.blob();
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    const cd   = res.headers.get('Content-Disposition') || '';
-    const match = cd.match(/filename[^;=\n]*=(['"]?)(.+?)\1/);
-    a.download = match ? match[2] : 'assessment_report.xlsx';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
-  } catch (err) {
-    alert('Export failed: ' + (err.message || 'Unknown error'));
-  }
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-function show(id) { const el = document.getElementById(id); if (el) el.style.display = ''; }
-function hide(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
-function escHtml(str) {
-  if (str == null) return '';
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+render();
 </script>
 </body>
 </html>

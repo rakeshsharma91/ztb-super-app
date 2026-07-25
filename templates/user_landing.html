@@ -1,1053 +1,347 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- ============================================================
-       META & TITLE
-  ============================================================ -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZTB Super App &mdash; Zero Trust Branch Assessment Tool</title>
-
-  <!-- ============================================================
-       INLINE STYLES
-  ============================================================ -->
+  <title>ZTB Super App — Zero Trust Branch Assessment</title>
   <style>
-    /* ---------- CSS Reset & Base ---------- */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --navy:        #003366;
-      --navy-dark:   #002244;
-      --navy-mid:    #004080;
-      --blue:        #0070c0;
-      --blue-light:  #1a8fe0;
-      --blue-pale:   #e6f2fb;
-      --accent:      #00aaff;
-      --white:       #ffffff;
-      --grey-50:     #f8fafc;
-      --grey-100:    #eef2f7;
-      --grey-300:    #c8d4e3;
-      --grey-500:    #7a90aa;
-      --grey-700:    #3d5166;
-      --text:        #1a2b3c;
-      --shadow-sm:   0 2px 8px rgba(0,51,102,0.10);
-      --shadow-md:   0 6px 24px rgba(0,51,102,0.14);
-      --shadow-lg:   0 16px 48px rgba(0,51,102,0.18);
-      --radius-sm:   6px;
-      --radius-md:   12px;
-      --radius-lg:   20px;
-      --transition:  0.25s ease;
+      --navy:      #003366;
+      --navy-dark: #002244;
+      --blue:      #0070c0;
+      --accent:    #00aaff;
+      --white:     #ffffff;
+      --navy-mid:  #004080;
+      --card-bg:   #0a2a50;
+      --text-muted: #a0bcd8;
+      --border:    rgba(0, 170, 255, 0.25);
+      --shadow:    0 8px 40px rgba(0, 0, 0, 0.55);
     }
-
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: var(--grey-50);
-      color: var(--text);
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-
-    /* ---------- Top Navigation Bar ---------- */
-    .topbar {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
       background: var(--navy-dark);
-      padding: 0 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 56px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      color: var(--white);
+      min-height: 100vh;
+      overflow-x: hidden;
     }
-
-    .topbar-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0 2rem; height: 60px;
+      background: rgba(0, 22, 44, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
     }
-
-    /* Zscaler-style "Z" logo mark */
-    .logo-mark {
-      width: 32px;
-      height: 32px;
+    .nav-logo {
+      width: 36px; height: 36px;
       background: linear-gradient(135deg, var(--blue), var(--accent));
       border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 18px;
-      color: white;
-      letter-spacing: -1px;
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; font-weight: 800; color: var(--white);
+      box-shadow: 0 0 12px rgba(0,170,255,0.4);
     }
-
-    .topbar-brand-text {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--white);
-      letter-spacing: 0.02em;
-    }
-
-    .topbar-brand-text span {
-      color: var(--accent);
-    }
-
-    .topbar-badge {
-      font-size: 0.7rem;
-      background: rgba(0,170,255,0.2);
-      color: var(--accent);
-      border: 1px solid rgba(0,170,255,0.4);
-      border-radius: 20px;
-      padding: 2px 10px;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-    }
-
-    /* ---------- Hero Section ---------- */
-    .hero {
-      background: linear-gradient(145deg, var(--navy-dark) 0%, var(--navy) 45%, var(--navy-mid) 100%);
-      color: var(--white);
-      padding: 72px 2rem 80px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* Subtle geometric background pattern */
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image:
-        radial-gradient(circle at 20% 30%, rgba(0,112,192,0.25) 0%, transparent 50%),
-        radial-gradient(circle at 80% 70%, rgba(0,170,255,0.18) 0%, transparent 50%),
-        radial-gradient(circle at 50% 10%, rgba(255,255,255,0.04) 0%, transparent 40%);
-      pointer-events: none;
-    }
-
-    /* Grid dot pattern overlay */
-    .hero::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
-      background-size: 32px 32px;
-      pointer-events: none;
-    }
-
-    .hero-inner {
-      position: relative;
-      z-index: 1;
-      max-width: 700px;
-      margin: 0 auto;
-    }
-
-    .hero-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
+    .nav-brand { font-size: 1.05rem; font-weight: 700; color: var(--white); }
+    .nav-badge {
+      margin-left: 0.5rem; padding: 2px 10px;
       background: rgba(0,170,255,0.15);
-      border: 1px solid rgba(0,170,255,0.35);
-      color: var(--accent);
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      padding: 6px 16px;
-      border-radius: 20px;
-      margin-bottom: 24px;
+      border: 1px solid rgba(0,170,255,0.4);
+      border-radius: 20px; font-size: 0.68rem;
+      font-weight: 600; color: var(--accent);
+      letter-spacing: 0.05em; text-transform: uppercase;
     }
-
-    .hero-eyebrow::before {
-      content: '';
-      width: 7px; height: 7px;
-      background: var(--accent);
-      border-radius: 50%;
-      animation: pulse 2s infinite;
+    .nav-spacer { flex: 1; }
+    .nav-status { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-muted); }
+    .nav-status-dot {
+      width: 7px; height: 7px; background: #22c55e;
+      border-radius: 50%; box-shadow: 0 0 6px rgba(34,197,94,0.6);
+      animation: pulse-green 2s infinite;
     }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50%       { opacity: 0.5; transform: scale(1.4); }
-    }
-
-    .hero h1 {
-      font-size: clamp(2.2rem, 5vw, 3.4rem);
-      font-weight: 800;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      margin-bottom: 12px;
-    }
-
-    .hero h1 .gradient-text {
-      background: linear-gradient(90deg, #60c8ff, var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .hero-subtitle {
-      font-size: 1.15rem;
-      color: rgba(255,255,255,0.72);
-      margin-bottom: 8px;
-      font-weight: 400;
-      letter-spacing: 0.03em;
-    }
-
-    .hero-tagline {
-      font-size: 0.95rem;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 48px;
-      font-style: italic;
-    }
-
-    /* ---------- Stat Pills ---------- */
-    .hero-stats {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 0;
-    }
-
-    .stat-pill {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 30px;
-      padding: 8px 20px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: rgba(255,255,255,0.85);
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-
-    .stat-pill .pill-icon {
-      font-size: 1rem;
-    }
-
-    /* ---------- Main Content Wrapper ---------- */
-    .page-body {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 1.5rem 4rem;
-    }
-
-    /* ---------- Form Card ---------- */
-    .form-card-wrap {
-      margin-top: -40px;
-      margin-bottom: 56px;
-      display: flex;
-      justify-content: center;
-    }
-
-    .form-card {
-      background: var(--white);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-lg);
-      padding: 44px 48px;
-      width: 100%;
-      max-width: 540px;
-      border: 1px solid rgba(0,112,192,0.08);
+    @keyframes pulse-green { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    .hero {
       position: relative;
-      overflow: hidden;
+      background: linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 50%, #004d99 100%);
+      padding: 5rem 2rem 10rem; text-align: center; overflow: hidden;
     }
-
-    /* Blue accent bar at top of card */
-    .form-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--blue), var(--accent));
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(0,170,255,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,170,255,0.06) 1px, transparent 1px);
+      background-size: 48px 48px; pointer-events: none;
     }
-
-    .form-card h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 6px;
-    }
-
-    .form-card .form-intro {
-      font-size: 0.9rem;
-      color: var(--grey-500);
-      margin-bottom: 28px;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--grey-700);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-bottom: 7px;
-    }
-
-    .form-group label .required {
-      color: var(--blue);
-      margin-left: 2px;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 12px 16px;
-      font-size: 0.97rem;
-      color: var(--text);
-      background: var(--grey-50);
-      border: 1.5px solid var(--grey-300);
-      border-radius: var(--radius-sm);
-      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
-      outline: none;
-      font-family: inherit;
-    }
-
-    .form-group input::placeholder {
-      color: var(--grey-300);
-    }
-
-    .form-group input:focus {
-      border-color: var(--blue);
-      background: var(--white);
-      box-shadow: 0 0 0 3px rgba(0,112,192,0.12);
-    }
-
-    .form-group input:focus + .input-hint {
-      color: var(--blue);
-    }
-
-    .input-hint {
-      font-size: 0.76rem;
-      color: var(--grey-500);
-      margin-top: 5px;
-      transition: color var(--transition);
-    }
-
-    /* ---------- Submit Button ---------- */
-    .btn-submit {
-      width: 100%;
-      padding: 15px 24px;
-      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-light) 100%);
-      color: var(--white);
-      font-size: 1rem;
-      font-weight: 700;
-      border: none;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      letter-spacing: 0.03em;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 8px;
-      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
-      box-shadow: 0 4px 16px rgba(0,112,192,0.35);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn-submit::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.12) 100%);
+    .hero::after {
+      content: ''; position: absolute; top: -80px; left: 50%;
+      transform: translateX(-50%); width: 600px; height: 400px;
+      background: radial-gradient(ellipse, rgba(0,112,192,0.35) 0%, transparent 70%);
       pointer-events: none;
     }
-
-    .btn-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,112,192,0.45);
-      background: linear-gradient(135deg, var(--navy-mid) 0%, var(--blue-light) 100%);
+    .hero-content { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 5px 14px; background: rgba(0,170,255,0.1);
+      border: 1px solid rgba(0,170,255,0.35); border-radius: 20px;
+      font-size: 0.78rem; font-weight: 600; color: var(--accent);
+      letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1.4rem;
     }
-
-    .btn-submit:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 8px rgba(0,112,192,0.30);
+    .hero-eyebrow-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800;
+      line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--white) 40%, var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-
-    .btn-submit:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-      transform: none;
+    .hero-tagline { font-size: 1.1rem; color: var(--text-muted); line-height: 1.65; max-width: 520px; margin: 0 auto; }
+    .form-card-wrapper {
+      position: relative; z-index: 10;
+      max-width: 480px; margin: -6rem auto 0; padding: 0 1.5rem;
     }
-
-    .btn-arrow {
-      font-size: 1.1rem;
-      transition: transform var(--transition);
+    .form-card {
+      background: linear-gradient(145deg, #0d2d52, #0a2244);
+      border: 1px solid var(--border); border-radius: 20px;
+      padding: 2.4rem 2.2rem; box-shadow: var(--shadow);
     }
-
-    .btn-submit:hover .btn-arrow {
-      transform: translateX(4px);
+    .form-card-header { text-align: center; margin-bottom: 1.8rem; }
+    .form-card-icon {
+      width: 52px; height: 52px; margin: 0 auto 1rem;
+      background: linear-gradient(135deg, var(--blue), var(--accent));
+      border-radius: 14px; display: flex; align-items: center;
+      justify-content: center; font-size: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0,170,255,0.35);
     }
-
-    /* Loading spinner */
-    .spinner {
-      display: none;
-      width: 18px; height: 18px;
-      border: 2px solid rgba(255,255,255,0.35);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
+    .form-card h2 { font-size: 1.4rem; font-weight: 700; color: var(--white); margin-bottom: 0.35rem; }
+    .form-card-subtitle { font-size: 0.85rem; color: var(--text-muted); }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label {
+      display: block; font-size: 0.8rem; font-weight: 600;
+      color: var(--text-muted); letter-spacing: 0.04em;
+      text-transform: uppercase; margin-bottom: 0.45rem;
     }
-
+    .form-group input {
+      width: 100%; padding: 0.75rem 1rem;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(0,170,255,0.2);
+      border-radius: 10px; color: var(--white); font-size: 0.95rem;
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input::placeholder { color: rgba(160,188,216,0.45); }
+    .form-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,170,255,0.15); }
+    .form-group input.error-field { border-color: #f87171; box-shadow: 0 0 0 3px rgba(248,113,113,0.15); }
+    .error-msg { display: none; font-size: 0.78rem; color: #f87171; margin-top: 0.35rem; }
+    .error-msg.visible { display: block; }
+    .global-error {
+      display: none; background: rgba(248,113,113,0.12);
+      border: 1px solid rgba(248,113,113,0.35); border-radius: 8px;
+      padding: 0.7rem 0.9rem; font-size: 0.83rem; color: #fca5a5;
+      margin-bottom: 1rem; text-align: center;
+    }
+    .global-error.visible { display: block; }
+    .submit-btn {
+      width: 100%; padding: 0.85rem;
+      background: linear-gradient(135deg, var(--blue), var(--accent));
+      border: none; border-radius: 10px; color: var(--white);
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 18px rgba(0,112,192,0.5); margin-top: 0.4rem;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .submit-btn:hover:not(:disabled) { opacity: 0.92; transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-spinner {
+      display: none; width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    .submit-btn.loading .btn-spinner { display: block; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ---------- Error / Validation Message ---------- */
-    .form-error {
-      display: none;
-      background: #fff0f0;
-      border: 1px solid #ffcccc;
-      color: #c0392b;
-      border-radius: var(--radius-sm);
-      padding: 10px 14px;
-      font-size: 0.84rem;
-      margin-bottom: 16px;
-      font-weight: 500;
+    .form-card-footer {
+      text-align: center; margin-top: 1.2rem; font-size: 0.75rem;
+      color: rgba(160,188,216,0.55); display: flex; align-items: center;
+      justify-content: center; gap: 6px;
     }
-
-    /* ---------- Welcome / About Section ---------- */
-    .section-welcome {
-      text-align: center;
-      margin-bottom: 56px;
-    }
-
-    .section-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--blue);
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .section-label::before,
-    .section-label::after {
-      content: '';
-      flex: 1;
-      max-width: 60px;
-      height: 1px;
-      background: var(--blue);
-      opacity: 0.4;
-    }
-
-    .section-title {
-      font-size: clamp(1.6rem, 3vw, 2.1rem);
-      font-weight: 800;
-      color: var(--navy);
-      margin-bottom: 16px;
-      letter-spacing: -0.015em;
-    }
-
-    .section-desc {
-      font-size: 1.02rem;
-      color: var(--grey-700);
-      max-width: 640px;
-      margin: 0 auto;
-      line-height: 1.75;
-    }
-
-    /* ---------- Feature Cards ---------- */
-    .features-section {
-      margin-bottom: 56px;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 24px;
-      margin-top: 40px;
-    }
-
+    .features { max-width: 1080px; margin: 5rem auto 0; padding: 0 1.5rem 4rem; }
+    .section-label { text-align: center; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.7rem; }
+    .section-title { text-align: center; font-size: clamp(1.4rem,3vw,2rem); font-weight: 700; color: var(--white); margin-bottom: 0.6rem; }
+    .section-desc { text-align: center; color: var(--text-muted); font-size: 0.95rem; max-width: 520px; margin: 0 auto 2.8rem; line-height: 1.65; }
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 1.2rem; }
     .feature-card {
-      background: var(--white);
-      border-radius: var(--radius-md);
-      padding: 32px 28px;
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--grey-100);
-      transition: transform var(--transition), box-shadow var(--transition);
-      position: relative;
-      overflow: hidden;
+      background: linear-gradient(145deg, #0d2d52, #0a2244);
+      border: 1px solid var(--border); border-radius: 16px; padding: 1.6rem 1.4rem;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
     }
-
-    .feature-card::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--blue), var(--accent));
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 0.35s ease;
+    .feature-card:hover { transform: translateY(-4px); border-color: rgba(0,170,255,0.5); box-shadow: 0 8px 32px rgba(0,112,192,0.3); }
+    .feature-icon { font-size: 1.8rem; margin-bottom: 0.9rem; display: block; }
+    .feature-card h3 { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 0.5rem; }
+    .feature-card p { font-size: 0.84rem; color: var(--text-muted); line-height: 1.6; }
+    .how-it-works { background: linear-gradient(180deg, transparent, rgba(0,36,80,0.6), transparent); padding: 4rem 1.5rem; }
+    .steps-container { max-width: 820px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 1.5rem; }
+    .step-card { text-align: center; padding: 1.6rem 1rem; }
+    .step-number {
+      width: 52px; height: 52px; margin: 0 auto 1rem;
+      background: linear-gradient(135deg, var(--navy-mid), var(--blue));
+      border: 2px solid rgba(0,170,255,0.4); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 800; color: var(--accent);
+      box-shadow: 0 0 18px rgba(0,112,192,0.35);
     }
-
-    .feature-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .feature-card:hover::after {
-      transform: scaleX(1);
-    }
-
-    .feature-icon {
-      width: 52px; height: 52px;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      margin-bottom: 20px;
-      flex-shrink: 0;
-    }
-
-    .feature-icon.icon-blue   { background: rgba(0,112,192,0.10); }
-    .feature-icon.icon-green  { background: rgba(0,180,100,0.10); }
-    .feature-icon.icon-purple { background: rgba(120,80,220,0.10); }
-    .feature-icon.icon-orange { background: rgba(230,120,0,0.10); }
-
-    .feature-card h3 {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 10px;
-    }
-
-    .feature-card p {
-      font-size: 0.88rem;
-      color: var(--grey-500);
-      line-height: 1.65;
-    }
-
-    /* ---------- How It Works Section ---------- */
-    .how-section {
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
-      border-radius: var(--radius-lg);
-      padding: 56px 48px;
-      margin-bottom: 56px;
-      color: var(--white);
-      text-align: center;
-    }
-
-    .how-section .section-label {
-      color: var(--accent);
-      justify-content: center;
-    }
-
-    .how-section .section-label::before,
-    .how-section .section-label::after {
-      background: var(--accent);
-    }
-
-    .how-section .section-title {
-      color: var(--white);
-    }
-
-    .steps-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 32px;
-      margin-top: 40px;
-      position: relative;
-    }
-
-    .step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .step-num {
-      width: 48px; height: 48px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.12);
-      border: 2px solid rgba(0,170,255,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: var(--accent);
-    }
-
-    .step h4 {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--white);
-    }
-
-    .step p {
-      font-size: 0.82rem;
-      color: rgba(255,255,255,0.6);
-      line-height: 1.6;
-      text-align: center;
-    }
-
-    /* ---------- CTA Banner ---------- */
-    .cta-banner {
-      background: var(--blue-pale);
-      border: 1px solid rgba(0,112,192,0.2);
-      border-radius: var(--radius-md);
-      padding: 36px 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      margin-bottom: 56px;
-      flex-wrap: wrap;
-    }
-
-    .cta-banner-text h3 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 6px;
-    }
-
-    .cta-banner-text p {
-      font-size: 0.9rem;
-      color: var(--grey-700);
-    }
-
-    .btn-cta {
-      background: var(--navy);
-      color: var(--white);
-      padding: 13px 30px;
-      border-radius: var(--radius-sm);
-      font-size: 0.92rem;
-      font-weight: 700;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: background var(--transition), transform var(--transition);
-      white-space: nowrap;
-    }
-
-    .btn-cta:hover {
-      background: var(--navy-mid);
-      transform: translateY(-1px);
-    }
-
-    /* ---------- Footer ---------- */
+    .step-card h3 { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 0.5rem; }
+    .step-card p { font-size: 0.83rem; color: var(--text-muted); line-height: 1.6; }
     .footer {
-      background: var(--navy-dark);
-      color: rgba(255,255,255,0.55);
-      text-align: center;
-      padding: 28px 2rem;
-      font-size: 0.8rem;
-      line-height: 1.7;
+      border-top: 1px solid var(--border); padding: 1.8rem 2rem;
+      text-align: center; background: rgba(0,0,0,0.25);
+      display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.6rem;
     }
-
-    .footer a {
-      color: rgba(255,255,255,0.4);
-      text-decoration: none;
-    }
-
-    .footer strong {
-      color: rgba(255,255,255,0.8);
-    }
-
-    /* ---------- Responsive ---------- */
-    @media (max-width: 640px) {
-      .hero { padding: 52px 1.25rem 72px; }
-      .form-card { padding: 32px 24px; }
-      .how-section { padding: 40px 24px; }
-      .cta-banner { flex-direction: column; text-align: center; }
-      .topbar-badge { display: none; }
+    .footer-logo { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); }
+    .footer-z { width: 22px; height: 22px; background: linear-gradient(135deg,var(--blue),var(--accent)); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; color: var(--white); }
+    .footer-sep { color: rgba(160,188,216,0.25); margin: 0 0.2rem; }
+    .footer-copy { font-size: 0.78rem; color: rgba(160,188,216,0.45); }
+    @media (max-width: 600px) {
+      .hero { padding: 3.5rem 1rem 8rem; }
+      .form-card-wrapper { margin-top: -5rem; }
+      .form-card { padding: 1.8rem 1.4rem; }
+      .navbar { padding: 0 1rem; }
+      .nav-badge { display: none; }
     }
   </style>
 </head>
 <body>
-
-<!-- ============================================================
-     TOP NAVIGATION BAR
-============================================================ -->
-<nav class="topbar" role="navigation" aria-label="Top navigation">
-  <a href="/" class="topbar-brand" aria-label="ZTB Super App Home">
-    <div class="logo-mark" aria-hidden="true">Z</div>
-    <span class="topbar-brand-text">ZTB <span>Super App</span></span>
-  </a>
-  <span class="topbar-badge">&#x1F512; Zero Trust Branch</span>
-</nav>
-
-
-<!-- ============================================================
-     HERO SECTION
-     Full-width banner with app title, subtitle, and stat pills
-============================================================ -->
-<header class="hero" role="banner">
-  <div class="hero-inner">
-
-    <div class="hero-eyebrow">Powered by Zscaler Zero Trust</div>
-
-    <h1>
-      <span class="gradient-text">ZTB Super App</span>
-    </h1>
-    <p class="hero-subtitle">Zero Trust Branch Assessment Tool</p>
-    <p class="hero-tagline">Evaluate, score, and roadmap your branch security posture in minutes.</p>
-
-    <!-- Quick stat pills -->
-    <div class="hero-stats" aria-label="Key statistics">
-      <div class="stat-pill"><span class="pill-icon" aria-hidden="true">&#x26A1;</span> Fast &amp; Guided</div>
-      <div class="stat-pill"><span class="pill-icon" aria-hidden="true">&#x1F4CA;</span> Instant Scoring</div>
-      <div class="stat-pill"><span class="pill-icon" aria-hidden="true">&#x1F4C4;</span> Export-Ready Reports</div>
-      <div class="stat-pill"><span class="pill-icon" aria-hidden="true">&#x1F6E1;&#xFE0F;</span> Zero Trust Aligned</div>
+  <nav class="navbar">
+    <div class="nav-logo">Z</div>
+    <span class="nav-brand">ZTB Super App</span>
+    <span class="nav-badge">Zero Trust Branch</span>
+    <div class="nav-spacer"></div>
+    <div class="nav-status">
+      <span class="nav-status-dot"></span>
+      <span>Ready</span>
     </div>
+  </nav>
 
-  </div>
-</header>
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-dot"></span>
+        Zscaler Sales Engineering Tool
+      </div>
+      <h1>Zero Trust Branch<br>Assessment</h1>
+      <p class="hero-tagline">
+        Evaluate your customer's branch networking posture against Zero Trust principles —
+        generate tailored insights and a boardroom-ready report in minutes.
+      </p>
+    </div>
+  </section>
 
-
-<!-- ============================================================
-     PAGE BODY CONTENT
-============================================================ -->
-<main class="page-body" id="main-content">
-
-
-  <!-- ----------------------------------------------------------
-       ASSESSMENT FORM CARD
-       Floats up over the hero via negative margin-top.
-       POSTs to /user/start on submit; JS validates fields first.
-  ---------------------------------------------------------- -->
-  <section class="form-card-wrap" aria-labelledby="form-heading">
+  <div class="form-card-wrapper">
     <div class="form-card">
-      <h2 id="form-heading">&#x1F680; Begin Your Assessment</h2>
-      <p class="form-intro">Enter your details below to launch the Zero Trust Branch assessment for your customer.</p>
-
-      <!-- Inline validation error message (hidden by default) -->
-      <div class="form-error" id="form-error" role="alert" aria-live="polite"></div>
-
-      <form id="assessment-form" method="POST" action="/user/start" novalidate>
-
-        <!-- Customer Name field -->
+      <div class="form-card-header">
+        <div class="form-card-icon">🛡️</div>
+        <h2>Begin Your Assessment</h2>
+        <p class="form-card-subtitle">Enter the details below to get started</p>
+      </div>
+      <div class="global-error" id="globalError"></div>
+      <form id="landingForm" novalidate>
         <div class="form-group">
-          <label for="customer-name">
-            Customer Name <span class="required" aria-label="required">*</span>
-          </label>
-          <input
-            type="text"
-            id="customer-name"
-            name="customer_name"
-            placeholder="e.g. Acme Corporation"
-            autocomplete="organization"
-            required
-            aria-required="true"
-            aria-describedby="customer-name-hint"
-          />
-          <p class="input-hint" id="customer-name-hint">The organisation being assessed.</p>
+          <label for="customer_name">Customer Name</label>
+          <input type="text" id="customer_name" name="customer_name" required placeholder="e.g. Acme Corporation" autocomplete="organization" />
+          <div class="error-msg" id="err_customer">Please enter the customer name.</div>
         </div>
-
-        <!-- SE / SC Name field -->
         <div class="form-group">
-          <label for="se-name">
-            Your Name <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--grey-500);">(SE / SC)</span>
-            <span class="required" aria-label="required">*</span>
-          </label>
-          <input
-            type="text"
-            id="se-name"
-            name="se_name"
-            placeholder="e.g. Jane Smith"
-            autocomplete="name"
-            required
-            aria-required="true"
-            aria-describedby="se-name-hint"
-          />
-          <p class="input-hint" id="se-name-hint">Your full name as the Zscaler SE or SC running this session.</p>
+          <label for="se_name">Your Name / SE</label>
+          <input type="text" id="se_name" name="se_name" required placeholder="e.g. Jane Smith" autocomplete="name" />
+          <div class="error-msg" id="err_se">Please enter your name.</div>
         </div>
-
-        <!-- Submit button -->
-        <button type="submit" class="btn-submit" id="submit-btn" aria-label="Start Assessment">
-          <span class="btn-spinner">
-            <span class="spinner" id="btn-spinner" aria-hidden="true"></span>
-          </span>
-          <span id="btn-label">Start Assessment</span>
-          <span class="btn-arrow" aria-hidden="true">&#x2192;</span>
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <div class="btn-spinner"></div>
+          <span class="btn-text">Start Assessment &rarr;</span>
         </button>
-
       </form>
-    </div>
-  </section>
-
-
-  <!-- ----------------------------------------------------------
-       WELCOME / ABOUT SECTION
-       Brief description of what ZTB Super App does.
-  ---------------------------------------------------------- -->
-  <section class="section-welcome" aria-labelledby="about-heading">
-    <p class="section-label">About this tool</p>
-    <h2 class="section-title" id="about-heading">What is the ZTB Super App?</h2>
-    <p class="section-desc">
-      The <strong>Zero Trust Branch (ZTB) Super App</strong> is a guided assessment platform for Zscaler SEs and SCs
-      to evaluate a customer&rsquo;s current branch security posture. Walk through structured questions covering
-      SD-WAN, firewall, DNS, cloud connectivity, and more &mdash; then generate an instant, branded
-      readiness score and an Excel export ready for customer-facing conversations.
-    </p>
-  </section>
-
-
-  <!-- ----------------------------------------------------------
-       FEATURE CARDS SECTION
-       4 benefit cards highlighting key capabilities.
-  ---------------------------------------------------------- -->
-  <section class="features-section" aria-labelledby="features-heading">
-
-    <p class="section-label">Key capabilities</p>
-    <h2 class="section-title" id="features-heading" style="text-align:center;">Everything you need, in one tool</h2>
-
-    <div class="features-grid">
-
-      <!-- Feature 1: Guided Assessment -->
-      <article class="feature-card">
-        <div class="feature-icon icon-blue" aria-hidden="true">&#x1F9ED;</div>
-        <h3>Guided Assessment</h3>
-        <p>
-          Step-by-step questions aligned to Zero Trust Branch pillars. No guesswork &mdash;
-          each question includes context and best-practice guidance to keep the conversation productive.
-        </p>
-      </article>
-
-      <!-- Feature 2: Instant Results -->
-      <article class="feature-card">
-        <div class="feature-icon icon-green" aria-hidden="true">&#x26A1;</div>
-        <h3>Instant Results</h3>
-        <p>
-          Scores are calculated live as you progress. View pillar-by-pillar breakdowns, identify
-          gaps, and surface quick-win opportunities &mdash; all before the call is over.
-        </p>
-      </article>
-
-      <!-- Feature 3: Excel Export -->
-      <article class="feature-card">
-        <div class="feature-icon icon-purple" aria-hidden="true">&#x1F4C5;</div>
-        <h3>Excel Export</h3>
-        <p>
-          One-click export to a fully formatted Excel workbook. Share a polished, data-driven
-          summary with your customer or upload directly to Salesforce for pipeline tracking.
-        </p>
-      </article>
-
-      <!-- Feature 4: Zero Trust Aligned -->
-      <article class="feature-card">
-        <div class="feature-icon icon-orange" aria-hidden="true">&#x1F6E1;&#xFE0F;</div>
-        <h3>Zero Trust Aligned</h3>
-        <p>
-          Assessment criteria map directly to Zscaler&rsquo;s ZTB framework and NIST
-          Zero Trust Architecture principles, giving your recommendations instant credibility.
-        </p>
-      </article>
-
-    </div>
-  </section>
-
-
-  <!-- ----------------------------------------------------------
-       HOW IT WORKS SECTION
-       3-step process explanation on a dark navy card.
-  ---------------------------------------------------------- -->
-  <section class="how-section" aria-labelledby="how-heading">
-    <p class="section-label">Simple process</p>
-    <h2 class="section-title" id="how-heading">How it works</h2>
-
-    <div class="steps-grid">
-
-      <div class="step">
-        <div class="step-num" aria-hidden="true">1</div>
-        <h4>Enter Details</h4>
-        <p>Provide the customer name and your own name to initialise the session.</p>
+      <div class="form-card-footer">
+        <span>🔒</span>
+        <span>Data stays in your session — never stored externally</span>
       </div>
+    </div>
+  </div>
 
-      <div class="step">
-        <div class="step-num" aria-hidden="true">2</div>
-        <h4>Complete Assessment</h4>
-        <p>Answer guided questions across all Zero Trust Branch pillars at your own pace.</p>
-      </div>
-
-      <div class="step">
-        <div class="step-num" aria-hidden="true">3</div>
-        <h4>Review &amp; Export</h4>
-        <p>Receive an instant score summary and download the branded Excel report.</p>
-      </div>
-
+  <section class="features">
+    <p class="section-label">What you get</p>
+    <h2 class="section-title">Everything you need to assess &amp; present</h2>
+    <p class="section-desc">A structured, repeatable framework that maps customer environments to Zscaler Zero Trust Branch capabilities.</p>
+    <div class="feature-grid">
+      <div class="feature-card"><span class="feature-icon">🎯</span><h3>Guided Assessment</h3><p>Step-by-step questions across all key Zero Trust Branch pillars.</p></div>
+      <div class="feature-card"><span class="feature-icon">⚡</span><h3>Instant Results</h3><p>Real-time matched value props, test cases, assets and more.</p></div>
+      <div class="feature-card"><span class="feature-icon">📊</span><h3>Excel Export</h3><p>One-click download of a fully formatted Excel report with 6 tabs.</p></div>
+      <div class="feature-card"><span class="feature-icon">🔐</span><h3>Zero Trust Aligned</h3><p>Built on Zscaler's Zero Trust Branch framework.</p></div>
     </div>
   </section>
 
-
-  <!-- ----------------------------------------------------------
-       BOTTOM CTA BANNER
-       Secondary call-to-action in case user scrolled past the form.
-  ---------------------------------------------------------- -->
-  <aside class="cta-banner" aria-label="Start assessment prompt">
-    <div class="cta-banner-text">
-      <h3>Ready to get started?</h3>
-      <p>Scroll back up or click the button to launch your Zero Trust Branch assessment now.</p>
+  <section class="how-it-works">
+    <p class="section-label">Process</p>
+    <h2 class="section-title">Three steps to a complete report</h2>
+    <p class="section-desc">Fast enough for a discovery call, thorough enough for an executive presentation.</p>
+    <div class="steps-container">
+      <div class="step-card"><div class="step-number">1</div><h3>Enter Details</h3><p>Provide your customer and SE name to personalise the output.</p></div>
+      <div class="step-card"><div class="step-number">2</div><h3>Complete Assessment</h3><p>Answer targeted questions across each Zero Trust Branch pillar.</p></div>
+      <div class="step-card"><div class="step-number">3</div><h3>Review &amp; Export</h3><p>Explore the results and download your Excel report.</p></div>
     </div>
-    <a href="#main-content" class="btn-cta" aria-label="Go to assessment form">
-      Start Assessment <span aria-hidden="true">&#x2191;</span>
-    </a>
-  </aside>
+  </section>
 
+  <footer class="footer">
+    <div class="footer-logo"><div class="footer-z">Z</div><span>ZTB Super App</span></div>
+    <span class="footer-sep">&bull;</span>
+    <span class="footer-copy">&copy; 2025 Zscaler, Inc. &mdash; Internal Sales Engineering Tool</span>
+  </footer>
 
-</main>
+  <script>
+  (function () {
+    'use strict';
+    const form      = document.getElementById('landingForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const globalErr = document.getElementById('globalError');
 
-
-<!-- ============================================================
-     FOOTER
-============================================================ -->
-<footer class="footer" role="contentinfo">
-  <p>
-    <strong>ZTB Super App</strong> &mdash; Zero Trust Branch Assessment Tool<br />
-    Internal Zscaler SE/SC Tool &bull; Not for external distribution
-  </p>
-  <p style="margin-top:6px;">
-    &copy; <span id="footer-year"></span> Zscaler, Inc. All rights reserved.
-  </p>
-</footer>
-
-
-<!-- ============================================================
-     INLINE JAVASCRIPT
-     - Populates footer year dynamically
-     - Client-side form validation with friendly error messaging
-     - Shows loading spinner on submit
-     - POSTs to /user/start; on success redirects to /user/assessment
-============================================================ -->
-<script>
-(function () {
-  'use strict';
-
-  /* ---- Footer year ---- */
-  var yearEl = document.getElementById('footer-year');
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
-
-
-  /* ---- Form submission with validation ---- */
-  var form       = document.getElementById('assessment-form');
-  var errorBox   = document.getElementById('form-error');
-  var submitBtn  = document.getElementById('submit-btn');
-  var btnLabel   = document.getElementById('btn-label');
-  var spinner    = document.getElementById('btn-spinner');
-
-  /**
-   * showError  — Display an error message above the submit button.
-   * @param {string} msg
-   */
-  function showError(msg) {
-    errorBox.textContent = msg;
-    errorBox.style.display = 'block';
-    errorBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  function hideError() {
-    errorBox.style.display = 'none';
-    errorBox.textContent   = '';
-  }
-
-  /**
-   * setLoading  — Toggle the button between normal and loading states.
-   * @param {boolean} loading
-   */
-  function setLoading(loading) {
-    submitBtn.disabled    = loading;
-    spinner.style.display = loading ? 'block' : 'none';
-    btnLabel.textContent  = loading ? 'Starting…' : 'Start Assessment';
-  }
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    hideError();
-
-    /* ---------- Validation ---------- */
-    var customerName = document.getElementById('customer-name').value.trim();
-    var seName       = document.getElementById('se-name').value.trim();
-
-    if (!customerName) {
-      showError('⚠️  Please enter the Customer Name before continuing.');
-      document.getElementById('customer-name').focus();
-      return;
+    function setFieldError(inputId, errId, show) {
+      const input = document.getElementById(inputId);
+      const msg   = document.getElementById(errId);
+      if (show) { input.classList.add('error-field'); msg.classList.add('visible'); }
+      else      { input.classList.remove('error-field'); msg.classList.remove('visible'); }
     }
+    function showGlobalError(text) { globalErr.textContent = text; globalErr.classList.add('visible'); }
+    function hideGlobalError()     { globalErr.textContent = ''; globalErr.classList.remove('visible'); }
+    function setLoading(on)        { submitBtn.disabled = on; submitBtn.classList.toggle('loading', on); }
 
-    if (!seName) {
-      showError('⚠️  Please enter your name (SE / SC) before continuing.');
-      document.getElementById('se-name').focus();
-      return;
-    }
+    document.getElementById('customer_name').addEventListener('input', function () { setFieldError('customer_name','err_customer',false); hideGlobalError(); });
+    document.getElementById('se_name').addEventListener('input', function ()       { setFieldError('se_name','err_se',false); hideGlobalError(); });
 
-    if (customerName.length < 2) {
-      showError('⚠️  Customer Name must be at least 2 characters.');
-      document.getElementById('customer-name').focus();
-      return;
-    }
-
-    if (seName.length < 2) {
-      showError('⚠️  Your name must be at least 2 characters.');
-      document.getElementById('se-name').focus();
-      return;
-    }
-
-    /* ---------- Submit ---------- */
-    setLoading(true);
-
-    /* Build form data */
-    var formData = new FormData(form);
-
-    fetch(form.action, {
-      method:      'POST',
-      body:        formData,
-      credentials: 'same-origin',
-      headers:     { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(function (response) {
-      if (response.ok || response.redirected) {
-        /* Success — redirect to assessment page */
-        window.location.href = '/user/assessment';
-      } else {
-        return response.text().then(function (text) {
-          throw new Error(text || ('Server returned ' + response.status));
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      hideGlobalError();
+      const customerName = document.getElementById('customer_name').value.trim();
+      const seName       = document.getElementById('se_name').value.trim();
+      let valid = true;
+      if (!customerName) { setFieldError('customer_name','err_customer',true); valid = false; }
+      if (!seName)       { setFieldError('se_name','err_se',true); valid = false; }
+      if (!valid) return;
+      setLoading(true);
+      try {
+        const response = await fetch('/user/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ customer_name: customerName, se_name: seName })
         });
+        if (response.ok) {
+          sessionStorage.setItem('customer_name', customerName);
+          sessionStorage.setItem('se_name', seName);
+          window.location.href = '/user/questions';
+        } else {
+          let errText = 'Something went wrong. Please try again.';
+          try { const d = await response.json(); if (d && d.error) errText = d.error; } catch(_) {}
+          showGlobalError(errText);
+          setLoading(false);
+        }
+      } catch (networkErr) {
+        showGlobalError('Network error — please check your connection and try again.');
+        setLoading(false);
       }
-    })
-    .catch(function (err) {
-      /* Network error or non-2xx server response */
-      setLoading(false);
-      showError(
-        '⚠️  Could not start the assessment. Please check your connection and try again.
-(' +
-        err.message + ')'
-      );
-      console.error('[ZTB] Form submission error:', err);
     });
-  });
-
-
-  /* ---- Input highlight: clear error when user starts typing ---- */
-  ['customer-name', 'se-name'].forEach(function (id) {
-    var input = document.getElementById(id);
-    if (input) {
-      input.addEventListener('input', function () {
-        if (errorBox.style.display !== 'none') hideError();
-      });
-    }
-  });
-
-}());
-</script>
-
+  })();
+  </script>
 </body>
 </html>
