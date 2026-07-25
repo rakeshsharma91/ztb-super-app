@@ -57,7 +57,7 @@ def _sync_m2m(opt, field, ids, model):
 @admin_questions_bp.route('/', methods=['GET'])
 @require_admin
 def list_questions():
-    qs = Question.query.order_by(Question.category_id, Question.order, Question.id).all()
+    qs = Question.query.order_by(Question.order, Question.id).all()
     return jsonify([q_to_dict(q) for q in qs]), 200
 
 # ── POST /admin/questions/ ────────────────────────────────────────────────────
@@ -66,12 +66,13 @@ def list_questions():
 def create_question():
     data = request.get_json() or {}
     cat  = get_or_create_category(data.get('keyword') or data.get('category') or 'General')
+    max_order = db.session.query(db.func.max(Question.order)).scalar() or 0
     q = Question(
         text         = (data.get('question_text') or '').strip() or 'New Question',
         category_id  = cat.id,
         options_type = data.get('options_type', 'Select One'),
         info_only    = bool(data.get('info_only', False)),
-        order        = int(data.get('order', 0)),
+        order        = max_order + 1,
     )
     db.session.add(q)
     db.session.commit()

@@ -206,6 +206,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .toast.warning { background: var(--warning); color: #333; }
 @keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+/* QUESTION DRAG-AND-DROP */
+.q-drag-handle {
+  cursor: grab;
+  font-size: 18px;
+  color: #aaa;
+  padding: 0 10px 0 0;
+  user-select: none;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.q-drag-handle:hover { color: #555; }
+.q-drag-handle:active { cursor: grabbing; }
+.q-card.drag-over-top { border-top: 3px solid var(--blue); }
+.q-card.drag-over-bottom { border-bottom: 3px solid var(--blue); }
+.q-card.dragging { opacity: 0.45; }
 </style>
 <body>
 
@@ -790,6 +805,77 @@ function renderAllQuestions() {
   questionsData.forEach(q => container.appendChild(buildQuestionCard(q)));
 }
 
+function attachQDrag(card) {
+  const handle = card.querySelector('.q-drag-handle');
+  if (!handle) return;
+
+  handle.addEventListener('mousedown', () => { card.setAttribute('draggable', 'true'); });
+  card.addEventListener('dragstart', (e) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', card.getAttribute('data-qid'));
+    setTimeout(() => card.classList.add('dragging'), 0);
+  });
+  card.addEventListener('dragend', () => {
+    card.classList.remove('dragging');
+    document.querySelectorAll('.q-card').forEach(c => {
+      c.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+  });
+  card.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const rect = card.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    card.classList.remove('drag-over-top', 'drag-over-bottom');
+    if (e.clientY < midY) {
+      card.classList.add('drag-over-top');
+    } else {
+      card.classList.add('drag-over-bottom');
+    }
+  });
+  card.addEventListener('dragleave', () => {
+    card.classList.remove('drag-over-top', 'drag-over-bottom');
+  });
+  card.addEventListener('drop', (e) => {
+    e.preventDefault();
+    card.classList.remove('drag-over-top', 'drag-over-bottom');
+    const srcId = parseInt(e.dataTransfer.getData('text/plain'));
+    const tgtId = parseInt(card.getAttribute('data-qid'));
+    if (srcId === tgtId) return;
+
+    const container = document.getElementById('questions-list');
+    const srcCard = container.querySelector(`.q-card[data-qid="${srcId}"]`);
+    if (!srcCard) return;
+
+    const rect = card.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    if (e.clientY < midY) {
+      container.insertBefore(srcCard, card);
+    } else {
+      container.insertBefore(srcCard, card.nextSibling);
+    }
+    saveQuestionsOrder();
+  });
+}
+
+async function saveQuestionsOrder() {
+  const cards = document.querySelectorAll('#questions-list .q-card');
+  const order = Array.from(cards).map((c, i) => ({
+    id: parseInt(c.getAttribute('data-qid')),
+    order: i
+  }));
+  const res = await apiFetch('/admin/questions/reorder', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ order })
+  });
+  if (res && res.ok) {
+    showToast('Order saved ✓', 'success');
+  } else {
+    showToast('Reorder failed', 'error');
+  }
+}
+
 // ─── BUILD QUESTION CARD ──────────────────────────────────────────────────────
 function buildQuestionCard(q) {
   const card = document.createElement('div');
@@ -800,20 +886,26 @@ function buildQuestionCard(q) {
   const header = document.createElement('div');
   header.className = 'q-card-header';
   header.innerHTML = `
+    <span class="q-drag-handle" title="Drag to reorder">⠿</span>
     <span class="q-title">${escHtml(q.question_text || 'New Question')}</span>
     <div class="q-meta">
       ${q.keyword ? `<span class="q-badge">${escHtml(q.keyword)}</span>` : ''}
       <span class="q-arrow">&#9660;</span>
     </div>`;
-  header.addEventListener('click', () => toggleQCard(card));
+  header.addEventListener('click', (e) => {
+    if (e.target.classList.contains('q-drag-handle')) return;
+    toggleQCard(card);
+  });
 
   // Body
   const body = document.createElement('div');
   body.className = 'q-card-body';
   body.appendChild(buildQuestionBody(q));
 
+  card.setAttribute('draggable', 'true');
   card.appendChild(header);
   card.appendChild(body);
+  attachQDrag(card);
   return card;
 }
 
