@@ -26,6 +26,7 @@ def create_app():
     from routes.admin_testcases_routes import bp as testcases_bp
     from routes.admin_povplanner_routes import bp as povplanner_bp
     from routes.admin_roadblocks_routes import bp as roadblocks_bp
+    from routes.admin_responses_routes import responses_bp
 
     app.register_blueprint(admin_bp)
     app.register_blueprint(admin_questions_bp)
@@ -36,6 +37,7 @@ def create_app():
     app.register_blueprint(testcases_bp)
     app.register_blueprint(povplanner_bp)
     app.register_blueprint(roadblocks_bp)
+    app.register_blueprint(responses_bp)
 
     return app
 

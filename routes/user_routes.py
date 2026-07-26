@@ -91,6 +91,14 @@ def _write_tab(ws, rows, col_defs):
     ws.freeze_panes = "A2"
     _autosize(ws)
 
+def _get_keyword(question):
+    """Get the keyword for a question — stored as category name."""
+    if question.category_ref and question.category_ref.name:
+        name = question.category_ref.name.strip()
+        if name and name.lower() != 'general':
+            return name
+    return f'q_{question.id}'
+
 @user_bp.route('/')
 def landing():
     return render_template('user_landing.html')
@@ -132,7 +140,7 @@ def get_questions():
 
 @user_bp.route('/submit', methods=['POST'])
 def submit_responses():
-    data = request.get_json()
+    data      = request.get_json()
     responses = data.get('responses', {})
     customer_name = session.get('customer_name') or data.get('customer_name', 'Unknown')
     se_name       = session.get('se_name')        or data.get('se_name', '')
@@ -143,6 +151,9 @@ def submit_responses():
     rb_ids    = set()
     pov_ids   = set()
 
+    # keyword-keyed answers dict for DB storage
+    keyword_answers = {}
+
     for q_id_str, value in responses.items():
         try:
             q_id = int(q_id_str)
@@ -152,28 +163,42 @@ def submit_responses():
         if not question or question.info_only:
             continue
 
+        # keyword = category name (that's how it's stored)
+        kw = _get_keyword(question)
+
         selected_option_ids = []
+
         if question.options_type in ('select_all', 'Select All'):
             if isinstance(value, list):
                 selected_option_ids = [int(v) for v in value if str(v).isdigit()]
+            # Store resolved labels list
+            labels = []
+            for opt_id in selected_option_ids:
+                opt = QuestionOption.query.get(opt_id)
+                if opt:
+                    labels.append(opt.label)
+            keyword_answers[kw] = labels
+
+        elif question.options_type in ('text', 'Text'):
+            keyword_answers[kw] = value
+
         else:
+            # single select — store label string
             if value and str(value).isdigit():
                 selected_option_ids = [int(value)]
+            opt = QuestionOption.query.get(selected_option_ids[0]) if selected_option_ids else None
+            keyword_answers[kw] = opt.label if opt else (value or '')
 
+        # Collect linked content IDs
         for opt_id in selected_option_ids:
             opt = QuestionOption.query.get(opt_id)
             if not opt:
                 continue
-            for a in opt.assets:
-                asset_ids.add(a.id)
-            for v in opt.value_props:
-                vp_ids.add(v.id)
-            for t in opt.test_cases:
-                tc_ids.add(t.id)
-            for p in opt.pov_steps:
-                pov_ids.add(p.id)
-            for r in opt.roadblocks:
-                rb_ids.add(r.id)
+            for a in opt.assets:      asset_ids.add(a.id)
+            for v in opt.value_props: vp_ids.add(v.id)
+            for t in opt.test_cases:  tc_ids.add(t.id)
+            for p in opt.pov_steps:   pov_ids.add(p.id)
+            for r in opt.roadblocks:  rb_ids.add(r.id)
 
     session['vp_ids']    = list(vp_ids)
     session['asset_ids'] = list(asset_ids)
@@ -181,10 +206,11 @@ def submit_responses():
     session['rb_ids']    = list(rb_ids)
     session['pov_ids']   = list(pov_ids)
 
+    # Save with keyword_answers as the answers dict
     user_response = UserResponse(
         customer_name=customer_name,
         se_name=se_name,
-        answers=responses,
+        answers=keyword_answers,
         completed_at=datetime.utcnow()
     )
     db.session.add(user_response)
@@ -239,18 +265,11 @@ def export_excel():
     for q in all_questions:
         if q.info_only:
             continue
-        q_id_str = str(q.id)
-        raw_val  = answers.get(q_id_str, '')
+        kw = _get_keyword(q)
+        raw_val = answers.get(kw, '')
 
-        if q.options_type in ('select_all', 'Select All') and isinstance(raw_val, list):
-            labels = []
-            for oid in raw_val:
-                opt = QuestionOption.query.get(int(oid)) if str(oid).isdigit() else None
-                labels.append(opt.label if opt else str(oid))
-            answer_text = ', '.join(labels)
-        elif raw_val and str(raw_val).isdigit():
-            opt = QuestionOption.query.get(int(raw_val))
-            answer_text = opt.label if opt else str(raw_val)
+        if isinstance(raw_val, list):
+            answer_text = ', '.join(raw_val)
         else:
             answer_text = str(raw_val) if raw_val else '—'
 

@@ -250,6 +250,19 @@ class UserResponse(db.Model):
     results       = db.Column(db.JSON, default=dict)
     created_at    = db.Column(db.DateTime, default=datetime.utcnow)
 
+    def to_dict(self):
+        return {
+            'id':            self.id,
+            'customer_name': self.customer_name,
+            'se_name':       self.se_name,
+            'started_at':    self.started_at.strftime('%Y-%m-%d %H:%M') if self.started_at else '',
+            'completed_at':  self.completed_at.strftime('%Y-%m-%d %H:%M') if self.completed_at else '',
+            'answers':       self.answers or {},
+            'results':       self.results or {},
+            'created_at':    self.created_at.strftime('%Y-%m-%d %H:%M') if self.created_at else '',
+        }
+
+
 # ─────────────────────────────────────────
 # MIGRATION HELPER
 # ─────────────────────────────────────────

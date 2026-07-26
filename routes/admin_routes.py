@@ -70,8 +70,13 @@ def change_password():  # handle password change
 @admin_bp.route('/responses', methods=['GET'])  # get all user responses
 @require_admin  # require admin auth
 def get_responses():  # return all responses
-    responses = UserResponse.query.order_by(UserResponse.created_at.desc()).all()  # get all ordered by date
-    return jsonify({'success': True, 'responses': [r.to_dict() for r in responses]})  # return as JSON
+    return render_template('admin_responses.html')
+
+@admin_bp.route('/responses/data', methods=['GET'])  # JSON API for responses data
+@require_admin  # require admin auth
+def get_responses_data():  # return all responses as JSON
+    responses = UserResponse.query.order_by(UserResponse.created_at.desc()).all()
+    return jsonify({'success': True, 'responses': [r.to_dict() for r in responses]})
 
 @admin_bp.route('/responses/<int:response_id>', methods=['GET'])  # get single response
 @require_admin  # require admin auth
