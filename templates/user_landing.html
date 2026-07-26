@@ -6,16 +6,15 @@
   <title>ZTB Super App — Zero Trust Branch Assessment</title>
   <style>
     :root {
-      --navy:      #003366;
       --navy-dark: #002244;
+      --navy:      #003366;
       --blue:      #0070c0;
       --accent:    #00aaff;
       --white:     #ffffff;
-      --navy-mid:  #004080;
       --card-bg:   #0a2a50;
-      --text-muted: #a0bcd8;
-      --border:    rgba(0, 170, 255, 0.25);
-      --shadow:    0 8px 40px rgba(0, 0, 0, 0.55);
+      --text-muted:#a0bcd8;
+      --border:    rgba(0,170,255,0.25);
+      --shadow:    0 8px 40px rgba(0,0,0,0.55);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -26,28 +25,31 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
+
+    /* ── NAVBAR ── */
     .navbar {
       position: sticky; top: 0; z-index: 100;
-      display: flex; align-items: center; gap: 1rem;
-      padding: 0 2rem; height: 60px;
-      background: rgba(0, 22, 44, 0.92);
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0 2rem; height: 58px;
+      background: rgba(0,22,44,0.92);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
     }
     .nav-logo {
-      width: 36px; height: 36px;
+      width: 34px; height: 34px;
       background: linear-gradient(135deg, var(--blue), var(--accent));
       border-radius: 8px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; font-weight: 800; color: var(--white);
-      box-shadow: 0 0 12px rgba(0,170,255,0.4);
+      font-size: 1rem; font-weight: 800; color: var(--white);
+      box-shadow: 0 0 10px rgba(0,170,255,0.35);
+      flex-shrink: 0;
     }
-    .nav-brand { font-size: 1.05rem; font-weight: 700; color: var(--white); }
+    .nav-brand { font-size: 1rem; font-weight: 700; color: var(--white); }
     .nav-badge {
-      margin-left: 0.5rem; padding: 2px 10px;
-      background: rgba(0,170,255,0.15);
-      border: 1px solid rgba(0,170,255,0.4);
-      border-radius: 20px; font-size: 0.68rem;
+      padding: 2px 9px;
+      background: rgba(0,170,255,0.12);
+      border: 1px solid rgba(0,170,255,0.35);
+      border-radius: 20px; font-size: 0.67rem;
       font-weight: 600; color: var(--accent);
       letter-spacing: 0.05em; text-transform: uppercase;
     }
@@ -58,153 +60,161 @@
       border-radius: 50%; box-shadow: 0 0 6px rgba(34,197,94,0.6);
       animation: pulse-green 2s infinite;
     }
-    @keyframes pulse-green { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    @keyframes pulse-green { 0%,100%{opacity:1} 50%{opacity:0.45} }
+
+    /* ── HERO ── */
     .hero {
       position: relative;
-      background: linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 50%, #004d99 100%);
-      padding: 5rem 2rem 10rem; text-align: center; overflow: hidden;
+      background: linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 55%, #004d99 100%);
+      padding: 5rem 2rem 9rem;
+      text-align: center;
+      overflow: hidden;
     }
     .hero::before {
       content: ''; position: absolute; inset: 0;
-      background-image: linear-gradient(rgba(0,170,255,0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,170,255,0.06) 1px, transparent 1px);
+      background-image:
+        linear-gradient(rgba(0,170,255,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,170,255,0.055) 1px, transparent 1px);
       background-size: 48px 48px; pointer-events: none;
     }
     .hero::after {
-      content: ''; position: absolute; top: -80px; left: 50%;
-      transform: translateX(-50%); width: 600px; height: 400px;
-      background: radial-gradient(ellipse, rgba(0,112,192,0.35) 0%, transparent 70%);
+      content: ''; position: absolute;
+      top: -60px; left: 50%; transform: translateX(-50%);
+      width: 560px; height: 360px;
+      background: radial-gradient(ellipse, rgba(0,112,192,0.32) 0%, transparent 70%);
       pointer-events: none;
     }
-    .hero-content { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
-    .hero-eyebrow {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 5px 14px; background: rgba(0,170,255,0.1);
-      border: 1px solid rgba(0,170,255,0.35); border-radius: 20px;
-      font-size: 0.78rem; font-weight: 600; color: var(--accent);
-      letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1.4rem;
-    }
-    .hero-eyebrow-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+    .hero-content { position: relative; z-index: 2; max-width: 680px; margin: 0 auto; }
     .hero h1 {
-      font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800;
-      line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 1rem;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      line-height: 1.18;
+      letter-spacing: -0.02em;
       background: linear-gradient(135deg, var(--white) 40%, var(--accent));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    .hero-tagline { font-size: 1.1rem; color: var(--text-muted); line-height: 1.65; max-width: 520px; margin: 0 auto; }
+
+    /* ── FORM CARD ── */
     .form-card-wrapper {
       position: relative; z-index: 10;
-      max-width: 480px; margin: -6rem auto 0; padding: 0 1.5rem;
+      max-width: 420px; margin: -4rem auto 0;
+      padding: 0 1.5rem;
     }
     .form-card {
       background: linear-gradient(145deg, #0d2d52, #0a2244);
-      border: 1px solid var(--border); border-radius: 20px;
-      padding: 2.4rem 2.2rem; box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.2rem 2rem;
+      box-shadow: var(--shadow);
     }
-    .form-card-header { text-align: center; margin-bottom: 1.8rem; }
-    .form-card-icon {
-      width: 52px; height: 52px; margin: 0 auto 1rem;
-      background: linear-gradient(135deg, var(--blue), var(--accent));
-      border-radius: 14px; display: flex; align-items: center;
-      justify-content: center; font-size: 1.5rem;
-      box-shadow: 0 4px 20px rgba(0,170,255,0.35);
-    }
-    .form-card h2 { font-size: 1.4rem; font-weight: 700; color: var(--white); margin-bottom: 0.35rem; }
-    .form-card-subtitle { font-size: 0.85rem; color: var(--text-muted); }
-    .form-group { margin-bottom: 1.2rem; }
+    .form-group { margin-bottom: 1.15rem; }
     .form-group label {
-      display: block; font-size: 0.8rem; font-weight: 600;
+      display: block; font-size: 0.78rem; font-weight: 600;
       color: var(--text-muted); letter-spacing: 0.04em;
-      text-transform: uppercase; margin-bottom: 0.45rem;
+      text-transform: uppercase; margin-bottom: 0.4rem;
     }
     .form-group input {
-      width: 100%; padding: 0.75rem 1rem;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid rgba(0,170,255,0.2);
-      border-radius: 10px; color: var(--white); font-size: 0.95rem;
-      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%; padding: 0.72rem 0.95rem;
+      background: rgba(0,0,0,0.28);
+      border: 1px solid rgba(0,170,255,0.18);
+      border-radius: 10px; color: var(--white);
+      font-size: 0.95rem; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .form-group input::placeholder { color: rgba(160,188,216,0.45); }
-    .form-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,170,255,0.15); }
-    .form-group input.error-field { border-color: #f87171; box-shadow: 0 0 0 3px rgba(248,113,113,0.15); }
-    .error-msg { display: none; font-size: 0.78rem; color: #f87171; margin-top: 0.35rem; }
-    .error-msg.visible { display: block; }
+    .form-group input::placeholder { color: rgba(160,188,216,0.4); }
+    .form-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,170,255,0.13); }
+    .form-group input.error-field { border-color: #f87171; box-shadow: 0 0 0 3px rgba(248,113,113,0.13); }
+    .field-error { display: none; font-size: 0.76rem; color: #f87171; margin-top: 0.3rem; }
+    .field-error.visible { display: block; }
     .global-error {
-      display: none; background: rgba(248,113,113,0.12);
-      border: 1px solid rgba(248,113,113,0.35); border-radius: 8px;
-      padding: 0.7rem 0.9rem; font-size: 0.83rem; color: #fca5a5;
+      display: none;
+      background: rgba(248,113,113,0.1);
+      border: 1px solid rgba(248,113,113,0.32);
+      border-radius: 8px; padding: 0.65rem 0.85rem;
+      font-size: 0.82rem; color: #fca5a5;
       margin-bottom: 1rem; text-align: center;
     }
     .global-error.visible { display: block; }
     .submit-btn {
-      width: 100%; padding: 0.85rem;
+      width: 100%; padding: 0.82rem;
       background: linear-gradient(135deg, var(--blue), var(--accent));
       border: none; border-radius: 10px; color: var(--white);
       font-size: 1rem; font-weight: 700; cursor: pointer;
       transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
-      box-shadow: 0 4px 18px rgba(0,112,192,0.5); margin-top: 0.4rem;
+      box-shadow: 0 4px 18px rgba(0,112,192,0.45);
+      margin-top: 0.5rem;
       display: flex; align-items: center; justify-content: center; gap: 8px;
     }
-    .submit-btn:hover:not(:disabled) { opacity: 0.92; transform: translateY(-1px); }
-    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .submit-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
     .btn-spinner {
-      display: none; width: 16px; height: 16px;
-      border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
-      border-radius: 50%; animation: spin 0.7s linear infinite;
+      display: none; width: 15px; height: 15px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin 0.7s linear infinite;
     }
     .submit-btn.loading .btn-spinner { display: block; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .form-card-footer {
-      text-align: center; margin-top: 1.2rem; font-size: 0.75rem;
-      color: rgba(160,188,216,0.55); display: flex; align-items: center;
-      justify-content: center; gap: 6px;
+
+    /* ── BOM SECTION ── */
+    .bom-section {
+      text-align: center;
+      margin: 5rem auto 4rem;
+      padding: 0 1.5rem;
     }
-    .features { max-width: 1080px; margin: 5rem auto 0; padding: 0 1.5rem 4rem; }
-    .section-label { text-align: center; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.7rem; }
-    .section-title { text-align: center; font-size: clamp(1.4rem,3vw,2rem); font-weight: 700; color: var(--white); margin-bottom: 0.6rem; }
-    .section-desc { text-align: center; color: var(--text-muted); font-size: 0.95rem; max-width: 520px; margin: 0 auto 2.8rem; line-height: 1.65; }
-    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 1.2rem; }
-    .feature-card {
-      background: linear-gradient(145deg, #0d2d52, #0a2244);
-      border: 1px solid var(--border); border-radius: 16px; padding: 1.6rem 1.4rem;
-      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    .bom-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 0.78rem 2rem;
+      background: transparent;
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      color: var(--accent);
+      font-size: 0.95rem; font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
+      letter-spacing: 0.01em;
     }
-    .feature-card:hover { transform: translateY(-4px); border-color: rgba(0,170,255,0.5); box-shadow: 0 8px 32px rgba(0,112,192,0.3); }
-    .feature-icon { font-size: 1.8rem; margin-bottom: 0.9rem; display: block; }
-    .feature-card h3 { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 0.5rem; }
-    .feature-card p { font-size: 0.84rem; color: var(--text-muted); line-height: 1.6; }
-    .how-it-works { background: linear-gradient(180deg, transparent, rgba(0,36,80,0.6), transparent); padding: 4rem 1.5rem; }
-    .steps-container { max-width: 820px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 1.5rem; }
-    .step-card { text-align: center; padding: 1.6rem 1rem; }
-    .step-number {
-      width: 52px; height: 52px; margin: 0 auto 1rem;
-      background: linear-gradient(135deg, var(--navy-mid), var(--blue));
-      border: 2px solid rgba(0,170,255,0.4); border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; font-weight: 800; color: var(--accent);
-      box-shadow: 0 0 18px rgba(0,112,192,0.35);
+    .bom-btn:hover {
+      background: var(--accent);
+      color: var(--white);
+      box-shadow: 0 4px 18px rgba(0,170,255,0.35);
+      transform: translateY(-1px);
     }
-    .step-card h3 { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 0.5rem; }
-    .step-card p { font-size: 0.83rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* ── FOOTER ── */
     .footer {
-      border-top: 1px solid var(--border); padding: 1.8rem 2rem;
-      text-align: center; background: rgba(0,0,0,0.25);
-      display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.6rem;
+      border-top: 1px solid var(--border);
+      padding: 1.6rem 2rem;
+      text-align: center;
+      background: rgba(0,0,0,0.2);
+      display: flex; align-items: center;
+      justify-content: center; flex-wrap: wrap; gap: 0.55rem;
     }
-    .footer-logo { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); }
-    .footer-z { width: 22px; height: 22px; background: linear-gradient(135deg,var(--blue),var(--accent)); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; color: var(--white); }
-    .footer-sep { color: rgba(160,188,216,0.25); margin: 0 0.2rem; }
-    .footer-copy { font-size: 0.78rem; color: rgba(160,188,216,0.45); }
+    .footer-logo { display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+    .footer-z {
+      width: 20px; height: 20px;
+      background: linear-gradient(135deg, var(--blue), var(--accent));
+      border-radius: 5px; display: flex; align-items: center;
+      justify-content: center; font-size: 0.65rem; font-weight: 800; color: var(--white);
+    }
+    .footer-sep { color: rgba(160,188,216,0.25); margin: 0 0.15rem; }
+    .footer-copy { font-size: 0.76rem; color: rgba(160,188,216,0.4); }
+
+    /* ── RESPONSIVE ── */
     @media (max-width: 600px) {
-      .hero { padding: 3.5rem 1rem 8rem; }
-      .form-card-wrapper { margin-top: -5rem; }
-      .form-card { padding: 1.8rem 1.4rem; }
+      .hero { padding: 3.2rem 1rem 7.5rem; }
+      .form-card-wrapper { margin-top: -3.5rem; }
+      .form-card { padding: 1.7rem 1.3rem; }
       .navbar { padding: 0 1rem; }
       .nav-badge { display: none; }
     }
   </style>
 </head>
 <body>
+
+  <!-- NAVBAR -->
   <nav class="navbar">
     <div class="nav-logo">Z</div>
     <span class="nav-brand">ZTB Super App</span>
@@ -216,76 +226,51 @@
     </div>
   </nav>
 
+  <!-- HERO -->
   <section class="hero">
     <div class="hero-content">
-      <div class="hero-eyebrow">
-        <span class="hero-eyebrow-dot"></span>
-        Zscaler Sales Engineering Tool
-      </div>
-      <h1>Zero Trust Branch<br>Assessment</h1>
-      <p class="hero-tagline">
-        Evaluate your customer's branch networking posture against Zero Trust principles —
-        generate tailored insights and a boardroom-ready report in minutes.
-      </p>
+      <h1>Ready to assess your<br>Zero Trust Branch deal?</h1>
     </div>
   </section>
 
+  <!-- FORM CARD -->
   <div class="form-card-wrapper">
     <div class="form-card">
-      <div class="form-card-header">
-        <div class="form-card-icon">🛡️</div>
-        <h2>Begin Your Assessment</h2>
-        <p class="form-card-subtitle">Enter the details below to get started</p>
-      </div>
       <div class="global-error" id="globalError"></div>
       <form id="landingForm" novalidate>
         <div class="form-group">
           <label for="customer_name">Customer Name</label>
-          <input type="text" id="customer_name" name="customer_name" required placeholder="e.g. Acme Corporation" autocomplete="organization" />
-          <div class="error-msg" id="err_customer">Please enter the customer name.</div>
+          <input type="text" id="customer_name" name="customer_name" required
+                 placeholder="e.g. Acme Corporation" autocomplete="organization" />
+          <div class="field-error" id="err_customer">Please enter the customer name.</div>
         </div>
         <div class="form-group">
-          <label for="se_name">Your Name / SE</label>
-          <input type="text" id="se_name" name="se_name" required placeholder="e.g. Jane Smith" autocomplete="name" />
-          <div class="error-msg" id="err_se">Please enter your name.</div>
+          <label for="se_name">AE / SE Name</label>
+          <input type="text" id="se_name" name="se_name" required
+                 placeholder="e.g. Jane Smith" autocomplete="name" />
+          <div class="field-error" id="err_se">Please enter your name.</div>
         </div>
         <button type="submit" class="submit-btn" id="submitBtn">
           <div class="btn-spinner"></div>
           <span class="btn-text">Start Assessment &rarr;</span>
         </button>
       </form>
-      <div class="form-card-footer">
-        <span>🔒</span>
-        <span>Data stays in your session — never stored externally</span>
-      </div>
     </div>
   </div>
 
-  <section class="features">
-    <p class="section-label">What you get</p>
-    <h2 class="section-title">Everything you need to assess &amp; present</h2>
-    <p class="section-desc">A structured, repeatable framework that maps customer environments to Zscaler Zero Trust Branch capabilities.</p>
-    <div class="feature-grid">
-      <div class="feature-card"><span class="feature-icon">🎯</span><h3>Guided Assessment</h3><p>Step-by-step questions across all key Zero Trust Branch pillars.</p></div>
-      <div class="feature-card"><span class="feature-icon">⚡</span><h3>Instant Results</h3><p>Real-time matched value props, test cases, assets and more.</p></div>
-      <div class="feature-card"><span class="feature-icon">📊</span><h3>Excel Export</h3><p>One-click download of a fully formatted Excel report with 6 tabs.</p></div>
-      <div class="feature-card"><span class="feature-icon">🔐</span><h3>Zero Trust Aligned</h3><p>Built on Zscaler's Zero Trust Branch framework.</p></div>
-    </div>
-  </section>
+  <!-- BOM SECTION -->
+  <div class="bom-section">
+    <button class="bom-btn" onclick="window.location.href='/user/bom'">
+      📋 Generate a BOM
+    </button>
+  </div>
 
-  <section class="how-it-works">
-    <p class="section-label">Process</p>
-    <h2 class="section-title">Three steps to a complete report</h2>
-    <p class="section-desc">Fast enough for a discovery call, thorough enough for an executive presentation.</p>
-    <div class="steps-container">
-      <div class="step-card"><div class="step-number">1</div><h3>Enter Details</h3><p>Provide your customer and SE name to personalise the output.</p></div>
-      <div class="step-card"><div class="step-number">2</div><h3>Complete Assessment</h3><p>Answer targeted questions across each Zero Trust Branch pillar.</p></div>
-      <div class="step-card"><div class="step-number">3</div><h3>Review &amp; Export</h3><p>Explore the results and download your Excel report.</p></div>
-    </div>
-  </section>
-
+  <!-- FOOTER -->
   <footer class="footer">
-    <div class="footer-logo"><div class="footer-z">Z</div><span>ZTB Super App</span></div>
+    <div class="footer-logo">
+      <div class="footer-z">Z</div>
+      <span>ZTB Super App</span>
+    </div>
     <span class="footer-sep">&bull;</span>
     <span class="footer-copy">&copy; 2025 Zscaler, Inc. &mdash; Internal Sales Engineering Tool</span>
   </footer>
@@ -298,17 +283,19 @@
     const globalErr = document.getElementById('globalError');
 
     function setFieldError(inputId, errId, show) {
-      const input = document.getElementById(inputId);
-      const msg   = document.getElementById(errId);
-      if (show) { input.classList.add('error-field'); msg.classList.add('visible'); }
-      else      { input.classList.remove('error-field'); msg.classList.remove('visible'); }
+      document.getElementById(inputId).classList.toggle('error-field', show);
+      document.getElementById(errId).classList.toggle('visible', show);
     }
     function showGlobalError(text) { globalErr.textContent = text; globalErr.classList.add('visible'); }
     function hideGlobalError()     { globalErr.textContent = ''; globalErr.classList.remove('visible'); }
     function setLoading(on)        { submitBtn.disabled = on; submitBtn.classList.toggle('loading', on); }
 
-    document.getElementById('customer_name').addEventListener('input', function () { setFieldError('customer_name','err_customer',false); hideGlobalError(); });
-    document.getElementById('se_name').addEventListener('input', function ()       { setFieldError('se_name','err_se',false); hideGlobalError(); });
+    document.getElementById('customer_name').addEventListener('input', function () {
+      setFieldError('customer_name', 'err_customer', false); hideGlobalError();
+    });
+    document.getElementById('se_name').addEventListener('input', function () {
+      setFieldError('se_name', 'err_se', false); hideGlobalError();
+    });
 
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
@@ -316,27 +303,27 @@
       const customerName = document.getElementById('customer_name').value.trim();
       const seName       = document.getElementById('se_name').value.trim();
       let valid = true;
-      if (!customerName) { setFieldError('customer_name','err_customer',true); valid = false; }
-      if (!seName)       { setFieldError('se_name','err_se',true); valid = false; }
+      if (!customerName) { setFieldError('customer_name', 'err_customer', true); valid = false; }
+      if (!seName)       { setFieldError('se_name', 'err_se', true); valid = false; }
       if (!valid) return;
       setLoading(true);
       try {
-        const response = await fetch('/user/start', {
+        const res = await fetch('/user/start', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ customer_name: customerName, se_name: seName })
         });
-        if (response.ok) {
+        if (res.ok) {
           sessionStorage.setItem('customer_name', customerName);
           sessionStorage.setItem('se_name', seName);
           window.location.href = '/user/questions';
         } else {
           let errText = 'Something went wrong. Please try again.';
-          try { const d = await response.json(); if (d && d.error) errText = d.error; } catch(_) {}
+          try { const d = await res.json(); if (d && d.error) errText = d.error; } catch(_) {}
           showGlobalError(errText);
           setLoading(false);
         }
-      } catch (networkErr) {
+      } catch (_) {
         showGlobalError('Network error — please check your connection and try again.');
         setLoading(false);
       }

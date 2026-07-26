@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZTB Super App — BOM</title>
+  <style>
+    :root {
+      --navy-dark: #002244;
+      --navy:      #003366;
+      --blue:      #0070c0;
+      --accent:    #00aaff;
+      --white:     #ffffff;
+      --text-muted:#a0bcd8;
+      --border:    rgba(0,170,255,0.25);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--navy-dark);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0 2rem; height: 58px;
+      background: rgba(0,22,44,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--blue), var(--accent));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 800; color: var(--white);
+      box-shadow: 0 0 10px rgba(0,170,255,0.35);
+    }
+    .nav-brand { font-size: 1rem; font-weight: 700; color: var(--white); }
+    .nav-badge {
+      padding: 2px 9px;
+      background: rgba(0,170,255,0.12);
+      border: 1px solid rgba(0,170,255,0.35);
+      border-radius: 20px; font-size: 0.67rem;
+      font-weight: 600; color: var(--accent);
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .nav-spacer { flex: 1; }
+    .nav-status { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-muted); }
+    .nav-status-dot {
+      width: 7px; height: 7px; background: #22c55e;
+      border-radius: 50%; box-shadow: 0 0 6px rgba(34,197,94,0.6);
+      animation: pulse-green 2s infinite;
+    }
+    @keyframes pulse-green { 0%,100%{opacity:1} 50%{opacity:0.45} }
+
+    /* MAIN */
+    .main {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      padding: 3rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .main::before {
+      content: ''; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,170,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,170,255,0.04) 1px, transparent 1px);
+      background-size: 48px 48px; pointer-events: none;
+    }
+    .main::after {
+      content: ''; position: absolute;
+      top: 50%; left: 50%; transform: translate(-50%, -60%);
+      width: 500px; height: 400px;
+      background: radial-gradient(ellipse, rgba(0,112,192,0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .content {
+      position: relative; z-index: 2;
+      text-align: center;
+      max-width: 480px;
+    }
+    .big-icon {
+      font-size: 5rem;
+      margin-bottom: 1.5rem;
+      display: block;
+      filter: drop-shadow(0 0 24px rgba(0,170,255,0.3));
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+    .badge-wip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 14px;
+      background: rgba(251,191,36,0.1);
+      border: 1px solid rgba(251,191,36,0.4);
+      border-radius: 20px;
+      font-size: 0.75rem; font-weight: 700;
+      color: #fbbf24;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      margin-bottom: 1.6rem;
+    }
+    .content h1 {
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
+      font-weight: 800; letter-spacing: -0.02em;
+      margin-bottom: 0.8rem;
+      background: linear-gradient(135deg, var(--white) 40%, var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .content p {
+      font-size: 1rem; color: var(--text-muted);
+      line-height: 1.65; margin-bottom: 2.2rem;
+    }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 0.72rem 1.8rem;
+      background: transparent;
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      color: var(--accent);
+      font-size: 0.92rem; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+    .back-btn:hover {
+      background: var(--accent); color: var(--white);
+      box-shadow: 0 4px 18px rgba(0,170,255,0.35);
+      transform: translateY(-1px);
+    }
+
+    /* FOOTER */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 1.4rem 2rem;
+      text-align: center;
+      background: rgba(0,0,0,0.2);
+      display: flex; align-items: center;
+      justify-content: center; flex-wrap: wrap; gap: 0.5rem;
+    }
+    .footer-logo { display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+    .footer-z {
+      width: 20px; height: 20px;
+      background: linear-gradient(135deg, var(--blue), var(--accent));
+      border-radius: 5px; display: flex; align-items: center;
+      justify-content: center; font-size: 0.65rem; font-weight: 800; color: var(--white);
+    }
+    .footer-sep { color: rgba(160,188,216,0.25); }
+    .footer-copy { font-size: 0.76rem; color: rgba(160,188,216,0.4); }
+
+    @media (max-width: 600px) {
+      .navbar { padding: 0 1rem; }
+      .nav-badge { display: none; }
+      .big-icon { font-size: 4rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-logo">Z</div>
+    <span class="nav-brand">ZTB Super App</span>
+    <span class="nav-badge">Zero Trust Branch</span>
+    <div class="nav-spacer"></div>
+    <div class="nav-status">
+      <span class="nav-status-dot"></span>
+      <span>Ready</span>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="content">
+      <span class="big-icon">🔧</span>
+      <div class="badge-wip">🚧 &nbsp;In Development</div>
+      <h1>Bill of Materials</h1>
+      <p>
+        We're building something great here.<br>
+        The BOM generator will let you create a tailored
+        Zscaler product list from your assessment results — stay tuned.
+      </p>
+      <a href="/user/" class="back-btn">← Back to Home</a>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-logo">
+      <div class="footer-z">Z</div>
+      <span>ZTB Super App</span>
+    </div>
+    <span class="footer-sep">&bull;</span>
+    <span class="footer-copy">&copy; 2025 Zscaler, Inc. &mdash; Internal Sales Engineering Tool</span>
+  </footer>
+
+</body>
+</html>

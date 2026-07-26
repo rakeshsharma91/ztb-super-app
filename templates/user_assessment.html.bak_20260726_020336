@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZTB Assessment</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 40px 20px; }
+  .progress-bar-wrap { width: 100%; max-width: 700px; background: #dde3ea; border-radius: 8px; height: 8px; margin-bottom: 24px; }
+  .progress-bar-fill { height: 8px; background: #003366; border-radius: 8px; transition: width 0.3s ease; }
+  .progress-label { width: 100%; max-width: 700px; font-size: 13px; color: #666; margin-bottom: 8px; display: flex; justify-content: space-between; }
+  .card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 40px; width: 100%; max-width: 700px; }
+  .category-tag { display: inline-block; background: #e8f0fe; color: #003366; font-size: 12px; font-weight: 600; border-radius: 20px; padding: 4px 14px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .question-text { font-size: 20px; font-weight: 600; color: #1a1a2e; line-height: 1.5; margin-bottom: 28px; }
+  .hint { font-size: 13px; color: #888; margin-bottom: 16px; font-style: italic; }
+  .options { display: flex; flex-direction: column; gap: 12px; }
+  .option-btn { background: #f7f9fc; border: 2px solid #dde3ea; border-radius: 10px; padding: 14px 18px; font-size: 15px; color: #333; cursor: pointer; text-align: left; transition: all 0.2s; }
+  .option-btn:hover { border-color: #003366; background: #e8f0fe; }
+  .option-btn.selected { border-color: #003366; background: #003366; color: #fff; }
+  textarea { width: 100%; border: 2px solid #dde3ea; border-radius: 10px; padding: 14px 18px; font-size: 15px; font-family: inherit; color: #333; resize: vertical; min-height: 120px; outline: none; transition: border 0.2s; }
+  textarea:focus { border-color: #003366; }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; }
+  .btn { padding: 12px 28px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn-back { background: #f0f4f8; color: #555; }
+  .btn-back:hover { background: #dde3ea; }
+  .btn-next { background: #003366; color: #fff; }
+  .btn-next:hover { background: #00509e; }
+  .btn-next:disabled { background: #aab4c4; cursor: not-allowed; }
+  .btn-submit { background: #00875a; color: #fff; }
+  .btn-submit:hover { background: #006644; }
+</style>
+</head>
+<body>
+
+<div class="progress-label">
+  <span id="categoryLabel"></span>
+  <span id="counterLabel"></span>
+</div>
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+</div>
+
+<div class="card" id="questionCard">
+  <div class="category-tag" id="catTag"></div>
+  <div class="question-text" id="qText"></div>
+  <div class="hint" id="qHint"></div>
+  <div class="options" id="optionsArea"></div>
+  <div class="nav">
+    <button class="btn btn-back" id="backBtn" onclick="goBack()">← Back</button>
+    <button class="btn btn-next" id="nextBtn">Next →</button>
+  </div>
+</div>
+
+<script>
+const questions = {{ questions | tojson }};
+let current = 0;
+const responses = {};
+
+function normalise(t) {
+  return (t || '').toLowerCase().replace(/[^a-z]/g, '');
+}
+
+function render() {
+  const q = questions[current];
+  const total = questions.length;
+  const type = normalise(q.options_type); // 'selectone', 'selectallthatapply', 'text'
+
+  // Progress
+  const pct = Math.round(((current + 1) / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('counterLabel').textContent = (current + 1) + ' of ' + total;
+  document.getElementById('categoryLabel').textContent = q.category;
+  document.getElementById('catTag').textContent = q.category;
+  document.getElementById('qText').textContent = q.text;
+
+  // Hint line
+  const hint = document.getElementById('qHint');
+  if (type === 'selectone') hint.textContent = 'Select one answer';
+  else if (type === 'selectallthatapply' || type === 'selectall') hint.textContent = 'Select all that apply';
+  else if (type === 'text' || type === 'textbox') hint.textContent = 'Type your answer below';
+  else hint.textContent = '';
+
+  const area = document.getElementById('optionsArea');
+  area.innerHTML = '';
+
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.disabled = true;
+
+  if (q.info_only) {
+    // Info-only: just show text, auto-allow next
+    hint.textContent = '';
+    nextBtn.disabled = false;
+
+  } else if (type === 'selectone') {
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn' + (responses[q.question_id] === opt.id ? ' selected' : '');
+      btn.textContent = opt.label;
+      btn.onclick = () => {
+        responses[q.question_id] = opt.id;
+        document.querySelectorAll('#optionsArea .option-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        nextBtn.disabled = false;
+      };
+      area.appendChild(btn);
+    });
+    if (responses[q.question_id] !== undefined) nextBtn.disabled = false;
+
+  } else if (type === 'selectallthatapply' || type === 'selectall') {
+    if (!Array.isArray(responses[q.question_id])) responses[q.question_id] = [];
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      const alreadySel = responses[q.question_id].includes(opt.id);
+      btn.className = 'option-btn' + (alreadySel ? ' selected' : '');
+      btn.textContent = opt.label;
+      btn.onclick = () => {
+        const arr = responses[q.question_id];
+        const idx = arr.indexOf(opt.id);
+        if (idx > -1) { arr.splice(idx, 1); btn.classList.remove('selected'); }
+        else { arr.push(opt.id); btn.classList.add('selected'); }
+        nextBtn.disabled = arr.length === 0;
+      };
+      area.appendChild(btn);
+    });
+    if (Array.isArray(responses[q.question_id]) && responses[q.question_id].length > 0) nextBtn.disabled = false;
+
+  } else if (type === 'text' || type === 'textbox') {
+    const ta = document.createElement('textarea');
+    ta.placeholder = 'Type your answer here...';
+    ta.value = responses[q.question_id] || '';
+    ta.oninput = () => {
+      responses[q.question_id] = ta.value;
+      nextBtn.disabled = ta.value.trim() === '';
+    };
+    area.appendChild(ta);
+    if (responses[q.question_id] && responses[q.question_id].trim() !== '') nextBtn.disabled = false;
+  }
+
+  // Back button
+  document.getElementById('backBtn').style.visibility = current === 0 ? 'hidden' : 'visible';
+
+  // Next vs Submit
+  if (current === total - 1) {
+    nextBtn.textContent = 'Submit ✓';
+    nextBtn.className = 'btn btn-submit';
+    nextBtn.onclick = submitAll;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.className = 'btn btn-next';
+    if (q.info_only) nextBtn.className += '';
+    nextBtn.onclick = goNext;
+  }
+  // Re-apply disabled after class change
+  if (q.info_only) nextBtn.disabled = false;
+}
+
+function goNext() {
+  if (current < questions.length - 1) { current++; render(); }
+}
+
+function goBack() {
+  if (current > 0) { current--; render(); }
+}
+
+function submitAll() {
+  fetch('/user/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ responses })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById('questionCard').innerHTML =
+        '<div style="text-align:center;padding:40px 0;">' +
+        '<div style="font-size:48px;margin-bottom:16px;">✅</div>' +
+        '<h2 style="color:#003366;margin-bottom:12px;">Assessment Complete!</h2>' +
+        '<p style="color:#555;font-size:16px;margin-bottom:28px;">Thank you. Your responses have been saved.</p>' +
+        '<a href="/user/export" style="background:#003366;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;">📥 Download Report</a>' +
+        '</div>';
+      document.getElementById('progressFill').style.width = '100%';
+    }
+  })
+  .catch(() => alert('Submission failed. Please try again.'));
+}
+
+render();
+</script>
+</body>
+</html>

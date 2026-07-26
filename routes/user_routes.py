@@ -326,3 +326,7 @@ def export_excel():
         as_attachment=True,
         download_name=filename
     )
+
+@user_bp.route('/bom')
+def bom():
+    return render_template('user_bom.html')
