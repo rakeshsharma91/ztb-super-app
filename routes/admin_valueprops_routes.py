@@ -100,9 +100,9 @@ def add_row():
 @bp.route(URL_BASE + '/<int:row_id>', methods=['DELETE'])
 def delete_row(row_id):
     try:
-        db.session.execute(text("DELETE FROM question_options WHERE value_prop_id = :id"), {"id": row_id})
         db.session.execute(text(f"DELETE FROM {TABLE} WHERE id = :id"), {"id": row_id})
-        db.session.commit(); return jsonify({"success": True})
+        db.session.commit()
+        return jsonify({"success": True})
     except Exception as e:
         db.session.rollback(); return jsonify({"error": str(e)}), 500
 
