@@ -89,10 +89,10 @@ class TestCase(db.Model):
 class POVPlanner(db.Model):
     __tablename__ = 'pov_planner'
     id          = db.Column(db.Integer, primary_key=True)
-    title       = db.Column(db.String(255), nullable=False)
+    title       = db.Column(db.Text, nullable=False)
     description = db.Column(db.Text)
-    duration    = db.Column(db.String(100))
-    owner       = db.Column(db.String(100))
+    duration    = db.Column(db.Text)
+    owner       = db.Column(db.Text)
     status      = db.Column(db.String(50), default='Pending')
     created_at  = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at  = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -241,27 +241,28 @@ class AssessmentConfig(db.Model):
 # ─────────────────────────────────────────
 class UserResponse(db.Model):
     __tablename__ = 'user_responses'
-    id            = db.Column(db.Integer, primary_key=True)
-    customer_name = db.Column(db.String(255), nullable=False)
-    se_name       = db.Column(db.String(255), nullable=False)
-    started_at    = db.Column(db.DateTime, default=datetime.utcnow)
-    completed_at  = db.Column(db.DateTime, nullable=True)
-    answers       = db.Column(db.JSON, default=dict)
-    results       = db.Column(db.JSON, default=dict)
-    created_at    = db.Column(db.DateTime, default=datetime.utcnow)
+    id              = db.Column(db.Integer, primary_key=True)
+    customer_name   = db.Column(db.String(255), nullable=False)
+    se_name         = db.Column(db.String(255), nullable=False)
+    opportunity_url = db.Column(db.Text, nullable=True)
+    started_at      = db.Column(db.DateTime, default=datetime.utcnow)
+    completed_at    = db.Column(db.DateTime, nullable=True)
+    answers         = db.Column(db.JSON, default=dict)
+    results         = db.Column(db.JSON, default=dict)
+    created_at      = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
         return {
-            'id':            self.id,
-            'customer_name': self.customer_name,
-            'se_name':       self.se_name,
-            'started_at':    self.started_at.strftime('%Y-%m-%d %H:%M') if self.started_at else '',
-            'completed_at':  self.completed_at.strftime('%Y-%m-%d %H:%M') if self.completed_at else '',
-            'answers':       self.answers or {},
-            'results':       self.results or {},
-            'created_at':    self.created_at.strftime('%Y-%m-%d %H:%M') if self.created_at else '',
+            'id':              self.id,
+            'customer_name':   self.customer_name,
+            'se_name':         self.se_name,
+            'opportunity_url': self.opportunity_url or '',
+            'started_at':      self.started_at.strftime('%Y-%m-%d %H:%M') if self.started_at else '',
+            'completed_at':    self.completed_at.strftime('%Y-%m-%d %H:%M') if self.completed_at else '',
+            'answers':         self.answers or {},
+            'results':         self.results or {},
+            'created_at':      self.created_at.strftime('%Y-%m-%d %H:%M') if self.created_at else '',
         }
-
 
 # ─────────────────────────────────────────
 # MIGRATION HELPER
@@ -277,7 +278,6 @@ def run_migration(db):
         if tname not in existing:
             db.metadata.tables[tname].create(engine)
             print(f'[migration] Created table: {tname}')
-    # Drop old single-FK columns if they exist
     with engine.connect() as conn:
         cols     = [c['name'] for c in inspector.get_columns('question_options')]
         old_cols = ['asset_id','value_prop_id','test_case_id','pov_step_id','roadblock_id']

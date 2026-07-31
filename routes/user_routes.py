@@ -92,7 +92,6 @@ def _write_tab(ws, rows, col_defs):
     _autosize(ws)
 
 def _get_keyword(question):
-    """Get the keyword for a question — stored as category name."""
     if question.category_ref and question.category_ref.name:
         name = question.category_ref.name.strip()
         if name and name.lower() != 'general':
@@ -109,12 +108,14 @@ def start_assessment():
         data = request.get_json()
     else:
         data = request.form.to_dict()
-    customer_name = (data.get('customer_name') or '').strip()
-    se_name = (data.get('se_name') or '').strip()
+    customer_name   = (data.get('customer_name') or '').strip()
+    se_name         = (data.get('se_name') or '').strip()
+    opportunity_url = (data.get('opportunity_url') or '').strip()
     if not customer_name:
         return jsonify({'error': 'Customer name is required'}), 400
-    session['customer_name'] = customer_name
-    session['se_name'] = se_name
+    session['customer_name']   = customer_name
+    session['se_name']         = se_name
+    session['opportunity_url'] = opportunity_url
     session['assessment_started'] = True
     session['responses'] = {}
     return jsonify({'success': True, 'message': 'Assessment started'})
@@ -142,8 +143,9 @@ def get_questions():
 def submit_responses():
     data      = request.get_json()
     responses = data.get('responses', {})
-    customer_name = session.get('customer_name') or data.get('customer_name', 'Unknown')
-    se_name       = session.get('se_name')        or data.get('se_name', '')
+    customer_name   = session.get('customer_name') or data.get('customer_name', 'Unknown')
+    se_name         = session.get('se_name')        or data.get('se_name', '')
+    opportunity_url = session.get('opportunity_url', '')
 
     vp_ids    = set()
     asset_ids = set()
@@ -151,7 +153,6 @@ def submit_responses():
     rb_ids    = set()
     pov_ids   = set()
 
-    # keyword-keyed answers dict for DB storage
     keyword_answers = {}
 
     for q_id_str, value in responses.items():
@@ -163,15 +164,12 @@ def submit_responses():
         if not question or question.info_only:
             continue
 
-        # keyword = category name (that's how it's stored)
         kw = _get_keyword(question)
-
         selected_option_ids = []
 
         if question.options_type in ('select_all', 'Select All'):
             if isinstance(value, list):
                 selected_option_ids = [int(v) for v in value if str(v).isdigit()]
-            # Store resolved labels list
             labels = []
             for opt_id in selected_option_ids:
                 opt = QuestionOption.query.get(opt_id)
@@ -183,13 +181,11 @@ def submit_responses():
             keyword_answers[kw] = value
 
         else:
-            # single select — store label string
             if value and str(value).isdigit():
                 selected_option_ids = [int(value)]
             opt = QuestionOption.query.get(selected_option_ids[0]) if selected_option_ids else None
             keyword_answers[kw] = opt.label if opt else (value or '')
 
-        # Collect linked content IDs
         for opt_id in selected_option_ids:
             opt = QuestionOption.query.get(opt_id)
             if not opt:
@@ -206,12 +202,12 @@ def submit_responses():
     session['rb_ids']    = list(rb_ids)
     session['pov_ids']   = list(pov_ids)
 
-    # Save with keyword_answers as the answers dict
     user_response = UserResponse(
-        customer_name=customer_name,
-        se_name=se_name,
-        answers=keyword_answers,
-        completed_at=datetime.utcnow()
+        customer_name   = customer_name,
+        se_name         = se_name,
+        opportunity_url = opportunity_url,
+        answers         = keyword_answers,
+        completed_at    = datetime.utcnow()
     )
     db.session.add(user_response)
     db.session.commit()
@@ -224,9 +220,12 @@ def export_excel():
     response_id   = session.get('response_id')
     customer_name = session.get('customer_name', 'Unknown')
     se_name       = session.get('se_name', '')
+    opportunity_url = session.get('opportunity_url', '')
 
     user_resp = UserResponse.query.get(response_id) if response_id else None
     answers   = user_resp.answers if user_resp else {}
+    if user_resp and user_resp.opportunity_url:
+        opportunity_url = user_resp.opportunity_url
 
     wb = Workbook()
 
@@ -234,6 +233,7 @@ def export_excel():
     ws_assess = wb.active
     ws_assess.title = "Assessment"
 
+    # Row 1 — Customer
     ws_assess.merge_cells("A1:B1")
     cell = ws_assess["A1"]
     cell.value = f"Customer: {customer_name}"
@@ -242,6 +242,7 @@ def export_excel():
     cell.alignment = Alignment(horizontal="left", vertical="center")
     ws_assess.row_dimensions[1].height = 30
 
+    # Row 2 — SE Name
     ws_assess.merge_cells("A2:B2")
     cell2 = ws_assess["A2"]
     cell2.value = f"SE: {se_name}"
@@ -250,16 +251,27 @@ def export_excel():
     cell2.alignment = Alignment(horizontal="left", vertical="center")
     ws_assess.row_dimensions[2].height = 22
 
-    ws_assess.row_dimensions[3].height = 10
+    # Row 3 — Opportunity URL
+    ws_assess.merge_cells("A3:B3")
+    cell3 = ws_assess["A3"]
+    cell3.value = f"Opportunity URL: {opportunity_url}" if opportunity_url else "Opportunity URL: —"
+    cell3.font = Font(bold=False, size=10, color="FFFFFF")
+    cell3.fill = PatternFill("solid", fgColor="003366")
+    cell3.alignment = Alignment(horizontal="left", vertical="center")
+    ws_assess.row_dimensions[3].height = 20
 
-    _hdr(ws_assess, 4, 1, "Question")
-    _hdr(ws_assess, 4, 2, "Answer")
-    ws_assess.row_dimensions[4].height = 28
+    # Row 4 — spacer
+    ws_assess.row_dimensions[4].height = 10
+
+    # Row 5 — column headers
+    _hdr(ws_assess, 5, 1, "Question")
+    _hdr(ws_assess, 5, 2, "Answer")
+    ws_assess.row_dimensions[5].height = 28
     ws_assess.column_dimensions["A"].width = 55
     ws_assess.column_dimensions["B"].width = 45
 
     border = _thin_border()
-    current_row = 5
+    current_row = 6
     all_questions = Question.query.order_by(Question.order).all()
 
     for q in all_questions:
@@ -283,7 +295,7 @@ def export_excel():
                 c.fill = PatternFill("solid", fgColor="F0F4FF")
         current_row += 1
 
-    ws_assess.freeze_panes = "A5"
+    ws_assess.freeze_panes = "A6"
 
     # ── TAB 2: Value Props ─────────────────────────────────────────────────
     ws_vp = wb.create_sheet("Value Props")

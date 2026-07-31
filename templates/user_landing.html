@@ -25,8 +25,6 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-
-    /* ── NAVBAR ── */
     .navbar {
       position: sticky; top: 0; z-index: 100;
       display: flex; align-items: center; gap: 0.75rem;
@@ -61,8 +59,6 @@
       animation: pulse-green 2s infinite;
     }
     @keyframes pulse-green { 0%,100%{opacity:1} 50%{opacity:0.45} }
-
-    /* ── HERO ── */
     .hero {
       position: relative;
       background: linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 55%, #004d99 100%);
@@ -87,19 +83,13 @@
     .hero-content { position: relative; z-index: 2; max-width: 680px; margin: 0 auto; }
     .hero h1 {
       font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 800;
-      line-height: 1.18;
-      letter-spacing: -0.02em;
+      font-weight: 800; line-height: 1.18; letter-spacing: -0.02em;
       background: linear-gradient(135deg, var(--white) 40%, var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-
-    /* ── FORM CARD ── */
     .form-card-wrapper {
       position: relative; z-index: 10;
-      max-width: 420px; margin: -4rem auto 0;
+      max-width: 440px; margin: -4rem auto 0;
       padding: 0 1.5rem;
     }
     .form-card {
@@ -157,40 +147,20 @@
     }
     .submit-btn.loading .btn-spinner { display: block; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── BOM SECTION ── */
-    .bom-section {
-      text-align: center;
-      margin: 5rem auto 4rem;
-      padding: 0 1.5rem;
-    }
+    .bom-section { text-align: center; margin: 5rem auto 4rem; padding: 0 1.5rem; }
     .bom-btn {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 0.78rem 2rem;
-      background: transparent;
-      border: 1px solid var(--accent);
-      border-radius: 10px;
-      color: var(--accent);
-      font-size: 0.95rem; font-weight: 600;
-      cursor: pointer;
+      background: transparent; border: 1px solid var(--accent);
+      border-radius: 10px; color: var(--accent);
+      font-size: 0.95rem; font-weight: 600; cursor: pointer;
       transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
-      letter-spacing: 0.01em;
     }
-    .bom-btn:hover {
-      background: var(--accent);
-      color: var(--white);
-      box-shadow: 0 4px 18px rgba(0,170,255,0.35);
-      transform: translateY(-1px);
-    }
-
-    /* ── FOOTER ── */
+    .bom-btn:hover { background: var(--accent); color: var(--white); box-shadow: 0 4px 18px rgba(0,170,255,0.35); transform: translateY(-1px); }
     .footer {
-      border-top: 1px solid var(--border);
-      padding: 1.6rem 2rem;
-      text-align: center;
-      background: rgba(0,0,0,0.2);
-      display: flex; align-items: center;
-      justify-content: center; flex-wrap: wrap; gap: 0.55rem;
+      border-top: 1px solid var(--border); padding: 1.6rem 2rem;
+      text-align: center; background: rgba(0,0,0,0.2);
+      display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.55rem;
     }
     .footer-logo { display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
     .footer-z {
@@ -201,8 +171,6 @@
     }
     .footer-sep { color: rgba(160,188,216,0.25); margin: 0 0.15rem; }
     .footer-copy { font-size: 0.76rem; color: rgba(160,188,216,0.4); }
-
-    /* ── RESPONSIVE ── */
     @media (max-width: 600px) {
       .hero { padding: 3.2rem 1rem 7.5rem; }
       .form-card-wrapper { margin-top: -3.5rem; }
@@ -238,22 +206,36 @@
     <div class="form-card">
       <div class="global-error" id="globalError"></div>
       <form id="landingForm" novalidate>
+
+        <!-- Customer Name -->
         <div class="form-group">
           <label for="customer_name">Customer Name</label>
           <input type="text" id="customer_name" name="customer_name" required
                  placeholder="e.g. Acme Corporation" autocomplete="organization" />
           <div class="field-error" id="err_customer">Please enter the customer name.</div>
         </div>
+
+        <!-- AE / SE Name -->
         <div class="form-group">
           <label for="se_name">AE / SE Name</label>
           <input type="text" id="se_name" name="se_name" required
                  placeholder="e.g. Jane Smith" autocomplete="name" />
           <div class="field-error" id="err_se">Please enter your name.</div>
         </div>
+
+        <!-- Opportunity URL — REQUIRED -->
+        <div class="form-group">
+          <label for="opportunity_url">Opportunity URL</label>
+          <input type="url" id="opportunity_url" name="opportunity_url" required
+                 placeholder="https://zscaler.lightning.force.com/..." autocomplete="off" />
+          <div class="field-error" id="err_opp">Please enter the Salesforce opportunity URL.</div>
+        </div>
+
         <button type="submit" class="submit-btn" id="submitBtn">
           <div class="btn-spinner"></div>
           <span class="btn-text">Start Assessment &rarr;</span>
         </button>
+
       </form>
     </div>
   </div>
@@ -296,26 +278,36 @@
     document.getElementById('se_name').addEventListener('input', function () {
       setFieldError('se_name', 'err_se', false); hideGlobalError();
     });
+    document.getElementById('opportunity_url').addEventListener('input', function () {
+      setFieldError('opportunity_url', 'err_opp', false); hideGlobalError();
+    });
 
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
       hideGlobalError();
-      const customerName = document.getElementById('customer_name').value.trim();
-      const seName       = document.getElementById('se_name').value.trim();
+      const customerName   = document.getElementById('customer_name').value.trim();
+      const seName         = document.getElementById('se_name').value.trim();
+      const opportunityUrl = document.getElementById('opportunity_url').value.trim();
       let valid = true;
-      if (!customerName) { setFieldError('customer_name', 'err_customer', true); valid = false; }
-      if (!seName)       { setFieldError('se_name', 'err_se', true); valid = false; }
+      if (!customerName)   { setFieldError('customer_name',   'err_customer', true); valid = false; }
+      if (!seName)         { setFieldError('se_name',         'err_se',       true); valid = false; }
+      if (!opportunityUrl) { setFieldError('opportunity_url', 'err_opp',      true); valid = false; }
       if (!valid) return;
       setLoading(true);
       try {
         const res = await fetch('/user/start', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ customer_name: customerName, se_name: seName })
+          body: JSON.stringify({
+            customer_name:   customerName,
+            se_name:         seName,
+            opportunity_url: opportunityUrl
+          })
         });
         if (res.ok) {
-          sessionStorage.setItem('customer_name', customerName);
-          sessionStorage.setItem('se_name', seName);
+          sessionStorage.setItem('customer_name',   customerName);
+          sessionStorage.setItem('se_name',         seName);
+          sessionStorage.setItem('opportunity_url', opportunityUrl);
           window.location.href = '/user/questions';
         } else {
           let errText = 'Something went wrong. Please try again.';
