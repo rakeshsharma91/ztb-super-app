@@ -64,14 +64,20 @@ function normalise(t) {
 function render() {
   const q = questions[current];
   const total = questions.length;
-  const type = normalise(q.options_type); // 'selectone', 'selectallthatapply', 'text'
+  const type = normalise(q.options_type);
 
   // Progress
   const pct = Math.round(((current + 1) / total) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('counterLabel').textContent = (current + 1) + ' of ' + total;
-  document.getElementById('categoryLabel').textContent = q.category;
-  document.getElementById('catTag').textContent = q.category;
+
+  // Category tag — use category_type_name, fall back to keyword if not set
+  const catLabel = q.category_type_name || q.category || '';
+  document.getElementById('categoryLabel').textContent = catLabel;
+  const catTag = document.getElementById('catTag');
+  catTag.textContent = catLabel;
+  catTag.style.display = catLabel ? 'inline-block' : 'none';
+
   document.getElementById('qText').textContent = q.text;
 
   // Hint line
@@ -88,7 +94,6 @@ function render() {
   nextBtn.disabled = true;
 
   if (q.info_only) {
-    // Info-only: just show text, auto-allow next
     hint.textContent = '';
     nextBtn.disabled = false;
 
@@ -148,10 +153,8 @@ function render() {
   } else {
     nextBtn.textContent = 'Next →';
     nextBtn.className = 'btn btn-next';
-    if (q.info_only) nextBtn.className += '';
     nextBtn.onclick = goNext;
   }
-  // Re-apply disabled after class change
   if (q.info_only) nextBtn.disabled = false;
 }
 

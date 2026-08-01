@@ -112,6 +112,17 @@ class Roadblock(db.Model):
     updated_at  = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 # ─────────────────────────────────────────
+# QUESTION CATEGORY TYPE  ← NEW
+# ─────────────────────────────────────────
+class QuestionCategoryType(db.Model):
+    __tablename__ = 'question_category_types'
+    id         = db.Column(db.Integer, primary_key=True)
+    name       = db.Column(db.String(255), nullable=False, unique=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    questions  = db.relationship('Question', backref='category_type_ref', lazy=True)
+
+# ─────────────────────────────────────────
 # QUESTION CATEGORY
 # ─────────────────────────────────────────
 class QuestionCategory(db.Model):
@@ -129,17 +140,18 @@ class QuestionCategory(db.Model):
 # ─────────────────────────────────────────
 class Question(db.Model):
     __tablename__ = 'questions'
-    id           = db.Column(db.Integer, primary_key=True)
-    category_id  = db.Column(db.Integer, db.ForeignKey('question_categories.id'), nullable=False)
-    text         = db.Column(db.Text, nullable=False)
-    options_type = db.Column(db.String(50), default='select_one')
-    order        = db.Column(db.Integer, default=0)
-    info_only    = db.Column(db.Boolean, default=False)
-    created_at   = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at   = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id                 = db.Column(db.Integer, primary_key=True)
+    category_id        = db.Column(db.Integer, db.ForeignKey('question_categories.id'), nullable=False)
+    category_type_id   = db.Column(db.Integer, db.ForeignKey('question_category_types.id'), nullable=True)
+    text               = db.Column(db.Text, nullable=False)
+    options_type       = db.Column(db.String(50), default='select_one')
+    order              = db.Column(db.Integer, default=0)
+    info_only          = db.Column(db.Boolean, default=False)
+    created_at         = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at         = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    options      = db.relationship('QuestionOption', backref='question', lazy=True,
-                                    cascade='all, delete-orphan')
+    options            = db.relationship('QuestionOption', backref='question', lazy=True,
+                                          cascade='all, delete-orphan')
 
 # ─────────────────────────────────────────
 # M2M ASSOCIATION TABLES
@@ -272,17 +284,30 @@ def run_migration(db):
     engine    = db.engine
     inspector = sa.inspect(engine)
     existing  = inspector.get_table_names()
-    new_tables = ['option_assets','option_valueprops','option_testcases',
-                  'option_povsteps','option_roadblocks']
+
+    # Create new tables if missing
+    new_tables = ['option_assets', 'option_valueprops', 'option_testcases',
+                  'option_povsteps', 'option_roadblocks', 'question_category_types']
     for tname in new_tables:
         if tname not in existing:
             db.metadata.tables[tname].create(engine)
             print(f'[migration] Created table: {tname}')
+
+    # Add category_type_id column to questions if missing
     with engine.connect() as conn:
-        cols     = [c['name'] for c in inspector.get_columns('question_options')]
-        old_cols = ['asset_id','value_prop_id','test_case_id','pov_step_id','roadblock_id']
+        q_cols = [c['name'] for c in inspector.get_columns('questions')]
+        if 'category_type_id' not in q_cols:
+            conn.execute(sa.text(
+                'ALTER TABLE questions ADD COLUMN category_type_id INTEGER '
+                'REFERENCES question_category_types(id) ON DELETE SET NULL'
+            ))
+            print('[migration] Added column questions.category_type_id')
+
+        # Drop old M2M columns from question_options if they exist
+        old_cols = ['asset_id', 'value_prop_id', 'test_case_id', 'pov_step_id', 'roadblock_id']
+        opt_cols = [c['name'] for c in inspector.get_columns('question_options')]
         for col in old_cols:
-            if col in cols:
+            if col in opt_cols:
                 try:
                     conn.execute(sa.text(f'ALTER TABLE question_options DROP COLUMN {col}'))
                     print(f'[migration] Dropped column question_options.{col}')

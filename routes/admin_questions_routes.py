@@ -1,6 +1,7 @@
 # admin_questions_routes.py
 from flask import Blueprint, request, jsonify, session
 from models import (db, Question, QuestionCategory, QuestionOption,
+                    QuestionCategoryType,
                     Asset, ValueProp, TestCase, POVPlanner, Roadblock)
 from functools import wraps
 from datetime import datetime
@@ -29,14 +30,16 @@ def opt_to_dict(o):
 
 def q_to_dict(q):
     return {
-        'id':            q.id,
-        'question_text': q.text,
-        'keyword':       q.category_ref.name if q.category_ref else '',
-        'category_id':   q.category_id,
-        'options_type':  q.options_type or 'Select One',
-        'info_only':     q.info_only,
-        'order':         q.order,
-        'options':       [opt_to_dict(o) for o in sorted(q.options, key=lambda o: o.id)],
+        'id':                 q.id,
+        'question_text':      q.text,
+        'keyword':            q.category_ref.name if q.category_ref else '',
+        'category_id':        q.category_id,
+        'category_type_id':   q.category_type_id,
+        'category_type_name': q.category_type_ref.name if q.category_type_ref else '',
+        'options_type':       q.options_type or 'Select One',
+        'info_only':          q.info_only,
+        'order':              q.order,
+        'options':            [opt_to_dict(o) for o in sorted(q.options, key=lambda o: o.id)],
     }
 
 def get_or_create_category(name):
@@ -53,6 +56,29 @@ def _sync_m2m(opt, field, ids, model):
     objs = model.query.filter(model.id.in_(ids)).all() if ids else []
     setattr(opt, field, objs)
 
+# ── GET /admin/questions/category-types ──────────────────────────────────────
+@admin_questions_bp.route('/category-types', methods=['GET'])
+@require_admin
+def list_category_types():
+    types = QuestionCategoryType.query.order_by(QuestionCategoryType.name).all()
+    return jsonify([{'id': t.id, 'name': t.name} for t in types]), 200
+
+# ── POST /admin/questions/category-types ─────────────────────────────────────
+@admin_questions_bp.route('/category-types', methods=['POST'])
+@require_admin
+def create_category_type():
+    data = request.get_json() or {}
+    name = (data.get('name') or '').strip()
+    if not name:
+        return jsonify({'error': 'name is required'}), 400
+    existing = QuestionCategoryType.query.filter_by(name=name).first()
+    if existing:
+        return jsonify({'id': existing.id, 'name': existing.name}), 200
+    ct = QuestionCategoryType(name=name)
+    db.session.add(ct)
+    db.session.commit()
+    return jsonify({'id': ct.id, 'name': ct.name}), 201
+
 # ── GET /admin/questions/ ─────────────────────────────────────────────────────
 @admin_questions_bp.route('/', methods=['GET'])
 @require_admin
@@ -68,11 +94,12 @@ def create_question():
     cat  = get_or_create_category(data.get('keyword') or data.get('category') or 'General')
     max_order = db.session.query(db.func.max(Question.order)).scalar() or 0
     q = Question(
-        text         = (data.get('question_text') or '').strip() or 'New Question',
-        category_id  = cat.id,
-        options_type = data.get('options_type', 'Select One'),
-        info_only    = bool(data.get('info_only', False)),
-        order        = max_order + 1,
+        text             = (data.get('question_text') or '').strip() or 'New Question',
+        category_id      = cat.id,
+        category_type_id = data.get('category_type_id') or None,
+        options_type     = data.get('options_type', 'Select One'),
+        info_only        = bool(data.get('info_only', False)),
+        order            = max_order + 1,
     )
     db.session.add(q)
     db.session.commit()
@@ -112,6 +139,19 @@ def patch_question(qid):
     elif field == 'order':
         try: q.order = int(value)
         except: pass
+    elif field == 'category_type_id':
+        if value is None or value == '':
+            q.category_type_id = None
+        elif isinstance(value, int) or (isinstance(value, str) and value.isdigit()):
+            q.category_type_id = int(value)
+        else:
+            name = str(value).strip()
+            ct = QuestionCategoryType.query.filter_by(name=name).first()
+            if not ct:
+                ct = QuestionCategoryType(name=name)
+                db.session.add(ct)
+                db.session.flush()
+            q.category_type_id = ct.id
 
     q.updated_at = datetime.utcnow()
     db.session.commit()

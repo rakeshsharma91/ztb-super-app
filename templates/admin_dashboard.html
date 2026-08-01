@@ -116,6 +116,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .q-card-header .q-title { font-weight: 600; font-size: 14px; flex: 1; margin-right: 12px; }
 .q-card-header .q-meta { display: flex; gap: 8px; align-items: center; }
 .q-badge { background: var(--light-blue); color: var(--blue); padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.q-badge-category { background: #e8f0fe; color: #3c4db5; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
 .q-arrow { font-size: 12px; color: #888; transition: transform 0.2s; }
 .q-card.open .q-arrow { transform: rotate(180deg); }
 .q-card-body { display: none; padding: 18px; border-top: 1px solid var(--border); }
@@ -430,26 +431,22 @@ async function apiDelete(url) {
 // ─── LIBRARY TABLE CLASS ─────────────────────────────────────────────────────
 class LibraryTable {
   constructor(section, defaultColumns) {
-    this.section   = section;          // e.g. 'valueprops'
-    this.columns   = [...defaultColumns]; // mutable list of column names (excl. 'id' & delete)
+    this.section   = section;
+    this.columns   = [...defaultColumns];
     this.tableEl   = document.getElementById('table-' + section);
     this.thead     = this.tableEl.querySelector('thead tr');
     this.tbody     = this.tableEl.querySelector('tbody');
-    this._dragSrc  = null;             // dragged th index
+    this._dragSrc  = null;
     this._buildHeader();
   }
 
-  // ── Header ────────────────────────────────────────────────────────────────
   _buildHeader() {
     this.thead.innerHTML = '';
-    // ID column
     const thId = this._makeThFixed('ID');
     this.thead.appendChild(thId);
-    // Data columns
     this.columns.forEach((col, idx) => {
-      this.thead.appendChild(this._makeTh(col, idx + 1)); // +1 because of ID
+      this.thead.appendChild(this._makeTh(col, idx + 1));
     });
-    // Delete column
     const thDel = this._makeThFixed('');
     thDel.style.width = '40px';
     this.thead.appendChild(thDel);
@@ -469,13 +466,11 @@ class LibraryTable {
     th.setAttribute('data-col', colName);
     th.draggable = true;
 
-    // Text node for the name
     const nameSpan = document.createElement('span');
     nameSpan.className = 'th-name';
     nameSpan.textContent = colName;
     th.appendChild(nameSpan);
 
-    // Delete column button
     const delBtn = document.createElement('button');
     delBtn.className = 'col-delete-btn';
     delBtn.innerHTML = '&#10005;';
@@ -486,15 +481,13 @@ class LibraryTable {
     });
     th.appendChild(delBtn);
 
-    // Make contenteditable work on the span, not the whole th
     th.addEventListener('click', (e) => {
       if (e.target !== delBtn) nameSpan.focus();
     });
-    th.setAttribute('contenteditable', 'false'); // th itself not editable
+    th.setAttribute('contenteditable', 'false');
     nameSpan.setAttribute('contenteditable', 'true');
     nameSpan.setAttribute('spellcheck', 'false');
 
-    // Save on blur
     let oldName = colName;
     nameSpan.addEventListener('focus', () => { oldName = nameSpan.textContent.trim(); });
     nameSpan.addEventListener('blur', () => {
@@ -504,7 +497,6 @@ class LibraryTable {
       this._renameColumn(oldName, newName, th, nameSpan);
     });
 
-    // Drag-and-drop
     th.addEventListener('dragstart', (e) => this._onDragStart(e, th));
     th.addEventListener('dragover',  (e) => this._onDragOver(e, th));
     th.addEventListener('dragleave', (e) => th.classList.remove('drag-over'));
@@ -514,7 +506,6 @@ class LibraryTable {
     return th;
   }
 
-  // ── Render data ──────────────────────────────────────────────────────────
   renderRows(data) {
     libraryData[this.section] = data;
     this.tbody.innerHTML = '';
@@ -525,20 +516,17 @@ class LibraryTable {
     const tr = document.createElement('tr');
     tr.setAttribute('data-id', row.id);
 
-    // ID cell (not editable)
     const tdId = document.createElement('td');
     tdId.textContent = row.id;
     tdId.style.fontWeight = '600';
     tdId.style.color = '#888';
     tr.appendChild(tdId);
 
-    // Data cells
     this.columns.forEach(col => {
       const td = this._makeCell(row.id, col, row[col] != null ? String(row[col]) : '');
       tr.appendChild(td);
     });
 
-    // Delete button cell
     tr.appendChild(this._makeDeleteCell(row.id, tr));
     this.tbody.appendChild(tr);
     return tr;
@@ -578,7 +566,6 @@ class LibraryTable {
     return td;
   }
 
-  // ── Add Row ──────────────────────────────────────────────────────────────
   addRow() {
     const rows = this.tbody.querySelectorAll('tr');
     let maxId = 0;
@@ -588,12 +575,10 @@ class LibraryTable {
     this.columns.forEach(col => { newRow[col] = ''; });
     const tr = this._appendRow(newRow);
     apiPost(`/admin/${this.section}/`, newRow);
-    // Focus first editable cell
     const firstCell = tr.querySelector('td[contenteditable="true"]');
     if (firstCell) firstCell.focus();
   }
 
-  // ── Add Column ───────────────────────────────────────────────────────────
   addColumn() {
     const colName = prompt('Enter column name:');
     if (!colName || !colName.trim()) return;
@@ -601,12 +586,10 @@ class LibraryTable {
     if (this.columns.includes(name)) { showToast('Column already exists', 'warning'); return; }
     this.columns.push(name);
 
-    // Add th before delete column
     const lastTh = this.thead.lastElementChild;
     const newTh = this._makeTh(name, this.columns.length);
     this.thead.insertBefore(newTh, lastTh);
 
-    // Add td to every row before the delete cell
     this.tbody.querySelectorAll('tr').forEach(tr => {
       const rowId = tr.getAttribute('data-id');
       const lastTd = tr.lastElementChild;
@@ -617,7 +600,6 @@ class LibraryTable {
     apiPost(`/admin/${this.section}/columns`, { name });
   }
 
-  // ── Delete Column ────────────────────────────────────────────────────────
   _confirmDeleteColumn(colName, th) {
     if (!confirm(`Delete column "${colName}"?`)) return;
     const colIndex = this._getThIndex(th);
@@ -634,7 +616,6 @@ class LibraryTable {
     return Array.from(this.thead.children).indexOf(th);
   }
 
-  // ── Rename Column ────────────────────────────────────────────────────────
   _renameColumn(oldName, newName, th, nameSpan) {
     if (this.columns.includes(newName)) {
       showToast('Column name already exists', 'warning');
@@ -644,12 +625,10 @@ class LibraryTable {
     const idx = this.columns.indexOf(oldName);
     if (idx > -1) this.columns[idx] = newName;
     th.setAttribute('data-col', newName);
-    // Update all td data-col attributes
     this.tbody.querySelectorAll(`td[data-col="${oldName}"]`).forEach(td => td.setAttribute('data-col', newName));
     apiPatch(`/admin/${this.section}/column`, { old_name: oldName, new_name: newName });
   }
 
-  // ── Drag-and-drop ────────────────────────────────────────────────────────
   _onDragStart(e, th) {
     if (th.classList.contains('no-delete')) { e.preventDefault(); return; }
     this._dragSrc = th;
@@ -674,15 +653,12 @@ class LibraryTable {
     const srcIdx = this._getThIndex(this._dragSrc);
     const tgtIdx = this._getThIndex(targetTh);
 
-    // Reorder headers
-    const ths = Array.from(this.thead.children);
     if (srcIdx < tgtIdx) {
       this.thead.insertBefore(this._dragSrc, targetTh.nextSibling);
     } else {
       this.thead.insertBefore(this._dragSrc, targetTh);
     }
 
-    // Reorder tds in every row
     this.tbody.querySelectorAll('tr').forEach(tr => {
       const tds = Array.from(tr.children);
       const movingTd = tds[srcIdx];
@@ -693,7 +669,6 @@ class LibraryTable {
       }
     });
 
-    // Rebuild columns array from current th order
     this.columns = [];
     Array.from(this.thead.children).forEach(th => {
       if (!th.classList.contains('no-delete') && th.querySelector('.th-name')) {
@@ -710,7 +685,6 @@ class LibraryTable {
     this._dragSrc = null;
   }
 
-  // ── Load from API ─────────────────────────────────────────────────────────
   async load() {
     const data = await apiGet(`/admin/${this.section}/`);
     if (data) {
@@ -722,7 +696,6 @@ class LibraryTable {
     }
   }
 
-  // ── Import Excel ─────────────────────────────────────────────────────────
   triggerImport() {
     document.getElementById('import-file-' + this.section).click();
   }
@@ -737,13 +710,11 @@ class LibraryTable {
         const ws = wb.Sheets[wb.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
         if (!rows.length) { showToast('No data found in Excel', 'warning'); return; }
-        // Validate headers
         const excelCols = Object.keys(rows[0]).filter(k => k !== 'id' && k !== 'ID');
         const missing = this.columns.filter(c => !excelCols.includes(c));
         if (missing.length) {
           if (!confirm(`Warning: Excel is missing columns: ${missing.join(', ')}. Continue anyway?`)) return;
         }
-        // Send all rows to backend import endpoint (handles label→key mapping)
         fetch(`/admin/${this.section}/import`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -753,7 +724,7 @@ class LibraryTable {
         .then(data => {
           if (data.error) { showToast('Import error: ' + data.error, 'error'); return; }
           showToast(`Imported ${data.count} rows ✓`, 'success');
-          this.loadData();
+          this.load();
         })
         .catch(err => showToast('Import error: ' + err.message, 'error'));
       } catch (err) {
@@ -764,14 +735,12 @@ class LibraryTable {
     reader.readAsArrayBuffer(file);
   }
 
-  // ── Export Excel ─────────────────────────────────────────────────────────
   exportExcel() {
     const headers = ['id', ...this.columns];
     const data = [headers];
     this.tbody.querySelectorAll('tr').forEach(tr => {
-      const tds = tr.querySelectorAll('td');
       const row = [tr.getAttribute('data-id')];
-      this.columns.forEach((col, i) => {
+      this.columns.forEach((col) => {
         const td = tr.querySelector(`td[data-col="${col}"]`);
         row.push(td ? td.textContent : '');
       });
@@ -792,6 +761,10 @@ let questionsData = [];
 
 // ─── LOAD QUESTIONS ───────────────────────────────────────────────────────────
 async function loadQuestions() {
+  // load category types into global cache first
+  const types = await apiGet('/admin/questions/category-types');
+  window._categoryTypes = types || [];
+
   const data = await apiGet('/admin/questions/');
   if (data) {
     questionsData = data;
@@ -882,13 +855,14 @@ function buildQuestionCard(q) {
   card.className = 'q-card';
   card.setAttribute('data-qid', q.id);
 
-  // Header
+  // Header — both badges: category type (blue/indigo) + keyword (light blue)
   const header = document.createElement('div');
   header.className = 'q-card-header';
   header.innerHTML = `
     <span class="q-drag-handle" title="Drag to reorder">⠿</span>
     <span class="q-title">${escHtml(q.question_text || 'New Question')}</span>
     <div class="q-meta">
+      ${q.category_type_name ? `<span class="q-badge-category">${escHtml(q.category_type_name)}</span>` : ''}
       ${q.keyword ? `<span class="q-badge">${escHtml(q.keyword)}</span>` : ''}
       <span class="q-arrow">&#9660;</span>
     </div>`;
@@ -941,6 +915,77 @@ function buildQuestionBody(q) {
     return inp;
   }));
 
+  // Question Category (dropdown with + Add new...)
+  frag.appendChild(makeFormRow('Question Category', () => {
+    const sel = document.createElement('select');
+
+    // blank option
+    const blank = document.createElement('option');
+    blank.value = ''; blank.textContent = '— None —';
+    sel.appendChild(blank);
+
+    function populateCategoryTypes(selectedId) {
+      while (sel.options.length > 1) sel.remove(1);
+
+      (window._categoryTypes || []).forEach(ct => {
+        const o = document.createElement('option');
+        o.value = ct.id; o.textContent = ct.name;
+        if (ct.id === selectedId) o.selected = true;
+        sel.appendChild(o);
+      });
+
+      const addNew = document.createElement('option');
+      addNew.value = '__add_new__'; addNew.textContent = '＋ Add new...';
+      sel.appendChild(addNew);
+
+      if (!selectedId) sel.value = '';
+    }
+
+    populateCategoryTypes(q.category_type_id);
+
+    sel.addEventListener('change', async () => {
+      if (sel.value === '__add_new__') {
+        const name = prompt('Enter new Question Category name:');
+        if (!name || !name.trim()) { populateCategoryTypes(q.category_type_id); return; }
+        const res = await apiPost('/admin/questions/category-types', { name: name.trim() });
+        if (res && res.id) {
+          if (!window._categoryTypes.find(c => c.id === res.id)) {
+            window._categoryTypes.push(res);
+          }
+          q.category_type_id   = res.id;
+          q.category_type_name = res.name;
+          populateCategoryTypes(res.id);
+          await patchQuestion(qId, 'category_type_id', res.id);
+        } else {
+          populateCategoryTypes(q.category_type_id);
+        }
+      } else {
+        const newId = sel.value ? parseInt(sel.value) : null;
+        q.category_type_id = newId;
+        const found = (window._categoryTypes || []).find(c => c.id === newId);
+        q.category_type_name = found ? found.name : '';
+        await patchQuestion(qId, 'category_type_id', newId || '');
+      }
+      // update header badge
+      const card = document.querySelector(`.q-card[data-qid="${qId}"]`);
+      if (card) {
+        let badge = card.querySelector('.q-badge-category');
+        if (q.category_type_name) {
+          if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'q-badge-category';
+            card.querySelector('.q-meta').prepend(badge);
+          }
+          badge.textContent = q.category_type_name;
+        } else if (badge) {
+          badge.remove();
+        }
+      }
+    });
+
+    return sel;
+  }));
+
   // Options Type
   frag.appendChild(makeFormRow('Options Type', () => {
     const sel = document.createElement('select');
@@ -972,7 +1017,6 @@ function buildQuestionBody(q) {
   const optSection = document.createElement('div');
   optSection.className = 'options-section';
   optSection.id = `options-section-${qId}`;
-  
 
   const optTitle = document.createElement('h4');
   optTitle.textContent = 'Options';
@@ -990,7 +1034,6 @@ function buildQuestionBody(q) {
   addOptBtn.addEventListener('click', () => addOption(qId));
   optSection.appendChild(addOptBtn);
 
-  // Toggle options on info_only change
   infoChk.addEventListener('change', () => {
     patchQuestion(qId, 'info_only', infoChk.checked);
   });
@@ -1176,8 +1219,6 @@ function openChipDropdown(anchor, def, selectedIds, onUpdate) {
 }
 
 // ─── QUESTIONS CRUD ───────────────────────────────────────────────────────────
-// ─── QUESTIONS CRUD ───────────────────────────────────────────────────────────
-// ─── QUESTIONS CRUD ───────────────────────────────────────────────────────────
 async function addQuestion() {
   const newQ = await apiPost('/admin/questions/', { question_text: 'New Question', options: [] });
   if (newQ && newQ.id) {
@@ -1185,7 +1226,6 @@ async function addQuestion() {
     questionsData.push(newQ);
     const card = buildQuestionCard(newQ);
     document.getElementById('questions-list').appendChild(card);
-    // Auto-open it
     card.classList.add('open');
     showToast('Question added ✓', 'success');
   }
@@ -1203,7 +1243,6 @@ async function deleteQuestion(qId) {
 
 async function patchQuestion(qId, field, value) {
   await apiPatch(`/admin/questions/${qId}`, { field, value });
-  // Update header title if question_text changed
   if (field === 'question_text') {
     const card = document.querySelector(`.q-card[data-qid="${qId}"]`);
     if (card) {
@@ -1219,7 +1258,13 @@ async function patchQuestion(qId, field, value) {
         if (!badge) {
           badge = document.createElement('span');
           badge.className = 'q-badge';
-          card.querySelector('.q-meta').prepend(badge);
+          // insert after q-badge-category if present, else prepend
+          const catBadge = card.querySelector('.q-badge-category');
+          if (catBadge) {
+            catBadge.insertAdjacentElement('afterend', badge);
+          } else {
+            card.querySelector('.q-meta').prepend(badge);
+          }
         }
         badge.textContent = value;
       } else if (badge) {
@@ -1235,7 +1280,6 @@ async function addOption(qId) {
   if (newOpt && newOpt.id) {
     const optList = document.getElementById(`options-list-${qId}`);
     if (optList) optList.appendChild(buildOptionRow(qId, newOpt));
-    // Update local data
     const q = questionsData.find(q => q.id === qId);
     if (q) { q.options = q.options || []; q.options.push(newOpt); }
   }
@@ -1257,14 +1301,13 @@ async function patchOption(qId, optId, field, value) {
 
 <script>
 // ─── ASSESSMENT CONFIG ────────────────────────────────────────────────────────
-let assessmentConfig = []; // [{id, question_text, included, mandatory, order}]
+let assessmentConfig = [];
 
 async function loadAssessmentConfig() {
   const data = await apiGet('/admin/assessment/config');
   if (data) {
     assessmentConfig = data;
   } else {
-    // Build from questionsData if no config yet
     assessmentConfig = questionsData.map((q, i) => ({
       id: q.id,
       question_text: q.question_text || 'Question ' + q.id,
@@ -1284,7 +1327,6 @@ function renderAssessmentConfig() {
     row.className = 'assessment-item';
     row.setAttribute('data-id', item.id);
 
-    // Include checkbox
     const inclChk = document.createElement('input');
     inclChk.type = 'checkbox';
     inclChk.checked = !!item.included;
@@ -1292,13 +1334,11 @@ function renderAssessmentConfig() {
     inclChk.addEventListener('change', () => { item.included = inclChk.checked; });
     row.appendChild(inclChk);
 
-    // Question text
     const qtxt = document.createElement('span');
     qtxt.className = 'q-text';
     qtxt.textContent = item.question_text || '(no text)';
     row.appendChild(qtxt);
 
-    // Mandatory toggle
     const mandDiv = document.createElement('div');
     mandDiv.className = 'mandatory-toggle';
     const mandChk = document.createElement('input');
@@ -1310,7 +1350,6 @@ function renderAssessmentConfig() {
     mandDiv.appendChild(mandLbl);
     row.appendChild(mandDiv);
 
-    // Up/down buttons
     const btnDiv = document.createElement('div');
     btnDiv.className = 'order-btns';
 
@@ -1372,21 +1411,16 @@ const LIBRARY_CONFIGS = {
 };
 
 async function initPage() {
-  // Init all 5 library tables
   Object.entries(LIBRARY_CONFIGS).forEach(([section, cols]) => {
     libraryTables[section] = new LibraryTable(section, cols);
   });
 
-  // Load all 5 library tables in parallel
   await Promise.all(Object.values(libraryTables).map(t => t.load()));
 
-  // Load questions (needs library data for dropdowns)
   await loadQuestions();
 
-  // Load assessment config (needs questionsData)
   await loadAssessmentConfig();
 
-  // Show default section
   showSection('valueprops');
 }
 

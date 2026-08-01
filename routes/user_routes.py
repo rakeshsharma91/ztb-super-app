@@ -130,12 +130,13 @@ def get_questions():
         for o in sorted(q.options, key=lambda x: x.id):
             opts.append({'id': o.id, 'label': o.label})
         result.append({
-            'question_id':  q.id,
-            'category':     cat.name if cat else '',
-            'text':         q.text,
-            'options_type': q.options_type,
-            'info_only':    q.info_only,
-            'options':      opts
+            'question_id':        q.id,
+            'category':           cat.name if cat else '',
+            'category_type_name': q.category_type_ref.name if q.category_type_ref else '',
+            'text':               q.text,
+            'options_type':       q.options_type,
+            'info_only':          q.info_only,
+            'options':            opts
         })
     return render_template('user_assessment.html', questions=result)
 
