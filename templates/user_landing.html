@@ -147,7 +147,78 @@
     }
     .submit-btn.loading .btn-spinner { display: block; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .bom-section { text-align: center; margin: 5rem auto 4rem; padding: 0 1.5rem; }
+
+    /* ── IN PROGRESS SECTION ── */
+    .inprogress-section {
+      max-width: 700px; margin: 3rem auto 0; padding: 0 1.5rem;
+    }
+    .inprogress-header {
+      display: flex; align-items: center; gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+    .inprogress-header h2 {
+      font-size: 1rem; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.07em;
+    }
+    .inprogress-count {
+      background: rgba(0,170,255,0.15);
+      border: 1px solid rgba(0,170,255,0.3);
+      border-radius: 20px; padding: 1px 9px;
+      font-size: 0.72rem; font-weight: 700; color: var(--accent);
+    }
+    .inprogress-grid {
+      display: flex; flex-direction: column; gap: 0.75rem;
+    }
+    .draft-card {
+      background: linear-gradient(145deg, #0d2d52, #0a2244);
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 1rem 1.25rem;
+      display: flex; align-items: center; gap: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .draft-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.12); }
+    .draft-icon {
+      width: 40px; height: 40px; flex-shrink: 0;
+      background: rgba(0,170,255,0.1);
+      border: 1px solid rgba(0,170,255,0.2);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .draft-info { flex: 1; min-width: 0; }
+    .draft-customer {
+      font-size: 0.95rem; font-weight: 700; color: var(--white);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .draft-meta {
+      font-size: 0.76rem; color: var(--text-muted); margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .draft-progress { margin-top: 6px; }
+    .draft-progress-bar {
+      height: 4px; background: rgba(255,255,255,0.08);
+      border-radius: 4px; overflow: hidden;
+    }
+    .draft-progress-fill {
+      height: 4px; background: linear-gradient(90deg, var(--blue), var(--accent));
+      border-radius: 4px; transition: width 0.3s;
+    }
+    .draft-progress-label {
+      font-size: 0.7rem; color: var(--text-muted); margin-top: 3px;
+    }
+    .resume-btn {
+      flex-shrink: 0;
+      padding: 0.5rem 1.1rem;
+      background: transparent;
+      border: 1px solid var(--accent);
+      border-radius: 8px; color: var(--accent);
+      font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      text-decoration: none; display: inline-block;
+    }
+    .resume-btn:hover { background: var(--accent); color: var(--white); }
+
+    .bom-section { text-align: center; margin: 3.5rem auto 4rem; padding: 0 1.5rem; }
     .bom-btn {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 0.78rem 2rem;
@@ -177,6 +248,8 @@
       .form-card { padding: 1.7rem 1.3rem; }
       .navbar { padding: 0 1rem; }
       .nav-badge { display: none; }
+      .draft-card { flex-wrap: wrap; }
+      .resume-btn { width: 100%; text-align: center; margin-top: 0.5rem; }
     }
   </style>
 </head>
@@ -206,39 +279,67 @@
     <div class="form-card">
       <div class="global-error" id="globalError"></div>
       <form id="landingForm" novalidate>
-
-        <!-- Customer Name -->
         <div class="form-group">
           <label for="customer_name">Customer Name</label>
           <input type="text" id="customer_name" name="customer_name" required
                  placeholder="e.g. Acme Corporation" autocomplete="organization" />
           <div class="field-error" id="err_customer">Please enter the customer name.</div>
         </div>
-
-        <!-- AE / SE Name -->
         <div class="form-group">
           <label for="se_name">AE / SE Name</label>
           <input type="text" id="se_name" name="se_name" required
                  placeholder="e.g. Jane Smith" autocomplete="name" />
           <div class="field-error" id="err_se">Please enter your name.</div>
         </div>
-
-        <!-- Opportunity URL — REQUIRED -->
         <div class="form-group">
           <label for="opportunity_url">Opportunity URL</label>
           <input type="url" id="opportunity_url" name="opportunity_url" required
                  placeholder="https://zscaler.lightning.force.com/..." autocomplete="off" />
           <div class="field-error" id="err_opp">Please enter the Salesforce opportunity URL.</div>
         </div>
-
         <button type="submit" class="submit-btn" id="submitBtn">
           <div class="btn-spinner"></div>
           <span class="btn-text">Start Assessment &rarr;</span>
         </button>
-
       </form>
     </div>
   </div>
+
+  <!-- IN PROGRESS SECTION -->
+  {% if in_progress %}
+  <div class="inprogress-section">
+    <div class="inprogress-header">
+      <h2>In Progress</h2>
+      <span class="inprogress-count">{{ in_progress | length }}</span>
+    </div>
+    <div class="inprogress-grid">
+      {% for draft in in_progress %}
+      {% set pct = ((draft.current_question_index or 0) / total_questions * 100) | round | int if total_questions > 0 else 0 %}
+      <div class="draft-card">
+        <div class="draft-icon">📋</div>
+        <div class="draft-info">
+          <div class="draft-customer">{{ draft.customer_name }}</div>
+          <div class="draft-meta">
+            {{ draft.se_name }}
+            {% if draft.started_at %}
+              &nbsp;·&nbsp; Started {{ draft.started_at.strftime('%b %d, %Y') }}
+            {% endif %}
+          </div>
+          <div class="draft-progress">
+            <div class="draft-progress-bar">
+              <div class="draft-progress-fill" style="width: {{ pct }}%"></div>
+            </div>
+            <div class="draft-progress-label">
+              Question {{ (draft.current_question_index or 0) + 1 }} of {{ total_questions }}
+            </div>
+          </div>
+        </div>
+        <a class="resume-btn" href="/user/resume/{{ draft.id }}">Resume →</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 
   <!-- BOM SECTION -->
   <div class="bom-section">

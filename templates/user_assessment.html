@@ -20,7 +20,7 @@
   .option-btn.selected { border-color: #003366; background: #003366; color: #fff; }
   textarea { width: 100%; border: 2px solid #dde3ea; border-radius: 10px; padding: 14px 18px; font-size: 15px; font-family: inherit; color: #333; resize: vertical; min-height: 120px; outline: none; transition: border 0.2s; }
   textarea:focus { border-color: #003366; }
-  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; gap: 10px; }
   .btn { padding: 12px 28px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
   .btn-back { background: #f0f4f8; color: #555; }
   .btn-back:hover { background: #dde3ea; }
@@ -29,6 +29,18 @@
   .btn-next:disabled { background: #aab4c4; cursor: not-allowed; }
   .btn-submit { background: #00875a; color: #fff; }
   .btn-submit:hover { background: #006644; }
+  .btn-save { background: #fff; color: #0070c0; border: 2px solid #0070c0; padding: 10px 20px; }
+  .btn-save:hover { background: #e8f4ff; }
+  .btn-save:disabled { opacity: 0.55; cursor: not-allowed; }
+  .save-toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+    background: #003366; color: #fff; padding: 12px 28px;
+    border-radius: 10px; font-size: 14px; font-weight: 600;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+    opacity: 0; transition: opacity 0.3s;
+    pointer-events: none; white-space: nowrap; z-index: 999;
+  }
+  .save-toast.show { opacity: 1; }
 </style>
 </head>
 <body>
@@ -48,17 +60,65 @@
   <div class="options" id="optionsArea"></div>
   <div class="nav">
     <button class="btn btn-back" id="backBtn" onclick="goBack()">← Back</button>
+    <button class="btn btn-save" id="saveBtn" onclick="saveForLater()">💾 Save for Later</button>
     <button class="btn btn-next" id="nextBtn">Next →</button>
   </div>
 </div>
 
+<div class="save-toast" id="saveToast"></div>
+
 <script>
 const questions = {{ questions | tojson }};
-let current = 0;
+const savedResponses = {{ saved_responses | tojson }};
+const resumeIndex = {{ resume_index }};
+
+let current = resumeIndex;
+let draftResponseId = null;
+
+// Pre-populate responses from saved state
 const responses = {};
+Object.keys(savedResponses).forEach(function(k) {
+  responses[parseInt(k)] = savedResponses[k];
+});
 
 function normalise(t) {
   return (t || '').toLowerCase().replace(/[^a-z]/g, '');
+}
+
+function showToast(msg, isError) {
+  const toast = document.getElementById('saveToast');
+  toast.textContent = msg;
+  toast.style.background = isError ? '#b91c1c' : '#003366';
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 3000);
+}
+
+function saveForLater() {
+  const saveBtn = document.getElementById('saveBtn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving…';
+
+  fetch('/user/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ responses: responses, current_index: current })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.success) {
+      draftResponseId = data.response_id;
+      showToast('✓ Saved! Resume anytime from the home page.', false);
+    } else {
+      showToast('Save failed. Please try again.', true);
+    }
+  })
+  .catch(function() {
+    showToast('Network error — save failed.', true);
+  })
+  .finally(function() {
+    saveBtn.disabled = false;
+    saveBtn.textContent = '💾 Save for Later';
+  });
 }
 
 function render() {
@@ -71,7 +131,7 @@ function render() {
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('counterLabel').textContent = (current + 1) + ' of ' + total;
 
-  // Category tag — use category_type_name, fall back to keyword if not set
+  // Category tag
   const catLabel = q.category_type_name || q.category || '';
   document.getElementById('categoryLabel').textContent = catLabel;
   const catTag = document.getElementById('catTag');
@@ -98,13 +158,13 @@ function render() {
     nextBtn.disabled = false;
 
   } else if (type === 'selectone') {
-    q.options.forEach(opt => {
+    q.options.forEach(function(opt) {
       const btn = document.createElement('button');
       btn.className = 'option-btn' + (responses[q.question_id] === opt.id ? ' selected' : '');
       btn.textContent = opt.label;
-      btn.onclick = () => {
+      btn.onclick = function() {
         responses[q.question_id] = opt.id;
-        document.querySelectorAll('#optionsArea .option-btn').forEach(b => b.classList.remove('selected'));
+        document.querySelectorAll('#optionsArea .option-btn').forEach(function(b) { b.classList.remove('selected'); });
         btn.classList.add('selected');
         nextBtn.disabled = false;
       };
@@ -114,12 +174,12 @@ function render() {
 
   } else if (type === 'selectallthatapply' || type === 'selectall') {
     if (!Array.isArray(responses[q.question_id])) responses[q.question_id] = [];
-    q.options.forEach(opt => {
+    q.options.forEach(function(opt) {
       const btn = document.createElement('button');
       const alreadySel = responses[q.question_id].includes(opt.id);
       btn.className = 'option-btn' + (alreadySel ? ' selected' : '');
       btn.textContent = opt.label;
-      btn.onclick = () => {
+      btn.onclick = function() {
         const arr = responses[q.question_id];
         const idx = arr.indexOf(opt.id);
         if (idx > -1) { arr.splice(idx, 1); btn.classList.remove('selected'); }
@@ -134,7 +194,7 @@ function render() {
     const ta = document.createElement('textarea');
     ta.placeholder = 'Type your answer here...';
     ta.value = responses[q.question_id] || '';
-    ta.oninput = () => {
+    ta.oninput = function() {
       responses[q.question_id] = ta.value;
       nextBtn.disabled = ta.value.trim() === '';
     };
@@ -170,10 +230,10 @@ function submitAll() {
   fetch('/user/submit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ responses })
+    body: JSON.stringify({ responses: responses })
   })
-  .then(r => r.json())
-  .then(data => {
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
     if (data.success) {
       document.getElementById('questionCard').innerHTML =
         '<div style="text-align:center;padding:40px 0;">' +
@@ -185,7 +245,7 @@ function submitAll() {
       document.getElementById('progressFill').style.width = '100%';
     }
   })
-  .catch(() => alert('Submission failed. Please try again.'));
+  .catch(function() { alert('Submission failed. Please try again.'); });
 }
 
 render();

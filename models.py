@@ -112,7 +112,7 @@ class Roadblock(db.Model):
     updated_at  = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 # ─────────────────────────────────────────
-# QUESTION CATEGORY TYPE  ← NEW
+# QUESTION CATEGORY TYPE
 # ─────────────────────────────────────────
 class QuestionCategoryType(db.Model):
     __tablename__ = 'question_category_types'
@@ -253,27 +253,32 @@ class AssessmentConfig(db.Model):
 # ─────────────────────────────────────────
 class UserResponse(db.Model):
     __tablename__ = 'user_responses'
-    id              = db.Column(db.Integer, primary_key=True)
-    customer_name   = db.Column(db.String(255), nullable=False)
-    se_name         = db.Column(db.String(255), nullable=False)
-    opportunity_url = db.Column(db.Text, nullable=True)
-    started_at      = db.Column(db.DateTime, default=datetime.utcnow)
-    completed_at    = db.Column(db.DateTime, nullable=True)
-    answers         = db.Column(db.JSON, default=dict)
-    results         = db.Column(db.JSON, default=dict)
-    created_at      = db.Column(db.DateTime, default=datetime.utcnow)
+    id                    = db.Column(db.Integer, primary_key=True)
+    customer_name         = db.Column(db.String(255), nullable=False)
+    se_name               = db.Column(db.String(255), nullable=False)
+    opportunity_url       = db.Column(db.Text, nullable=True)
+    status                = db.Column(db.String(20), default='in_progress', nullable=False)
+    current_question_index = db.Column(db.Integer, default=0)
+    raw_responses         = db.Column(db.JSON, default=dict)
+    started_at            = db.Column(db.DateTime, default=datetime.utcnow)
+    completed_at          = db.Column(db.DateTime, nullable=True)
+    answers               = db.Column(db.JSON, default=dict)
+    results               = db.Column(db.JSON, default=dict)
+    created_at            = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
         return {
-            'id':              self.id,
-            'customer_name':   self.customer_name,
-            'se_name':         self.se_name,
-            'opportunity_url': self.opportunity_url or '',
-            'started_at':      self.started_at.strftime('%Y-%m-%d %H:%M') if self.started_at else '',
-            'completed_at':    self.completed_at.strftime('%Y-%m-%d %H:%M') if self.completed_at else '',
-            'answers':         self.answers or {},
-            'results':         self.results or {},
-            'created_at':      self.created_at.strftime('%Y-%m-%d %H:%M') if self.created_at else '',
+            'id':                     self.id,
+            'customer_name':          self.customer_name,
+            'se_name':                self.se_name,
+            'opportunity_url':        self.opportunity_url or '',
+            'status':                 self.status,
+            'current_question_index': self.current_question_index or 0,
+            'started_at':             self.started_at.strftime('%Y-%m-%d %H:%M') if self.started_at else '',
+            'completed_at':           self.completed_at.strftime('%Y-%m-%d %H:%M') if self.completed_at else '',
+            'answers':                self.answers or {},
+            'results':                self.results or {},
+            'created_at':             self.created_at.strftime('%Y-%m-%d %H:%M') if self.created_at else '',
         }
 
 # ─────────────────────────────────────────
@@ -293,8 +298,8 @@ def run_migration(db):
             db.metadata.tables[tname].create(engine)
             print(f'[migration] Created table: {tname}')
 
-    # Add category_type_id column to questions if missing
     with engine.connect() as conn:
+        # questions table
         q_cols = [c['name'] for c in inspector.get_columns('questions')]
         if 'category_type_id' not in q_cols:
             conn.execute(sa.text(
@@ -302,6 +307,29 @@ def run_migration(db):
                 'REFERENCES question_category_types(id) ON DELETE SET NULL'
             ))
             print('[migration] Added column questions.category_type_id')
+
+        # user_responses table — new columns
+        ur_cols = [c['name'] for c in inspector.get_columns('user_responses')]
+        if 'status' not in ur_cols:
+            conn.execute(sa.text(
+                "ALTER TABLE user_responses ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'in_progress'"
+            ))
+            print('[migration] Added column user_responses.status')
+        if 'current_question_index' not in ur_cols:
+            conn.execute(sa.text(
+                'ALTER TABLE user_responses ADD COLUMN current_question_index INTEGER DEFAULT 0'
+            ))
+            print('[migration] Added column user_responses.current_question_index')
+        if 'raw_responses' not in ur_cols:
+            conn.execute(sa.text(
+                'ALTER TABLE user_responses ADD COLUMN raw_responses JSON'
+            ))
+            print('[migration] Added column user_responses.raw_responses')
+
+        # Mark all existing rows (completed_at IS NOT NULL) as completed
+        conn.execute(sa.text(
+            "UPDATE user_responses SET status = 'completed' WHERE completed_at IS NOT NULL AND status = 'in_progress'"
+        ))
 
         # Drop old M2M columns from question_options if they exist
         old_cols = ['asset_id', 'value_prop_id', 'test_case_id', 'pov_step_id', 'roadblock_id']
@@ -313,4 +341,5 @@ def run_migration(db):
                     print(f'[migration] Dropped column question_options.{col}')
                 except Exception as e:
                     print(f'[migration] Could not drop {col}: {e}')
+
         conn.commit()

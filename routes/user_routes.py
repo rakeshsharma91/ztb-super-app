@@ -1,5 +1,5 @@
 # user_routes.py — Complete User-Facing Routes for ZTB Super App
-from flask import Blueprint, request, jsonify, session, render_template, send_file
+from flask import Blueprint, request, jsonify, session, render_template, send_file, redirect, url_for
 from models import (db, UserResponse, Question, QuestionOption,
                     AssessmentConfig, QuestionCategory,
                     ValueProp, Asset, TestCase, POVPlanner, Roadblock,
@@ -100,7 +100,15 @@ def _get_keyword(question):
 
 @user_bp.route('/')
 def landing():
-    return render_template('user_landing.html')
+    in_progress = (UserResponse.query
+                   .filter_by(status='in_progress')
+                   .order_by(UserResponse.started_at.desc())
+                   .limit(15)
+                   .all())
+    total_questions = Question.query.filter_by(info_only=False).count()
+    return render_template('user_landing.html',
+                           in_progress=in_progress,
+                           total_questions=total_questions)
 
 @user_bp.route('/start', methods=['POST'])
 def start_assessment():
@@ -113,11 +121,12 @@ def start_assessment():
     opportunity_url = (data.get('opportunity_url') or '').strip()
     if not customer_name:
         return jsonify({'error': 'Customer name is required'}), 400
-    session['customer_name']   = customer_name
-    session['se_name']         = se_name
-    session['opportunity_url'] = opportunity_url
+    session['customer_name']      = customer_name
+    session['se_name']            = se_name
+    session['opportunity_url']    = opportunity_url
     session['assessment_started'] = True
-    session['responses'] = {}
+    session['responses']          = {}
+    session['draft_response_id']  = None
     return jsonify({'success': True, 'message': 'Assessment started'})
 
 @user_bp.route('/questions', methods=['GET'])
@@ -138,7 +147,83 @@ def get_questions():
             'info_only':          q.info_only,
             'options':            opts
         })
-    return render_template('user_assessment.html', questions=result)
+    return render_template('user_assessment.html',
+                           questions=result,
+                           saved_responses={},
+                           resume_index=0)
+
+@user_bp.route('/save', methods=['POST'])
+def save_progress():
+    data          = request.get_json()
+    raw_responses = data.get('responses', {})
+    current_index = data.get('current_index', 0)
+
+    customer_name   = session.get('customer_name') or data.get('customer_name', 'Unknown')
+    se_name         = session.get('se_name')        or data.get('se_name', '')
+    opportunity_url = session.get('opportunity_url', '')
+
+    draft_id = session.get('draft_response_id')
+    if draft_id:
+        user_resp = UserResponse.query.get(draft_id)
+    else:
+        user_resp = None
+
+    if user_resp and user_resp.status == 'in_progress':
+        user_resp.raw_responses          = raw_responses
+        user_resp.current_question_index = current_index
+    else:
+        user_resp = UserResponse(
+            customer_name          = customer_name,
+            se_name                = se_name,
+            opportunity_url        = opportunity_url,
+            status                 = 'in_progress',
+            raw_responses          = raw_responses,
+            current_question_index = current_index,
+            answers                = {},
+            results                = {}
+        )
+        db.session.add(user_resp)
+
+    db.session.commit()
+    session['draft_response_id'] = user_resp.id
+
+    return jsonify({'success': True, 'response_id': user_resp.id})
+
+@user_bp.route('/resume/<int:response_id>', methods=['GET'])
+def resume_assessment(response_id):
+    user_resp = UserResponse.query.get_or_404(response_id)
+
+    if user_resp.status != 'in_progress':
+        return redirect(url_for('user.landing'))
+
+    session['customer_name']     = user_resp.customer_name
+    session['se_name']           = user_resp.se_name
+    session['opportunity_url']   = user_resp.opportunity_url
+    session['assessment_started'] = True
+    session['responses']         = {}
+    session['draft_response_id'] = user_resp.id
+
+    all_questions = Question.query.order_by(Question.order).all()
+    result = []
+    for q in all_questions:
+        cat = QuestionCategory.query.get(q.category_id)
+        opts = []
+        for o in sorted(q.options, key=lambda x: x.id):
+            opts.append({'id': o.id, 'label': o.label})
+        result.append({
+            'question_id':        q.id,
+            'category':           cat.name if cat else '',
+            'category_type_name': q.category_type_ref.name if q.category_type_ref else '',
+            'text':               q.text,
+            'options_type':       q.options_type,
+            'info_only':          q.info_only,
+            'options':            opts
+        })
+
+    return render_template('user_assessment.html',
+                           questions=result,
+                           saved_responses=user_resp.raw_responses or {},
+                           resume_index=user_resp.current_question_index or 0)
 
 @user_bp.route('/submit', methods=['POST'])
 def submit_responses():
@@ -203,18 +288,32 @@ def submit_responses():
     session['rb_ids']    = list(rb_ids)
     session['pov_ids']   = list(pov_ids)
 
-    user_response = UserResponse(
-        customer_name   = customer_name,
-        se_name         = se_name,
-        opportunity_url = opportunity_url,
-        answers         = keyword_answers,
-        completed_at    = datetime.utcnow()
-    )
-    db.session.add(user_response)
-    db.session.commit()
-    session['response_id'] = user_response.id
+    # Update existing draft if present, else create new
+    draft_id  = session.get('draft_response_id')
+    user_resp = UserResponse.query.get(draft_id) if draft_id else None
 
-    return jsonify({'success': True, 'response_id': user_response.id})
+    if user_resp and user_resp.status == 'in_progress':
+        user_resp.answers      = keyword_answers
+        user_resp.raw_responses = responses
+        user_resp.status       = 'completed'
+        user_resp.completed_at = datetime.utcnow()
+    else:
+        user_resp = UserResponse(
+            customer_name   = customer_name,
+            se_name         = se_name,
+            opportunity_url = opportunity_url,
+            answers         = keyword_answers,
+            raw_responses   = responses,
+            status          = 'completed',
+            completed_at    = datetime.utcnow()
+        )
+        db.session.add(user_resp)
+
+    db.session.commit()
+    session['response_id']       = user_resp.id
+    session['draft_response_id'] = None
+
+    return jsonify({'success': True, 'response_id': user_resp.id})
 
 @user_bp.route('/export', methods=['GET'])
 def export_excel():
@@ -234,7 +333,6 @@ def export_excel():
     ws_assess = wb.active
     ws_assess.title = "Assessment"
 
-    # Row 1 — Customer
     ws_assess.merge_cells("A1:B1")
     cell = ws_assess["A1"]
     cell.value = f"Customer: {customer_name}"
@@ -243,7 +341,6 @@ def export_excel():
     cell.alignment = Alignment(horizontal="left", vertical="center")
     ws_assess.row_dimensions[1].height = 30
 
-    # Row 2 — SE Name
     ws_assess.merge_cells("A2:B2")
     cell2 = ws_assess["A2"]
     cell2.value = f"SE: {se_name}"
@@ -252,7 +349,6 @@ def export_excel():
     cell2.alignment = Alignment(horizontal="left", vertical="center")
     ws_assess.row_dimensions[2].height = 22
 
-    # Row 3 — Opportunity URL
     ws_assess.merge_cells("A3:B3")
     cell3 = ws_assess["A3"]
     cell3.value = f"Opportunity URL: {opportunity_url}" if opportunity_url else "Opportunity URL: —"
@@ -261,10 +357,8 @@ def export_excel():
     cell3.alignment = Alignment(horizontal="left", vertical="center")
     ws_assess.row_dimensions[3].height = 20
 
-    # Row 4 — spacer
     ws_assess.row_dimensions[4].height = 10
 
-    # Row 5 — column headers
     _hdr(ws_assess, 5, 1, "Question")
     _hdr(ws_assess, 5, 2, "Answer")
     ws_assess.row_dimensions[5].height = 28
