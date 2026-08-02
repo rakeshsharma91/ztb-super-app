@@ -75,18 +75,6 @@
     }
     .empty-state i { font-size: 2.5rem; margin-bottom: 10px; display: block; }
     .spinner-wrap { text-align: center; padding: 40px; }
-    pre.json-view {
-      background: #1e1e2e;
-      color: #cdd6f4;
-      border-radius: 6px;
-      padding: 14px;
-      font-size: 0.78rem;
-      max-height: 480px;
-      overflow-y: auto;
-      text-align: left;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
     .opp-link { font-size: 0.78rem; color: #0d6efd; text-decoration: none; }
     .opp-link:hover { text-decoration: underline; }
   </style>
@@ -170,11 +158,9 @@
       <table class="table table-bordered table-hover align-middle mb-0">
         <thead>
           <tr>
-            <th style="width:60px;"># ID</th>
             <th>Customer</th>
-            <th>SE Name</th>
+            <th>AE / SE Name</th>
             <th>Opportunity URL</th>
-            <th>Completed</th>
             <th style="width:100px;" class="text-center">Actions</th>
           </tr>
         </thead>
@@ -193,17 +179,17 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 <script>
 let allResponses  = [];
-let dynamicFields = [];   // populated from /admin/responses/keywords
+let dynamicFields = [];
 let filterLogic   = 'AND';
 let filterRowCount = 0;
 
 const DATE_FIELDS = ['completed_at'];
 const TEXT_OPS = [
-  {value:'equals',     label:'equals'},
-  {value:'contains',   label:'contains'},
-  {value:'starts_with',label:'starts with'},
-  {value:'ends_with',  label:'ends with'},
-  {value:'is_empty',   label:'is empty'},
+  {value:'equals',      label:'equals'},
+  {value:'contains',    label:'contains'},
+  {value:'starts_with', label:'starts with'},
+  {value:'ends_with',   label:'ends with'},
+  {value:'is_empty',    label:'is empty'},
   {value:'is_not_empty',label:'is not empty'},
 ];
 const DATE_OPS = [
@@ -214,9 +200,13 @@ const DATE_OPS = [
   {value:'is_not_empty',label:'is not empty'},
 ];
 
+function ensureProtocol(url) {
+  if (!url) return '';
+  return /^https?:\/\//i.test(url) ? url : 'https://' + url;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    // Fetch keywords and responses in parallel
     const [kwRes, respRes] = await Promise.all([
       fetch('/admin/responses/keywords'),
       fetch('/admin/responses/list')
@@ -232,7 +222,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (respData.success) {
-      allResponses = respData.responses || [];
+      allResponses = (respData.responses || []).sort((a, b) => b.id - a.id);
     } else {
       showFetchError('Server returned an error loading responses.');
       return;
@@ -343,11 +333,9 @@ function getFilterConfigs() {
 }
 
 function getFieldValue(response, field) {
-  // Fixed fields
   if (['customer_name','se_name','opportunity_url','completed_at'].includes(field)) {
     return response[field] ?? '';
   }
-  // Dynamic keyword fields live in answers{}
   return response.answers ? (response.answers[field] ?? '') : '';
 }
 
@@ -408,19 +396,18 @@ function renderTable(rows) {
   if (rows.length === 0) { empty.style.display = 'block'; return; }
   empty.style.display = 'none';
   rows.forEach(r => {
-    const oppUrl = r.opportunity_url || '';
+    const oppUrl = r.opportunity_url || (r.answers && r.answers['opportunity_url']) || '';
+    const oppHref = ensureProtocol(oppUrl);
     const oppCell = oppUrl
-      ? `<a href="${escHtml(oppUrl)}" target="_blank" rel="noopener" class="opp-link">
-           <i class="fa fa-arrow-up-right-from-square me-1"></i>Open
+      ? `<a href="${escHtml(oppHref)}" target="_blank" rel="noopener" class="opp-link">
+           <i class="fa fa-arrow-up-right-from-square me-1"></i>${escHtml(oppUrl)}
          </a>`
       : '<span class="text-muted">—</span>';
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td class="text-muted small">${escHtml(String(r.id ?? ''))}</td>
       <td><strong>${escHtml(r.customer_name ?? '')}</strong></td>
       <td>${escHtml(r.se_name ?? '')}</td>
       <td>${oppCell}</td>
-      <td class="small text-muted">${fmtDate(r.completed_at)}</td>
       <td class="text-center">
         <button class="btn btn-sm btn-view me-1" title="View" onclick="viewResponse(${r.id})">
           <i class="fa fa-eye"></i>
@@ -462,27 +449,102 @@ function exportExcel() {
 function viewResponse(id) {
   const r = allResponses.find(x => x.id === id);
   if (!r) return;
-  const payload = {
-    id: r.id,
-    customer_name:   r.customer_name,
-    se_name:         r.se_name,
-    opportunity_url: r.opportunity_url,
-    completed_at:    r.completed_at,
-    answers:         r.answers ?? {},
+
+  const answers = r.answers ?? {};
+
+  const PREFIX_LABELS = {
+    gen: 'General',
+    vp:  'Value Proposition',
+    dp:  'Deployment Profile',
+    seg: 'Segmentation',
+    req: 'Requirements',
   };
+
+  function groupLabel(kw) {
+    const prefix = kw.split('_')[0];
+    return PREFIX_LABELS[prefix] || 'General';
+  }
+
+  function kwLabel(kw) {
+    return kw.replace(/^[a-z]+_/, '').replace(/_/g, ' ')
+             .replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  const GROUP_ORDER = ['General','Value Proposition','Deployment Profile','Segmentation','Requirements'];
+  const groups = {};
+  GROUP_ORDER.forEach(g => groups[g] = []);
+
+  Object.entries(answers).forEach(([kw, val]) => {
+    const grp = groupLabel(kw);
+    if (!groups[grp]) groups[grp] = [];
+    const display = Array.isArray(val)
+      ? val.filter(v => v != null && String(v).trim() !== '').join(', ')
+      : String(val ?? '').trim();
+    groups[grp].push({ label: kwLabel(kw), value: display || '—' });
+  });
+
+  let sectionsHtml = '';
+  GROUP_ORDER.forEach(grp => {
+    if (!groups[grp] || groups[grp].length === 0) return;
+    sectionsHtml += `
+      <div style="margin-bottom:14px;">
+        <div style="background:#2c3e50;color:#fff;padding:5px 12px;border-radius:4px;
+                    font-size:0.73rem;font-weight:700;letter-spacing:.6px;margin-bottom:6px;">
+          ${escHtml(grp.toUpperCase())}
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+          ${groups[grp].map((item, i) => `
+            <tr style="background:${i % 2 === 0 ? '#f8f9fa' : '#ffffff'};border-bottom:1px solid #e9ecef;">
+              <td style="padding:6px 10px;width:42%;color:#6c757d;font-weight:600;vertical-align:top;">
+                ${escHtml(item.label)}
+              </td>
+              <td style="padding:6px 10px;color:#2c3e50;vertical-align:top;">
+                ${escHtml(item.value)}
+              </td>
+            </tr>`).join('')}
+        </table>
+      </div>`;
+  });
+
+  const oppUrl = r.opportunity_url || (r.answers && r.answers['opportunity_url']) || '';
+  const oppHref = ensureProtocol(oppUrl);
+  const oppLink = oppUrl
+    ? `<a href="${escHtml(oppHref)}" target="_blank" rel="noopener" style="color:#0d6efd;font-size:0.82rem;">
+         <i class="fa fa-arrow-up-right-from-square me-1"></i>Open Opportunity
+       </a>`
+    : '<span style="color:#aaa;font-size:0.82rem;">—</span>';
+
   Swal.fire({
-    title: '<span style="color:#2c3e50;font-weight:700;">Response #' + id + '</span>',
-    html: `<p class="mb-1 text-start">
-             <strong>Customer:</strong> ${escHtml(r.customer_name ?? '')}
-             &nbsp;|&nbsp;
-             <strong>SE:</strong> ${escHtml(r.se_name ?? '')}
-           </p>
-           ${r.opportunity_url ? `<p class="mb-2 text-start"><strong>Opp URL:</strong> <a href="${escHtml(r.opportunity_url)}" target="_blank">${escHtml(r.opportunity_url)}</a></p>` : ''}
-           <pre class="json-view">${escHtml(JSON.stringify(payload, null, 2))}</pre>`,
+    title: `<span style="color:#2c3e50;font-weight:700;">Response #${id}</span>`,
+    html: `
+      <div style="text-align:left;">
+        <div style="display:flex;gap:20px;flex-wrap:wrap;padding-bottom:12px;
+                    margin-bottom:14px;border-bottom:2px solid #e9ecef;">
+          <div>
+            <div style="color:#888;font-size:0.72rem;font-weight:700;letter-spacing:.5px;">CUSTOMER</div>
+            <div style="color:#2c3e50;font-weight:700;font-size:0.95rem;">${escHtml(r.customer_name ?? '')}</div>
+          </div>
+          <div>
+            <div style="color:#888;font-size:0.72rem;font-weight:700;letter-spacing:.5px;">SE NAME</div>
+            <div style="color:#2c3e50;font-weight:700;font-size:0.95rem;">${escHtml(r.se_name ?? '')}</div>
+          </div>
+          <div>
+            <div style="color:#888;font-size:0.72rem;font-weight:700;letter-spacing:.5px;">COMPLETED</div>
+            <div style="color:#2c3e50;font-weight:600;font-size:0.88rem;">${fmtDate(r.completed_at)}</div>
+          </div>
+          <div>
+            <div style="color:#888;font-size:0.72rem;font-weight:700;letter-spacing:.5px;">OPPORTUNITY</div>
+            <div>${oppLink}</div>
+          </div>
+        </div>
+        <div style="max-height:460px;overflow-y:auto;padding-right:4px;">
+          ${sectionsHtml || '<p style="color:#aaa;text-align:center;padding:20px;">No answers recorded.</p>'}
+        </div>
+      </div>`,
     showConfirmButton: true,
     confirmButtonText: 'Close',
     confirmButtonColor: '#0d6efd',
-    width: '720px',
+    width: '760px',
   });
 }
 

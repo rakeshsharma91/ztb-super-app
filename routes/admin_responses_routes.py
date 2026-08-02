@@ -60,11 +60,12 @@ def list_responses():
                 continue
 
         results.append({
-            'id':            r.id,
-            'customer_name': r.customer_name,
-            'se_name':       r.se_name,
-            'completed_at':  r.completed_at.strftime('%Y-%m-%d %H:%M') if r.completed_at else '',
-            'answers':       answers
+            'id':              r.id,
+            'customer_name':   r.customer_name,
+            'se_name':         r.se_name,
+            'opportunity_url': r.opportunity_url or '',
+            'completed_at':    r.completed_at.strftime('%Y-%m-%d %H:%M') if r.completed_at else '',
+            'answers':         answers
         })
 
     return jsonify({'success': True, 'responses': results, 'total': len(results)})
@@ -167,7 +168,7 @@ def export_responses():
     side      = Side(style="thin", color="CCCCCC")
     border    = Border(left=side, right=side, top=side, bottom=side)
 
-    fixed_cols = ['ID', 'Customer Name', 'SE Name', 'Submitted At']
+    fixed_cols = ['ID', 'Customer Name', 'SE Name', 'Opportunity URL', 'Submitted At']
     all_cols   = fixed_cols + [q_text for (kw, q_text) in all_keywords]
 
     for col_idx, label in enumerate(all_cols, start=1):
@@ -183,6 +184,7 @@ def export_responses():
             r.id,
             r.customer_name or '',
             r.se_name or '',
+            r.opportunity_url or '',
             r.completed_at.strftime('%Y-%m-%d %H:%M') if r.completed_at else ''
         ]
         for (kw, q_text) in all_keywords:
