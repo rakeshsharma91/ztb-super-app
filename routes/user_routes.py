@@ -5,6 +5,7 @@ from models import (db, UserResponse, Question, QuestionOption,
                     ValueProp, Asset, TestCase, POVPlanner, Roadblock,
                     ColumnDefinition)
 import io
+import re
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
@@ -12,6 +13,8 @@ from sqlalchemy import text as sa_text
 from datetime import datetime
 
 user_bp = Blueprint('user', __name__, url_prefix='/user')
+
+# ── Formatting helpers ────────────────────────────────────────────────────────
 
 def _hdr(ws, row, col, value, bg="003366", fg="FFFFFF", bold=True, size=11):
     cell = ws.cell(row=row, column=col, value=value)
@@ -97,6 +100,17 @@ def _get_keyword(question):
         if name and name.lower() != 'general':
             return name
     return f'q_{question.id}'
+
+def _make_slug(name):
+    """'Acme Corp' -> 'acme-corp'"""
+    slug = (name or 'unknown').strip().lower()
+    slug = re.sub(r'[^a-z0-9\s-]', '', slug)
+    slug = re.sub(r'\s+', '-', slug)
+    slug = re.sub(r'-+', '-', slug).strip('-')
+    return slug or 'unknown'
+
+
+# ── Fixed routes — all defined before /<customer_slug> ───────────────────────
 
 @user_bp.route('/')
 def landing():
@@ -196,12 +210,12 @@ def resume_assessment(response_id):
     if user_resp.status != 'in_progress':
         return redirect(url_for('user.landing'))
 
-    session['customer_name']     = user_resp.customer_name
-    session['se_name']           = user_resp.se_name
-    session['opportunity_url']   = user_resp.opportunity_url
+    session['customer_name']      = user_resp.customer_name
+    session['se_name']            = user_resp.se_name
+    session['opportunity_url']    = user_resp.opportunity_url
     session['assessment_started'] = True
-    session['responses']         = {}
-    session['draft_response_id'] = user_resp.id
+    session['responses']          = {}
+    session['draft_response_id']  = user_resp.id
 
     all_questions = Question.query.order_by(Question.order).all()
     result = []
@@ -238,7 +252,6 @@ def submit_responses():
     tc_ids    = set()
     rb_ids    = set()
     pov_ids   = set()
-
     keyword_answers = {}
 
     for q_id_str, value in responses.items():
@@ -263,7 +276,7 @@ def submit_responses():
                     labels.append(opt.label)
             keyword_answers[kw] = labels
 
-        elif question.options_type in ('text', 'Text'):
+        elif question.options_type in ('text', 'Text', 'Textbox', 'textbox'):
             keyword_answers[kw] = value
 
         else:
@@ -276,27 +289,37 @@ def submit_responses():
             opt = QuestionOption.query.get(opt_id)
             if not opt:
                 continue
-            for a in opt.assets:      asset_ids.add(a.id)
-            for v in opt.value_props: vp_ids.add(v.id)
-            for t in opt.test_cases:  tc_ids.add(t.id)
-            for p in opt.pov_steps:   pov_ids.add(p.id)
-            for r in opt.roadblocks:  rb_ids.add(r.id)
+            for a in opt.assets:       asset_ids.add(a.id)
+            for v in opt.value_props:  vp_ids.add(v.id)
+            for t in opt.test_cases:   tc_ids.add(t.id)
+            for p in opt.pov_steps:    pov_ids.add(p.id)
+            for r in opt.roadblocks:   rb_ids.add(r.id)
 
+    # Keep session populated for legacy /user/export
     session['vp_ids']    = list(vp_ids)
     session['asset_ids'] = list(asset_ids)
     session['tc_ids']    = list(tc_ids)
     session['rb_ids']    = list(rb_ids)
     session['pov_ids']   = list(pov_ids)
 
-    # Update existing draft if present, else create new
+    # Persist results into DB so customer page works without session
+    results_payload = {
+        'vp_ids':    list(vp_ids),
+        'asset_ids': list(asset_ids),
+        'tc_ids':    list(tc_ids),
+        'pov_ids':   list(pov_ids),
+        'rb_ids':    list(rb_ids),
+    }
+
     draft_id  = session.get('draft_response_id')
     user_resp = UserResponse.query.get(draft_id) if draft_id else None
 
     if user_resp and user_resp.status == 'in_progress':
-        user_resp.answers      = keyword_answers
+        user_resp.answers       = keyword_answers
         user_resp.raw_responses = responses
-        user_resp.status       = 'completed'
-        user_resp.completed_at = datetime.utcnow()
+        user_resp.results       = results_payload
+        user_resp.status        = 'completed'
+        user_resp.completed_at  = datetime.utcnow()
     else:
         user_resp = UserResponse(
             customer_name   = customer_name,
@@ -304,6 +327,7 @@ def submit_responses():
             opportunity_url = opportunity_url,
             answers         = keyword_answers,
             raw_responses   = responses,
+            results         = results_payload,
             status          = 'completed',
             completed_at    = datetime.utcnow()
         )
@@ -313,13 +337,14 @@ def submit_responses():
     session['response_id']       = user_resp.id
     session['draft_response_id'] = None
 
-    return jsonify({'success': True, 'response_id': user_resp.id})
+    slug = _make_slug(customer_name)
+    return jsonify({'success': True, 'response_id': user_resp.id, 'customer_slug': slug})
 
 @user_bp.route('/export', methods=['GET'])
 def export_excel():
-    response_id   = session.get('response_id')
-    customer_name = session.get('customer_name', 'Unknown')
-    se_name       = session.get('se_name', '')
+    response_id     = session.get('response_id')
+    customer_name   = session.get('customer_name', 'Unknown')
+    se_name         = session.get('se_name', '')
     opportunity_url = session.get('opportunity_url', '')
 
     user_resp = UserResponse.query.get(response_id) if response_id else None
@@ -329,10 +354,8 @@ def export_excel():
 
     wb = Workbook()
 
-    # ── TAB 1: Assessment ──────────────────────────────────────────────────
     ws_assess = wb.active
     ws_assess.title = "Assessment"
-
     ws_assess.merge_cells("A1:B1")
     cell = ws_assess["A1"]
     cell.value = f"Customer: {customer_name}"
@@ -340,7 +363,6 @@ def export_excel():
     cell.fill = PatternFill("solid", fgColor="003366")
     cell.alignment = Alignment(horizontal="left", vertical="center")
     ws_assess.row_dimensions[1].height = 30
-
     ws_assess.merge_cells("A2:B2")
     cell2 = ws_assess["A2"]
     cell2.value = f"SE: {se_name}"
@@ -348,7 +370,6 @@ def export_excel():
     cell2.fill = PatternFill("solid", fgColor="003366")
     cell2.alignment = Alignment(horizontal="left", vertical="center")
     ws_assess.row_dimensions[2].height = 22
-
     ws_assess.merge_cells("A3:B3")
     cell3 = ws_assess["A3"]
     cell3.value = f"Opportunity URL: {opportunity_url}" if opportunity_url else "Opportunity URL: —"
@@ -356,30 +377,24 @@ def export_excel():
     cell3.fill = PatternFill("solid", fgColor="003366")
     cell3.alignment = Alignment(horizontal="left", vertical="center")
     ws_assess.row_dimensions[3].height = 20
-
     ws_assess.row_dimensions[4].height = 10
-
     _hdr(ws_assess, 5, 1, "Question")
     _hdr(ws_assess, 5, 2, "Answer")
     ws_assess.row_dimensions[5].height = 28
     ws_assess.column_dimensions["A"].width = 55
     ws_assess.column_dimensions["B"].width = 45
-
     border = _thin_border()
     current_row = 6
     all_questions = Question.query.order_by(Question.order).all()
-
     for q in all_questions:
         if q.info_only:
             continue
         kw = _get_keyword(q)
         raw_val = answers.get(kw, '')
-
         if isinstance(raw_val, list):
             answer_text = ', '.join(raw_val)
         else:
             answer_text = str(raw_val) if raw_val else '—'
-
         q_cell = ws_assess.cell(row=current_row, column=1, value=q.text)
         a_cell = ws_assess.cell(row=current_row, column=2, value=answer_text)
         for c in (q_cell, a_cell):
@@ -389,51 +404,131 @@ def export_excel():
             for c in (q_cell, a_cell):
                 c.fill = PatternFill("solid", fgColor="F0F4FF")
         current_row += 1
-
     ws_assess.freeze_panes = "A6"
 
-    # ── TAB 2: Value Props ─────────────────────────────────────────────────
     ws_vp = wb.create_sheet("Value Props")
-    _write_tab(ws_vp,
-               _collect("value_props", session.get('vp_ids', [])),
-               _get_col_defs("value_props"))
-
-    # ── TAB 3: Assets ──────────────────────────────────────────────────────
+    _write_tab(ws_vp, _collect("value_props", session.get('vp_ids', [])), _get_col_defs("value_props"))
     ws_assets = wb.create_sheet("Assets")
-    _write_tab(ws_assets,
-               _collect("assets", session.get('asset_ids', [])),
-               _get_col_defs("assets"))
-
-    # ── TAB 4: Test Cases ──────────────────────────────────────────────────
+    _write_tab(ws_assets, _collect("assets", session.get('asset_ids', [])), _get_col_defs("assets"))
     ws_tc = wb.create_sheet("Test Cases")
-    _write_tab(ws_tc,
-               _collect("test_cases", session.get('tc_ids', [])),
-               _get_col_defs("test_cases"))
-
-    # ── TAB 5: POV Planner ─────────────────────────────────────────────────
+    _write_tab(ws_tc, _collect("test_cases", session.get('tc_ids', [])), _get_col_defs("test_cases"))
     ws_pov = wb.create_sheet("POV Planner")
-    _write_tab(ws_pov,
-               _collect("pov_planner", session.get('pov_ids', [])),
-               _get_col_defs("pov_planner"))
-
-    # ── TAB 6: Roadblocks ──────────────────────────────────────────────────
+    _write_tab(ws_pov, _collect("pov_planner", session.get('pov_ids', [])), _get_col_defs("pov_planner"))
     ws_rb = wb.create_sheet("Roadblocks")
-    _write_tab(ws_rb,
-               _collect("roadblocks", session.get('rb_ids', [])),
-               _get_col_defs("roadblocks"))
+    _write_tab(ws_rb, _collect("roadblocks", session.get('rb_ids', [])), _get_col_defs("roadblocks"))
+
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    filename = f"ZTB_Assessment_{customer_name.replace(' ', '_')}_{datetime.utcnow().strftime('%Y%m%d')}.xlsx"
+    return send_file(output,
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                     as_attachment=True,
+                     download_name=filename)
+
+@user_bp.route('/bom')
+def bom():
+    return render_template('user_bom.html')
+
+
+# ── Variable route — MUST stay last in this file ─────────────────────────────
+
+@user_bp.route('/<customer_slug>')
+def customer_results(customer_slug):
+    """Permanent results page. Always shows most recent completed assessment for this slug."""
+    completed = (UserResponse.query
+                 .filter_by(status='completed')
+                 .order_by(UserResponse.completed_at.desc())
+                 .all())
+
+    user_resp = None
+    for r in completed:
+        if _make_slug(r.customer_name) == customer_slug:
+            user_resp = r
+            break
+
+    if not user_resp:
+        return render_template('user_results.html',
+                               not_found=True,
+                               customer_slug=customer_slug), 404
+
+    results   = user_resp.results or {}
+    vp_ids    = results.get('vp_ids', [])
+    asset_ids = results.get('asset_ids', [])
+    tc_ids    = results.get('tc_ids', [])
+    pov_ids   = results.get('pov_ids', [])
+
+    value_props = _collect("value_props", vp_ids)
+    assets      = _collect("assets", asset_ids)
+
+    # Build ordered Q&A pairs
+    all_questions = Question.query.order_by(Question.order).all()
+    answers  = user_resp.answers or {}
+    qa_pairs = []
+    for q in all_questions:
+        if q.info_only:
+            continue
+        kw    = _get_keyword(q)
+        value = answers.get(kw)
+        if value is None:
+            continue
+        if isinstance(value, list):
+            display = ', '.join(value) if value else '—'
+        else:
+            display = str(value).strip() if value else '—'
+        cat = (q.category_type_ref.name if q.category_type_ref else
+               q.category_ref.name if q.category_ref else '')
+        qa_pairs.append({
+            'category': cat,
+            'question': q.text,
+            'answer':   display,
+        })
+
+    return render_template('user_results.html',
+                           not_found=False,
+                           user_resp=user_resp,
+                           customer_slug=customer_slug,
+                           value_props=value_props,
+                           assets=assets,
+                           qa_pairs=qa_pairs)
+
+
+@user_bp.route('/<customer_slug>/export')
+def customer_export(customer_slug):
+    """POV Planner + Test Cases Excel scoped to a specific customer."""
+    completed = (UserResponse.query
+                 .filter_by(status='completed')
+                 .order_by(UserResponse.completed_at.desc())
+                 .all())
+
+    user_resp = None
+    for r in completed:
+        if _make_slug(r.customer_name) == customer_slug:
+            user_resp = r
+            break
+
+    if not user_resp:
+        return jsonify({'error': 'Not found'}), 404
+
+    results = user_resp.results or {}
+    tc_ids  = results.get('tc_ids', [])
+    pov_ids = results.get('pov_ids', [])
+
+    wb = Workbook()
+
+    ws_pov = wb.active
+    ws_pov.title = "POV Planner"
+    _write_tab(ws_pov, _collect("pov_planner", pov_ids), _get_col_defs("pov_planner"))
+
+    ws_tc = wb.create_sheet("Test Cases")
+    _write_tab(ws_tc, _collect("test_cases", tc_ids), _get_col_defs("test_cases"))
 
     output = io.BytesIO()
     wb.save(output)
     output.seek(0)
 
-    filename = f"ZTB_Assessment_{customer_name.replace(' ', '_')}_{datetime.utcnow().strftime('%Y%m%d')}.xlsx"
-    return send_file(
-        output,
-        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        as_attachment=True,
-        download_name=filename
-    )
-
-@user_bp.route('/bom')
-def bom():
-    return render_template('user_bom.html')
+    filename = f"ZTB_POV_{user_resp.customer_name.replace(' ', '_')}_{datetime.utcnow().strftime('%Y%m%d')}.xlsx"
+    return send_file(output,
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                     as_attachment=True,
+                     download_name=filename)

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% if not not_found %}{{ user_resp.customer_name }} — ZTB Assessment Results{% else %}Not Found — ZTB Super App{% endif %}</title>
+  <style>
+    :root {
+      --navy-dark: #002244;
+      --navy:      #003366;
+      --blue:      #0070c0;
+      --accent:    #00aaff;
+      --white:     #ffffff;
+      --card-bg:   #0a2a50;
+      --text-muted:#a0bcd8;
+      --border:    rgba(0,170,255,0.25);
+      --shadow:    0 8px 40px rgba(0,0,0,0.55);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--navy-dark);
+      color: var(--white);
+      min-height: 100vh;
+    }
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0 2rem; height: 58px;
+      background: rgba(0,22,44,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--blue), var(--accent));
+      border-radius: 8px; display: flex; align-items: center;
+      justify-content: center; font-size: 1rem; font-weight: 800;
+      color: var(--white); box-shadow: 0 0 10px rgba(0,170,255,0.35);
+      flex-shrink: 0; text-decoration: none;
+    }
+    .nav-brand { font-size: 1rem; font-weight: 700; color: var(--white); }
+    .nav-spacer { flex: 1; }
+    .nav-back {
+      font-size: 0.82rem; color: var(--text-muted);
+      text-decoration: none; display: flex; align-items: center; gap: 5px;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--accent); }
+    .hero {
+      background: linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 60%, #004d99 100%);
+      padding: 3.5rem 2rem 3rem;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,170,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,170,255,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+    .hero-inner {
+      position: relative; z-index: 2;
+      max-width: 900px; margin: 0 auto;
+    }
+    .hero-eyebrow {
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 0.6rem;
+    }
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800; line-height: 1.2;
+      letter-spacing: -0.02em; margin-bottom: 0.75rem;
+    }
+    .hero-meta {
+      display: flex; flex-wrap: wrap; gap: 1.2rem;
+      font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;
+    }
+    .hero-meta span { display: flex; align-items: center; gap: 5px; }
+    .hero-meta a { color: var(--accent); text-decoration: none; word-break: break-all; }
+    .hero-meta a:hover { text-decoration: underline; }
+    .page-body {
+      max-width: 960px; margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+    .section-heading {
+      display: flex; align-items: center; gap: 0.6rem;
+      margin-bottom: 1.25rem;
+    }
+    .section-heading h2 {
+      font-size: 1.05rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      color: var(--text-muted);
+    }
+    .section-badge {
+      background: rgba(0,170,255,0.12);
+      border: 1px solid rgba(0,170,255,0.28);
+      border-radius: 20px; padding: 1px 10px;
+      font-size: 0.7rem; font-weight: 700; color: var(--accent);
+    }
+    .section-divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+    .vp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .vp-card {
+      background: linear-gradient(145deg, #0d2d52, #0a2244);
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.25rem 1.4rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .vp-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.1); }
+    .vp-card-title { font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 0.45rem; line-height: 1.35; }
+    .vp-card-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; }
+    .vp-card-biz {
+      margin-top: 0.65rem; display: inline-block;
+      background: rgba(0,170,255,0.1); border: 1px solid rgba(0,170,255,0.22);
+      border-radius: 20px; padding: 2px 10px;
+      font-size: 0.7rem; font-weight: 600; color: var(--accent);
+    }
+    .assets-list { display: flex; flex-direction: column; gap: 0.7rem; }
+    .asset-row {
+      background: linear-gradient(145deg, #0d2d52, #0a2244);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem 1.25rem;
+      display: flex; align-items: center; gap: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .asset-row:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.1); }
+    .asset-icon {
+      width: 38px; height: 38px; flex-shrink: 0;
+      background: rgba(0,170,255,0.1); border: 1px solid rgba(0,170,255,0.2);
+      border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+    .asset-info { flex: 1; min-width: 0; }
+    .asset-title { font-size: 0.92rem; font-weight: 700; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .asset-type { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    .asset-link {
+      flex-shrink: 0; padding: 0.45rem 1rem;
+      background: transparent; border: 1px solid var(--accent);
+      border-radius: 7px; color: var(--accent);
+      font-size: 0.78rem; font-weight: 600; text-decoration: none;
+      transition: background 0.2s, color 0.2s; white-space: nowrap;
+    }
+    .asset-link:hover { background: var(--accent); color: var(--white); }
+    .download-section {
+      background: linear-gradient(145deg, #0d2d52, #0a2244);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.75rem 2rem;
+      display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+    }
+    .download-text { flex: 1; min-width: 200px; }
+    .download-text h3 { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 0.3rem; }
+    .download-text p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+    .download-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 0.78rem 1.6rem;
+      background: linear-gradient(135deg, var(--blue), var(--accent));
+      border: none; border-radius: 10px; color: var(--white);
+      font-size: 0.92rem; font-weight: 700; cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 18px rgba(0,112,192,0.4);
+      transition: opacity 0.2s, transform 0.15s; white-space: nowrap;
+    }
+    .download-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .qa-wrapper {
+      background: linear-gradient(145deg, #0d2d52, #0a2244);
+      border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+    }
+    .qa-table { width: 100%; border-collapse: collapse; }
+    .qa-table th {
+      text-align: left; padding: 10px 14px;
+      background: rgba(0,51,102,0.6);
+      font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--text-muted); border-bottom: 1px solid var(--border);
+    }
+    .qa-table td {
+      padding: 11px 14px; font-size: 0.87rem;
+      border-bottom: 1px solid rgba(0,170,255,0.08);
+      vertical-align: top; line-height: 1.5;
+    }
+    .qa-table tr:last-child td { border-bottom: none; }
+    .qa-table tr:hover td { background: rgba(0,170,255,0.04); }
+    .qa-table td:first-child { color: var(--text-muted); width: 55%; }
+    .qa-table td:last-child { color: var(--white); font-weight: 500; }
+    .qa-category-row td {
+      padding: 6px 14px 4px;
+      font-size: 0.68rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--accent); background: rgba(0,170,255,0.05);
+      border-bottom: none;
+    }
+    .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 0.88rem; }
+    .not-found { text-align: center; padding: 6rem 2rem; }
+    .not-found h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .not-found p { color: var(--text-muted); margin-bottom: 1.5rem; }
+    .not-found a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .footer {
+      border-top: 1px solid var(--border); padding: 1.6rem 2rem;
+      text-align: center; background: rgba(0,0,0,0.2);
+      display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.55rem;
+    }
+    .footer-logo { display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+    .footer-z {
+      width: 20px; height: 20px;
+      background: linear-gradient(135deg, var(--blue), var(--accent));
+      border-radius: 5px; display: flex; align-items: center;
+      justify-content: center; font-size: 0.65rem; font-weight: 800; color: var(--white);
+    }
+    .footer-sep { color: rgba(160,188,216,0.25); margin: 0 0.15rem; }
+    .footer-copy { font-size: 0.76rem; color: rgba(160,188,216,0.4); }
+    @media (max-width: 600px) {
+      .hero { padding: 2.5rem 1rem 2rem; }
+      .page-body { padding: 1.75rem 1rem 4rem; }
+      .navbar { padding: 0 1rem; }
+      .download-section { flex-direction: column; align-items: flex-start; }
+      .vp-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="nav-logo" href="/user">Z</a>
+  <span class="nav-brand">ZTB Super App</span>
+  <div class="nav-spacer"></div>
+  <a class="nav-back" href="/user">← New Assessment</a>
+</nav>
+
+{% if not_found %}
+<div class="not-found">
+  <div style="font-size:3rem;margin-bottom:1rem;">🔍</div>
+  <h2>No results found</h2>
+  <p>No completed assessment found for <strong>{{ customer_slug }}</strong>.</p>
+  <a href="/user">← Start a new assessment</a>
+</div>
+
+{% else %}
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">ZTB Opportunity Package</div>
+    <h1>{{ user_resp.customer_name }}</h1>
+    <div class="hero-meta">
+      <span>👤 {{ user_resp.se_name }}</span>
+      {% if user_resp.opportunity_url %}
+      <span>🔗 <a href="{{ user_resp.opportunity_url }}" target="_blank" rel="noopener">{{ user_resp.opportunity_url }}</a></span>
+      {% endif %}
+      {% if user_resp.completed_at %}
+      <span>📅 Completed {{ user_resp.completed_at.strftime('%b %d, %Y') }}</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+
+  <!-- VALUE PROPS -->
+  <div class="section-heading">
+    <h2>Value Propositions</h2>
+    <span class="section-badge">{{ value_props | length }}</span>
+  </div>
+  {% if value_props %}
+  <div class="vp-grid">
+    {% for vp in value_props %}
+    <div class="vp-card">
+      <div class="vp-card-title">
+        {{ vp.get('Value Proposition Name') or vp.get('title') or vp.get('name') or ('Value Prop #' ~ vp.get('id','')) }}
+      </div>
+      {% set desc = vp.get('Description') or vp.get('description') %}
+      {% if desc %}<div class="vp-card-desc">{{ desc }}</div>{% endif %}
+      {% set biz = vp.get('Business Value') or vp.get('business_value') %}
+      {% if biz %}<span class="vp-card-biz">{{ biz }}</span>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">No value propositions tagged for this assessment.</div>
+  {% endif %}
+
+  <hr class="section-divider">
+
+  <!-- ASSETS -->
+  <div class="section-heading">
+    <h2>Assets</h2>
+    <span class="section-badge">{{ assets | length }}</span>
+  </div>
+  {% if assets %}
+  <div class="assets-list">
+    {% for asset in assets %}
+    {% set title = asset.get('asset_name') or asset.get('title') or ('Asset #' ~ asset.get('id','')) %}
+    {% set atype = asset.get('asset_type') or '' %}
+    {% set url   = asset.get('url') or asset.get('link') or '' %}
+    <div class="asset-row">
+      <div class="asset-icon">📄</div>
+      <div class="asset-info">
+        <div class="asset-title">{{ title }}</div>
+        {% if atype %}<div class="asset-type">{{ atype }}</div>{% endif %}
+      </div>
+      {% if url %}
+      <a class="asset-link" href="{{ url }}" target="_blank" rel="noopener">Open →</a>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">No assets tagged for this assessment.</div>
+  {% endif %}
+
+  <hr class="section-divider">
+
+  <!-- DOWNLOAD -->
+  <div class="download-section">
+    <div class="download-text">
+      <h3>📋 POV Planner &amp; Test Cases</h3>
+      <p>Download the execution plan and test cases tailored to this opportunity.</p>
+    </div>
+    <a class="download-btn" href="/user/{{ customer_slug }}/export">⬇ Download Excel</a>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- Q&A -->
+  <div class="section-heading">
+    <h2>Assessment Responses</h2>
+    <span class="section-badge">{{ qa_pairs | length }}</span>
+  </div>
+  {% if qa_pairs %}
+  <div class="qa-wrapper">
+    <table class="qa-table">
+      <thead>
+        <tr>
+          <th>Question</th>
+          <th>Answer</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set ns = namespace(last_cat='') %}
+        {% for item in qa_pairs %}
+          {% if item.category and item.category != ns.last_cat %}
+          <tr class="qa-category-row"><td colspan="2">{{ item.category }}</td></tr>
+          {% set ns.last_cat = item.category %}
+          {% endif %}
+          <tr>
+            <td>{{ item.question }}</td>
+            <td>{{ item.answer }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">No responses recorded.</div>
+  {% endif %}
+
+</div>
+{% endif %}
+
+<footer class="footer">
+  <div class="footer-logo">
+    <div class="footer-z">Z</div>
+    <span>ZTB Super App</span>
+  </div>
+  <span class="footer-sep">&bull;</span>
+  <span class="footer-copy">&copy; 2025 Zscaler, Inc. &mdash; Internal Sales Engineering Tool</span>
+</footer>
+
+</body>
+</html>

@@ -29,6 +29,7 @@
   .btn-next:disabled { background: #aab4c4; cursor: not-allowed; }
   .btn-submit { background: #00875a; color: #fff; }
   .btn-submit:hover { background: #006644; }
+  .btn-submit:disabled { background: #aab4c4; cursor: not-allowed; }
   .btn-save { background: #fff; color: #0070c0; border: 2px solid #0070c0; padding: 10px 20px; }
   .btn-save:hover { background: #e8f4ff; }
   .btn-save:disabled { opacity: 0.55; cursor: not-allowed; }
@@ -75,7 +76,6 @@ const resumeIndex = {{ resume_index }};
 let current = resumeIndex;
 let draftResponseId = null;
 
-// Pre-populate responses from saved state
 const responses = {};
 Object.keys(savedResponses).forEach(function(k) {
   responses[parseInt(k)] = savedResponses[k];
@@ -97,7 +97,6 @@ function saveForLater() {
   const saveBtn = document.getElementById('saveBtn');
   saveBtn.disabled = true;
   saveBtn.textContent = 'Saving…';
-
   fetch('/user/save', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -126,12 +125,10 @@ function render() {
   const total = questions.length;
   const type = normalise(q.options_type);
 
-  // Progress
   const pct = Math.round(((current + 1) / total) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('counterLabel').textContent = (current + 1) + ' of ' + total;
 
-  // Category tag
   const catLabel = q.category_type_name || q.category || '';
   document.getElementById('categoryLabel').textContent = catLabel;
   const catTag = document.getElementById('catTag');
@@ -140,7 +137,6 @@ function render() {
 
   document.getElementById('qText').textContent = q.text;
 
-  // Hint line
   const hint = document.getElementById('qHint');
   if (type === 'selectone') hint.textContent = 'Select one answer';
   else if (type === 'selectallthatapply' || type === 'selectall') hint.textContent = 'Select all that apply';
@@ -156,7 +152,6 @@ function render() {
   if (q.info_only) {
     hint.textContent = '';
     nextBtn.disabled = false;
-
   } else if (type === 'selectone') {
     q.options.forEach(function(opt) {
       const btn = document.createElement('button');
@@ -171,7 +166,6 @@ function render() {
       area.appendChild(btn);
     });
     if (responses[q.question_id] !== undefined) nextBtn.disabled = false;
-
   } else if (type === 'selectallthatapply' || type === 'selectall') {
     if (!Array.isArray(responses[q.question_id])) responses[q.question_id] = [];
     q.options.forEach(function(opt) {
@@ -189,7 +183,6 @@ function render() {
       area.appendChild(btn);
     });
     if (Array.isArray(responses[q.question_id]) && responses[q.question_id].length > 0) nextBtn.disabled = false;
-
   } else if (type === 'text' || type === 'textbox') {
     const ta = document.createElement('textarea');
     ta.placeholder = 'Type your answer here...';
@@ -202,10 +195,8 @@ function render() {
     if (responses[q.question_id] && responses[q.question_id].trim() !== '') nextBtn.disabled = false;
   }
 
-  // Back button
   document.getElementById('backBtn').style.visibility = current === 0 ? 'hidden' : 'visible';
 
-  // Next vs Submit
   if (current === total - 1) {
     nextBtn.textContent = 'Submit ✓';
     nextBtn.className = 'btn btn-submit';
@@ -227,6 +218,10 @@ function goBack() {
 }
 
 function submitAll() {
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.disabled = true;
+  nextBtn.textContent = 'Submitting…';
+
   fetch('/user/submit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -235,17 +230,19 @@ function submitAll() {
   .then(function(r) { return r.json(); })
   .then(function(data) {
     if (data.success) {
-      document.getElementById('questionCard').innerHTML =
-        '<div style="text-align:center;padding:40px 0;">' +
-        '<div style="font-size:48px;margin-bottom:16px;">✅</div>' +
-        '<h2 style="color:#003366;margin-bottom:12px;">Assessment Complete!</h2>' +
-        '<p style="color:#555;font-size:16px;margin-bottom:28px;">Thank you. Your responses have been saved.</p>' +
-        '<a href="/user/export" style="background:#003366;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;">📥 Download Report</a>' +
-        '</div>';
       document.getElementById('progressFill').style.width = '100%';
+      window.location.href = '/user/' + data.customer_slug;
+    } else {
+      alert('Submission failed. Please try again.');
+      nextBtn.disabled = false;
+      nextBtn.textContent = 'Submit ✓';
     }
   })
-  .catch(function() { alert('Submission failed. Please try again.'); });
+  .catch(function() {
+    alert('Submission failed. Please try again.');
+    nextBtn.disabled = false;
+    nextBtn.textContent = 'Submit ✓';
+  });
 }
 
 render();
