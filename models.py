@@ -253,18 +253,18 @@ class AssessmentConfig(db.Model):
 # ─────────────────────────────────────────
 class UserResponse(db.Model):
     __tablename__ = 'user_responses'
-    id                    = db.Column(db.Integer, primary_key=True)
-    customer_name         = db.Column(db.String(255), nullable=False)
-    se_name               = db.Column(db.String(255), nullable=False)
-    opportunity_url       = db.Column(db.Text, nullable=True)
-    status                = db.Column(db.String(20), default='in_progress', nullable=False)
+    id                     = db.Column(db.Integer, primary_key=True)
+    customer_name          = db.Column(db.String(255), nullable=False)
+    se_name                = db.Column(db.String(255), nullable=False)
+    opportunity_url        = db.Column(db.Text, nullable=True)
+    status                 = db.Column(db.String(20), default='in_progress', nullable=False)
     current_question_index = db.Column(db.Integer, default=0)
-    raw_responses         = db.Column(db.JSON, default=dict)
-    started_at            = db.Column(db.DateTime, default=datetime.utcnow)
-    completed_at          = db.Column(db.DateTime, nullable=True)
-    answers               = db.Column(db.JSON, default=dict)
-    results               = db.Column(db.JSON, default=dict)
-    created_at            = db.Column(db.DateTime, default=datetime.utcnow)
+    raw_responses          = db.Column(db.JSON, default=dict)
+    started_at             = db.Column(db.DateTime, default=datetime.utcnow)
+    completed_at           = db.Column(db.DateTime, nullable=True)
+    answers                = db.Column(db.JSON, default=dict)
+    results                = db.Column(db.JSON, default=dict)
+    created_at             = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
         return {
@@ -279,6 +279,30 @@ class UserResponse(db.Model):
             'answers':                self.answers or {},
             'results':                self.results or {},
             'created_at':             self.created_at.strftime('%Y-%m-%d %H:%M') if self.created_at else '',
+        }
+
+# ─────────────────────────────────────────
+# RESULT SECTIONS
+# ─────────────────────────────────────────
+class ResultSection(db.Model):
+    __tablename__ = 'result_sections'
+    id         = db.Column(db.Integer, primary_key=True)
+    name       = db.Column(db.String(255), nullable=False)
+    order      = db.Column(db.Integer, default=0)
+    rules_json = db.Column(db.JSON, default=list)
+    format     = db.Column(db.String(50), nullable=True)   # e.g. 'currency_usd'
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id':         self.id,
+            'name':       self.name,
+            'order':      self.order,
+            'rules_json': self.rules_json or [],
+            'format':     self.format,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }
 
 # ─────────────────────────────────────────
@@ -297,6 +321,10 @@ def run_migration(db):
         if tname not in existing:
             db.metadata.tables[tname].create(engine)
             print(f'[migration] Created table: {tname}')
+
+    if 'result_sections' not in existing:
+        db.metadata.tables['result_sections'].create(engine)
+        print('[migration] Created table: result_sections')
 
     with engine.connect() as conn:
         # questions table
@@ -325,6 +353,15 @@ def run_migration(db):
                 'ALTER TABLE user_responses ADD COLUMN raw_responses JSON'
             ))
             print('[migration] Added column user_responses.raw_responses')
+
+        # result_sections — add format column if missing
+        if 'result_sections' in existing:
+            rs_cols = [c['name'] for c in inspector.get_columns('result_sections')]
+            if 'format' not in rs_cols:
+                conn.execute(sa.text(
+                    'ALTER TABLE result_sections ADD COLUMN format VARCHAR(50)'
+                ))
+                print('[migration] Added column result_sections.format')
 
         # Mark all existing rows (completed_at IS NOT NULL) as completed
         conn.execute(sa.text(

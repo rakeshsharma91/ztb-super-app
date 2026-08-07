@@ -150,7 +150,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 }
 .option-row input[type="text"] { flex: 1; min-width: 160px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; }
 .option-row .opt-del-btn { background: transparent; border: none; color: var(--danger); cursor: pointer; font-size: 16px; padding: 0 4px; margin-left: auto; }
-/* chip picker */
 .chip-group { display: flex; flex-direction: column; gap: 4px; min-width: 140px; flex: 1; }
 .chip-group label { font-size: 10px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.4px; }
 .chip-wrap { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; min-height: 28px; }
@@ -214,15 +213,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .toast.warning { background: var(--warning); color: #333; }
 @keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
-/* QUESTION DRAG-AND-DROP */
 .q-drag-handle {
-  cursor: grab;
-  font-size: 18px;
-  color: #aaa;
-  padding: 0 10px 0 0;
-  user-select: none;
-  flex-shrink: 0;
-  line-height: 1;
+  cursor: grab; font-size: 18px; color: #aaa;
+  padding: 0 10px 0 0; user-select: none; flex-shrink: 0; line-height: 1;
 }
 .q-drag-handle:hover { color: #555; }
 .q-drag-handle:active { cursor: grabbing; }
@@ -240,6 +233,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <span class="user-badge" id="user-badge">&#128100; Admin</span>
     <a class="nav-btn" href="/user" target="_blank">&#128100; User View</a>
     <a class="nav-btn" href="/admin/responses">&#128203; Responses</a>
+    <a class="nav-btn" href="/admin/sections/">&#127381; Assessment Sections</a>
     <button class="logout-btn" onclick="window.location.href='/admin/logout'">Logout</button>
   </div>
 </nav>
@@ -357,11 +351,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <div id="toast-container"></div>
 
 <script>
-// ─── GLOBALS ────────────────────────────────────────────────────────────────
 const libraryTables = {};
 const libraryData = { valueprops: [], assets: [], testcases: [], povplanner: [], roadblocks: [] };
 
-// ─── NAVIGATION ─────────────────────────────────────────────────────────────
 function showSection(name) {
   document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
@@ -371,7 +363,6 @@ function showSection(name) {
   if (link) link.classList.add('active');
 }
 
-// ─── TOAST ───────────────────────────────────────────────────────────────────
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toast-container');
   const toast = document.createElement('div');
@@ -384,7 +375,6 @@ function showToast(msg, type = 'success') {
   }, 2500);
 }
 
-// ─── FETCH HELPERS ───────────────────────────────────────────────────────────
 async function apiFetch(url, options = {}) {
   options.credentials = 'include';
   options.headers = options.headers || {};
@@ -437,7 +427,6 @@ async function apiDelete(url) {
   return true;
 }
 
-// ─── LIBRARY TABLE CLASS ─────────────────────────────────────────────────────
 class LibraryTable {
   constructor(section, defaultColumns) {
     this.section   = section;
@@ -474,29 +463,20 @@ class LibraryTable {
     th.setAttribute('contenteditable', 'true');
     th.setAttribute('data-col', colName);
     th.draggable = true;
-
     const nameSpan = document.createElement('span');
     nameSpan.className = 'th-name';
     nameSpan.textContent = colName;
     th.appendChild(nameSpan);
-
     const delBtn = document.createElement('button');
     delBtn.className = 'col-delete-btn';
     delBtn.innerHTML = '&#10005;';
     delBtn.title = 'Delete column';
-    delBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this._confirmDeleteColumn(colName, th);
-    });
+    delBtn.addEventListener('click', (e) => { e.stopPropagation(); this._confirmDeleteColumn(colName, th); });
     th.appendChild(delBtn);
-
-    th.addEventListener('click', (e) => {
-      if (e.target !== delBtn) nameSpan.focus();
-    });
+    th.addEventListener('click', (e) => { if (e.target !== delBtn) nameSpan.focus(); });
     th.setAttribute('contenteditable', 'false');
     nameSpan.setAttribute('contenteditable', 'true');
     nameSpan.setAttribute('spellcheck', 'false');
-
     let oldName = colName;
     nameSpan.addEventListener('focus', () => { oldName = nameSpan.textContent.trim(); });
     nameSpan.addEventListener('blur', () => {
@@ -505,13 +485,11 @@ class LibraryTable {
       if (newName === oldName) return;
       this._renameColumn(oldName, newName, th, nameSpan);
     });
-
     th.addEventListener('dragstart', (e) => this._onDragStart(e, th));
     th.addEventListener('dragover',  (e) => this._onDragOver(e, th));
     th.addEventListener('dragleave', (e) => th.classList.remove('drag-over'));
     th.addEventListener('drop',      (e) => this._onDrop(e, th));
     th.addEventListener('dragend',   (e) => this._onDragEnd(e));
-
     return th;
   }
 
@@ -524,18 +502,15 @@ class LibraryTable {
   _appendRow(row) {
     const tr = document.createElement('tr');
     tr.setAttribute('data-id', row.id);
-
     const tdId = document.createElement('td');
     tdId.textContent = row.id;
     tdId.style.fontWeight = '600';
     tdId.style.color = '#888';
     tr.appendChild(tdId);
-
     this.columns.forEach(col => {
       const td = this._makeCell(row.id, col, row[col] != null ? String(row[col]) : '');
       tr.appendChild(td);
     });
-
     tr.appendChild(this._makeDeleteCell(row.id, tr));
     this.tbody.appendChild(tr);
     return tr;
@@ -567,9 +542,7 @@ class LibraryTable {
     btn.title = 'Delete row';
     btn.addEventListener('click', () => {
       if (!confirm('Delete this row?')) return;
-      apiDelete(`/admin/${this.section}/${rowId}`).then(ok => {
-        if (ok) tr.remove();
-      });
+      apiDelete(`/admin/${this.section}/${rowId}`).then(ok => { if (ok) tr.remove(); });
     });
     td.appendChild(btn);
     return td;
@@ -594,18 +567,15 @@ class LibraryTable {
     const name = colName.trim();
     if (this.columns.includes(name)) { showToast('Column already exists', 'warning'); return; }
     this.columns.push(name);
-
     const lastTh = this.thead.lastElementChild;
     const newTh = this._makeTh(name, this.columns.length);
     this.thead.insertBefore(newTh, lastTh);
-
     this.tbody.querySelectorAll('tr').forEach(tr => {
       const rowId = tr.getAttribute('data-id');
       const lastTd = tr.lastElementChild;
       const td = this._makeCell(rowId, name, '');
       tr.insertBefore(td, lastTd);
     });
-
     apiPost(`/admin/${this.section}/columns`, { name });
   }
 
@@ -621,16 +591,10 @@ class LibraryTable {
     apiDelete(`/admin/${this.section}/columns/${encodeURIComponent(colName)}`);
   }
 
-  _getThIndex(th) {
-    return Array.from(this.thead.children).indexOf(th);
-  }
+  _getThIndex(th) { return Array.from(this.thead.children).indexOf(th); }
 
   _renameColumn(oldName, newName, th, nameSpan) {
-    if (this.columns.includes(newName)) {
-      showToast('Column name already exists', 'warning');
-      nameSpan.textContent = oldName;
-      return;
-    }
+    if (this.columns.includes(newName)) { showToast('Column name already exists', 'warning'); nameSpan.textContent = oldName; return; }
     const idx = this.columns.indexOf(oldName);
     if (idx > -1) this.columns[idx] = newName;
     th.setAttribute('data-col', newName);
@@ -640,16 +604,14 @@ class LibraryTable {
 
   _onDragStart(e, th) {
     if (th.classList.contains('no-delete')) { e.preventDefault(); return; }
-    this._dragSrc = th;
-    th.classList.add('th-dragging');
+    this._dragSrc = th; th.classList.add('th-dragging');
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', this._getThIndex(th));
   }
 
   _onDragOver(e, th) {
     if (!this._dragSrc || th === this._dragSrc || th.classList.contains('no-delete')) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+    e.preventDefault(); e.dataTransfer.dropEffect = 'move';
     document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
     th.classList.add('drag-over');
   }
@@ -658,33 +620,22 @@ class LibraryTable {
     e.preventDefault();
     if (!this._dragSrc || targetTh === this._dragSrc || targetTh.classList.contains('no-delete')) return;
     targetTh.classList.remove('drag-over');
-
     const srcIdx = this._getThIndex(this._dragSrc);
     const tgtIdx = this._getThIndex(targetTh);
-
-    if (srcIdx < tgtIdx) {
-      this.thead.insertBefore(this._dragSrc, targetTh.nextSibling);
-    } else {
-      this.thead.insertBefore(this._dragSrc, targetTh);
-    }
-
+    if (srcIdx < tgtIdx) { this.thead.insertBefore(this._dragSrc, targetTh.nextSibling); }
+    else { this.thead.insertBefore(this._dragSrc, targetTh); }
     this.tbody.querySelectorAll('tr').forEach(tr => {
       const tds = Array.from(tr.children);
       const movingTd = tds[srcIdx];
-      if (srcIdx < tgtIdx) {
-        tr.insertBefore(movingTd, tds[tgtIdx].nextSibling);
-      } else {
-        tr.insertBefore(movingTd, tds[tgtIdx]);
-      }
+      if (srcIdx < tgtIdx) { tr.insertBefore(movingTd, tds[tgtIdx].nextSibling); }
+      else { tr.insertBefore(movingTd, tds[tgtIdx]); }
     });
-
     this.columns = [];
     Array.from(this.thead.children).forEach(th => {
       if (!th.classList.contains('no-delete') && th.querySelector('.th-name')) {
         this.columns.push(th.querySelector('.th-name').textContent.trim());
       }
     });
-
     apiPatch(`/admin/${this.section}/columns/reorder`, { order: this.columns });
   }
 
@@ -697,17 +648,12 @@ class LibraryTable {
   async load() {
     const data = await apiGet(`/admin/${this.section}/`);
     if (data) {
-      if (data.columns) {
-        this.columns = data.columns.filter(c => c !== 'id');
-        this._buildHeader();
-      }
+      if (data.columns) { this.columns = data.columns.filter(c => c !== 'id'); this._buildHeader(); }
       this.renderRows(data.rows || data);
     }
   }
 
-  triggerImport() {
-    document.getElementById('import-file-' + this.section).click();
-  }
+  triggerImport() { document.getElementById('import-file-' + this.section).click(); }
 
   handleImport(input) {
     const file = input.files[0];
@@ -725,8 +671,7 @@ class LibraryTable {
           if (!confirm(`Warning: Excel is missing columns: ${missing.join(', ')}. Continue anyway?`)) return;
         }
         fetch(`/admin/${this.section}/import`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ rows: rows })
         })
         .then(r => r.json())
@@ -736,9 +681,7 @@ class LibraryTable {
           this.load();
         })
         .catch(err => showToast('Import error: ' + err.message, 'error'));
-      } catch (err) {
-        showToast('Import error: ' + err.message, 'error');
-      }
+      } catch (err) { showToast('Import error: ' + err.message, 'error'); }
       input.value = '';
     };
     reader.readAsArrayBuffer(file);
@@ -765,20 +708,13 @@ class LibraryTable {
 </script>
 
 <script>
-// ─── QUESTIONS STATE ─────────────────────────────────────────────────────────
 let questionsData = [];
 
-// ─── LOAD QUESTIONS ───────────────────────────────────────────────────────────
 async function loadQuestions() {
-  // load category types into global cache first
   const types = await apiGet('/admin/questions/category-types');
   window._categoryTypes = types || [];
-
   const data = await apiGet('/admin/questions/');
-  if (data) {
-    questionsData = data;
-    renderAllQuestions();
-  }
+  if (data) { questionsData = data; renderAllQuestions(); }
 }
 
 function renderAllQuestions() {
@@ -790,7 +726,6 @@ function renderAllQuestions() {
 function attachQDrag(card) {
   const handle = card.querySelector('.q-drag-handle');
   if (!handle) return;
-
   handle.addEventListener('mousedown', () => { card.setAttribute('draggable', 'true'); });
   card.addEventListener('dragstart', (e) => {
     e.dataTransfer.effectAllowed = 'move';
@@ -799,72 +734,45 @@ function attachQDrag(card) {
   });
   card.addEventListener('dragend', () => {
     card.classList.remove('dragging');
-    document.querySelectorAll('.q-card').forEach(c => {
-      c.classList.remove('drag-over-top', 'drag-over-bottom');
-    });
+    document.querySelectorAll('.q-card').forEach(c => { c.classList.remove('drag-over-top', 'drag-over-bottom'); });
   });
   card.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+    e.preventDefault(); e.dataTransfer.dropEffect = 'move';
     const rect = card.getBoundingClientRect();
     const midY = rect.top + rect.height / 2;
     card.classList.remove('drag-over-top', 'drag-over-bottom');
-    if (e.clientY < midY) {
-      card.classList.add('drag-over-top');
-    } else {
-      card.classList.add('drag-over-bottom');
-    }
+    if (e.clientY < midY) { card.classList.add('drag-over-top'); } else { card.classList.add('drag-over-bottom'); }
   });
-  card.addEventListener('dragleave', () => {
-    card.classList.remove('drag-over-top', 'drag-over-bottom');
-  });
+  card.addEventListener('dragleave', () => { card.classList.remove('drag-over-top', 'drag-over-bottom'); });
   card.addEventListener('drop', (e) => {
     e.preventDefault();
     card.classList.remove('drag-over-top', 'drag-over-bottom');
     const srcId = parseInt(e.dataTransfer.getData('text/plain'));
     const tgtId = parseInt(card.getAttribute('data-qid'));
     if (srcId === tgtId) return;
-
     const container = document.getElementById('questions-list');
     const srcCard = container.querySelector(`.q-card[data-qid="${srcId}"]`);
     if (!srcCard) return;
-
     const rect = card.getBoundingClientRect();
     const midY = rect.top + rect.height / 2;
-    if (e.clientY < midY) {
-      container.insertBefore(srcCard, card);
-    } else {
-      container.insertBefore(srcCard, card.nextSibling);
-    }
+    if (e.clientY < midY) { container.insertBefore(srcCard, card); } else { container.insertBefore(srcCard, card.nextSibling); }
     saveQuestionsOrder();
   });
 }
 
 async function saveQuestionsOrder() {
   const cards = document.querySelectorAll('#questions-list .q-card');
-  const order = Array.from(cards).map((c, i) => ({
-    id: parseInt(c.getAttribute('data-qid')),
-    order: i
-  }));
+  const order = Array.from(cards).map((c, i) => ({ id: parseInt(c.getAttribute('data-qid')), order: i }));
   const res = await apiFetch('/admin/questions/reorder', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ order })
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ order })
   });
-  if (res && res.ok) {
-    showToast('Order saved ✓', 'success');
-  } else {
-    showToast('Reorder failed', 'error');
-  }
+  if (res && res.ok) { showToast('Order saved ✓', 'success'); } else { showToast('Reorder failed', 'error'); }
 }
 
-// ─── BUILD QUESTION CARD ──────────────────────────────────────────────────────
 function buildQuestionCard(q) {
   const card = document.createElement('div');
   card.className = 'q-card';
   card.setAttribute('data-qid', q.id);
-
-  // Header — both badges: category type (blue/indigo) + keyword (light blue)
   const header = document.createElement('div');
   header.className = 'q-card-header';
   header.innerHTML = `
@@ -875,16 +783,10 @@ function buildQuestionCard(q) {
       ${q.keyword ? `<span class="q-badge">${escHtml(q.keyword)}</span>` : ''}
       <span class="q-arrow">&#9660;</span>
     </div>`;
-  header.addEventListener('click', (e) => {
-    if (e.target.classList.contains('q-drag-handle')) return;
-    toggleQCard(card);
-  });
-
-  // Body
+  header.addEventListener('click', (e) => { if (e.target.classList.contains('q-drag-handle')) return; toggleQCard(card); });
   const body = document.createElement('div');
   body.className = 'q-card-body';
   body.appendChild(buildQuestionBody(q));
-
   card.setAttribute('draggable', 'true');
   card.appendChild(header);
   card.appendChild(body);
@@ -896,191 +798,110 @@ function escHtml(str) {
   return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function toggleQCard(card) {
-  card.classList.toggle('open');
-}
+function toggleQCard(card) { card.classList.toggle('open'); }
 
-// ─── BUILD QUESTION BODY ──────────────────────────────────────────────────────
 function buildQuestionBody(q) {
   const frag = document.createDocumentFragment();
   const qId = q.id;
 
-  // Question Text
   frag.appendChild(makeFormRow('Question Text', () => {
     const ta = document.createElement('textarea');
-    ta.value = q.question_text || '';
-    ta.rows = 3;
+    ta.value = q.question_text || ''; ta.rows = 3;
     ta.addEventListener('change', () => patchQuestion(qId, 'question_text', ta.value));
     ta.addEventListener('blur', () => patchQuestion(qId, 'question_text', ta.value));
     return ta;
   }));
 
-  // Keyword
   frag.appendChild(makeFormRow('Keyword', () => {
-    const inp = document.createElement('input');
-    inp.type = 'text';
-    inp.value = q.keyword || '';
+    const inp = document.createElement('input'); inp.type = 'text'; inp.value = q.keyword || '';
     inp.addEventListener('blur', () => patchQuestion(qId, 'keyword', inp.value));
     return inp;
   }));
 
-  // Question Category (dropdown with + Add new...)
   frag.appendChild(makeFormRow('Question Category', () => {
     const sel = document.createElement('select');
-
-    // blank option
-    const blank = document.createElement('option');
-    blank.value = ''; blank.textContent = '— None —';
-    sel.appendChild(blank);
-
+    const blank = document.createElement('option'); blank.value = ''; blank.textContent = '— None —'; sel.appendChild(blank);
     function populateCategoryTypes(selectedId) {
       while (sel.options.length > 1) sel.remove(1);
-
       (window._categoryTypes || []).forEach(ct => {
-        const o = document.createElement('option');
-        o.value = ct.id; o.textContent = ct.name;
-        if (ct.id === selectedId) o.selected = true;
-        sel.appendChild(o);
+        const o = document.createElement('option'); o.value = ct.id; o.textContent = ct.name;
+        if (ct.id === selectedId) o.selected = true; sel.appendChild(o);
       });
-
-      const addNew = document.createElement('option');
-      addNew.value = '__add_new__'; addNew.textContent = '＋ Add new...';
-      sel.appendChild(addNew);
-
+      const addNew = document.createElement('option'); addNew.value = '__add_new__'; addNew.textContent = '＋ Add new...'; sel.appendChild(addNew);
       if (!selectedId) sel.value = '';
     }
-
     populateCategoryTypes(q.category_type_id);
-
     sel.addEventListener('change', async () => {
       if (sel.value === '__add_new__') {
         const name = prompt('Enter new Question Category name:');
         if (!name || !name.trim()) { populateCategoryTypes(q.category_type_id); return; }
         const res = await apiPost('/admin/questions/category-types', { name: name.trim() });
         if (res && res.id) {
-          if (!window._categoryTypes.find(c => c.id === res.id)) {
-            window._categoryTypes.push(res);
-          }
-          q.category_type_id   = res.id;
-          q.category_type_name = res.name;
-          populateCategoryTypes(res.id);
-          await patchQuestion(qId, 'category_type_id', res.id);
-        } else {
-          populateCategoryTypes(q.category_type_id);
-        }
+          if (!window._categoryTypes.find(c => c.id === res.id)) { window._categoryTypes.push(res); }
+          q.category_type_id = res.id; q.category_type_name = res.name;
+          populateCategoryTypes(res.id); await patchQuestion(qId, 'category_type_id', res.id);
+        } else { populateCategoryTypes(q.category_type_id); }
       } else {
-        const newId = sel.value ? parseInt(sel.value) : null;
-        q.category_type_id = newId;
+        const newId = sel.value ? parseInt(sel.value) : null; q.category_type_id = newId;
         const found = (window._categoryTypes || []).find(c => c.id === newId);
         q.category_type_name = found ? found.name : '';
         await patchQuestion(qId, 'category_type_id', newId || '');
       }
-      // update header badge
       const card = document.querySelector(`.q-card[data-qid="${qId}"]`);
       if (card) {
         let badge = card.querySelector('.q-badge-category');
         if (q.category_type_name) {
-          if (!badge) {
-            badge = document.createElement('span');
-            badge.className = 'q-badge-category';
-            card.querySelector('.q-meta').prepend(badge);
-          }
+          if (!badge) { badge = document.createElement('span'); badge.className = 'q-badge-category'; card.querySelector('.q-meta').prepend(badge); }
           badge.textContent = q.category_type_name;
-        } else if (badge) {
-          badge.remove();
-        }
+        } else if (badge) { badge.remove(); }
       }
     });
-
     return sel;
   }));
 
-  // Options Type
   frag.appendChild(makeFormRow('Options Type', () => {
     const sel = document.createElement('select');
     ['Select All', 'Select One', 'Textbox'].forEach(opt => {
-      const o = document.createElement('option');
-      o.value = opt; o.textContent = opt;
-      if (q.options_type === opt) o.selected = true;
-      sel.appendChild(o);
+      const o = document.createElement('option'); o.value = opt; o.textContent = opt;
+      if (q.options_type === opt) o.selected = true; sel.appendChild(o);
     });
     sel.addEventListener('change', () => patchQuestion(qId, 'options_type', sel.value));
     return sel;
   }));
 
-  // Info Only checkbox
-  const infoRow = document.createElement('div');
-  infoRow.className = 'form-row';
-  const infoLabel = document.createElement('label');
-  infoLabel.className = 'checkbox-row';
-  const infoChk = document.createElement('input');
-  infoChk.type = 'checkbox';
-  infoChk.checked = !!q.info_only;
-  infoLabel.appendChild(infoChk);
-  const infoText = document.createTextNode(' Info Only');
-  infoLabel.appendChild(infoText);
-  infoRow.appendChild(infoLabel);
-  frag.appendChild(infoRow);
+  const infoRow = document.createElement('div'); infoRow.className = 'form-row';
+  const infoLabel = document.createElement('label'); infoLabel.className = 'checkbox-row';
+  const infoChk = document.createElement('input'); infoChk.type = 'checkbox'; infoChk.checked = !!q.info_only;
+  infoLabel.appendChild(infoChk); infoLabel.appendChild(document.createTextNode(' Info Only'));
+  infoRow.appendChild(infoLabel); frag.appendChild(infoRow);
 
-  // Options section
-  const optSection = document.createElement('div');
-  optSection.className = 'options-section';
-  optSection.id = `options-section-${qId}`;
-
-  const optTitle = document.createElement('h4');
-  optTitle.textContent = 'Options';
-  optSection.appendChild(optTitle);
-
-  const optList = document.createElement('div');
-  optList.id = `options-list-${qId}`;
+  const optSection = document.createElement('div'); optSection.className = 'options-section'; optSection.id = `options-section-${qId}`;
+  const optTitle = document.createElement('h4'); optTitle.textContent = 'Options'; optSection.appendChild(optTitle);
+  const optList = document.createElement('div'); optList.id = `options-list-${qId}`;
   (q.options || []).forEach(opt => optList.appendChild(buildOptionRow(qId, opt)));
   optSection.appendChild(optList);
-
-  const addOptBtn = document.createElement('button');
-  addOptBtn.className = 'btn btn-primary';
-  addOptBtn.style.marginTop = '8px';
-  addOptBtn.innerHTML = '&#65291; Add Option';
-  addOptBtn.addEventListener('click', () => addOption(qId));
+  const addOptBtn = document.createElement('button'); addOptBtn.className = 'btn btn-primary'; addOptBtn.style.marginTop = '8px';
+  addOptBtn.innerHTML = '&#65291; Add Option'; addOptBtn.addEventListener('click', () => addOption(qId));
   optSection.appendChild(addOptBtn);
-
-  infoChk.addEventListener('change', () => {
-    patchQuestion(qId, 'info_only', infoChk.checked);
-  });
-
+  infoChk.addEventListener('change', () => { patchQuestion(qId, 'info_only', infoChk.checked); });
   frag.appendChild(optSection);
 
-  // Delete question button
-  const delBtn = document.createElement('button');
-  delBtn.className = 'q-del-btn';
-  delBtn.innerHTML = '&#128465; Delete Question';
-  delBtn.addEventListener('click', () => deleteQuestion(qId));
+  const delBtn = document.createElement('button'); delBtn.className = 'q-del-btn';
+  delBtn.innerHTML = '&#128465; Delete Question'; delBtn.addEventListener('click', () => deleteQuestion(qId));
   frag.appendChild(delBtn);
-
   return frag;
 }
 
 function makeFormRow(labelText, inputFn) {
-  const row = document.createElement('div');
-  row.className = 'form-row';
-  const lbl = document.createElement('label');
-  lbl.textContent = labelText;
-  row.appendChild(lbl);
-  row.appendChild(inputFn());
-  return row;
+  const row = document.createElement('div'); row.className = 'form-row';
+  const lbl = document.createElement('label'); lbl.textContent = labelText;
+  row.appendChild(lbl); row.appendChild(inputFn()); return row;
 }
 
-// ─── OPTION ROW ───────────────────────────────────────────────────────────────
 function buildOptionRow(qId, opt) {
-  const row = document.createElement('div');
-  row.className = 'option-row';
-  row.setAttribute('data-oid', opt.id);
-
-  const txtInput = document.createElement('input');
-  txtInput.type = 'text';
-  txtInput.value = opt.option_text || '';
-  txtInput.placeholder = 'Option text...';
-  txtInput.style.flex = '2';
-  txtInput.style.minWidth = '160px';
+  const row = document.createElement('div'); row.className = 'option-row'; row.setAttribute('data-oid', opt.id);
+  const txtInput = document.createElement('input'); txtInput.type = 'text'; txtInput.value = opt.option_text || '';
+  txtInput.placeholder = 'Option text...'; txtInput.style.flex = '2'; txtInput.style.minWidth = '160px';
   txtInput.addEventListener('blur', () => patchOption(qId, opt.id, 'option_text', txtInput.value));
   row.appendChild(txtInput);
 
@@ -1093,68 +914,40 @@ function buildOptionRow(qId, opt) {
   ];
 
   chipDefs.forEach(def => {
-    const group = document.createElement('div');
-    group.className = 'chip-group';
-    const lbl = document.createElement('label');
-    lbl.textContent = def.label;
-    group.appendChild(lbl);
-    const wrap = document.createElement('div');
-    wrap.className = 'chip-wrap';
-    group.appendChild(wrap);
-
+    const group = document.createElement('div'); group.className = 'chip-group';
+    const lbl = document.createElement('label'); lbl.textContent = def.label; group.appendChild(lbl);
+    const wrap = document.createElement('div'); wrap.className = 'chip-wrap'; group.appendChild(wrap);
     let selectedIds = (opt[def.field] || []).map(Number);
-
-    function getName(item) {
-      return item[def.nameKey] || item.title || item.name || item.text || ('#' + item.id);
-    }
-
+    function getName(item) { return item[def.nameKey] || item.title || item.name || item.text || ('#' + item.id); }
     function renderChips() {
       wrap.innerHTML = '';
       const items = libraryData[def.source] || [];
       selectedIds.forEach(sid => {
-        const item = items.find(x => x.id === sid);
-        if (!item) return;
-        const chip = document.createElement('span');
-        chip.className = 'chip';
-        chip.textContent = getName(item);
-        const x = document.createElement('span');
-        x.className = 'chip-x';
-        x.innerHTML = '&#10005;';
+        const item = items.find(x => x.id === sid); if (!item) return;
+        const chip = document.createElement('span'); chip.className = 'chip'; chip.textContent = getName(item);
+        const x = document.createElement('span'); x.className = 'chip-x'; x.innerHTML = '&#10005;';
         x.addEventListener('click', () => {
-          selectedIds = selectedIds.filter(i => i !== sid);
-          opt[def.field] = selectedIds;
-          patchOption(qId, opt.id, def.field, selectedIds);
-          renderChips();
+          selectedIds = selectedIds.filter(i => i !== sid); opt[def.field] = selectedIds;
+          patchOption(qId, opt.id, def.field, selectedIds); renderChips();
         });
-        chip.appendChild(x);
-        wrap.appendChild(chip);
+        chip.appendChild(x); wrap.appendChild(chip);
       });
-      const addBtn = document.createElement('button');
-      addBtn.className = 'chip-add-btn';
-      addBtn.textContent = '+ Add';
+      const addBtn = document.createElement('button'); addBtn.className = 'chip-add-btn'; addBtn.textContent = '+ Add';
       addBtn.addEventListener('click', e => {
         e.stopPropagation();
         openChipDropdown(addBtn, def, selectedIds, newIds => {
-          selectedIds = newIds;
-          opt[def.field] = selectedIds;
-          patchOption(qId, opt.id, def.field, selectedIds);
-          renderChips();
+          selectedIds = newIds; opt[def.field] = selectedIds;
+          patchOption(qId, opt.id, def.field, selectedIds); renderChips();
         });
       });
       wrap.appendChild(addBtn);
     }
-
-    renderChips();
-    row.appendChild(group);
+    renderChips(); row.appendChild(group);
   });
 
-  const delBtn = document.createElement('button');
-  delBtn.className = 'opt-del-btn';
-  delBtn.innerHTML = '&#10005;';
-  delBtn.title = 'Delete option';
-  delBtn.addEventListener('click', () => deleteOption(qId, opt.id, row));
+  const delBtn = document.createElement('button'); delBtn.className = 'opt-del-btn'; delBtn.innerHTML = '&#10005;';
+  delBtn.title = 'Delete option'; delBtn.addEventListener('click', () => deleteOption(qId, opt.id, row));
   row.appendChild(delBtn);
-
   return row;
 }
 
@@ -1163,79 +956,43 @@ let _activeChipDropdown = null;
 function openChipDropdown(anchor, def, selectedIds, onUpdate) {
   if (_activeChipDropdown) { _activeChipDropdown.remove(); _activeChipDropdown = null; }
   const items = libraryData[def.source] || [];
-  const dd = document.createElement('div');
-  dd.className = 'chip-dropdown';
-
-  const search = document.createElement('input');
-  search.type = 'text';
-  search.placeholder = 'Search ' + def.label + '...';
-  dd.appendChild(search);
-
-  function getName(item) {
-    return item[def.nameKey] || item.title || item.name || item.text || ('#' + item.id);
-  }
-
+  const dd = document.createElement('div'); dd.className = 'chip-dropdown';
+  const search = document.createElement('input'); search.type = 'text'; search.placeholder = 'Search ' + def.label + '...'; dd.appendChild(search);
+  function getName(item) { return item[def.nameKey] || item.title || item.name || item.text || ('#' + item.id); }
   let currentIds = [...selectedIds];
-
   function renderOpts(filter) {
     [...dd.querySelectorAll('.chip-opt')].forEach(e => e.remove());
-    const filtered = filter
-      ? items.filter(i => getName(i).toLowerCase().includes(filter.toLowerCase()))
-      : items;
+    const filtered = filter ? items.filter(i => getName(i).toLowerCase().includes(filter.toLowerCase())) : items;
     if (filtered.length === 0) {
-      const none = document.createElement('div');
-      none.className = 'chip-opt';
-      none.style.color = '#999';
-      none.textContent = 'No items found';
-      dd.appendChild(none);
-      return;
+      const none = document.createElement('div'); none.className = 'chip-opt'; none.style.color = '#999'; none.textContent = 'No items found'; dd.appendChild(none); return;
     }
     filtered.forEach(item => {
-      const opt = document.createElement('div');
-      opt.className = 'chip-opt' + (currentIds.includes(item.id) ? ' selected' : '');
-      opt.textContent = getName(item);
+      const opt = document.createElement('div'); opt.className = 'chip-opt' + (currentIds.includes(item.id) ? ' selected' : ''); opt.textContent = getName(item);
       opt.addEventListener('click', () => {
-        if (currentIds.includes(item.id)) {
-          currentIds = currentIds.filter(i => i !== item.id);
-        } else {
-          currentIds.push(item.id);
-        }
-        onUpdate([...currentIds]);
-        renderOpts(search.value);
+        if (currentIds.includes(item.id)) { currentIds = currentIds.filter(i => i !== item.id); } else { currentIds.push(item.id); }
+        onUpdate([...currentIds]); renderOpts(search.value);
       });
       dd.appendChild(opt);
     });
   }
-
-  search.addEventListener('input', () => renderOpts(search.value));
-  renderOpts('');
-
+  search.addEventListener('input', () => renderOpts(search.value)); renderOpts('');
   document.body.appendChild(dd);
   const rect = anchor.getBoundingClientRect();
   dd.style.top  = (rect.bottom + window.scrollY + 4) + 'px';
   dd.style.left = (rect.left  + window.scrollX)      + 'px';
   _activeChipDropdown = dd;
-
   setTimeout(() => {
     document.addEventListener('click', function closer(e) {
-      if (!dd.contains(e.target) && e.target !== anchor) {
-        dd.remove();
-        _activeChipDropdown = null;
-        document.removeEventListener('click', closer);
-      }
+      if (!dd.contains(e.target) && e.target !== anchor) { dd.remove(); _activeChipDropdown = null; document.removeEventListener('click', closer); }
     });
   }, 50);
 }
 
-// ─── QUESTIONS CRUD ───────────────────────────────────────────────────────────
 async function addQuestion() {
   const newQ = await apiPost('/admin/questions/', { question_text: 'New Question', options: [] });
   if (newQ && newQ.id) {
-    newQ.options = newQ.options || [];
-    questionsData.push(newQ);
-    const card = buildQuestionCard(newQ);
-    document.getElementById('questions-list').appendChild(card);
-    card.classList.add('open');
+    newQ.options = newQ.options || []; questionsData.push(newQ);
+    const card = buildQuestionCard(newQ); document.getElementById('questions-list').appendChild(card); card.classList.add('open');
     showToast('Question added ✓', 'success');
   }
 }
@@ -1243,21 +1000,14 @@ async function addQuestion() {
 async function deleteQuestion(qId) {
   if (!confirm('Delete this question?')) return;
   const ok = await apiDelete(`/admin/questions/${qId}`);
-  if (ok) {
-    questionsData = questionsData.filter(q => q.id !== qId);
-    const card = document.querySelector(`.q-card[data-qid="${qId}"]`);
-    if (card) card.remove();
-  }
+  if (ok) { questionsData = questionsData.filter(q => q.id !== qId); const card = document.querySelector(`.q-card[data-qid="${qId}"]`); if (card) card.remove(); }
 }
 
 async function patchQuestion(qId, field, value) {
   await apiPatch(`/admin/questions/${qId}`, { field, value });
   if (field === 'question_text') {
     const card = document.querySelector(`.q-card[data-qid="${qId}"]`);
-    if (card) {
-      const titleEl = card.querySelector('.q-title');
-      if (titleEl) titleEl.textContent = value || 'New Question';
-    }
+    if (card) { const titleEl = card.querySelector('.q-title'); if (titleEl) titleEl.textContent = value || 'New Question'; }
   }
   if (field === 'keyword') {
     const card = document.querySelector(`.q-card[data-qid="${qId}"]`);
@@ -1265,25 +1015,16 @@ async function patchQuestion(qId, field, value) {
       let badge = card.querySelector('.q-badge');
       if (value) {
         if (!badge) {
-          badge = document.createElement('span');
-          badge.className = 'q-badge';
-          // insert after q-badge-category if present, else prepend
+          badge = document.createElement('span'); badge.className = 'q-badge';
           const catBadge = card.querySelector('.q-badge-category');
-          if (catBadge) {
-            catBadge.insertAdjacentElement('afterend', badge);
-          } else {
-            card.querySelector('.q-meta').prepend(badge);
-          }
+          if (catBadge) { catBadge.insertAdjacentElement('afterend', badge); } else { card.querySelector('.q-meta').prepend(badge); }
         }
         badge.textContent = value;
-      } else if (badge) {
-        badge.remove();
-      }
+      } else if (badge) { badge.remove(); }
     }
   }
 }
 
-// ─── OPTIONS CRUD ─────────────────────────────────────────────────────────────
 async function addOption(qId) {
   const newOpt = await apiPost(`/admin/questions/${qId}/options`, { option_text: '' });
   if (newOpt && newOpt.id) {
@@ -1296,33 +1037,21 @@ async function addOption(qId) {
 
 async function deleteOption(qId, optId, rowEl) {
   const ok = await apiDelete(`/admin/questions/${qId}/options/${optId}`);
-  if (ok) {
-    rowEl.remove();
-    const q = questionsData.find(q => q.id === qId);
-    if (q && q.options) q.options = q.options.filter(o => o.id !== optId);
-  }
+  if (ok) { rowEl.remove(); const q = questionsData.find(q => q.id === qId); if (q && q.options) q.options = q.options.filter(o => o.id !== optId); }
 }
 
-async function patchOption(qId, optId, field, value) {
-  await apiPatch(`/admin/questions/${qId}/options/${optId}`, { field, value });
-}
+async function patchOption(qId, optId, field, value) { await apiPatch(`/admin/questions/${qId}/options/${optId}`, { field, value }); }
 </script>
 
 <script>
-// ─── ASSESSMENT CONFIG ────────────────────────────────────────────────────────
 let assessmentConfig = [];
 
 async function loadAssessmentConfig() {
   const data = await apiGet('/admin/assessment/config');
-  if (data) {
-    assessmentConfig = data;
-  } else {
+  if (data) { assessmentConfig = data; }
+  else {
     assessmentConfig = questionsData.map((q, i) => ({
-      id: q.id,
-      question_text: q.question_text || 'Question ' + q.id,
-      included: false,
-      mandatory: false,
-      order: i
+      id: q.id, question_text: q.question_text || 'Question ' + q.id, included: false, mandatory: false, order: i
     }));
   }
   renderAssessmentConfig();
@@ -1332,85 +1061,31 @@ function renderAssessmentConfig() {
   const list = document.getElementById('assessment-list');
   list.innerHTML = '';
   assessmentConfig.forEach((item, idx) => {
-    const row = document.createElement('div');
-    row.className = 'assessment-item';
-    row.setAttribute('data-id', item.id);
-
-    const inclChk = document.createElement('input');
-    inclChk.type = 'checkbox';
-    inclChk.checked = !!item.included;
-    inclChk.title = 'Include in assessment';
-    inclChk.addEventListener('change', () => { item.included = inclChk.checked; });
-    row.appendChild(inclChk);
-
-    const qtxt = document.createElement('span');
-    qtxt.className = 'q-text';
-    qtxt.textContent = item.question_text || '(no text)';
-    row.appendChild(qtxt);
-
-    const mandDiv = document.createElement('div');
-    mandDiv.className = 'mandatory-toggle';
-    const mandChk = document.createElement('input');
-    mandChk.type = 'checkbox';
-    mandChk.checked = !!item.mandatory;
+    const row = document.createElement('div'); row.className = 'assessment-item'; row.setAttribute('data-id', item.id);
+    const inclChk = document.createElement('input'); inclChk.type = 'checkbox'; inclChk.checked = !!item.included;
+    inclChk.title = 'Include in assessment'; inclChk.addEventListener('change', () => { item.included = inclChk.checked; }); row.appendChild(inclChk);
+    const qtxt = document.createElement('span'); qtxt.className = 'q-text'; qtxt.textContent = item.question_text || '(no text)'; row.appendChild(qtxt);
+    const mandDiv = document.createElement('div'); mandDiv.className = 'mandatory-toggle';
+    const mandChk = document.createElement('input'); mandChk.type = 'checkbox'; mandChk.checked = !!item.mandatory;
     mandChk.addEventListener('change', () => { item.mandatory = mandChk.checked; });
-    const mandLbl = document.createTextNode('Mandatory');
-    mandDiv.appendChild(mandChk);
-    mandDiv.appendChild(mandLbl);
-    row.appendChild(mandDiv);
-
-    const btnDiv = document.createElement('div');
-    btnDiv.className = 'order-btns';
-
-    const upBtn = document.createElement('button');
-    upBtn.className = 'order-btn';
-    upBtn.innerHTML = '&#8593;';
-    upBtn.title = 'Move up';
-    upBtn.disabled = idx === 0;
-    upBtn.addEventListener('click', () => {
-      if (idx === 0) return;
-      [assessmentConfig[idx - 1], assessmentConfig[idx]] = [assessmentConfig[idx], assessmentConfig[idx - 1]];
-      renderAssessmentConfig();
-    });
-
-    const dnBtn = document.createElement('button');
-    dnBtn.className = 'order-btn';
-    dnBtn.innerHTML = '&#8595;';
-    dnBtn.title = 'Move down';
-    dnBtn.disabled = idx === assessmentConfig.length - 1;
-    dnBtn.addEventListener('click', () => {
-      if (idx === assessmentConfig.length - 1) return;
-      [assessmentConfig[idx], assessmentConfig[idx + 1]] = [assessmentConfig[idx + 1], assessmentConfig[idx]];
-      renderAssessmentConfig();
-    });
-
-    btnDiv.appendChild(upBtn);
-    btnDiv.appendChild(dnBtn);
-    row.appendChild(btnDiv);
-    list.appendChild(row);
+    mandDiv.appendChild(mandChk); mandDiv.appendChild(document.createTextNode('Mandatory')); row.appendChild(mandDiv);
+    const btnDiv = document.createElement('div'); btnDiv.className = 'order-btns';
+    const upBtn = document.createElement('button'); upBtn.className = 'order-btn'; upBtn.innerHTML = '&#8593;'; upBtn.title = 'Move up'; upBtn.disabled = idx === 0;
+    upBtn.addEventListener('click', () => { if (idx === 0) return; [assessmentConfig[idx-1], assessmentConfig[idx]] = [assessmentConfig[idx], assessmentConfig[idx-1]]; renderAssessmentConfig(); });
+    const dnBtn = document.createElement('button'); dnBtn.className = 'order-btn'; dnBtn.innerHTML = '&#8595;'; dnBtn.title = 'Move down'; dnBtn.disabled = idx === assessmentConfig.length - 1;
+    dnBtn.addEventListener('click', () => { if (idx === assessmentConfig.length-1) return; [assessmentConfig[idx], assessmentConfig[idx+1]] = [assessmentConfig[idx+1], assessmentConfig[idx]]; renderAssessmentConfig(); });
+    btnDiv.appendChild(upBtn); btnDiv.appendChild(dnBtn); row.appendChild(btnDiv); list.appendChild(row);
   });
 }
 
 async function saveAssessmentConfig() {
-  const payload = assessmentConfig.map((item, idx) => ({
-    id: item.id,
-    included: item.included,
-    mandatory: item.mandatory,
-    order: idx
-  }));
+  const payload = assessmentConfig.map((item, idx) => ({ id: item.id, included: item.included, mandatory: item.mandatory, order: idx }));
   const res = await apiFetch('/admin/assessment/config', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
   });
-  if (res && res.ok) {
-    showToast('Assessment config saved ✓', 'success');
-  } else if (res) {
-    showToast('Save failed: ' + res.status, 'error');
-  }
+  if (res && res.ok) { showToast('Assessment config saved ✓', 'success'); } else if (res) { showToast('Save failed: ' + res.status, 'error'); }
 }
 
-// ─── PAGE INIT ────────────────────────────────────────────────────────────────
 const LIBRARY_CONFIGS = {
   valueprops: ['Value Proposition Name', 'Description', 'Business Value', 'Mandatory?'],
   assets:     ['Asset Name', 'Asset Type', 'Link/URL', 'Description', 'Tags'],
@@ -1420,16 +1095,10 @@ const LIBRARY_CONFIGS = {
 };
 
 async function initPage() {
-  Object.entries(LIBRARY_CONFIGS).forEach(([section, cols]) => {
-    libraryTables[section] = new LibraryTable(section, cols);
-  });
-
+  Object.entries(LIBRARY_CONFIGS).forEach(([section, cols]) => { libraryTables[section] = new LibraryTable(section, cols); });
   await Promise.all(Object.values(libraryTables).map(t => t.load()));
-
   await loadQuestions();
-
   await loadAssessmentConfig();
-
   showSection('valueprops');
 }
 

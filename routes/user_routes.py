@@ -3,7 +3,8 @@ from flask import Blueprint, request, jsonify, session, render_template, send_fi
 from models import (db, UserResponse, Question, QuestionOption,
                     AssessmentConfig, QuestionCategory,
                     ValueProp, Asset, TestCase, POVPlanner, Roadblock,
-                    ColumnDefinition)
+                    ColumnDefinition, ResultSection)
+from routes.admin_sections_routes import evaluate_sections
 import io
 import re
 from openpyxl import Workbook
@@ -312,7 +313,6 @@ def submit_responses():
 
     results_payload, keyword_answers = _run_mapping(responses)
 
-    # Keep session populated for legacy /user/export
     session['vp_ids']    = results_payload['vp_ids']
     session['asset_ids'] = results_payload['asset_ids']
     session['tc_ids']    = results_payload['tc_ids']
@@ -488,13 +488,16 @@ def customer_results(customer_slug):
             'answer':   display,
         })
 
+    section_outcomes = evaluate_sections(answers)
+
     return render_template('user_results.html',
                            not_found=False,
                            user_resp=user_resp,
                            customer_slug=customer_slug,
                            value_props=value_props,
                            assets=assets,
-                           qa_pairs=qa_pairs)
+                           qa_pairs=qa_pairs,
+                           section_outcomes=section_outcomes)
 
 
 @user_bp.route('/<customer_slug>/edit')

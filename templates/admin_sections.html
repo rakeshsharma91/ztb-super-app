@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Assessment Sections — ZTB Admin</title>
+  <style>
+    :root {
+      --navy: #003366;
+      --blue: #0070c0;
+      --light-blue: #e8f4fd;
+      --white: #ffffff;
+      --gray: #f5f7fa;
+      --border: #dee2e6;
+      --text: #333333;
+      --danger: #dc3545;
+      --success: #28a745;
+      --warning: #ffc107;
+      --accent: #0095d9;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--text); background: var(--gray); }
+
+    #navbar {
+      position: fixed; top: 0; left: 0; right: 0; height: 56px;
+      background: var(--navy); display: flex; align-items: center;
+      padding: 0 20px; z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    #navbar .brand { color: #fff; font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+    #navbar .subtitle { color: #90c8f0; font-size: 14px; margin-left: 14px; }
+    #navbar .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    #navbar .nav-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,0.5); color: #fff;
+      padding: 5px 14px; border-radius: 4px; cursor: pointer; font-size: 13px;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+      transition: background 0.2s;
+    }
+    #navbar .nav-btn:hover { background: rgba(255,255,255,0.15); }
+
+    #sidebar {
+      position: fixed; top: 56px; left: 0; bottom: 0; width: 220px;
+      background: #fff; border-right: 1px solid var(--border); overflow-y: auto; z-index: 900;
+    }
+    #sidebar ul { list-style: none; padding: 12px 0; }
+    #sidebar ul li a {
+      display: block; padding: 11px 20px; color: var(--text); text-decoration: none;
+      font-size: 14px; transition: background 0.15s, color 0.15s; border-left: 3px solid transparent;
+    }
+    #sidebar ul li a:hover { background: var(--light-blue); color: var(--blue); }
+    #sidebar ul li a.active { background: var(--light-blue); color: var(--blue); font-weight: 600; border-left-color: var(--blue); }
+
+    #main { margin-left: 220px; margin-top: 56px; padding: 28px 32px; min-height: calc(100vh - 56px); }
+
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .page-header h2 { font-size: 22px; color: var(--navy); font-weight: 700; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 4px; border: none; cursor: pointer;
+      font-size: 13px; font-weight: 500; transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary   { background: var(--blue);    color: #fff; }
+    .btn-danger    { background: var(--danger);  color: #fff; }
+    .btn-success   { background: var(--success); color: #fff; }
+    .btn-secondary { background: #6c757d;        color: #fff; }
+    .btn-sm { padding: 5px 11px; font-size: 12px; }
+    .btn-outline { background: transparent; color: var(--blue); border: 1px solid var(--blue); }
+    .btn-outline:hover { background: var(--light-blue); }
+
+    .sections-list { display: flex; flex-direction: column; gap: 10px; }
+    .section-row {
+      background: #fff; border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px 18px; display: flex; align-items: center; gap: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: border-color 0.15s;
+    }
+    .section-row:hover { border-color: var(--blue); }
+    .section-order-badge {
+      background: var(--light-blue); color: var(--blue);
+      border-radius: 4px; padding: 3px 9px; font-size: 12px; font-weight: 700;
+      min-width: 32px; text-align: center;
+    }
+    .section-name { flex: 1; font-size: 15px; font-weight: 600; color: var(--text); }
+    .section-meta { display: flex; align-items: center; gap: 10px; }
+    .section-rule-count { color: #888; font-size: 12px; }
+    .section-format-badge {
+      background: #fff3cd; color: #856404; border: 1px solid #ffc107;
+      border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 600;
+    }
+    .section-actions { display: flex; gap: 8px; }
+
+    .empty-state { text-align: center; padding: 56px 24px; color: #888; }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; margin-bottom: 16px; }
+
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5); z-index: 2000;
+      align-items: flex-start; justify-content: center;
+      padding: 40px 16px; overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 10px; width: 100%; max-width: 800px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column;
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px; border-bottom: 1px solid var(--border);
+    }
+    .modal-header h3 { font-size: 17px; font-weight: 700; color: var(--navy); }
+    .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: #888; line-height: 1; transition: color 0.15s; }
+    .modal-close:hover { color: var(--text); }
+    .modal-body { padding: 22px 24px; display: flex; flex-direction: column; gap: 18px; }
+    .modal-footer {
+      padding: 14px 24px; border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-footer-right { display: flex; gap: 10px; }
+
+    .form-label {
+      display: block; font-size: 12px; font-weight: 600; color: #555;
+      text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px;
+    }
+    .form-control {
+      width: 100%; padding: 8px 10px; border: 1px solid var(--border);
+      border-radius: 4px; font-size: 13px; color: var(--text);
+      transition: border-color 0.2s; font-family: inherit;
+    }
+    .form-control:focus { outline: none; border-color: var(--blue); }
+    textarea.form-control {
+      resize: vertical; min-height: 220px;
+      font-family: 'Courier New', 'Consolas', monospace;
+      font-size: 12px; line-height: 1.55;
+    }
+    .form-row { display: flex; gap: 16px; }
+    .form-row > * { flex: 1; }
+
+    .json-status {
+      margin-top: 6px; padding: 7px 12px; border-radius: 4px;
+      font-size: 12px; font-weight: 600; display: none;
+    }
+    .json-status.valid   { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
+    .json-status.invalid { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
+
+    .schema-hint {
+      background: var(--light-blue); border: 1px solid #bee5f0;
+      border-radius: 6px; padding: 10px 14px; font-size: 12px;
+      color: #1a4060; line-height: 1.75;
+    }
+    .schema-hint code { background: rgba(0,0,0,0.07); padding: 1px 5px; border-radius: 3px; font-size: 11.5px; }
+
+    .rules-preview { display: none; flex-direction: column; gap: 10px; }
+    .rules-preview.visible { display: flex; }
+    .rule-card { background: #f8f9fa; border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; }
+    .rule-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+    .rule-order-chip { background: #e2e8f0; color: #2d3748; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+    .rule-outcome-badge { background: var(--navy); color: #fff; border-radius: 20px; padding: 3px 12px; font-size: 12px; font-weight: 700; }
+    .rule-formula-badge { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 600; font-family: monospace; }
+    .rule-default-badge { background: var(--warning); color: #333; border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 700; }
+    .rule-groups { display: flex; flex-direction: column; gap: 6px; }
+    .rule-group { background: #fff; border: 1px solid var(--border); border-radius: 5px; padding: 8px 12px; }
+    .rule-group-label { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px; }
+    .rule-condition { display: flex; align-items: center; gap: 6px; font-size: 12px; padding: 2px 0; }
+    .cond-var  { color: var(--blue); font-family: monospace; font-weight: 600; }
+    .cond-op   { color: #c0392b; font-weight: 700; font-size: 11px; }
+    .cond-val  { color: #27ae60; font-family: monospace; }
+    .cond-and  { color: #888; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; padding-left: 4px; }
+    .rule-or-separator { text-align: center; font-size: 11px; font-weight: 700; color: #888; padding: 2px 0; letter-spacing: 1px; }
+    .rule-default-text { font-size: 12px; color: #888; font-style: italic; }
+
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #28a745; color: #fff; padding: 11px 18px;
+      border-radius: 6px; font-size: 13px; font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 9999;
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.25s, transform 0.25s; pointer-events: none;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.error { background: var(--danger); }
+
+    .loading { text-align: center; padding: 48px; color: #888; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<nav id="navbar">
+  <span class="brand">ZTB Super App</span>
+  <span class="subtitle">Admin — Assessment Sections</span>
+  <div class="nav-right">
+    <a class="nav-btn" href="/admin/dashboard">&#8592; Dashboard</a>
+    <a class="nav-btn" href="/user" target="_blank">&#128100; User View</a>
+    <a class="nav-btn" href="/admin/logout">Logout</a>
+  </div>
+</nav>
+
+<nav id="sidebar">
+  <ul>
+    <li><a href="/admin/dashboard">&#127775; Value Props</a></li>
+    <li><a href="/admin/dashboard">&#128196; Assets</a></li>
+    <li><a href="/admin/dashboard">&#9989; Test Cases</a></li>
+    <li><a href="/admin/dashboard">&#128203; POV Planner</a></li>
+    <li><a href="/admin/dashboard">&#128683; Roadblocks</a></li>
+    <li><a href="/admin/dashboard">&#10067; Questions Library</a></li>
+    <li><a href="/admin/dashboard">&#9881; Assessment Config</a></li>
+    <li><a href="/admin/sections/" class="active">&#127381; Assessment Sections</a></li>
+  </ul>
+</nav>
+
+<main id="main">
+  <div class="page-header">
+    <h2>&#127381; Assessment Sections</h2>
+    <button class="btn btn-primary" onclick="openAddModal()">&#43; Add Section</button>
+  </div>
+  <div id="loading" class="loading">Loading sections…</div>
+  <div id="sections-list" class="sections-list" style="display:none;"></div>
+  <div id="empty-state" class="empty-state" style="display:none;">
+    <div class="icon">&#127381;</div>
+    <p>No sections yet. Create one to define custom result outcomes.</p>
+    <button class="btn btn-primary" onclick="openAddModal()">&#43; Add First Section</button>
+  </div>
+</main>
+
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Section</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="modal-id" />
+
+      <!-- Row 1: Name + Order + Format -->
+      <div class="form-row">
+        <div>
+          <label class="form-label" for="modal-name">Section Name</label>
+          <input type="text" class="form-control" id="modal-name" placeholder="e.g. Deployment Type" />
+        </div>
+        <div style="max-width:110px;">
+          <label class="form-label" for="modal-order">Display Order</label>
+          <input type="number" class="form-control" id="modal-order" min="0" placeholder="1" />
+        </div>
+        <div style="max-width:180px;">
+          <label class="form-label" for="modal-format">Outcome Format</label>
+          <select class="form-control" id="modal-format">
+            <option value="">None (plain text)</option>
+            <option value="currency_usd">$ Currency (USD)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Rules JSON -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+          <label class="form-label" style="margin-bottom:0;">Rules JSON</label>
+          <button class="btn btn-outline btn-sm" onclick="validateAndPreview()">&#128269; Validate &amp; Preview</button>
+        </div>
+        <div class="schema-hint" style="margin-bottom:8px;">
+          Array of rule objects. Each needs: <code>order</code>, <code>outcome</code>, <code>condition_groups</code> (array of arrays).
+          Add <code>"is_default": true</code> on the fallback rule.
+          Groups are <strong>OR</strong>'d; conditions inside a group are <strong>AND</strong>'d.<br/>
+          Operators: <code>=</code> <code>!=</code> <code>in</code> <code>not_in</code> <code>contains</code> <code>not_contains</code>
+          <code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code>
+          <code>count_gt</code> <code>count_gte</code> <code>count_lt</code> <code>count_lte</code> <code>count_eq</code><br/>
+          Formula outcomes: use variable names in math e.g. <code>"outcome": "vp_no_of_sites*0.7*3800"</code> —
+          set Format to <strong>$ Currency</strong> to display as <code>$485,000</code>.
+        </div>
+        <textarea class="form-control" id="modal-rules-json" placeholder='[
+  {
+    "order": 1,
+    "outcome": "TYPE 2",
+    "condition_groups": [
+      [{"variable": "dp_inbound_zpa", "operator": "=", "value": "Yes"}],
+      [{"variable": "dp_dc_flows",    "operator": "=", "value": "Yes"}]
+    ]
+  },
+  {
+    "order": 999,
+    "outcome": "TYPE 1",
+    "condition_groups": [],
+    "is_default": true
+  }
+]'></textarea>
+        <div class="json-status" id="json-status"></div>
+      </div>
+
+      <!-- Rules Preview -->
+      <div>
+        <label class="form-label">Rules Preview</label>
+        <div class="rules-preview" id="rules-preview"></div>
+        <div id="preview-empty" style="display:none;font-size:13px;color:#888;font-style:italic;">No rules yet.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="modal-delete-btn" onclick="deleteSection()" style="display:none;">
+        &#128465; Delete
+      </button>
+      <div class="modal-footer-right">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-success" onclick="saveSection()">&#10003; Save Section</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  let sections = [];
+
+  // Detect if an outcome string looks like a formula (contains variable-like tokens)
+  function isFormula(outcome) {
+    return outcome && /[a-zA-Z_][a-zA-Z0-9_]*/.test(outcome) &&
+           /[+\-*/()]/.test(outcome);
+  }
+
+  document.addEventListener('DOMContentLoaded', loadSections);
+
+  async function loadSections() {
+    try {
+      const res  = await fetch('/admin/sections/api');
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Load failed');
+      sections = data.sections;
+      renderSections();
+    } catch(err) {
+      showToast('Error: ' + err.message, true);
+    } finally {
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  function renderSections() {
+    const list  = document.getElementById('sections-list');
+    const empty = document.getElementById('empty-state');
+    if (!sections.length) {
+      list.style.display  = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    list.style.display  = 'flex';
+    list.innerHTML = sections.map(s => {
+      const rc = (s.rules_json || []).length;
+      const fmtBadge = s.format === 'currency_usd'
+        ? `<span class="section-format-badge">$ USD</span>`
+        : '';
+      return `<div class="section-row" data-id="${s.id}">
+        <span class="section-order-badge">#${s.order}</span>
+        <span class="section-name">${esc(s.name)}</span>
+        <div class="section-meta">
+          <span class="section-rule-count">${rc} rule${rc !== 1 ? 's' : ''}</span>
+          ${fmtBadge}
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-primary btn-sm" onclick="openEditModal(${s.id})">&#9998; Edit Rules</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function openAddModal() {
+    document.getElementById('modal-title').textContent         = 'Add Section';
+    document.getElementById('modal-id').value                 = '';
+    document.getElementById('modal-name').value               = '';
+    document.getElementById('modal-order').value              = sections.length + 1;
+    document.getElementById('modal-format').value             = '';
+    document.getElementById('modal-rules-json').value         = '[]';
+    document.getElementById('modal-delete-btn').style.display = 'none';
+    resetPreview();
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function openEditModal(id) {
+    const s = sections.find(x => x.id === id);
+    if (!s) return;
+    document.getElementById('modal-title').textContent         = 'Edit Section';
+    document.getElementById('modal-id').value                 = s.id;
+    document.getElementById('modal-name').value               = s.name;
+    document.getElementById('modal-order').value              = s.order;
+    document.getElementById('modal-format').value             = s.format || '';
+    document.getElementById('modal-rules-json').value         = JSON.stringify(s.rules_json || [], null, 2);
+    document.getElementById('modal-delete-btn').style.display = 'inline-flex';
+    resetPreview();
+    validateAndPreview();
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+
+  async function saveSection() {
+    const id     = document.getElementById('modal-id').value;
+    const name   = document.getElementById('modal-name').value.trim();
+    const order  = parseInt(document.getElementById('modal-order').value) || 0;
+    const format = document.getElementById('modal-format').value || null;
+    const raw    = document.getElementById('modal-rules-json').value.trim();
+
+    if (!name) { showToast('Section name is required.', true); return; }
+
+    let rules_json;
+    try {
+      rules_json = JSON.parse(raw || '[]');
+      if (!Array.isArray(rules_json)) throw new Error('Must be an array');
+    } catch(e) {
+      showToast('Invalid JSON: ' + e.message, true); return;
+    }
+
+    const url    = id ? `/admin/sections/api/${id}` : '/admin/sections/api';
+    const method = id ? 'PUT' : 'POST';
+
+    try {
+      const res  = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, order, format, rules_json }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Save failed');
+      closeModal();
+      showToast(id ? 'Section updated ✓' : 'Section created ✓');
+      await loadSections();
+    } catch(err) {
+      showToast('Error: ' + err.message, true);
+    }
+  }
+
+  async function deleteSection() {
+    const id = document.getElementById('modal-id').value;
+    if (!id || !confirm('Delete this section permanently?')) return;
+    try {
+      const res  = await fetch(`/admin/sections/api/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Delete failed');
+      closeModal();
+      showToast('Section deleted.');
+      await loadSections();
+    } catch(err) {
+      showToast('Error: ' + err.message, true);
+    }
+  }
+
+  function validateAndPreview() {
+    const raw     = document.getElementById('modal-rules-json').value.trim();
+    const status  = document.getElementById('json-status');
+    const preview = document.getElementById('rules-preview');
+    const pe      = document.getElementById('preview-empty');
+
+    status.className   = 'json-status';
+    status.textContent = '';
+    preview.classList.remove('visible');
+    preview.innerHTML  = '';
+    pe.style.display   = 'none';
+
+    if (!raw) {
+      status.className   = 'json-status invalid';
+      status.textContent = '✗ Empty — enter a valid JSON array.';
+      return;
+    }
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch(e) {
+      status.className   = 'json-status invalid';
+      status.textContent = '✗ Invalid JSON: ' + e.message;
+      return;
+    }
+    if (!Array.isArray(parsed)) {
+      status.className   = 'json-status invalid';
+      status.textContent = '✗ Must be a JSON array.';
+      return;
+    }
+    status.className   = 'json-status valid';
+    status.textContent = `✓ Valid — ${parsed.length} rule${parsed.length !== 1 ? 's' : ''} found.`;
+
+    if (!parsed.length) { pe.style.display = 'block'; return; }
+
+    const sorted = [...parsed].sort((a,b) => (a.order||0) - (b.order||0));
+    preview.innerHTML = sorted.map(renderRuleCard).join('');
+    preview.classList.add('visible');
+  }
+
+  function renderRuleCard(rule) {
+    const groups    = rule.condition_groups || [];
+    const isDefault = !!rule.is_default;
+    const outcome   = rule.outcome || '(no outcome)';
+    const formula   = isFormula(outcome);
+
+    let groupsHtml = '';
+    if (isDefault || !groups.length) {
+      groupsHtml = `<div class="rule-default-text">Always matches (default / no conditions)</div>`;
+    } else {
+      groupsHtml = `<div class="rule-groups">`;
+      groups.forEach((group, gi) => {
+        if (gi > 0) groupsHtml += `<div class="rule-or-separator">— OR —</div>`;
+        groupsHtml += `<div class="rule-group"><div class="rule-group-label">Group ${gi+1} &nbsp;(AND)</div>`;
+        group.forEach((cond, ci) => {
+          const val = Array.isArray(cond.value) ? JSON.stringify(cond.value) : String(cond.value ?? '');
+          groupsHtml += `<div class="rule-condition">
+            ${ci > 0 ? `<span class="cond-and">AND</span>` : ''}
+            <span class="cond-var">${esc(cond.variable || '?')}</span>
+            <span class="cond-op">${esc(cond.operator || '=')}</span>
+            <span class="cond-val">${esc(val)}</span>
+          </div>`;
+        });
+        groupsHtml += `</div>`;
+      });
+      groupsHtml += `</div>`;
+    }
+
+    return `<div class="rule-card">
+      <div class="rule-card-header">
+        <span class="rule-order-chip">Rule #${rule.order ?? '?'}</span>
+        ${formula
+          ? `<span class="rule-formula-badge">&#402; ${esc(outcome)}</span>`
+          : `<span class="rule-outcome-badge">${esc(outcome)}</span>`
+        }
+        ${isDefault ? `<span class="rule-default-badge">DEFAULT</span>` : ''}
+      </div>
+      ${groupsHtml}
+    </div>`;
+  }
+
+  function resetPreview() {
+    document.getElementById('json-status').className   = 'json-status';
+    document.getElementById('json-status').textContent = '';
+    const p = document.getElementById('rules-preview');
+    p.classList.remove('visible');
+    p.innerHTML = '';
+    document.getElementById('preview-empty').style.display = 'none';
+  }
+
+  let toastTimer;
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className   = isError ? 'show error' : 'show';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.className = ''; }, 3000);
+  }
+
+  function esc(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+</body>
+</html>
