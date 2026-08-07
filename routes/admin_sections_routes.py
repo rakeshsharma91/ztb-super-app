@@ -128,17 +128,15 @@ def _resolve_outcome(outcome_str, answers):
     if not outcome_str:
         return outcome_str
 
-    # Find all word tokens that look like variable names (letters/underscores/digits)
     tokens = re.findall(r'[a-zA-Z_][a-zA-Z0-9_]*', outcome_str)
     if not tokens:
-        return outcome_str  # pure number string or plain label
+        return outcome_str
 
     substituted = outcome_str
     is_formula = False
     for token in set(tokens):
         if token in answers:
             raw = answers[token]
-            # Cast to float; skip if not numeric
             try:
                 num = float(raw) if not isinstance(raw, list) else None
                 if num is None:
@@ -149,15 +147,14 @@ def _resolve_outcome(outcome_str, answers):
                 pass
 
     if not is_formula:
-        return outcome_str  # no substitutions made — plain label
+        return outcome_str
 
-    # Attempt safe math evaluation
     try:
         tree = ast.parse(substituted, mode='eval')
         result = _safe_eval(tree.body)
-        return result  # returns a float
+        return result
     except Exception:
-        return outcome_str  # fallback to raw string if eval fails
+        return outcome_str
 
 
 def _format_outcome(value, fmt):
@@ -171,7 +168,7 @@ def _format_outcome(value, fmt):
 
 
 # ─────────────────────────────────────────────
-# Rule Evaluation Engine
+# Condition evaluator (shared by both engines)
 # ─────────────────────────────────────────────
 def _eval_condition(condition, answers):
     """Evaluate a single condition against the answers dict."""
@@ -217,10 +214,9 @@ def _eval_condition(condition, answers):
         return answer_lower not in comp_list
 
     elif operator == 'contains':
-        # Check if the answer list contains the specified value
         if isinstance(answer_lower, list):
             return comp_str in answer_lower
-        return comp_str in answer_lower  # fallback for single-value fields
+        return comp_str in answer_lower
 
     elif operator == 'not_contains':
         if isinstance(answer_lower, list):
@@ -238,7 +234,6 @@ def _eval_condition(condition, answers):
         except (ValueError, TypeError, IndexError):
             return False
 
-    # count operators for select-all questions
     elif operator in ('count_gt', 'count_gte', 'count_lt', 'count_lte', 'count_eq'):
         lst = answer if isinstance(answer, list) else ([answer] if answer else [])
         try:
@@ -255,6 +250,9 @@ def _eval_condition(condition, answers):
     return False
 
 
+# ─────────────────────────────────────────────
+# Rule Evaluation Engine (first-match, existing)
+# ─────────────────────────────────────────────
 def _eval_rule(rule, answers):
     """
     A rule matches if ANY condition_group passes (OR between groups).
@@ -272,28 +270,86 @@ def _eval_rule(rule, answers):
     return False
 
 
+# ─────────────────────────────────────────────
+# Score Engine (additive, new)
+# ─────────────────────────────────────────────
+def _evaluate_score_section(section, answers):
+    """
+    Evaluate a score-type section.
+    rules_json must be a dict with:
+      {
+        "type": "score",
+        "max_score": 15,
+        "scoring_rules": [
+          {"variable": "...", "operator": "...", "value": "...", "points": N},
+          ...
+        ]
+      }
+    Returns formatted string e.g. "10/15 (66.67%)"
+    """
+    config = section.rules_json
+    if not isinstance(config, dict):
+        return '—'
+
+    max_score     = config.get('max_score', 1)
+    scoring_rules = config.get('scoring_rules', [])
+
+    total = 0
+    for rule in scoring_rules:
+        if _eval_condition(rule, answers):
+            total += rule.get('points', 0)
+
+    # Cap at max_score
+    total = min(total, max_score)
+
+    pct = (total / max_score * 100) if max_score else 0
+    return f"{total}/{max_score} ({pct:.2f}%)"
+
+
+# ─────────────────────────────────────────────
+# Main entry point called from user_routes.py
+# ─────────────────────────────────────────────
 def evaluate_sections(answers):
     """
     Run all ResultSections against the answers dict.
+    Supports two section types:
+      - Standard (rules_json is a list): first-match rule engine
+      - Score    (rules_json is a dict with type=score): additive scoring
     Returns a list of dicts: [{name, outcome, format, order}, ...]
     """
     sections = ResultSection.query.order_by(ResultSection.order, ResultSection.id).all()
     outcomes = []
+
     for section in sections:
-        rules = sorted(section.rules_json or [], key=lambda r: r.get('order', 0))
-        raw_outcome = None
-        for rule in rules:
-            if _eval_rule(rule, answers):
-                raw_outcome = rule.get('outcome', '')
-                break
+        rj = section.rules_json
 
-        resolved  = _resolve_outcome(raw_outcome or '—', answers)
-        formatted = _format_outcome(resolved, section.format)
+        # ── Score section ──────────────────────────
+        if isinstance(rj, dict) and rj.get('type') == 'score':
+            formatted = _evaluate_score_section(section, answers)
+            outcomes.append({
+                'name':    section.name,
+                'outcome': formatted,
+                'format':  'score',
+                'order':   section.order,
+            })
 
-        outcomes.append({
-            'name':    section.name,
-            'outcome': formatted,
-            'format':  section.format,
-            'order':   section.order,
-        })
+        # ── Standard first-match section ───────────
+        else:
+            rules = sorted(rj or [], key=lambda r: r.get('order', 0))
+            raw_outcome = None
+            for rule in rules:
+                if _eval_rule(rule, answers):
+                    raw_outcome = rule.get('outcome', '')
+                    break
+
+            resolved  = _resolve_outcome(raw_outcome or '—', answers)
+            formatted = _format_outcome(resolved, section.format)
+
+            outcomes.append({
+                'name':    section.name,
+                'outcome': formatted,
+                'format':  section.format,
+                'order':   section.order,
+            })
+
     return outcomes

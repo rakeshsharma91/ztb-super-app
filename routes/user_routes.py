@@ -469,6 +469,19 @@ def customer_results(customer_slug):
     all_questions = Question.query.order_by(Question.order).all()
     answers  = user_resp.answers or {}
     qa_pairs = []
+
+    # Build questions_map for the inline editor: { qid: { options_type, options } }
+    questions_map = {}
+    for q in all_questions:
+        if q.info_only:
+            continue
+        opts = [{'id': o.id, 'label': o.label}
+                for o in sorted(q.options, key=lambda x: x.id)]
+        questions_map[str(q.id)] = {
+            'options_type': q.options_type,
+            'options':      opts,
+        }
+
     for q in all_questions:
         if q.info_only:
             continue
@@ -483,9 +496,10 @@ def customer_results(customer_slug):
         cat = (q.category_type_ref.name if q.category_type_ref else
                q.category_ref.name if q.category_ref else '')
         qa_pairs.append({
-            'category': cat,
-            'question': q.text,
-            'answer':   display,
+            'question_id': q.id,
+            'category':    cat,
+            'question':    q.text,
+            'answer':      display,
         })
 
     section_outcomes = evaluate_sections(answers)
@@ -497,7 +511,9 @@ def customer_results(customer_slug):
                            value_props=value_props,
                            assets=assets,
                            qa_pairs=qa_pairs,
-                           section_outcomes=section_outcomes)
+                           section_outcomes=section_outcomes,
+                           questions_map=questions_map,
+                           raw_responses=user_resp.raw_responses or {})
 
 
 @user_bp.route('/<customer_slug>/edit')
@@ -578,6 +594,37 @@ def update_assessment(customer_slug):
     session['edit_response_id'] = None
 
     return jsonify({'success': True, 'customer_slug': customer_slug})
+
+
+@user_bp.route('/<customer_slug>/update-answer', methods=['POST'])
+def update_single_answer(customer_slug):
+    """Inline single-answer edit from the results page.
+    Accepts the full updated responses dict, re-runs mapping, saves."""
+    data      = request.get_json()
+    responses = data.get('responses', {})   # full updated raw_responses
+
+    completed = (UserResponse.query
+                 .filter_by(status='completed')
+                 .order_by(UserResponse.completed_at.desc())
+                 .all())
+    user_resp = None
+    for r in completed:
+        if _make_slug(r.customer_name) == customer_slug:
+            user_resp = r
+            break
+
+    if not user_resp:
+        return jsonify({'success': False, 'error': 'Assessment not found'}), 404
+
+    results_payload, keyword_answers = _run_mapping(responses)
+
+    user_resp.raw_responses = responses
+    user_resp.answers       = keyword_answers
+    user_resp.results       = results_payload
+    user_resp.completed_at  = datetime.utcnow()
+    db.session.commit()
+
+    return jsonify({'success': True})
 
 
 @user_bp.route('/<customer_slug>/export')

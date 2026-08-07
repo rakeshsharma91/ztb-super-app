@@ -87,6 +87,10 @@
       background: #fff3cd; color: #856404; border: 1px solid #ffc107;
       border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 600;
     }
+    .section-score-badge {
+      background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7;
+      border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 600;
+    }
     .section-actions { display: flex; gap: 8px; }
 
     .empty-state { text-align: center; padding: 56px 24px; color: #888; }
@@ -101,7 +105,7 @@
     }
     .modal-overlay.open { display: flex; }
     .modal {
-      background: #fff; border-radius: 10px; width: 100%; max-width: 800px;
+      background: #fff; border-radius: 10px; width: 100%; max-width: 860px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column;
     }
     .modal-header {
@@ -129,7 +133,7 @@
     }
     .form-control:focus { outline: none; border-color: var(--blue); }
     textarea.form-control {
-      resize: vertical; min-height: 220px;
+      resize: vertical; min-height: 260px;
       font-family: 'Courier New', 'Consolas', monospace;
       font-size: 12px; line-height: 1.55;
     }
@@ -149,7 +153,9 @@
       color: #1a4060; line-height: 1.75;
     }
     .schema-hint code { background: rgba(0,0,0,0.07); padding: 1px 5px; border-radius: 3px; font-size: 11.5px; }
+    .schema-hint .hint-section { margin-top: 8px; padding-top: 8px; border-top: 1px solid #bee5f0; }
 
+    /* Standard rule preview */
     .rules-preview { display: none; flex-direction: column; gap: 10px; }
     .rules-preview.visible { display: flex; }
     .rule-card { background: #f8f9fa; border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; }
@@ -168,6 +174,32 @@
     .cond-and  { color: #888; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; padding-left: 4px; }
     .rule-or-separator { text-align: center; font-size: 11px; font-weight: 700; color: #888; padding: 2px 0; letter-spacing: 1px; }
     .rule-default-text { font-size: 12px; color: #888; font-style: italic; }
+
+    /* Score section preview */
+    .score-preview { display: none; flex-direction: column; gap: 10px; }
+    .score-preview.visible { display: flex; }
+    .score-header {
+      background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 8px;
+      padding: 10px 16px; display: flex; align-items: center; gap: 12px;
+    }
+    .score-header-label { font-size: 12px; font-weight: 700; color: #1b5e20; text-transform: uppercase; letter-spacing: 0.5px; }
+    .score-header-max { background: #1b5e20; color: #fff; border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 700; }
+    .score-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .score-table th {
+      text-align: left; padding: 7px 10px; background: #f0f4ff;
+      color: #555; font-weight: 700; text-transform: uppercase;
+      font-size: 11px; letter-spacing: 0.4px;
+      border-bottom: 2px solid var(--border);
+    }
+    .score-table td { padding: 7px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+    .score-table tr:last-child td { border-bottom: none; }
+    .score-table tr:hover td { background: #f8f9fa; }
+    .score-points-badge {
+      background: var(--navy); color: #fff;
+      border-radius: 12px; padding: 2px 9px; font-size: 11px; font-weight: 700;
+      display: inline-block;
+    }
+    .score-total-row { font-size: 12px; color: #555; font-style: italic; padding: 6px 0 0; }
 
     #toast {
       position: fixed; bottom: 24px; right: 24px;
@@ -241,7 +273,7 @@
           <label class="form-label" for="modal-order">Display Order</label>
           <input type="number" class="form-control" id="modal-order" min="0" placeholder="1" />
         </div>
-        <div style="max-width:180px;">
+        <div style="max-width:200px;">
           <label class="form-label" for="modal-format">Outcome Format</label>
           <select class="form-control" id="modal-format">
             <option value="">None (plain text)</option>
@@ -257,38 +289,40 @@
           <button class="btn btn-outline btn-sm" onclick="validateAndPreview()">&#128269; Validate &amp; Preview</button>
         </div>
         <div class="schema-hint" style="margin-bottom:8px;">
-          Array of rule objects. Each needs: <code>order</code>, <code>outcome</code>, <code>condition_groups</code> (array of arrays).
+          <strong>Mode 1 — Standard (first-match):</strong> array of rule objects, each with
+          <code>order</code>, <code>outcome</code>, <code>condition_groups</code>.
           Add <code>"is_default": true</code> on the fallback rule.
           Groups are <strong>OR</strong>'d; conditions inside a group are <strong>AND</strong>'d.<br/>
-          Operators: <code>=</code> <code>!=</code> <code>in</code> <code>not_in</code> <code>contains</code> <code>not_contains</code>
+          Operators: <code>=</code> <code>!=</code> <code>in</code> <code>not_in</code>
+          <code>contains</code> <code>not_contains</code>
           <code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code>
-          <code>count_gt</code> <code>count_gte</code> <code>count_lt</code> <code>count_lte</code> <code>count_eq</code><br/>
-          Formula outcomes: use variable names in math e.g. <code>"outcome": "vp_no_of_sites*0.7*3800"</code> —
-          set Format to <strong>$ Currency</strong> to display as <code>$485,000</code>.
+          <code>count_gt</code> <code>count_gte</code> <code>count_eq</code><br/>
+          Formula outcomes: <code>"outcome": "vp_no_of_sites*0.7*3800"</code> — set Format to <strong>$ Currency</strong>.
+          <div class="hint-section">
+            <strong>Mode 2 — Score (additive):</strong> a single JSON <em>object</em> (not array) with
+            <code>"type": "score"</code>, <code>"max_score"</code>, and <code>"scoring_rules"</code> array.
+            Each scoring rule: <code>{"variable", "operator", "value", "points"}</code>.
+            All matching rules accumulate. Result shown as <code>score/max (pct%)</code>.
+            Format field is ignored for score sections.
+          </div>
         </div>
-        <textarea class="form-control" id="modal-rules-json" placeholder='[
-  {
-    "order": 1,
-    "outcome": "TYPE 2",
-    "condition_groups": [
-      [{"variable": "dp_inbound_zpa", "operator": "=", "value": "Yes"}],
-      [{"variable": "dp_dc_flows",    "operator": "=", "value": "Yes"}]
-    ]
-  },
-  {
-    "order": 999,
-    "outcome": "TYPE 1",
-    "condition_groups": [],
-    "is_default": true
-  }
-]'></textarea>
+        <textarea class="form-control" id="modal-rules-json" placeholder='{
+  "type": "score",
+  "max_score": 15,
+  "scoring_rules": [
+    {"variable": "vp_problem_to_be_solved", "operator": "not_contains", "value": "Not Applicable", "points": 1},
+    {"variable": "vp_scope",               "operator": "contains",     "value": "SD-WAN",         "points": 1},
+    {"variable": "vp_zia",                 "operator": "=",            "value": "80%+ deployed",  "points": 4}
+  ]
+}'></textarea>
         <div class="json-status" id="json-status"></div>
       </div>
 
-      <!-- Rules Preview -->
+      <!-- Preview -->
       <div>
-        <label class="form-label">Rules Preview</label>
+        <label class="form-label">Preview</label>
         <div class="rules-preview" id="rules-preview"></div>
+        <div class="score-preview" id="score-preview"></div>
         <div id="preview-empty" style="display:none;font-size:13px;color:#888;font-style:italic;">No rules yet.</div>
       </div>
     </div>
@@ -309,10 +343,8 @@
 <script>
   let sections = [];
 
-  // Detect if an outcome string looks like a formula (contains variable-like tokens)
   function isFormula(outcome) {
-    return outcome && /[a-zA-Z_][a-zA-Z0-9_]*/.test(outcome) &&
-           /[+\-*/()]/.test(outcome);
+    return outcome && /[a-zA-Z_][a-zA-Z0-9_]*/.test(outcome) && /[+\-*/()]/.test(outcome);
   }
 
   document.addEventListener('DOMContentLoaded', loadSections);
@@ -342,16 +374,20 @@
     empty.style.display = 'none';
     list.style.display  = 'flex';
     list.innerHTML = sections.map(s => {
-      const rc = (s.rules_json || []).length;
-      const fmtBadge = s.format === 'currency_usd'
-        ? `<span class="section-format-badge">$ USD</span>`
-        : '';
+      const rj = s.rules_json;
+      const isScore = rj && !Array.isArray(rj) && rj.type === 'score';
+      const rc = isScore
+        ? (rj.scoring_rules || []).length
+        : (Array.isArray(rj) ? rj.length : 0);
+      const typeBadge = isScore
+        ? `<span class="section-score-badge">&#9733; Score /${rj.max_score}</span>`
+        : (s.format === 'currency_usd' ? `<span class="section-format-badge">$ USD</span>` : '');
       return `<div class="section-row" data-id="${s.id}">
         <span class="section-order-badge">#${s.order}</span>
         <span class="section-name">${esc(s.name)}</span>
         <div class="section-meta">
           <span class="section-rule-count">${rc} rule${rc !== 1 ? 's' : ''}</span>
-          ${fmtBadge}
+          ${typeBadge}
         </div>
         <div class="section-actions">
           <button class="btn btn-primary btn-sm" onclick="openEditModal(${s.id})">&#9998; Edit Rules</button>
@@ -388,7 +424,6 @@
   }
 
   function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
-
   function handleOverlayClick(e) {
     if (e.target === document.getElementById('modal-overlay')) closeModal();
   }
@@ -405,9 +440,16 @@
     let rules_json;
     try {
       rules_json = JSON.parse(raw || '[]');
-      if (!Array.isArray(rules_json)) throw new Error('Must be an array');
     } catch(e) {
       showToast('Invalid JSON: ' + e.message, true); return;
+    }
+    // Validate: must be array (standard) or object with type=score
+    if (Array.isArray(rules_json)) {
+      // standard — ok
+    } else if (rules_json && typeof rules_json === 'object' && rules_json.type === 'score') {
+      // score — ok
+    } else {
+      showToast('Rules JSON must be an array (standard) or a score object.', true); return;
     }
 
     const url    = id ? `/admin/sections/api/${id}` : '/admin/sections/api';
@@ -445,45 +487,95 @@
   }
 
   function validateAndPreview() {
-    const raw     = document.getElementById('modal-rules-json').value.trim();
-    const status  = document.getElementById('json-status');
-    const preview = document.getElementById('rules-preview');
-    const pe      = document.getElementById('preview-empty');
+    const raw      = document.getElementById('modal-rules-json').value.trim();
+    const status   = document.getElementById('json-status');
+    const stdPrev  = document.getElementById('rules-preview');
+    const scorePrev= document.getElementById('score-preview');
+    const pe       = document.getElementById('preview-empty');
 
-    status.className   = 'json-status';
-    status.textContent = '';
-    preview.classList.remove('visible');
-    preview.innerHTML  = '';
-    pe.style.display   = 'none';
+    status.className    = 'json-status';
+    status.textContent  = '';
+    stdPrev.classList.remove('visible');
+    stdPrev.innerHTML   = '';
+    scorePrev.classList.remove('visible');
+    scorePrev.innerHTML = '';
+    pe.style.display    = 'none';
 
     if (!raw) {
       status.className   = 'json-status invalid';
-      status.textContent = '✗ Empty — enter a valid JSON array.';
+      status.textContent = '✗ Empty — enter a valid JSON array or score object.';
       return;
     }
     let parsed;
-    try {
-      parsed = JSON.parse(raw);
-    } catch(e) {
+    try { parsed = JSON.parse(raw); }
+    catch(e) {
       status.className   = 'json-status invalid';
       status.textContent = '✗ Invalid JSON: ' + e.message;
       return;
     }
+
+    // ── Score section ──
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && parsed.type === 'score') {
+      const rules = parsed.scoring_rules || [];
+      const maxS  = parsed.max_score || '?';
+      status.className   = 'json-status valid';
+      status.textContent = `✓ Score section — ${rules.length} scoring rule${rules.length !== 1 ? 's' : ''}, max ${maxS} pts.`;
+      if (!rules.length) { pe.style.display = 'block'; return; }
+      scorePrev.innerHTML = renderScorePreview(parsed);
+      scorePrev.classList.add('visible');
+      return;
+    }
+
+    // ── Standard section ──
     if (!Array.isArray(parsed)) {
       status.className   = 'json-status invalid';
-      status.textContent = '✗ Must be a JSON array.';
+      status.textContent = '✗ Must be a JSON array (standard) or score object with "type":"score".';
       return;
     }
     status.className   = 'json-status valid';
     status.textContent = `✓ Valid — ${parsed.length} rule${parsed.length !== 1 ? 's' : ''} found.`;
-
     if (!parsed.length) { pe.style.display = 'block'; return; }
-
     const sorted = [...parsed].sort((a,b) => (a.order||0) - (b.order||0));
-    preview.innerHTML = sorted.map(renderRuleCard).join('');
-    preview.classList.add('visible');
+    stdPrev.innerHTML = sorted.map(renderRuleCard).join('');
+    stdPrev.classList.add('visible');
   }
 
+  // ── Score preview renderer ──
+  function renderScorePreview(config) {
+    const rules  = config.scoring_rules || [];
+    const maxS   = config.max_score || '?';
+    const total  = rules.reduce((s, r) => s + (r.points || 0), 0);
+
+    let rows = rules.map(r => {
+      const val = Array.isArray(r.value) ? JSON.stringify(r.value) : String(r.value ?? '');
+      return `<tr>
+        <td><span class="cond-var">${esc(r.variable || '?')}</span></td>
+        <td><span class="cond-op">${esc(r.operator || '=')}</span></td>
+        <td><span class="cond-val">${esc(val)}</span></td>
+        <td><span class="score-points-badge">+${r.points || 0}</span></td>
+      </tr>`;
+    }).join('');
+
+    return `
+      <div class="score-header">
+        <span class="score-header-label">&#9733; Score Section</span>
+        <span class="score-header-max">Max: ${maxS} pts</span>
+        <span style="font-size:11px;color:#2e7d32;margin-left:4px;">
+          (${rules.length} rules, up to ${total} pts possible before cap)
+        </span>
+      </div>
+      <table class="score-table">
+        <thead><tr>
+          <th>Variable</th><th>Operator</th><th>Value</th><th>Points</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="score-total-row">
+        Result displayed as: <strong>score/${maxS} (xx.xx%)</strong>
+      </div>`;
+  }
+
+  // ── Standard rule card renderer ──
   function renderRuleCard(rule) {
     const groups    = rule.condition_groups || [];
     const isDefault = !!rule.is_default;
@@ -528,9 +620,10 @@
   function resetPreview() {
     document.getElementById('json-status').className   = 'json-status';
     document.getElementById('json-status').textContent = '';
-    const p = document.getElementById('rules-preview');
-    p.classList.remove('visible');
-    p.innerHTML = '';
+    const sp = document.getElementById('rules-preview');
+    sp.classList.remove('visible'); sp.innerHTML = '';
+    const sc = document.getElementById('score-preview');
+    sc.classList.remove('visible'); sc.innerHTML = '';
     document.getElementById('preview-empty').style.display = 'none';
   }
 
@@ -545,10 +638,8 @@
 
   function esc(str) {
     return String(str ?? '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 </script>
 </body>

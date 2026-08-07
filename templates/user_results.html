@@ -93,10 +93,8 @@
     }
     .section-divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
 
-    /* ── ASSESSMENT SUMMARY (Result Sections) ── */
-    .summary-grid {
-      display: flex; flex-wrap: wrap; gap: 12px;
-    }
+    /* ── ASSESSMENT SUMMARY ── */
+    .summary-grid { display: flex; flex-wrap: wrap; gap: 12px; }
     .summary-card {
       background: linear-gradient(145deg, #0d2d52, #0a2244);
       border: 1px solid var(--border);
@@ -106,15 +104,8 @@
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     .summary-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.1); }
-    .summary-card-name {
-      font-size: 0.8rem; font-weight: 600; color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 0.06em;
-    }
-    .summary-card-outcome {
-      background: var(--accent); color: var(--navy-dark);
-      font-size: 0.82rem; font-weight: 800;
-      padding: 4px 14px; border-radius: 20px; white-space: nowrap;
-    }
+    .summary-card-name { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .summary-card-outcome { background: var(--accent); color: var(--navy-dark); font-size: 0.82rem; font-weight: 800; padding: 4px 14px; border-radius: 20px; white-space: nowrap; }
 
     /* VALUE PROPS */
     .vp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
@@ -125,11 +116,7 @@
     .vp-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.1); }
     .vp-card-title { font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 0.45rem; line-height: 1.35; }
     .vp-card-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; }
-    .vp-card-biz {
-      margin-top: 0.65rem; display: inline-block;
-      background: rgba(0,170,255,0.1); border: 1px solid rgba(0,170,255,0.22);
-      border-radius: 20px; padding: 2px 10px; font-size: 0.7rem; font-weight: 600; color: var(--accent);
-    }
+    .vp-card-biz { margin-top: 0.65rem; display: inline-block; background: rgba(0,170,255,0.1); border: 1px solid rgba(0,170,255,0.22); border-radius: 20px; padding: 2px 10px; font-size: 0.7rem; font-weight: 600; color: var(--accent); }
 
     /* DOCUMENTS */
     .assets-list { display: flex; flex-direction: column; gap: 0.7rem; }
@@ -139,21 +126,12 @@
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     .asset-row:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.1); }
-    .asset-icon {
-      width: 38px; height: 38px; flex-shrink: 0;
-      background: rgba(0,170,255,0.1); border: 1px solid rgba(0,170,255,0.2);
-      border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1rem;
-    }
+    .asset-icon { width: 38px; height: 38px; flex-shrink: 0; background: rgba(0,170,255,0.1); border: 1px solid rgba(0,170,255,0.2); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
     .asset-info { flex: 1; min-width: 0; }
     .asset-title { font-size: 0.92rem; font-weight: 700; color: var(--white); }
     .asset-type { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
     .asset-desc { font-size: 0.81rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.5; }
-    .asset-link {
-      flex-shrink: 0; padding: 0.45rem 1rem; background: transparent;
-      border: 1px solid var(--accent); border-radius: 7px; color: var(--accent);
-      font-size: 0.78rem; font-weight: 600; text-decoration: none;
-      transition: background 0.2s, color 0.2s; white-space: nowrap; align-self: center;
-    }
+    .asset-link { flex-shrink: 0; padding: 0.45rem 1rem; background: transparent; border: 1px solid var(--accent); border-radius: 7px; color: var(--accent); font-size: 0.78rem; font-weight: 600; text-decoration: none; transition: background 0.2s, color 0.2s; white-space: nowrap; align-self: center; }
     .asset-link:hover { background: var(--accent); color: var(--white); }
 
     /* GUIDELINES */
@@ -167,11 +145,7 @@
     .guideline-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
     .guideline-title { font-size: 0.95rem; font-weight: 700; color: var(--white); display: flex; align-items: center; gap: 0.5rem; }
     .guideline-title::before { content: '📋'; font-size: 0.9rem; }
-    .guideline-link {
-      flex-shrink: 0; padding: 0.35rem 0.85rem; background: transparent;
-      border: 1px solid rgba(0,220,130,0.4); border-radius: 7px; color: #00dc82;
-      font-size: 0.75rem; font-weight: 600; text-decoration: none; transition: background 0.2s, color 0.2s; white-space: nowrap;
-    }
+    .guideline-link { flex-shrink: 0; padding: 0.35rem 0.85rem; background: transparent; border: 1px solid rgba(0,220,130,0.4); border-radius: 7px; color: #00dc82; font-size: 0.75rem; font-weight: 600; text-decoration: none; transition: background 0.2s, color 0.2s; white-space: nowrap; }
     .guideline-link:hover { background: #00dc82; color: #072018; }
     .guideline-body { font-size: 0.85rem; color: #a0c8b0; line-height: 1.7; white-space: pre-wrap; }
 
@@ -183,16 +157,10 @@
     .download-text { flex: 1; min-width: 200px; }
     .download-text h3 { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 0.3rem; }
     .download-text p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
-    .download-btn {
-      display: inline-flex; align-items: center; gap: 8px; padding: 0.78rem 1.6rem;
-      background: linear-gradient(135deg, var(--blue), var(--accent)); border: none;
-      border-radius: 10px; color: var(--white); font-size: 0.92rem; font-weight: 700;
-      cursor: pointer; text-decoration: none; box-shadow: 0 4px 18px rgba(0,112,192,0.4);
-      transition: opacity 0.2s, transform 0.15s; white-space: nowrap;
-    }
+    .download-btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.78rem 1.6rem; background: linear-gradient(135deg, var(--blue), var(--accent)); border: none; border-radius: 10px; color: var(--white); font-size: 0.92rem; font-weight: 700; cursor: pointer; text-decoration: none; box-shadow: 0 4px 18px rgba(0,112,192,0.4); transition: opacity 0.2s, transform 0.15s; white-space: nowrap; }
     .download-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-    /* Q&A */
+    /* ── Q&A TABLE ── */
     .qa-wrapper {
       background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border);
       border-radius: 14px; overflow: hidden;
@@ -205,17 +173,76 @@
     }
     .qa-table td {
       padding: 11px 14px; font-size: 0.87rem;
-      border-bottom: 1px solid rgba(0,170,255,0.08); vertical-align: top; line-height: 1.5;
+      border-bottom: 1px solid rgba(0,170,255,0.08); vertical-align: middle; line-height: 1.5;
     }
     .qa-table tr:last-child td { border-bottom: none; }
     .qa-table tr:hover td { background: rgba(0,170,255,0.04); }
-    .qa-table td:first-child { color: var(--text-muted); width: 55%; }
-    .qa-table td:last-child { color: var(--white); font-weight: 500; }
+    .qa-table td.col-question { color: var(--text-muted); width: 48%; vertical-align: middle; }
+    .qa-table td.col-answer   { color: var(--white); font-weight: 500; width: 42%; vertical-align: middle; }
+    .qa-table td.col-action   { width: 10%; text-align: right; vertical-align: middle; white-space: nowrap; }
     .qa-category-row td {
       padding: 6px 14px 4px; font-size: 0.68rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.08em;
       color: var(--accent); background: rgba(0,170,255,0.05); border-bottom: none;
     }
+
+    /* ── Inline edit button ── */
+    .btn-inline-edit {
+      background: transparent; border: 1px solid rgba(0,170,255,0.3);
+      color: var(--accent); font-size: 0.72rem; font-weight: 600;
+      padding: 3px 10px; border-radius: 6px; cursor: pointer;
+      transition: background 0.15s, color 0.15s; white-space: nowrap;
+    }
+    .btn-inline-edit:hover { background: var(--accent); color: var(--navy-dark); }
+
+    /* ── Inline editor row ── */
+    .ie-row td { padding: 0 !important; border-bottom: 1px solid rgba(0,170,255,0.12) !important; }
+    .ie-panel {
+      padding: 12px 16px 16px;
+      background: rgba(0,20,50,0.7);
+      border-top: 1px solid rgba(0,170,255,0.15);
+    }
+    .ie-options { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
+    .ie-option-btn {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(0,170,255,0.22);
+      border-radius: 8px; padding: 8px 14px; font-size: 0.84rem; color: var(--white);
+      cursor: pointer; text-align: left; transition: border-color 0.15s, background 0.15s; font-family: inherit;
+    }
+    .ie-option-btn:hover  { border-color: var(--accent); background: rgba(0,170,255,0.08); }
+    .ie-option-btn.ie-sel { border-color: var(--accent); background: rgba(0,170,255,0.18); font-weight: 600; }
+    .ie-text-input {
+      width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(0,170,255,0.3);
+      border-radius: 8px; padding: 9px 14px; font-size: 0.87rem; color: var(--white);
+      font-family: inherit; outline: none; margin-bottom: 12px; transition: border-color 0.2s;
+    }
+    .ie-text-input:focus { border-color: var(--accent); }
+    .ie-hint { font-size: 0.74rem; color: var(--text-muted); display: block; margin-bottom: 10px; }
+    .ie-actions { display: flex; gap: 8px; align-items: center; }
+    .ie-save-btn {
+      background: var(--accent); color: var(--navy-dark); border: none;
+      border-radius: 7px; padding: 7px 20px; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    .ie-save-btn:hover { opacity: 0.88; }
+    .ie-save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .ie-cancel-btn {
+      background: transparent; color: var(--text-muted); border: 1px solid rgba(160,188,216,0.22);
+      border-radius: 7px; padding: 7px 14px; font-size: 0.82rem; cursor: pointer;
+      transition: color 0.15s, border-color 0.15s; font-family: inherit;
+    }
+    .ie-cancel-btn:hover { color: var(--white); border-color: var(--text-muted); }
+
+    /* ── Toast ── */
+    #ie-toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #00875a; color: #fff; padding: 11px 20px;
+      border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.35); z-index: 9999;
+      opacity: 0; transform: translateY(10px);
+      transition: opacity 0.25s, transform 0.25s; pointer-events: none;
+    }
+    #ie-toast.show { opacity: 1; transform: translateY(0); }
+    #ie-toast.error { background: #b91c1c; }
 
     .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 0.88rem; }
     .not-found { text-align: center; padding: 6rem 2rem; }
@@ -228,11 +255,7 @@
       justify-content: center; flex-wrap: wrap; gap: 0.55rem;
     }
     .footer-logo { display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
-    .footer-z {
-      width: 20px; height: 20px; background: linear-gradient(135deg, var(--blue), var(--accent));
-      border-radius: 5px; display: flex; align-items: center; justify-content: center;
-      font-size: 0.65rem; font-weight: 800; color: var(--white);
-    }
+    .footer-z { width: 20px; height: 20px; background: linear-gradient(135deg, var(--blue), var(--accent)); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; color: var(--white); }
     .footer-sep { color: rgba(160,188,216,0.25); margin: 0 0.15rem; }
     .footer-copy { font-size: 0.76rem; color: rgba(160,188,216,0.4); }
 
@@ -243,6 +266,7 @@
       .download-section { flex-direction: column; align-items: flex-start; }
       .vp-grid { grid-template-columns: 1fr; }
       .summary-grid { flex-direction: column; }
+      .col-action { display: none; }
     }
   </style>
 </head>
@@ -253,7 +277,7 @@
   <span class="nav-brand">ZTB Super App</span>
   <div class="nav-spacer"></div>
   {% if not not_found %}
-  <a class="nav-edit" href="/user/{{ customer_slug }}/edit">✏ Edit Answers</a>
+  <a class="nav-edit" href="/user/{{ customer_slug }}/edit">✏ Edit All Answers</a>
   {% endif %}
   <a class="nav-back" href="/user">← New Assessment</a>
 </nav>
@@ -409,7 +433,7 @@
 
   <hr class="section-divider">
 
-  <!-- Q&A -->
+  <!-- Q&A with inline edit -->
   <div class="section-heading">
     <h2>Assessment Responses</h2>
     <span class="section-badge">{{ qa_pairs | length }}</span>
@@ -419,20 +443,31 @@
     <table class="qa-table">
       <thead>
         <tr>
-          <th>Question</th>
-          <th>Answer</th>
+          <th style="width:48%">Question</th>
+          <th style="width:42%">Answer</th>
+          <th style="width:10%"></th>
         </tr>
       </thead>
       <tbody>
         {% set ns = namespace(last_cat='') %}
         {% for item in qa_pairs %}
           {% if item.category and item.category != ns.last_cat %}
-          <tr class="qa-category-row"><td colspan="2">{{ item.category }}</td></tr>
+          <tr class="qa-category-row"><td colspan="3">{{ item.category }}</td></tr>
           {% set ns.last_cat = item.category %}
           {% endif %}
-          <tr>
-            <td>{{ item.question }}</td>
-            <td>{{ item.answer }}</td>
+          <!-- Answer display row -->
+          <tr class="qa-data-row" id="qa-row-{{ item.question_id }}">
+            <td class="col-question">{{ item.question }}</td>
+            <td class="col-answer" id="qa-answer-{{ item.question_id }}">{{ item.answer }}</td>
+            <td class="col-action">
+              <button class="btn-inline-edit" onclick="toggleEditor({{ item.question_id }})">✏ Edit</button>
+            </td>
+          </tr>
+          <!-- Inline editor row (hidden until edit clicked) -->
+          <tr class="ie-row" id="ie-row-{{ item.question_id }}" style="display:none;">
+            <td colspan="3">
+              <div class="ie-panel" id="ie-panel-{{ item.question_id }}"></div>
+            </td>
           </tr>
         {% endfor %}
       </tbody>
@@ -453,6 +488,165 @@
   <span class="footer-sep">&bull;</span>
   <span class="footer-copy">&copy; 2025 Zscaler, Inc. &mdash; Internal Sales Engineering Tool</span>
 </footer>
+
+<div id="ie-toast"></div>
+
+<script>
+  const CUSTOMER_SLUG = {{ customer_slug | tojson }};
+  // questions_map: { "qid": { options_type, options: [{id, label}] } }
+  const QUESTIONS_MAP  = {{ questions_map | tojson }};
+  // raw_responses: { "qid": value_or_array } — the live working copy
+  let   RAW_RESPONSES  = {{ raw_responses | tojson }};
+
+  let openQid = null;
+
+  // ── Toast ──────────────────────────────────────────────────────────────────
+  let _toastTimer;
+  function showToast(msg, isError) {
+    const t = document.getElementById('ie-toast');
+    t.textContent = msg;
+    t.className   = isError ? 'show error' : 'show';
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => { t.className = ''; }, 3200);
+  }
+
+  // ── Normalise options_type ─────────────────────────────────────────────────
+  function normType(t) {
+    return (t || '').toLowerCase().replace(/[^a-z]/g, '');
+  }
+
+  // ── Toggle editor open/closed ──────────────────────────────────────────────
+  function toggleEditor(qid) {
+    if (openQid === qid) {
+      closeEditor(qid);
+      return;
+    }
+    if (openQid !== null) closeEditor(openQid);
+    openEditor(qid);
+  }
+
+  function closeEditor(qid) {
+    const row = document.getElementById('ie-row-' + qid);
+    if (row) row.style.display = 'none';
+    openQid = null;
+  }
+
+  function openEditor(qid) {
+    const qdata = QUESTIONS_MAP[String(qid)];
+    if (!qdata) { showToast('Question data not found.', true); return; }
+
+    const panel = document.getElementById('ie-panel-' + qid);
+    panel.innerHTML = '';
+
+    const type       = normType(qdata.options_type);
+    const currentVal = RAW_RESPONSES[String(qid)];
+
+    if (type === 'text' || type === 'textbox') {
+      // ── Text input ──────────────────────────────────────────────────────
+      const input = document.createElement('input');
+      input.type        = 'text';
+      input.className   = 'ie-text-input';
+      input.value       = currentVal || '';
+      input.placeholder = 'Type your answer…';
+      panel.appendChild(input);
+      buildActions(panel, qid, () => input.value.trim() || '');
+
+    } else if (type === 'selectallthatapply' || type === 'selectall') {
+      // ── Multi-select ────────────────────────────────────────────────────
+      let selected = Array.isArray(currentVal) ? currentVal.map(Number) : [];
+      const hint = document.createElement('span');
+      hint.className   = 'ie-hint';
+      hint.textContent = 'Select all that apply';
+      panel.appendChild(hint);
+      const wrap = document.createElement('div');
+      wrap.className = 'ie-options';
+      qdata.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'ie-option-btn' + (selected.includes(opt.id) ? ' ie-sel' : '');
+        btn.textContent = opt.label;
+        btn.onclick = () => {
+          const idx = selected.indexOf(opt.id);
+          if (idx > -1) { selected.splice(idx, 1); btn.classList.remove('ie-sel'); }
+          else           { selected.push(opt.id);   btn.classList.add('ie-sel'); }
+        };
+        wrap.appendChild(btn);
+      });
+      panel.appendChild(wrap);
+      buildActions(panel, qid, () => selected.slice());
+
+    } else {
+      // ── Select-one ──────────────────────────────────────────────────────
+      let selected = currentVal !== undefined && currentVal !== null ? Number(currentVal) : null;
+      const hint = document.createElement('span');
+      hint.className   = 'ie-hint';
+      hint.textContent = 'Select one answer';
+      panel.appendChild(hint);
+      const wrap = document.createElement('div');
+      wrap.className = 'ie-options';
+      qdata.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'ie-option-btn' + (selected === opt.id ? ' ie-sel' : '');
+        btn.textContent = opt.label;
+        btn.onclick = () => {
+          selected = opt.id;
+          wrap.querySelectorAll('.ie-option-btn').forEach(b => b.classList.remove('ie-sel'));
+          btn.classList.add('ie-sel');
+        };
+        wrap.appendChild(btn);
+      });
+      panel.appendChild(wrap);
+      buildActions(panel, qid, () => selected);
+    }
+
+    document.getElementById('ie-row-' + qid).style.display = '';
+    openQid = qid;
+  }
+
+  // ── Save / Cancel action row ───────────────────────────────────────────────
+  function buildActions(panel, qid, getVal) {
+    const actions = document.createElement('div');
+    actions.className = 'ie-actions';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.className   = 'ie-save-btn';
+    saveBtn.textContent = '✓ Save & Refresh';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className   = 'ie-cancel-btn';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.onclick     = () => closeEditor(qid);
+
+    saveBtn.onclick = async () => {
+      const val = getVal();
+      saveBtn.disabled    = true;
+      saveBtn.textContent = 'Saving…';
+
+      // Merge new answer into current working copy
+      const updatedResponses = Object.assign({}, RAW_RESPONSES);
+      updatedResponses[String(qid)] = val;
+
+      try {
+        const res  = await fetch('/user/' + CUSTOMER_SLUG + '/update-answer', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ question_id: qid, value: val, responses: updatedResponses })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Save failed');
+        showToast('✓ Saved — refreshing…');
+        setTimeout(() => window.location.reload(), 900);
+      } catch(err) {
+        showToast('Error: ' + err.message, true);
+        saveBtn.disabled    = false;
+        saveBtn.textContent = '✓ Save & Refresh';
+      }
+    };
+
+    actions.appendChild(saveBtn);
+    actions.appendChild(cancelBtn);
+    panel.appendChild(actions);
+  }
+</script>
 
 </body>
 </html>
