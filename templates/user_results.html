@@ -42,10 +42,20 @@
     }
     .nav-brand { font-size: 1rem; font-weight: 700; color: var(--white); }
     .nav-spacer { flex: 1; }
+    .nav-edit {
+      font-size: 0.82rem; font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      display: flex; align-items: center; gap: 5px;
+      border: 1px solid rgba(0,170,255,0.4);
+      border-radius: 7px; padding: 0.38rem 0.9rem;
+      transition: background 0.2s, color 0.2s;
+    }
+    .nav-edit:hover { background: var(--accent); color: var(--navy-dark); }
     .nav-back {
       font-size: 0.82rem; color: var(--text-muted);
       text-decoration: none; display: flex; align-items: center; gap: 5px;
-      transition: color 0.2s;
+      transition: color 0.2s; margin-left: 0.5rem;
     }
     .nav-back:hover { color: var(--accent); }
     .hero {
@@ -103,6 +113,8 @@
       font-size: 0.7rem; font-weight: 700; color: var(--accent);
     }
     .section-divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+    /* VALUE PROPS */
     .vp-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -123,12 +135,14 @@
       border-radius: 20px; padding: 2px 10px;
       font-size: 0.7rem; font-weight: 600; color: var(--accent);
     }
+
+    /* DOCUMENTS */
     .assets-list { display: flex; flex-direction: column; gap: 0.7rem; }
     .asset-row {
       background: linear-gradient(145deg, #0d2d52, #0a2244);
       border: 1px solid var(--border);
       border-radius: 12px; padding: 1rem 1.25rem;
-      display: flex; align-items: center; gap: 1rem;
+      display: flex; align-items: flex-start; gap: 1rem;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     .asset-row:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.1); }
@@ -138,16 +152,60 @@
       border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1rem;
     }
     .asset-info { flex: 1; min-width: 0; }
-    .asset-title { font-size: 0.92rem; font-weight: 700; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .asset-title { font-size: 0.92rem; font-weight: 700; color: var(--white); }
     .asset-type { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    .asset-desc { font-size: 0.81rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.5; }
     .asset-link {
       flex-shrink: 0; padding: 0.45rem 1rem;
       background: transparent; border: 1px solid var(--accent);
       border-radius: 7px; color: var(--accent);
       font-size: 0.78rem; font-weight: 600; text-decoration: none;
       transition: background 0.2s, color 0.2s; white-space: nowrap;
+      align-self: center;
     }
     .asset-link:hover { background: var(--accent); color: var(--white); }
+
+    /* GUIDELINES */
+    .guidelines-list { display: flex; flex-direction: column; gap: 1rem; }
+    .guideline-card {
+      background: linear-gradient(145deg, #0a2a1a, #072018);
+      border: 1px solid rgba(0,220,130,0.2);
+      border-left: 3px solid #00dc82;
+      border-radius: 12px; padding: 1.25rem 1.4rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .guideline-card:hover {
+      border-color: rgba(0,220,130,0.45);
+      box-shadow: 0 4px 20px rgba(0,220,130,0.08);
+    }
+    .guideline-header {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .guideline-title {
+      font-size: 0.95rem; font-weight: 700; color: var(--white);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .guideline-title::before {
+      content: '📋';
+      font-size: 0.9rem;
+    }
+    .guideline-link {
+      flex-shrink: 0; padding: 0.35rem 0.85rem;
+      background: transparent; border: 1px solid rgba(0,220,130,0.4);
+      border-radius: 7px; color: #00dc82;
+      font-size: 0.75rem; font-weight: 600; text-decoration: none;
+      transition: background 0.2s, color 0.2s; white-space: nowrap;
+    }
+    .guideline-link:hover { background: #00dc82; color: #072018; }
+    .guideline-body {
+      font-size: 0.85rem; color: #a0c8b0;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    /* DOWNLOAD */
     .download-section {
       background: linear-gradient(145deg, #0d2d52, #0a2244);
       border: 1px solid var(--border);
@@ -168,6 +226,8 @@
       transition: opacity 0.2s, transform 0.15s; white-space: nowrap;
     }
     .download-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* Q&A */
     .qa-wrapper {
       background: linear-gradient(145deg, #0d2d52, #0a2244);
       border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
@@ -196,6 +256,7 @@
       color: var(--accent); background: rgba(0,170,255,0.05);
       border-bottom: none;
     }
+
     .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 0.88rem; }
     .not-found { text-align: center; padding: 6rem 2rem; }
     .not-found h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.75rem; }
@@ -215,6 +276,7 @@
     }
     .footer-sep { color: rgba(160,188,216,0.25); margin: 0 0.15rem; }
     .footer-copy { font-size: 0.76rem; color: rgba(160,188,216,0.4); }
+
     @media (max-width: 600px) {
       .hero { padding: 2.5rem 1rem 2rem; }
       .page-body { padding: 1.75rem 1rem 4rem; }
@@ -230,6 +292,9 @@
   <a class="nav-logo" href="/user">Z</a>
   <span class="nav-brand">ZTB Super App</span>
   <div class="nav-spacer"></div>
+  {% if not not_found %}
+  <a class="nav-edit" href="/user/{{ customer_slug }}/edit">✏ Edit Answers</a>
+  {% endif %}
   <a class="nav-back" href="/user">← New Assessment</a>
 </nav>
 
@@ -242,6 +307,18 @@
 </div>
 
 {% else %}
+
+{# ── Split assets into documents vs guidelines ── #}
+{% set documents  = [] %}
+{% set guidelines = [] %}
+{% for a in assets %}
+  {% if (a.get('asset_type') or '')|lower == 'guideline' %}
+    {% set _ = guidelines.append(a) %}
+  {% else %}
+    {% set _ = documents.append(a) %}
+  {% endif %}
+{% endfor %}
+
 <div class="hero">
   <div class="hero-inner">
     <div class="hero-eyebrow">ZTB Opportunity Package</div>
@@ -285,22 +362,24 @@
 
   <hr class="section-divider">
 
-  <!-- ASSETS -->
+  <!-- DOCUMENTS -->
   <div class="section-heading">
-    <h2>Assets</h2>
-    <span class="section-badge">{{ assets | length }}</span>
+    <h2>Documents</h2>
+    <span class="section-badge">{{ documents | length }}</span>
   </div>
-  {% if assets %}
+  {% if documents %}
   <div class="assets-list">
-    {% for asset in assets %}
+    {% for asset in documents %}
     {% set title = asset.get('asset_name') or asset.get('title') or ('Asset #' ~ asset.get('id','')) %}
     {% set atype = asset.get('asset_type') or '' %}
     {% set url   = asset.get('url') or asset.get('link') or '' %}
+    {% set desc  = asset.get('description') or asset.get('Description') or '' %}
     <div class="asset-row">
       <div class="asset-icon">📄</div>
       <div class="asset-info">
         <div class="asset-title">{{ title }}</div>
         {% if atype %}<div class="asset-type">{{ atype }}</div>{% endif %}
+        {% if desc %}<div class="asset-desc">{{ desc }}</div>{% endif %}
       </div>
       {% if url %}
       <a class="asset-link" href="{{ url }}" target="_blank" rel="noopener">Open →</a>
@@ -309,7 +388,35 @@
     {% endfor %}
   </div>
   {% else %}
-  <div class="empty-state">No assets tagged for this assessment.</div>
+  <div class="empty-state">No documents tagged for this assessment.</div>
+  {% endif %}
+
+  {% if guidelines %}
+  <hr class="section-divider">
+
+  <!-- GUIDELINES -->
+  <div class="section-heading">
+    <h2>Guidelines</h2>
+    <span class="section-badge">{{ guidelines | length }}</span>
+  </div>
+  <div class="guidelines-list">
+    {% for gl in guidelines %}
+    {% set title = gl.get('asset_name') or gl.get('title') or ('Guideline #' ~ gl.get('id','')) %}
+    {% set desc  = gl.get('description') or gl.get('Description') or '' %}
+    {% set url   = gl.get('url') or gl.get('link') or '' %}
+    <div class="guideline-card">
+      <div class="guideline-header">
+        <div class="guideline-title">{{ title }}</div>
+        {% if url %}
+        <a class="guideline-link" href="{{ url }}" target="_blank" rel="noopener">Reference →</a>
+        {% endif %}
+      </div>
+      {% if desc %}
+      <div class="guideline-body">{{ desc }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
   {% endif %}
 
   <hr class="section-divider">

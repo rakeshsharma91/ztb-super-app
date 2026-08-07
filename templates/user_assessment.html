@@ -3,10 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZTB Assessment</title>
+<title>{% if edit_mode %}Edit Assessment — {{ customer_slug }}{% else %}ZTB Assessment{% endif %}</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 40px 20px; }
+  .edit-banner {
+    width: 100%; max-width: 700px;
+    background: #003366; color: #fff;
+    border-radius: 10px; padding: 12px 20px;
+    margin-bottom: 18px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    font-size: 14px; font-weight: 600;
+  }
+  .edit-banner a {
+    color: #7dd3fc; text-decoration: none; font-size: 13px; white-space: nowrap;
+  }
+  .edit-banner a:hover { text-decoration: underline; }
   .progress-bar-wrap { width: 100%; max-width: 700px; background: #dde3ea; border-radius: 8px; height: 8px; margin-bottom: 24px; }
   .progress-bar-fill { height: 8px; background: #003366; border-radius: 8px; transition: width 0.3s ease; }
   .progress-label { width: 100%; max-width: 700px; font-size: 13px; color: #666; margin-bottom: 8px; display: flex; justify-content: space-between; }
@@ -46,6 +58,13 @@
 </head>
 <body>
 
+{% if edit_mode %}
+<div class="edit-banner">
+  <span>✏️ Editing answers for <strong>{{ customer_slug }}</strong></span>
+  <a href="/user/{{ customer_slug }}">← Cancel, back to results</a>
+</div>
+{% endif %}
+
 <div class="progress-label">
   <span id="categoryLabel"></span>
   <span id="counterLabel"></span>
@@ -61,7 +80,9 @@
   <div class="options" id="optionsArea"></div>
   <div class="nav">
     <button class="btn btn-back" id="backBtn" onclick="goBack()">← Back</button>
+    {% if not edit_mode %}
     <button class="btn btn-save" id="saveBtn" onclick="saveForLater()">💾 Save for Later</button>
+    {% endif %}
     <button class="btn btn-next" id="nextBtn">Next →</button>
   </div>
 </div>
@@ -72,6 +93,8 @@
 const questions = {{ questions | tojson }};
 const savedResponses = {{ saved_responses | tojson }};
 const resumeIndex = {{ resume_index }};
+const EDIT_MODE = {{ 'true' if edit_mode else 'false' }};
+const CUSTOMER_SLUG = {{ customer_slug | tojson }};
 
 let current = resumeIndex;
 let draftResponseId = null;
@@ -198,9 +221,9 @@ function render() {
   document.getElementById('backBtn').style.visibility = current === 0 ? 'hidden' : 'visible';
 
   if (current === total - 1) {
-    nextBtn.textContent = 'Submit ✓';
+    nextBtn.textContent = EDIT_MODE ? 'Save Changes ✓' : 'Submit ✓';
     nextBtn.className = 'btn btn-submit';
-    nextBtn.onclick = submitAll;
+    nextBtn.onclick = EDIT_MODE ? submitEdit : submitAll;
   } else {
     nextBtn.textContent = 'Next →';
     nextBtn.className = 'btn btn-next';
@@ -242,6 +265,34 @@ function submitAll() {
     alert('Submission failed. Please try again.');
     nextBtn.disabled = false;
     nextBtn.textContent = 'Submit ✓';
+  });
+}
+
+function submitEdit() {
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.disabled = true;
+  nextBtn.textContent = 'Saving…';
+
+  fetch('/user/' + CUSTOMER_SLUG + '/update', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ responses: responses })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.success) {
+      document.getElementById('progressFill').style.width = '100%';
+      window.location.href = '/user/' + data.customer_slug;
+    } else {
+      alert('Update failed. Please try again.');
+      nextBtn.disabled = false;
+      nextBtn.textContent = 'Save Changes ✓';
+    }
+  })
+  .catch(function() {
+    alert('Update failed. Please try again.');
+    nextBtn.disabled = false;
+    nextBtn.textContent = 'Save Changes ✓';
   });
 }
 
