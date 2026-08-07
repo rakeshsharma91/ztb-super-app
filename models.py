@@ -3,9 +3,6 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
-# ─────────────────────────────────────────
-# ADMIN USER
-# ─────────────────────────────────────────
 class Admin(db.Model):
     __tablename__ = 'admins'
     id            = db.Column(db.Integer, primary_key=True)
@@ -13,9 +10,6 @@ class Admin(db.Model):
     password      = db.Column(db.String(255), nullable=False)
     created_at    = db.Column(db.DateTime, default=datetime.utcnow)
 
-# ─────────────────────────────────────────
-# ADMIN CONFIG
-# ─────────────────────────────────────────
 class AdminConfig(db.Model):
     __tablename__ = 'admin_config'
     id         = db.Column(db.Integer, primary_key=True)
@@ -24,9 +18,6 @@ class AdminConfig(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-# ─────────────────────────────────────────
-# COLUMN DEFINITION
-# ─────────────────────────────────────────
 class ColumnDefinition(db.Model):
     __tablename__ = 'column_definitions'
     id            = db.Column(db.Integer, primary_key=True)
@@ -44,9 +35,6 @@ class ColumnDefinition(db.Model):
         db.UniqueConstraint('table_name', 'column_key', name='uq_table_column'),
     )
 
-# ─────────────────────────────────────────
-# VALUE PROPS
-# ─────────────────────────────────────────
 class ValueProp(db.Model):
     __tablename__ = 'value_props'
     id             = db.Column(db.Integer, primary_key=True)
@@ -57,9 +45,6 @@ class ValueProp(db.Model):
     created_at     = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at     = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-# ─────────────────────────────────────────
-# ASSETS
-# ─────────────────────────────────────────
 class Asset(db.Model):
     __tablename__ = 'assets'
     id          = db.Column(db.Integer, primary_key=True)
@@ -70,9 +55,6 @@ class Asset(db.Model):
     created_at  = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at  = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-# ─────────────────────────────────────────
-# TEST CASES
-# ─────────────────────────────────────────
 class TestCase(db.Model):
     __tablename__ = 'test_cases'
     id              = db.Column(db.Integer, primary_key=True)
@@ -83,9 +65,6 @@ class TestCase(db.Model):
     created_at      = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at      = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-# ─────────────────────────────────────────
-# POV PLANNER
-# ─────────────────────────────────────────
 class POVPlanner(db.Model):
     __tablename__ = 'pov_planner'
     id          = db.Column(db.Integer, primary_key=True)
@@ -97,9 +76,6 @@ class POVPlanner(db.Model):
     created_at  = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at  = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-# ─────────────────────────────────────────
-# ROADBLOCKS
-# ─────────────────────────────────────────
 class Roadblock(db.Model):
     __tablename__ = 'roadblocks'
     id          = db.Column(db.Integer, primary_key=True)
@@ -111,9 +87,6 @@ class Roadblock(db.Model):
     created_at  = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at  = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-# ─────────────────────────────────────────
-# QUESTION CATEGORY TYPE
-# ─────────────────────────────────────────
 class QuestionCategoryType(db.Model):
     __tablename__ = 'question_category_types'
     id         = db.Column(db.Integer, primary_key=True)
@@ -122,9 +95,6 @@ class QuestionCategoryType(db.Model):
 
     questions  = db.relationship('Question', backref='category_type_ref', lazy=True)
 
-# ─────────────────────────────────────────
-# QUESTION CATEGORY
-# ─────────────────────────────────────────
 class QuestionCategory(db.Model):
     __tablename__ = 'question_categories'
     id         = db.Column(db.Integer, primary_key=True)
@@ -135,9 +105,6 @@ class QuestionCategory(db.Model):
     questions  = db.relationship('Question', backref='category_ref', lazy=True,
                                   cascade='all, delete-orphan')
 
-# ─────────────────────────────────────────
-# QUESTIONS
-# ─────────────────────────────────────────
 class Question(db.Model):
     __tablename__ = 'questions'
     id                 = db.Column(db.Integer, primary_key=True)
@@ -153,9 +120,6 @@ class Question(db.Model):
     options            = db.relationship('QuestionOption', backref='question', lazy=True,
                                           cascade='all, delete-orphan')
 
-# ─────────────────────────────────────────
-# M2M ASSOCIATION TABLES
-# ─────────────────────────────────────────
 option_assets = db.Table(
     'option_assets',
     db.Column('id',        db.Integer, primary_key=True),
@@ -196,9 +160,6 @@ option_roadblocks = db.Table(
     db.UniqueConstraint('option_id', 'roadblock_id', name='uq_opt_rb'),
 )
 
-# ─────────────────────────────────────────
-# QUESTION OPTIONS
-# ─────────────────────────────────────────
 class QuestionOption(db.Model):
     __tablename__ = 'question_options'
     id          = db.Column(db.Integer, primary_key=True)
@@ -224,9 +185,6 @@ class QuestionOption(db.Model):
             'roadblock_ids': [r.id for r in self.roadblocks],
         }
 
-# ─────────────────────────────────────────
-# ASSESSMENT CONFIG
-# ─────────────────────────────────────────
 class AssessmentConfig(db.Model):
     __tablename__ = 'assessment_config'
     id            = db.Column(db.Integer, primary_key=True)
@@ -248,9 +206,6 @@ class AssessmentConfig(db.Model):
             'updated_at':    self.updated_at.isoformat() if self.updated_at else None,
         }
 
-# ─────────────────────────────────────────
-# USER RESPONSE
-# ─────────────────────────────────────────
 class UserResponse(db.Model):
     __tablename__ = 'user_responses'
     id                     = db.Column(db.Integer, primary_key=True)
@@ -264,6 +219,7 @@ class UserResponse(db.Model):
     completed_at           = db.Column(db.DateTime, nullable=True)
     answers                = db.Column(db.JSON, default=dict)
     results                = db.Column(db.JSON, default=dict)
+    notes                  = db.Column(db.Text, nullable=True)
     created_at             = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -278,19 +234,17 @@ class UserResponse(db.Model):
             'completed_at':           self.completed_at.strftime('%Y-%m-%d %H:%M') if self.completed_at else '',
             'answers':                self.answers or {},
             'results':                self.results or {},
+            'notes':                  self.notes or '',
             'created_at':             self.created_at.strftime('%Y-%m-%d %H:%M') if self.created_at else '',
         }
 
-# ─────────────────────────────────────────
-# RESULT SECTIONS
-# ─────────────────────────────────────────
 class ResultSection(db.Model):
     __tablename__ = 'result_sections'
     id         = db.Column(db.Integer, primary_key=True)
     name       = db.Column(db.String(255), nullable=False)
     order      = db.Column(db.Integer, default=0)
     rules_json = db.Column(db.JSON, default=list)
-    format     = db.Column(db.String(50), nullable=True)   # e.g. 'currency_usd'
+    format     = db.Column(db.String(50), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -305,16 +259,12 @@ class ResultSection(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }
 
-# ─────────────────────────────────────────
-# MIGRATION HELPER
-# ─────────────────────────────────────────
 def run_migration(db):
     import sqlalchemy as sa
     engine    = db.engine
     inspector = sa.inspect(engine)
     existing  = inspector.get_table_names()
 
-    # Create new tables if missing
     new_tables = ['option_assets', 'option_valueprops', 'option_testcases',
                   'option_povsteps', 'option_roadblocks', 'question_category_types']
     for tname in new_tables:
@@ -327,7 +277,6 @@ def run_migration(db):
         print('[migration] Created table: result_sections')
 
     with engine.connect() as conn:
-        # questions table
         q_cols = [c['name'] for c in inspector.get_columns('questions')]
         if 'category_type_id' not in q_cols:
             conn.execute(sa.text(
@@ -336,7 +285,6 @@ def run_migration(db):
             ))
             print('[migration] Added column questions.category_type_id')
 
-        # user_responses table — new columns
         ur_cols = [c['name'] for c in inspector.get_columns('user_responses')]
         if 'status' not in ur_cols:
             conn.execute(sa.text(
@@ -353,8 +301,12 @@ def run_migration(db):
                 'ALTER TABLE user_responses ADD COLUMN raw_responses JSON'
             ))
             print('[migration] Added column user_responses.raw_responses')
+        if 'notes' not in ur_cols:
+            conn.execute(sa.text(
+                'ALTER TABLE user_responses ADD COLUMN notes TEXT'
+            ))
+            print('[migration] Added column user_responses.notes')
 
-        # result_sections — add format column if missing
         if 'result_sections' in existing:
             rs_cols = [c['name'] for c in inspector.get_columns('result_sections')]
             if 'format' not in rs_cols:
@@ -363,12 +315,10 @@ def run_migration(db):
                 ))
                 print('[migration] Added column result_sections.format')
 
-        # Mark all existing rows (completed_at IS NOT NULL) as completed
         conn.execute(sa.text(
             "UPDATE user_responses SET status = 'completed' WHERE completed_at IS NOT NULL AND status = 'in_progress'"
         ))
 
-        # Drop old M2M columns from question_options if they exist
         old_cols = ['asset_id', 'value_prop_id', 'test_case_id', 'pov_step_id', 'roadblock_id']
         opt_cols = [c['name'] for c in inspector.get_columns('question_options')]
         for col in old_cols:

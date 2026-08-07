@@ -160,7 +160,56 @@
     .download-btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.78rem 1.6rem; background: linear-gradient(135deg, var(--blue), var(--accent)); border: none; border-radius: 10px; color: var(--white); font-size: 0.92rem; font-weight: 700; cursor: pointer; text-decoration: none; box-shadow: 0 4px 18px rgba(0,112,192,0.4); transition: opacity 0.2s, transform 0.15s; white-space: nowrap; }
     .download-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-    /* ── Q&A TABLE ── */
+    /* OPPORTUNITY NOTES */
+    .notes-card {
+      background: linear-gradient(145deg, #0d2d52, #0a2244);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem 1.6rem;
+    }
+    .notes-textarea {
+      width: 100%;
+      min-height: 130px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(0,170,255,0.2);
+      border-radius: 9px;
+      color: var(--white);
+      font-size: 0.88rem;
+      font-family: inherit;
+      line-height: 1.6;
+      padding: 0.85rem 1rem;
+      resize: vertical;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .notes-textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,170,255,0.1);
+    }
+    .notes-textarea::placeholder { color: rgba(160,188,216,0.4); }
+    .notes-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0.65rem;
+      min-height: 22px;
+    }
+    .notes-status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      transition: opacity 0.3s;
+      opacity: 0;
+    }
+    .notes-status.visible { opacity: 1; }
+    .notes-status.saved   { color: #00dc82; }
+    .notes-status.saving  { color: var(--accent); }
+    .notes-status.error   { color: #ff6b6b; }
+    .notes-hint {
+      font-size: 0.72rem;
+      color: rgba(160,188,216,0.35);
+    }
+
+    /* Q&A TABLE */
     .qa-wrapper {
       background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border);
       border-radius: 14px; overflow: hidden;
@@ -186,7 +235,7 @@
       color: var(--accent); background: rgba(0,170,255,0.05); border-bottom: none;
     }
 
-    /* ── Inline edit button ── */
+    /* Inline edit button */
     .btn-inline-edit {
       background: transparent; border: 1px solid rgba(0,170,255,0.3);
       color: var(--accent); font-size: 0.72rem; font-weight: 600;
@@ -195,7 +244,7 @@
     }
     .btn-inline-edit:hover { background: var(--accent); color: var(--navy-dark); }
 
-    /* ── Inline editor row ── */
+    /* Inline editor row */
     .ie-row td { padding: 0 !important; border-bottom: 1px solid rgba(0,170,255,0.12) !important; }
     .ie-panel {
       padding: 12px 16px 16px;
@@ -232,7 +281,7 @@
     }
     .ie-cancel-btn:hover { color: var(--white); border-color: var(--text-muted); }
 
-    /* ── Toast ── */
+    /* Toast */
     #ie-toast {
       position: fixed; bottom: 24px; right: 24px;
       background: #00875a; color: #fff; padding: 11px 20px;
@@ -292,7 +341,6 @@
 
 {% else %}
 
-{# ── Split assets into documents vs guidelines ── #}
 {% set documents  = [] %}
 {% set guidelines = [] %}
 {% for a in assets %}
@@ -433,6 +481,24 @@
 
   <hr class="section-divider">
 
+  <!-- OPPORTUNITY NOTES -->
+  <div class="section-heading">
+    <h2>Opportunity Notes</h2>
+  </div>
+  <div class="notes-card">
+    <textarea
+      class="notes-textarea"
+      id="opportunityNotes"
+      placeholder="Add notes about this opportunity — next steps, key contacts, blockers, context for the team…"
+    >{{ user_resp.notes or '' }}</textarea>
+    <div class="notes-footer">
+      <span class="notes-status" id="notesStatus"></span>
+      <span class="notes-hint">Auto-saves when you click away</span>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
   <!-- Q&A with inline edit -->
   <div class="section-heading">
     <h2>Assessment Responses</h2>
@@ -455,7 +521,6 @@
           <tr class="qa-category-row"><td colspan="3">{{ item.category }}</td></tr>
           {% set ns.last_cat = item.category %}
           {% endif %}
-          <!-- Answer display row -->
           <tr class="qa-data-row" id="qa-row-{{ item.question_id }}">
             <td class="col-question">{{ item.question }}</td>
             <td class="col-answer" id="qa-answer-{{ item.question_id }}">{{ item.answer }}</td>
@@ -463,7 +528,6 @@
               <button class="btn-inline-edit" onclick="toggleEditor({{ item.question_id }})">✏ Edit</button>
             </td>
           </tr>
-          <!-- Inline editor row (hidden until edit clicked) -->
           <tr class="ie-row" id="ie-row-{{ item.question_id }}" style="display:none;">
             <td colspan="3">
               <div class="ie-panel" id="ie-panel-{{ item.question_id }}"></div>
@@ -493,10 +557,8 @@
 
 <script>
   const CUSTOMER_SLUG = {{ customer_slug | tojson }};
-  // questions_map: { "qid": { options_type, options: [{id, label}] } }
-  const QUESTIONS_MAP  = {{ questions_map | tojson }};
-  // raw_responses: { "qid": value_or_array } — the live working copy
-  let   RAW_RESPONSES  = {{ raw_responses | tojson }};
+  const QUESTIONS_MAP = {{ questions_map | tojson }};
+  let   RAW_RESPONSES = {{ raw_responses | tojson }};
 
   let openQid = null;
 
@@ -510,17 +572,10 @@
     _toastTimer = setTimeout(() => { t.className = ''; }, 3200);
   }
 
-  // ── Normalise options_type ─────────────────────────────────────────────────
-  function normType(t) {
-    return (t || '').toLowerCase().replace(/[^a-z]/g, '');
-  }
+  function normType(t) { return (t || '').toLowerCase().replace(/[^a-z]/g, ''); }
 
-  // ── Toggle editor open/closed ──────────────────────────────────────────────
   function toggleEditor(qid) {
-    if (openQid === qid) {
-      closeEditor(qid);
-      return;
-    }
+    if (openQid === qid) { closeEditor(qid); return; }
     if (openQid !== null) closeEditor(openQid);
     openEditor(qid);
   }
@@ -542,7 +597,6 @@
     const currentVal = RAW_RESPONSES[String(qid)];
 
     if (type === 'text' || type === 'textbox') {
-      // ── Text input ──────────────────────────────────────────────────────
       const input = document.createElement('input');
       input.type        = 'text';
       input.className   = 'ie-text-input';
@@ -552,11 +606,9 @@
       buildActions(panel, qid, () => input.value.trim() || '');
 
     } else if (type === 'selectallthatapply' || type === 'selectall') {
-      // ── Multi-select ────────────────────────────────────────────────────
       let selected = Array.isArray(currentVal) ? currentVal.map(Number) : [];
       const hint = document.createElement('span');
-      hint.className   = 'ie-hint';
-      hint.textContent = 'Select all that apply';
+      hint.className = 'ie-hint'; hint.textContent = 'Select all that apply';
       panel.appendChild(hint);
       const wrap = document.createElement('div');
       wrap.className = 'ie-options';
@@ -575,11 +627,9 @@
       buildActions(panel, qid, () => selected.slice());
 
     } else {
-      // ── Select-one ──────────────────────────────────────────────────────
       let selected = currentVal !== undefined && currentVal !== null ? Number(currentVal) : null;
       const hint = document.createElement('span');
-      hint.className   = 'ie-hint';
-      hint.textContent = 'Select one answer';
+      hint.className = 'ie-hint'; hint.textContent = 'Select one answer';
       panel.appendChild(hint);
       const wrap = document.createElement('div');
       wrap.className = 'ie-options';
@@ -602,34 +652,26 @@
     openQid = qid;
   }
 
-  // ── Save / Cancel action row ───────────────────────────────────────────────
   function buildActions(panel, qid, getVal) {
     const actions = document.createElement('div');
     actions.className = 'ie-actions';
 
     const saveBtn = document.createElement('button');
-    saveBtn.className   = 'ie-save-btn';
-    saveBtn.textContent = '✓ Save & Refresh';
+    saveBtn.className = 'ie-save-btn'; saveBtn.textContent = '✓ Save & Refresh';
 
     const cancelBtn = document.createElement('button');
-    cancelBtn.className   = 'ie-cancel-btn';
-    cancelBtn.textContent = 'Cancel';
-    cancelBtn.onclick     = () => closeEditor(qid);
+    cancelBtn.className = 'ie-cancel-btn'; cancelBtn.textContent = 'Cancel';
+    cancelBtn.onclick = () => closeEditor(qid);
 
     saveBtn.onclick = async () => {
       const val = getVal();
-      saveBtn.disabled    = true;
-      saveBtn.textContent = 'Saving…';
-
-      // Merge new answer into current working copy
+      saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
       const updatedResponses = Object.assign({}, RAW_RESPONSES);
       updatedResponses[String(qid)] = val;
-
       try {
         const res  = await fetch('/user/' + CUSTOMER_SLUG + '/update-answer', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ question_id: qid, value: val, responses: updatedResponses })
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question_id: qid, value: val, responses: updatedResponses })
         });
         const data = await res.json();
         if (!data.success) throw new Error(data.error || 'Save failed');
@@ -637,8 +679,7 @@
         setTimeout(() => window.location.reload(), 900);
       } catch(err) {
         showToast('Error: ' + err.message, true);
-        saveBtn.disabled    = false;
-        saveBtn.textContent = '✓ Save & Refresh';
+        saveBtn.disabled = false; saveBtn.textContent = '✓ Save & Refresh';
       }
     };
 
@@ -646,6 +687,48 @@
     actions.appendChild(cancelBtn);
     panel.appendChild(actions);
   }
+
+  // ── Opportunity Notes auto-save ────────────────────────────────────────────
+  (function () {
+    const textarea = document.getElementById('opportunityNotes');
+    const status   = document.getElementById('notesStatus');
+    if (!textarea) return;
+
+    let saveTimer = null;
+
+    function setStatus(type, msg) {
+      status.textContent = msg;
+      status.className   = 'notes-status visible ' + type;
+    }
+    function clearStatus() { status.className = 'notes-status'; }
+
+    function saveNotes() {
+      setStatus('saving', 'Saving…');
+      fetch('/user/' + CUSTOMER_SLUG + '/notes', {
+        method:  'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ notes: textarea.value })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          setStatus('saved', '✓ Saved at ' + now);
+          setTimeout(clearStatus, 4000);
+        } else {
+          setStatus('error', 'Save failed — try again');
+        }
+      })
+      .catch(() => setStatus('error', 'Save failed — check connection'));
+    }
+
+    textarea.addEventListener('blur', saveNotes);
+    textarea.addEventListener('input', function () {
+      clearTimeout(saveTimer);
+      clearStatus();
+      saveTimer = setTimeout(saveNotes, 3000);
+    });
+  })();
 </script>
 
 </body>

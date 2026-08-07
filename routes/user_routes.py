@@ -15,8 +15,6 @@ from datetime import datetime
 
 user_bp = Blueprint('user', __name__, url_prefix='/user')
 
-# ── Formatting helpers ────────────────────────────────────────────────────────
-
 def _hdr(ws, row, col, value, bg="003366", fg="FFFFFF", bold=True, size=11):
     cell = ws.cell(row=row, column=col, value=value)
     cell.font = Font(color=fg, bold=bold, size=size)
@@ -103,7 +101,6 @@ def _get_keyword(question):
     return f'q_{question.id}'
 
 def _make_slug(name):
-    """'Acme Corp' -> 'acme-corp'"""
     slug = (name or 'unknown').strip().lower()
     slug = re.sub(r'[^a-z0-9\s-]', '', slug)
     slug = re.sub(r'\s+', '-', slug)
@@ -111,7 +108,6 @@ def _make_slug(name):
     return slug or 'unknown'
 
 def _run_mapping(responses):
-    """Re-usable mapping logic: responses dict -> results payload + keyword_answers."""
     vp_ids    = set()
     asset_ids = set()
     tc_ids    = set()
@@ -170,7 +166,7 @@ def _run_mapping(responses):
     return results_payload, keyword_answers
 
 
-# ── Fixed routes — all defined before /<customer_slug> ───────────────────────
+# ── Fixed routes ──────────────────────────────────────────────────────────────
 
 @user_bp.route('/')
 def landing():
@@ -262,7 +258,6 @@ def save_progress():
 
     db.session.commit()
     session['draft_response_id'] = user_resp.id
-
     return jsonify({'success': True, 'response_id': user_resp.id})
 
 @user_bp.route('/resume/<int:response_id>', methods=['GET'])
@@ -361,7 +356,6 @@ def export_excel():
         opportunity_url = user_resp.opportunity_url
 
     wb = Workbook()
-
     ws_assess = wb.active
     ws_assess.title = "Assessment"
     ws_assess.merge_cells("A1:B1")
@@ -439,7 +433,7 @@ def bom():
     return render_template('user_bom.html')
 
 
-# ── Variable routes — MUST stay last in this file ────────────────────────────
+# ── Variable routes — MUST stay last ─────────────────────────────────────────
 
 @user_bp.route('/<customer_slug>')
 def customer_results(customer_slug):
@@ -470,7 +464,6 @@ def customer_results(customer_slug):
     answers  = user_resp.answers or {}
     qa_pairs = []
 
-    # Build questions_map for the inline editor: { qid: { options_type, options } }
     questions_map = {}
     for q in all_questions:
         if q.info_only:
@@ -592,16 +585,13 @@ def update_assessment(customer_slug):
     db.session.commit()
 
     session['edit_response_id'] = None
-
     return jsonify({'success': True, 'customer_slug': customer_slug})
 
 
 @user_bp.route('/<customer_slug>/update-answer', methods=['POST'])
 def update_single_answer(customer_slug):
-    """Inline single-answer edit from the results page.
-    Accepts the full updated responses dict, re-runs mapping, saves."""
     data      = request.get_json()
-    responses = data.get('responses', {})   # full updated raw_responses
+    responses = data.get('responses', {})
 
     completed = (UserResponse.query
                  .filter_by(status='completed')
@@ -627,6 +617,29 @@ def update_single_answer(customer_slug):
     return jsonify({'success': True})
 
 
+@user_bp.route('/<customer_slug>/notes', methods=['PATCH'])
+def update_notes(customer_slug):
+    data       = request.get_json()
+    notes_text = data.get('notes', '')
+
+    completed = (UserResponse.query
+                 .filter_by(status='completed')
+                 .order_by(UserResponse.completed_at.desc())
+                 .all())
+    user_resp = None
+    for r in completed:
+        if _make_slug(r.customer_name) == customer_slug:
+            user_resp = r
+            break
+
+    if not user_resp:
+        return jsonify({'error': 'Not found'}), 404
+
+    user_resp.notes = notes_text
+    db.session.commit()
+    return jsonify({'success': True})
+
+
 @user_bp.route('/<customer_slug>/export')
 def customer_export(customer_slug):
     completed = (UserResponse.query
@@ -648,7 +661,6 @@ def customer_export(customer_slug):
     pov_ids = results.get('pov_ids', [])
 
     wb = Workbook()
-
     ws_pov = wb.active
     ws_pov.title = "POV Planner"
     _write_tab(ws_pov, _collect("pov_planner", pov_ids), _get_col_defs("pov_planner"))
