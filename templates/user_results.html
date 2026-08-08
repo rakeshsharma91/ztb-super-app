@@ -18,83 +18,34 @@
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-      background: var(--navy-dark);
-      color: var(--white);
-      min-height: 100vh;
-    }
-    .navbar {
-      position: sticky; top: 0; z-index: 100;
-      display: flex; align-items: center; gap: 0.75rem;
-      padding: 0 2rem; height: 58px;
-      background: rgba(0,22,44,0.95);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-    }
-    .nav-logo {
-      width: 34px; height: 34px;
-      background: linear-gradient(135deg, var(--blue), var(--accent));
-      border-radius: 8px; display: flex; align-items: center;
-      justify-content: center; font-size: 1rem; font-weight: 800;
-      color: var(--white); box-shadow: 0 0 10px rgba(0,170,255,0.35);
-      flex-shrink: 0; text-decoration: none;
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; background: var(--navy-dark); color: var(--white); min-height: 100vh; }
+    .navbar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; gap: 0.75rem; padding: 0 2rem; height: 58px; background: rgba(0,22,44,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    .nav-logo { width: 34px; height: 34px; background: linear-gradient(135deg, var(--blue), var(--accent)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 800; color: var(--white); box-shadow: 0 0 10px rgba(0,170,255,0.35); flex-shrink: 0; text-decoration: none; }
     .nav-brand { font-size: 1rem; font-weight: 700; color: var(--white); }
     .nav-spacer { flex: 1; }
-    .nav-edit {
-      font-size: 0.82rem; font-weight: 600; color: var(--accent);
-      text-decoration: none; display: flex; align-items: center; gap: 5px;
-      border: 1px solid rgba(0,170,255,0.4); border-radius: 7px; padding: 0.38rem 0.9rem;
-      transition: background 0.2s, color 0.2s;
-    }
+    .nav-edit { font-size: 0.82rem; font-weight: 600; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 5px; border: 1px solid rgba(0,170,255,0.4); border-radius: 7px; padding: 0.38rem 0.9rem; transition: background 0.2s, color 0.2s; }
     .nav-edit:hover { background: var(--accent); color: var(--navy-dark); }
-    .nav-back {
-      font-size: 0.82rem; color: var(--text-muted); text-decoration: none;
-      display: flex; align-items: center; gap: 5px; transition: color 0.2s; margin-left: 0.5rem;
-    }
+    .nav-back { font-size: 0.82rem; color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 5px; transition: color 0.2s; margin-left: 0.5rem; }
     .nav-back:hover { color: var(--accent); }
-    .hero {
-      background: linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 60%, #004d99 100%);
-      padding: 3.5rem 2rem 3rem; position: relative; overflow: hidden;
-    }
-    .hero::before {
-      content: ''; position: absolute; inset: 0;
-      background-image:
-        linear-gradient(rgba(0,170,255,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,170,255,0.04) 1px, transparent 1px);
-      background-size: 48px 48px; pointer-events: none;
-    }
+    .hero { background: linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 60%, #004d99 100%); padding: 3.5rem 2rem 3rem; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(0,170,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,170,255,0.04) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; }
     .hero-inner { position: relative; z-index: 2; max-width: 900px; margin: 0 auto; }
-    .hero-eyebrow {
-      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
-      text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem;
-    }
-    .hero h1 {
-      font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800;
-      line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 0.75rem;
-    }
-    .hero-meta {
-      display: flex; flex-wrap: wrap; gap: 1.2rem;
-      font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;
-    }
+    .hero-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
+    .hero h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 0.75rem; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 1.2rem; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
     .hero-meta span { display: flex; align-items: center; gap: 5px; }
     .hero-meta a { color: var(--accent); text-decoration: none; word-break: break-all; }
     .hero-meta a:hover { text-decoration: underline; }
     .page-body { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
     .section-heading { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.25rem; }
-    .section-heading h2 {
-      font-size: 1.05rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.07em; color: var(--text-muted);
-    }
-    .section-badge {
-      background: rgba(0,170,255,0.12); border: 1px solid rgba(0,170,255,0.28);
-      border-radius: 20px; padding: 1px 10px; font-size: 0.7rem; font-weight: 700; color: var(--accent);
-    }
+    .section-heading h2 { font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
+    .section-badge { background: rgba(0,170,255,0.12); border: 1px solid rgba(0,170,255,0.28); border-radius: 20px; padding: 1px 10px; font-size: 0.7rem; font-weight: 700; color: var(--accent); }
     .section-divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
 
     /* ── ASSESSMENT SUMMARY ── */
     .summary-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    /* Card without banner — compact horizontal layout */
     .summary-card {
       background: linear-gradient(145deg, #0d2d52, #0a2244);
       border: 1px solid var(--border);
@@ -107,12 +58,23 @@
     .summary-card-name { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
     .summary-card-outcome { background: var(--accent); color: var(--navy-dark); font-size: 0.82rem; font-weight: 800; padding: 4px 14px; border-radius: 20px; white-space: nowrap; }
 
+    /* Card WITH banner — full-width vertical layout */
+    .summary-card-banner {
+      background: linear-gradient(145deg, #0d2d52, #0a2244);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem 1.4rem;
+      flex: 1 1 100%; width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .summary-card-banner:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+    .summary-card-banner-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.65rem; }
+    .summary-card-banner-name { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .summary-card-banner-outcome { font-size: 0.82rem; font-weight: 800; padding: 4px 14px; border-radius: 20px; white-space: nowrap; color: #fff; }
+    .summary-card-banner-text { font-size: 0.85rem; line-height: 1.6; color: var(--white); padding: 0.65rem 0.9rem; border-radius: 8px; border-left: 3px solid; }
+
     /* VALUE PROPS */
     .vp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
-    .vp-card {
-      background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border);
-      border-radius: 14px; padding: 1.25rem 1.4rem; transition: border-color 0.2s, box-shadow 0.2s;
-    }
+    .vp-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.4rem; transition: border-color 0.2s, box-shadow 0.2s; }
     .vp-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.1); }
     .vp-card-title { font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 0.45rem; line-height: 1.35; }
     .vp-card-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; }
@@ -120,11 +82,7 @@
 
     /* DOCUMENTS */
     .assets-list { display: flex; flex-direction: column; gap: 0.7rem; }
-    .asset-row {
-      background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border);
-      border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: flex-start; gap: 1rem;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
+    .asset-row { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: flex-start; gap: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
     .asset-row:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.1); }
     .asset-icon { width: 38px; height: 38px; flex-shrink: 0; background: rgba(0,170,255,0.1); border: 1px solid rgba(0,170,255,0.2); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
     .asset-info { flex: 1; min-width: 0; }
@@ -136,11 +94,7 @@
 
     /* GUIDELINES */
     .guidelines-list { display: flex; flex-direction: column; gap: 1rem; }
-    .guideline-card {
-      background: linear-gradient(145deg, #0a2a1a, #072018);
-      border: 1px solid rgba(0,220,130,0.2); border-left: 3px solid #00dc82;
-      border-radius: 12px; padding: 1.25rem 1.4rem; transition: border-color 0.2s, box-shadow 0.2s;
-    }
+    .guideline-card { background: linear-gradient(145deg, #0a2a1a, #072018); border: 1px solid rgba(0,220,130,0.2); border-left: 3px solid #00dc82; border-radius: 12px; padding: 1.25rem 1.4rem; transition: border-color 0.2s, box-shadow 0.2s; }
     .guideline-card:hover { border-color: rgba(0,220,130,0.45); box-shadow: 0 4px 20px rgba(0,220,130,0.08); }
     .guideline-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
     .guideline-title { font-size: 0.95rem; font-weight: 700; color: var(--white); display: flex; align-items: center; gap: 0.5rem; }
@@ -150,10 +104,7 @@
     .guideline-body { font-size: 0.85rem; color: #a0c8b0; line-height: 1.7; white-space: pre-wrap; }
 
     /* DOWNLOAD */
-    .download-section {
-      background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border);
-      border-radius: 16px; padding: 1.75rem 2rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
-    }
+    .download-section { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem 2rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
     .download-text { flex: 1; min-width: 200px; }
     .download-text h3 { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 0.3rem; }
     .download-text p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
@@ -161,153 +112,59 @@
     .download-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
     /* OPPORTUNITY NOTES */
-    .notes-card {
-      background: linear-gradient(145deg, #0d2d52, #0a2244);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 1.5rem 1.6rem;
-    }
-    .notes-textarea {
-      width: 100%;
-      min-height: 130px;
-      background: rgba(0,0,0,0.25);
-      border: 1px solid rgba(0,170,255,0.2);
-      border-radius: 9px;
-      color: var(--white);
-      font-size: 0.88rem;
-      font-family: inherit;
-      line-height: 1.6;
-      padding: 0.85rem 1rem;
-      resize: vertical;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      outline: none;
-    }
-    .notes-textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(0,170,255,0.1);
-    }
+    .notes-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem 1.6rem; }
+    .notes-textarea { width: 100%; min-height: 130px; background: rgba(0,0,0,0.25); border: 1px solid rgba(0,170,255,0.2); border-radius: 9px; color: var(--white); font-size: 0.88rem; font-family: inherit; line-height: 1.6; padding: 0.85rem 1rem; resize: vertical; transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+    .notes-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,170,255,0.1); }
     .notes-textarea::placeholder { color: rgba(160,188,216,0.4); }
-    .notes-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 0.65rem;
-      min-height: 22px;
-    }
-    .notes-status {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      transition: opacity 0.3s;
-      opacity: 0;
-    }
+    .notes-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 0.65rem; min-height: 22px; }
+    .notes-status { font-size: 0.75rem; color: var(--text-muted); transition: opacity 0.3s; opacity: 0; }
     .notes-status.visible { opacity: 1; }
     .notes-status.saved   { color: #00dc82; }
     .notes-status.saving  { color: var(--accent); }
     .notes-status.error   { color: #ff6b6b; }
-    .notes-hint {
-      font-size: 0.72rem;
-      color: rgba(160,188,216,0.35);
-    }
+    .notes-hint { font-size: 0.72rem; color: rgba(160,188,216,0.35); }
 
     /* Q&A TABLE */
-    .qa-wrapper {
-      background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border);
-      border-radius: 14px; overflow: hidden;
-    }
+    .qa-wrapper { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
     .qa-table { width: 100%; border-collapse: collapse; }
-    .qa-table th {
-      text-align: left; padding: 10px 14px; background: rgba(0,51,102,0.6);
-      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.06em; color: var(--text-muted); border-bottom: 1px solid var(--border);
-    }
-    .qa-table td {
-      padding: 11px 14px; font-size: 0.87rem;
-      border-bottom: 1px solid rgba(0,170,255,0.08); vertical-align: middle; line-height: 1.5;
-    }
+    .qa-table th { text-align: left; padding: 10px 14px; background: rgba(0,51,102,0.6); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    .qa-table td { padding: 11px 14px; font-size: 0.87rem; border-bottom: 1px solid rgba(0,170,255,0.08); vertical-align: middle; line-height: 1.5; }
     .qa-table tr:last-child td { border-bottom: none; }
     .qa-table tr:hover td { background: rgba(0,170,255,0.04); }
     .qa-table td.col-question { color: var(--text-muted); width: 48%; vertical-align: middle; }
     .qa-table td.col-answer   { color: var(--white); font-weight: 500; width: 42%; vertical-align: middle; }
     .qa-table td.col-action   { width: 10%; text-align: right; vertical-align: middle; white-space: nowrap; }
-    .qa-category-row td {
-      padding: 6px 14px 4px; font-size: 0.68rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.08em;
-      color: var(--accent); background: rgba(0,170,255,0.05); border-bottom: none;
-    }
-
-    /* Inline edit button */
-    .btn-inline-edit {
-      background: transparent; border: 1px solid rgba(0,170,255,0.3);
-      color: var(--accent); font-size: 0.72rem; font-weight: 600;
-      padding: 3px 10px; border-radius: 6px; cursor: pointer;
-      transition: background 0.15s, color 0.15s; white-space: nowrap;
-    }
+    .qa-category-row td { padding: 6px 14px 4px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); background: rgba(0,170,255,0.05); border-bottom: none; }
+    .btn-inline-edit { background: transparent; border: 1px solid rgba(0,170,255,0.3); color: var(--accent); font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 6px; cursor: pointer; transition: background 0.15s, color 0.15s; white-space: nowrap; }
     .btn-inline-edit:hover { background: var(--accent); color: var(--navy-dark); }
-
-    /* Inline editor row */
     .ie-row td { padding: 0 !important; border-bottom: 1px solid rgba(0,170,255,0.12) !important; }
-    .ie-panel {
-      padding: 12px 16px 16px;
-      background: rgba(0,20,50,0.7);
-      border-top: 1px solid rgba(0,170,255,0.15);
-    }
+    .ie-panel { padding: 12px 16px 16px; background: rgba(0,20,50,0.7); border-top: 1px solid rgba(0,170,255,0.15); }
     .ie-options { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
-    .ie-option-btn {
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(0,170,255,0.22);
-      border-radius: 8px; padding: 8px 14px; font-size: 0.84rem; color: var(--white);
-      cursor: pointer; text-align: left; transition: border-color 0.15s, background 0.15s; font-family: inherit;
-    }
+    .ie-option-btn { background: rgba(255,255,255,0.04); border: 1px solid rgba(0,170,255,0.22); border-radius: 8px; padding: 8px 14px; font-size: 0.84rem; color: var(--white); cursor: pointer; text-align: left; transition: border-color 0.15s, background 0.15s; font-family: inherit; }
     .ie-option-btn:hover  { border-color: var(--accent); background: rgba(0,170,255,0.08); }
     .ie-option-btn.ie-sel { border-color: var(--accent); background: rgba(0,170,255,0.18); font-weight: 600; }
-    .ie-text-input {
-      width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(0,170,255,0.3);
-      border-radius: 8px; padding: 9px 14px; font-size: 0.87rem; color: var(--white);
-      font-family: inherit; outline: none; margin-bottom: 12px; transition: border-color 0.2s;
-    }
+    .ie-text-input { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(0,170,255,0.3); border-radius: 8px; padding: 9px 14px; font-size: 0.87rem; color: var(--white); font-family: inherit; outline: none; margin-bottom: 12px; transition: border-color 0.2s; }
     .ie-text-input:focus { border-color: var(--accent); }
     .ie-hint { font-size: 0.74rem; color: var(--text-muted); display: block; margin-bottom: 10px; }
     .ie-actions { display: flex; gap: 8px; align-items: center; }
-    .ie-save-btn {
-      background: var(--accent); color: var(--navy-dark); border: none;
-      border-radius: 7px; padding: 7px 20px; font-size: 0.82rem; font-weight: 700;
-      cursor: pointer; transition: opacity 0.15s;
-    }
+    .ie-save-btn { background: var(--accent); color: var(--navy-dark); border: none; border-radius: 7px; padding: 7px 20px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
     .ie-save-btn:hover { opacity: 0.88; }
     .ie-save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .ie-cancel-btn {
-      background: transparent; color: var(--text-muted); border: 1px solid rgba(160,188,216,0.22);
-      border-radius: 7px; padding: 7px 14px; font-size: 0.82rem; cursor: pointer;
-      transition: color 0.15s, border-color 0.15s; font-family: inherit;
-    }
+    .ie-cancel-btn { background: transparent; color: var(--text-muted); border: 1px solid rgba(160,188,216,0.22); border-radius: 7px; padding: 7px 14px; font-size: 0.82rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; font-family: inherit; }
     .ie-cancel-btn:hover { color: var(--white); border-color: var(--text-muted); }
-
-    /* Toast */
-    #ie-toast {
-      position: fixed; bottom: 24px; right: 24px;
-      background: #00875a; color: #fff; padding: 11px 20px;
-      border-radius: 8px; font-size: 0.85rem; font-weight: 600;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.35); z-index: 9999;
-      opacity: 0; transform: translateY(10px);
-      transition: opacity 0.25s, transform 0.25s; pointer-events: none;
-    }
+    #ie-toast { position: fixed; bottom: 24px; right: 24px; background: #00875a; color: #fff; padding: 11px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.35); z-index: 9999; opacity: 0; transform: translateY(10px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
     #ie-toast.show { opacity: 1; transform: translateY(0); }
     #ie-toast.error { background: #b91c1c; }
-
     .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 0.88rem; }
     .not-found { text-align: center; padding: 6rem 2rem; }
     .not-found h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.75rem; }
     .not-found p { color: var(--text-muted); margin-bottom: 1.5rem; }
     .not-found a { color: var(--accent); text-decoration: none; font-weight: 600; }
-    .footer {
-      border-top: 1px solid var(--border); padding: 1.6rem 2rem; text-align: center;
-      background: rgba(0,0,0,0.2); display: flex; align-items: center;
-      justify-content: center; flex-wrap: wrap; gap: 0.55rem;
-    }
+    .footer { border-top: 1px solid var(--border); padding: 1.6rem 2rem; text-align: center; background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.55rem; }
     .footer-logo { display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
     .footer-z { width: 20px; height: 20px; background: linear-gradient(135deg, var(--blue), var(--accent)); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; color: var(--white); }
     .footer-sep { color: rgba(160,188,216,0.25); margin: 0 0.15rem; }
     .footer-copy { font-size: 0.76rem; color: rgba(160,188,216,0.4); }
-
     @media (max-width: 600px) {
       .hero { padding: 2.5rem 1rem 2rem; }
       .page-body { padding: 1.75rem 1rem 4rem; }
@@ -377,10 +234,25 @@
   </div>
   <div class="summary-grid">
     {% for sec in section_outcomes %}
-    <div class="summary-card">
-      <span class="summary-card-name">{{ sec.name }}</span>
-      <span class="summary-card-outcome">{{ sec.outcome }}</span>
-    </div>
+      {% if sec.banner %}
+        {# Card WITH banner — full width, colored #}
+        {% set c = sec.color if sec.color else '#00aaff' %}
+        <div class="summary-card-banner" style="border-color: {{ c }}40; border-left: 3px solid {{ c }};">
+          <div class="summary-card-banner-top">
+            <span class="summary-card-banner-name">{{ sec.name }}</span>
+            <span class="summary-card-banner-outcome" style="background: {{ c }};">{{ sec.outcome }}</span>
+          </div>
+          <div class="summary-card-banner-text" style="border-left-color: {{ c }}; background: {{ c }}18;">
+            {{ sec.banner }}
+          </div>
+        </div>
+      {% else %}
+        {# Card WITHOUT banner — compact as before #}
+        <div class="summary-card">
+          <span class="summary-card-name">{{ sec.name }}</span>
+          <span class="summary-card-outcome">{{ sec.outcome }}</span>
+        </div>
+      {% endif %}
     {% endfor %}
   </div>
   <hr class="section-divider">
@@ -442,8 +314,6 @@
 
   {% if guidelines %}
   <hr class="section-divider">
-
-  <!-- GUIDELINES -->
   <div class="section-heading">
     <h2>Guidelines</h2>
     <span class="section-badge">{{ guidelines | length }}</span>
@@ -486,9 +356,7 @@
     <h2>Opportunity Notes</h2>
   </div>
   <div class="notes-card">
-    <textarea
-      class="notes-textarea"
-      id="opportunityNotes"
+    <textarea class="notes-textarea" id="opportunityNotes"
       placeholder="Add notes about this opportunity — next steps, key contacts, blockers, context for the team…"
     >{{ user_resp.notes or '' }}</textarea>
     <div class="notes-footer">
@@ -559,10 +427,8 @@
   const CUSTOMER_SLUG = {{ customer_slug | tojson }};
   const QUESTIONS_MAP = {{ questions_map | tojson }};
   let   RAW_RESPONSES = {{ raw_responses | tojson }};
-
   let openQid = null;
 
-  // ── Toast ──────────────────────────────────────────────────────────────────
   let _toastTimer;
   function showToast(msg, isError) {
     const t = document.getElementById('ie-toast');
@@ -589,29 +455,22 @@
   function openEditor(qid) {
     const qdata = QUESTIONS_MAP[String(qid)];
     if (!qdata) { showToast('Question data not found.', true); return; }
-
     const panel = document.getElementById('ie-panel-' + qid);
     panel.innerHTML = '';
-
     const type       = normType(qdata.options_type);
     const currentVal = RAW_RESPONSES[String(qid)];
-
     if (type === 'text' || type === 'textbox') {
       const input = document.createElement('input');
-      input.type        = 'text';
-      input.className   = 'ie-text-input';
-      input.value       = currentVal || '';
-      input.placeholder = 'Type your answer…';
+      input.type = 'text'; input.className = 'ie-text-input';
+      input.value = currentVal || ''; input.placeholder = 'Type your answer…';
       panel.appendChild(input);
       buildActions(panel, qid, () => input.value.trim() || '');
-
     } else if (type === 'selectallthatapply' || type === 'selectall') {
       let selected = Array.isArray(currentVal) ? currentVal.map(Number) : [];
       const hint = document.createElement('span');
       hint.className = 'ie-hint'; hint.textContent = 'Select all that apply';
       panel.appendChild(hint);
-      const wrap = document.createElement('div');
-      wrap.className = 'ie-options';
+      const wrap = document.createElement('div'); wrap.className = 'ie-options';
       qdata.options.forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'ie-option-btn' + (selected.includes(opt.id) ? ' ie-sel' : '');
@@ -625,14 +484,12 @@
       });
       panel.appendChild(wrap);
       buildActions(panel, qid, () => selected.slice());
-
     } else {
       let selected = currentVal !== undefined && currentVal !== null ? Number(currentVal) : null;
       const hint = document.createElement('span');
       hint.className = 'ie-hint'; hint.textContent = 'Select one answer';
       panel.appendChild(hint);
-      const wrap = document.createElement('div');
-      wrap.className = 'ie-options';
+      const wrap = document.createElement('div'); wrap.className = 'ie-options';
       qdata.options.forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'ie-option-btn' + (selected === opt.id ? ' ie-sel' : '');
@@ -647,22 +504,17 @@
       panel.appendChild(wrap);
       buildActions(panel, qid, () => selected);
     }
-
     document.getElementById('ie-row-' + qid).style.display = '';
     openQid = qid;
   }
 
   function buildActions(panel, qid, getVal) {
-    const actions = document.createElement('div');
-    actions.className = 'ie-actions';
-
+    const actions = document.createElement('div'); actions.className = 'ie-actions';
     const saveBtn = document.createElement('button');
     saveBtn.className = 'ie-save-btn'; saveBtn.textContent = '✓ Save & Refresh';
-
     const cancelBtn = document.createElement('button');
     cancelBtn.className = 'ie-cancel-btn'; cancelBtn.textContent = 'Cancel';
     cancelBtn.onclick = () => closeEditor(qid);
-
     saveBtn.onclick = async () => {
       const val = getVal();
       saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
@@ -682,32 +534,21 @@
         saveBtn.disabled = false; saveBtn.textContent = '✓ Save & Refresh';
       }
     };
-
-    actions.appendChild(saveBtn);
-    actions.appendChild(cancelBtn);
-    panel.appendChild(actions);
+    actions.appendChild(saveBtn); actions.appendChild(cancelBtn); panel.appendChild(actions);
   }
 
-  // ── Opportunity Notes auto-save ────────────────────────────────────────────
   (function () {
     const textarea = document.getElementById('opportunityNotes');
     const status   = document.getElementById('notesStatus');
     if (!textarea) return;
-
     let saveTimer = null;
-
-    function setStatus(type, msg) {
-      status.textContent = msg;
-      status.className   = 'notes-status visible ' + type;
-    }
+    function setStatus(type, msg) { status.textContent = msg; status.className = 'notes-status visible ' + type; }
     function clearStatus() { status.className = 'notes-status'; }
-
     function saveNotes() {
       setStatus('saving', 'Saving…');
       fetch('/user/' + CUSTOMER_SLUG + '/notes', {
-        method:  'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ notes: textarea.value })
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: textarea.value })
       })
       .then(r => r.json())
       .then(data => {
@@ -715,17 +556,13 @@
           const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           setStatus('saved', '✓ Saved at ' + now);
           setTimeout(clearStatus, 4000);
-        } else {
-          setStatus('error', 'Save failed — try again');
-        }
+        } else { setStatus('error', 'Save failed — try again'); }
       })
       .catch(() => setStatus('error', 'Save failed — check connection'));
     }
-
     textarea.addEventListener('blur', saveNotes);
     textarea.addEventListener('input', function () {
-      clearTimeout(saveTimer);
-      clearStatus();
+      clearTimeout(saveTimer); clearStatus();
       saveTimer = setTimeout(saveNotes, 3000);
     });
   })();

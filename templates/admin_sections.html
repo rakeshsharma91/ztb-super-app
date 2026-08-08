@@ -20,45 +20,21 @@
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--text); background: var(--gray); }
-
-    #navbar {
-      position: fixed; top: 0; left: 0; right: 0; height: 56px;
-      background: var(--navy); display: flex; align-items: center;
-      padding: 0 20px; z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    }
+    #navbar { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: var(--navy); display: flex; align-items: center; padding: 0 20px; z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
     #navbar .brand { color: #fff; font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
     #navbar .subtitle { color: #90c8f0; font-size: 14px; margin-left: 14px; }
     #navbar .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
-    #navbar .nav-btn {
-      background: transparent; border: 1px solid rgba(255,255,255,0.5); color: #fff;
-      padding: 5px 14px; border-radius: 4px; cursor: pointer; font-size: 13px;
-      text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
-      transition: background 0.2s;
-    }
+    #navbar .nav-btn { background: transparent; border: 1px solid rgba(255,255,255,0.5); color: #fff; padding: 5px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s; }
     #navbar .nav-btn:hover { background: rgba(255,255,255,0.15); }
-
-    #sidebar {
-      position: fixed; top: 56px; left: 0; bottom: 0; width: 220px;
-      background: #fff; border-right: 1px solid var(--border); overflow-y: auto; z-index: 900;
-    }
+    #sidebar { position: fixed; top: 56px; left: 0; bottom: 0; width: 220px; background: #fff; border-right: 1px solid var(--border); overflow-y: auto; z-index: 900; }
     #sidebar ul { list-style: none; padding: 12px 0; }
-    #sidebar ul li a {
-      display: block; padding: 11px 20px; color: var(--text); text-decoration: none;
-      font-size: 14px; transition: background 0.15s, color 0.15s; border-left: 3px solid transparent;
-    }
+    #sidebar ul li a { display: block; padding: 11px 20px; color: var(--text); text-decoration: none; font-size: 14px; transition: background 0.15s, color 0.15s; border-left: 3px solid transparent; }
     #sidebar ul li a:hover { background: var(--light-blue); color: var(--blue); }
     #sidebar ul li a.active { background: var(--light-blue); color: var(--blue); font-weight: 600; border-left-color: var(--blue); }
-
     #main { margin-left: 220px; margin-top: 56px; padding: 28px 32px; min-height: calc(100vh - 56px); }
-
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
     .page-header h2 { font-size: 22px; color: var(--navy); font-weight: 700; }
-
-    .btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 16px; border-radius: 4px; border: none; cursor: pointer;
-      font-size: 13px; font-weight: 500; transition: opacity 0.15s;
-    }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 4px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: opacity 0.15s; }
     .btn:hover { opacity: 0.85; }
     .btn-primary   { background: var(--blue);    color: #fff; }
     .btn-danger    { background: var(--danger);  color: #fff; }
@@ -67,95 +43,41 @@
     .btn-sm { padding: 5px 11px; font-size: 12px; }
     .btn-outline { background: transparent; color: var(--blue); border: 1px solid var(--blue); }
     .btn-outline:hover { background: var(--light-blue); }
-
     .sections-list { display: flex; flex-direction: column; gap: 10px; }
-    .section-row {
-      background: #fff; border: 1px solid var(--border); border-radius: 8px;
-      padding: 14px 18px; display: flex; align-items: center; gap: 14px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: border-color 0.15s;
-    }
+    .section-row { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: border-color 0.15s; }
     .section-row:hover { border-color: var(--blue); }
-    .section-order-badge {
-      background: var(--light-blue); color: var(--blue);
-      border-radius: 4px; padding: 3px 9px; font-size: 12px; font-weight: 700;
-      min-width: 32px; text-align: center;
-    }
+    .section-order-badge { background: var(--light-blue); color: var(--blue); border-radius: 4px; padding: 3px 9px; font-size: 12px; font-weight: 700; min-width: 32px; text-align: center; }
     .section-name { flex: 1; font-size: 15px; font-weight: 600; color: var(--text); }
     .section-meta { display: flex; align-items: center; gap: 10px; }
     .section-rule-count { color: #888; font-size: 12px; }
-    .section-format-badge {
-      background: #fff3cd; color: #856404; border: 1px solid #ffc107;
-      border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 600;
-    }
-    .section-score-badge {
-      background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7;
-      border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 600;
-    }
+    .section-format-badge { background: #fff3cd; color: #856404; border: 1px solid #ffc107; border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
+    .section-score-badge { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
     .section-actions { display: flex; gap: 8px; }
-
     .empty-state { text-align: center; padding: 56px 24px; color: #888; }
     .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
     .empty-state p { font-size: 14px; margin-bottom: 16px; }
-
-    .modal-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.5); z-index: 2000;
-      align-items: flex-start; justify-content: center;
-      padding: 40px 16px; overflow-y: auto;
-    }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; }
     .modal-overlay.open { display: flex; }
-    .modal {
-      background: #fff; border-radius: 10px; width: 100%; max-width: 860px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column;
-    }
-    .modal-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 18px 24px; border-bottom: 1px solid var(--border);
-    }
+    .modal { background: #fff; border-radius: 10px; width: 100%; max-width: 860px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--border); }
     .modal-header h3 { font-size: 17px; font-weight: 700; color: var(--navy); }
     .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: #888; line-height: 1; transition: color 0.15s; }
     .modal-close:hover { color: var(--text); }
     .modal-body { padding: 22px 24px; display: flex; flex-direction: column; gap: 18px; }
-    .modal-footer {
-      padding: 14px 24px; border-top: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-    }
+    .modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .modal-footer-right { display: flex; gap: 10px; }
-
-    .form-label {
-      display: block; font-size: 12px; font-weight: 600; color: #555;
-      text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px;
-    }
-    .form-control {
-      width: 100%; padding: 8px 10px; border: 1px solid var(--border);
-      border-radius: 4px; font-size: 13px; color: var(--text);
-      transition: border-color 0.2s; font-family: inherit;
-    }
+    .form-label { display: block; font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; }
+    .form-control { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; color: var(--text); transition: border-color 0.2s; font-family: inherit; }
     .form-control:focus { outline: none; border-color: var(--blue); }
-    textarea.form-control {
-      resize: vertical; min-height: 260px;
-      font-family: 'Courier New', 'Consolas', monospace;
-      font-size: 12px; line-height: 1.55;
-    }
+    textarea.form-control { resize: vertical; min-height: 260px; font-family: 'Courier New', 'Consolas', monospace; font-size: 12px; line-height: 1.55; }
     .form-row { display: flex; gap: 16px; }
     .form-row > * { flex: 1; }
-
-    .json-status {
-      margin-top: 6px; padding: 7px 12px; border-radius: 4px;
-      font-size: 12px; font-weight: 600; display: none;
-    }
+    .json-status { margin-top: 6px; padding: 7px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; display: none; }
     .json-status.valid   { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
     .json-status.invalid { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
-
-    .schema-hint {
-      background: var(--light-blue); border: 1px solid #bee5f0;
-      border-radius: 6px; padding: 10px 14px; font-size: 12px;
-      color: #1a4060; line-height: 1.75;
-    }
+    .schema-hint { background: var(--light-blue); border: 1px solid #bee5f0; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #1a4060; line-height: 1.75; }
     .schema-hint code { background: rgba(0,0,0,0.07); padding: 1px 5px; border-radius: 3px; font-size: 11.5px; }
     .schema-hint .hint-section { margin-top: 8px; padding-top: 8px; border-top: 1px solid #bee5f0; }
-
-    /* Standard rule preview */
     .rules-preview { display: none; flex-direction: column; gap: 10px; }
     .rules-preview.visible { display: flex; }
     .rule-card { background: #f8f9fa; border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; }
@@ -164,6 +86,7 @@
     .rule-outcome-badge { background: var(--navy); color: #fff; border-radius: 20px; padding: 3px 12px; font-size: 12px; font-weight: 700; }
     .rule-formula-badge { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 600; font-family: monospace; }
     .rule-default-badge { background: var(--warning); color: #333; border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 700; }
+    .rule-banner-preview { margin-top: 8px; padding: 7px 10px; border-radius: 5px; font-size: 11px; font-style: italic; border-left: 3px solid #ccc; background: #f0f0f0; color: #444; }
     .rule-groups { display: flex; flex-direction: column; gap: 6px; }
     .rule-group { background: #fff; border: 1px solid var(--border); border-radius: 5px; padding: 8px 12px; }
     .rule-group-label { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px; }
@@ -174,44 +97,22 @@
     .cond-and  { color: #888; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; padding-left: 4px; }
     .rule-or-separator { text-align: center; font-size: 11px; font-weight: 700; color: #888; padding: 2px 0; letter-spacing: 1px; }
     .rule-default-text { font-size: 12px; color: #888; font-style: italic; }
-
-    /* Score section preview */
     .score-preview { display: none; flex-direction: column; gap: 10px; }
     .score-preview.visible { display: flex; }
-    .score-header {
-      background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 8px;
-      padding: 10px 16px; display: flex; align-items: center; gap: 12px;
-    }
+    .score-header { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 8px; padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
     .score-header-label { font-size: 12px; font-weight: 700; color: #1b5e20; text-transform: uppercase; letter-spacing: 0.5px; }
     .score-header-max { background: #1b5e20; color: #fff; border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 700; }
     .score-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    .score-table th {
-      text-align: left; padding: 7px 10px; background: #f0f4ff;
-      color: #555; font-weight: 700; text-transform: uppercase;
-      font-size: 11px; letter-spacing: 0.4px;
-      border-bottom: 2px solid var(--border);
-    }
+    .score-table th { text-align: left; padding: 7px 10px; background: #f0f4ff; color: #555; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.4px; border-bottom: 2px solid var(--border); }
     .score-table td { padding: 7px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
     .score-table tr:last-child td { border-bottom: none; }
     .score-table tr:hover td { background: #f8f9fa; }
-    .score-points-badge {
-      background: var(--navy); color: #fff;
-      border-radius: 12px; padding: 2px 9px; font-size: 11px; font-weight: 700;
-      display: inline-block;
-    }
+    .score-points-badge { background: var(--navy); color: #fff; border-radius: 12px; padding: 2px 9px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .score-color-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 5px; border: 1px solid rgba(0,0,0,0.15); }
     .score-total-row { font-size: 12px; color: #555; font-style: italic; padding: 6px 0 0; }
-
-    #toast {
-      position: fixed; bottom: 24px; right: 24px;
-      background: #28a745; color: #fff; padding: 11px 18px;
-      border-radius: 6px; font-size: 13px; font-weight: 600;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 9999;
-      opacity: 0; transform: translateY(12px);
-      transition: opacity 0.25s, transform 0.25s; pointer-events: none;
-    }
+    #toast { position: fixed; bottom: 24px; right: 24px; background: #28a745; color: #fff; padding: 11px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 9999; opacity: 0; transform: translateY(12px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
     #toast.show { opacity: 1; transform: translateY(0); }
     #toast.error { background: var(--danger); }
-
     .loading { text-align: center; padding: 48px; color: #888; font-size: 14px; }
   </style>
 </head>
@@ -262,8 +163,6 @@
     </div>
     <div class="modal-body">
       <input type="hidden" id="modal-id" />
-
-      <!-- Row 1: Name + Order + Format -->
       <div class="form-row">
         <div>
           <label class="form-label" for="modal-name">Section Name</label>
@@ -281,16 +180,15 @@
           </select>
         </div>
       </div>
-
-      <!-- Rules JSON -->
       <div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
           <label class="form-label" style="margin-bottom:0;">Rules JSON</label>
           <button class="btn btn-outline btn-sm" onclick="validateAndPreview()">&#128269; Validate &amp; Preview</button>
         </div>
         <div class="schema-hint" style="margin-bottom:8px;">
-          <strong>Mode 1 — Standard (first-match):</strong> array of rule objects, each with
+          <strong>Mode 1 — Standard (first-match):</strong> array of rules with
           <code>order</code>, <code>outcome</code>, <code>condition_groups</code>.
+          Optional per-rule: <code>"banner": "text"</code> and <code>"color": "#hex"</code> — displayed on the customer results card.<br/>
           Add <code>"is_default": true</code> on the fallback rule.
           Groups are <strong>OR</strong>'d; conditions inside a group are <strong>AND</strong>'d.<br/>
           Operators: <code>=</code> <code>!=</code> <code>in</code> <code>not_in</code>
@@ -299,26 +197,28 @@
           <code>count_gt</code> <code>count_gte</code> <code>count_eq</code><br/>
           Formula outcomes: <code>"outcome": "vp_no_of_sites*0.7*3800"</code> — set Format to <strong>$ Currency</strong>.
           <div class="hint-section">
-            <strong>Mode 2 — Score (additive):</strong> a single JSON <em>object</em> (not array) with
-            <code>"type": "score"</code>, <code>"max_score"</code>, and <code>"scoring_rules"</code> array.
+            <strong>Mode 2 — Score (additive):</strong> a single JSON object with
+            <code>"type": "score"</code>, <code>"max_score"</code>, <code>"scoring_rules"</code> array,
+            and optional <code>"score_banners"</code> array for color-coded banners:<br/>
+            <code>[{"min": 75, "max": 100, "label": "HIGH", "banner": "Strong buy signal.", "color": "#28a745"}, ...]</code><br/>
             Each scoring rule: <code>{"variable", "operator", "value", "points"}</code>.
-            All matching rules accumulate. Result shown as <code>score/max (pct%)</code>.
-            Format field is ignored for score sections.
           </div>
         </div>
         <textarea class="form-control" id="modal-rules-json" placeholder='{
   "type": "score",
-  "max_score": 15,
+  "max_score": 20,
+  "score_banners": [
+    {"min": 75, "max": 100, "label": "HIGH",   "banner": "Strong propensity to buy.", "color": "#28a745"},
+    {"min": 50, "max": 74,  "label": "LIKELY",  "banner": "Good signals.",             "color": "#0070c0"},
+    {"min": 25, "max": 49,  "label": "MEDIUM",  "banner": "Needs qualification.",      "color": "#ffc107"},
+    {"min": 0,  "max": 24,  "label": "LOW",     "banner": "Weak signals.",             "color": "#6c757d"}
+  ],
   "scoring_rules": [
-    {"variable": "vp_problem_to_be_solved", "operator": "not_contains", "value": "Not Applicable", "points": 1},
-    {"variable": "vp_scope",               "operator": "contains",     "value": "SD-WAN",         "points": 1},
-    {"variable": "vp_zia",                 "operator": "=",            "value": "80%+ deployed",  "points": 4}
+    {"variable": "vp_problem_to_be_solved", "operator": "not_contains", "value": "Not Applicable", "points": 3}
   ]
 }'></textarea>
         <div class="json-status" id="json-status"></div>
       </div>
-
-      <!-- Preview -->
       <div>
         <label class="form-label">Preview</label>
         <div class="rules-preview" id="rules-preview"></div>
@@ -327,9 +227,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger btn-sm" id="modal-delete-btn" onclick="deleteSection()" style="display:none;">
-        &#128465; Delete
-      </button>
+      <button class="btn btn-danger btn-sm" id="modal-delete-btn" onclick="deleteSection()" style="display:none;">&#128465; Delete</button>
       <div class="modal-footer-right">
         <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
         <button class="btn btn-success" onclick="saveSection()">&#10003; Save Section</button>
@@ -376,18 +274,22 @@
     list.innerHTML = sections.map(s => {
       const rj = s.rules_json;
       const isScore = rj && !Array.isArray(rj) && rj.type === 'score';
-      const rc = isScore
-        ? (rj.scoring_rules || []).length
-        : (Array.isArray(rj) ? rj.length : 0);
+      const rc = isScore ? (rj.scoring_rules || []).length : (Array.isArray(rj) ? rj.length : 0);
+      const hasBanners = isScore
+        ? (rj.score_banners || []).length > 0
+        : (Array.isArray(rj) && rj.some(r => r.banner));
       const typeBadge = isScore
         ? `<span class="section-score-badge">&#9733; Score /${rj.max_score}</span>`
         : (s.format === 'currency_usd' ? `<span class="section-format-badge">$ USD</span>` : '');
+      const bannerBadge = hasBanners
+        ? `<span style="background:#fff0f6;color:#c0392b;border:1px solid #f5c6cb;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600;">&#127384; Banners</span>`
+        : '';
       return `<div class="section-row" data-id="${s.id}">
         <span class="section-order-badge">#${s.order}</span>
         <span class="section-name">${esc(s.name)}</span>
         <div class="section-meta">
           <span class="section-rule-count">${rc} rule${rc !== 1 ? 's' : ''}</span>
-          ${typeBadge}
+          ${typeBadge}${bannerBadge}
         </div>
         <div class="section-actions">
           <button class="btn btn-primary btn-sm" onclick="openEditModal(${s.id})">&#9998; Edit Rules</button>
@@ -434,16 +336,10 @@
     const order  = parseInt(document.getElementById('modal-order').value) || 0;
     const format = document.getElementById('modal-format').value || null;
     const raw    = document.getElementById('modal-rules-json').value.trim();
-
     if (!name) { showToast('Section name is required.', true); return; }
-
     let rules_json;
-    try {
-      rules_json = JSON.parse(raw || '[]');
-    } catch(e) {
-      showToast('Invalid JSON: ' + e.message, true); return;
-    }
-    // Validate: must be array (standard) or object with type=score
+    try { rules_json = JSON.parse(raw || '[]'); }
+    catch(e) { showToast('Invalid JSON: ' + e.message, true); return; }
     if (Array.isArray(rules_json)) {
       // standard — ok
     } else if (rules_json && typeof rules_json === 'object' && rules_json.type === 'score') {
@@ -451,24 +347,16 @@
     } else {
       showToast('Rules JSON must be an array (standard) or a score object.', true); return;
     }
-
     const url    = id ? `/admin/sections/api/${id}` : '/admin/sections/api';
     const method = id ? 'PUT' : 'POST';
-
     try {
-      const res  = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, order, format, rules_json }),
-      });
+      const res  = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, order, format, rules_json }) });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || 'Save failed');
       closeModal();
       showToast(id ? 'Section updated ✓' : 'Section created ✓');
       await loadSections();
-    } catch(err) {
-      showToast('Error: ' + err.message, true);
-    }
+    } catch(err) { showToast('Error: ' + err.message, true); }
   }
 
   async function deleteSection() {
@@ -481,58 +369,49 @@
       closeModal();
       showToast('Section deleted.');
       await loadSections();
-    } catch(err) {
-      showToast('Error: ' + err.message, true);
-    }
+    } catch(err) { showToast('Error: ' + err.message, true); }
   }
 
   function validateAndPreview() {
-    const raw      = document.getElementById('modal-rules-json').value.trim();
-    const status   = document.getElementById('json-status');
-    const stdPrev  = document.getElementById('rules-preview');
-    const scorePrev= document.getElementById('score-preview');
-    const pe       = document.getElementById('preview-empty');
-
-    status.className    = 'json-status';
-    status.textContent  = '';
-    stdPrev.classList.remove('visible');
-    stdPrev.innerHTML   = '';
-    scorePrev.classList.remove('visible');
-    scorePrev.innerHTML = '';
-    pe.style.display    = 'none';
-
+    const raw       = document.getElementById('modal-rules-json').value.trim();
+    const status    = document.getElementById('json-status');
+    const stdPrev   = document.getElementById('rules-preview');
+    const scorePrev = document.getElementById('score-preview');
+    const pe        = document.getElementById('preview-empty');
+    status.className = 'json-status';
+    status.textContent = '';
+    stdPrev.classList.remove('visible'); stdPrev.innerHTML = '';
+    scorePrev.classList.remove('visible'); scorePrev.innerHTML = '';
+    pe.style.display = 'none';
     if (!raw) {
-      status.className   = 'json-status invalid';
+      status.className = 'json-status invalid';
       status.textContent = '✗ Empty — enter a valid JSON array or score object.';
       return;
     }
     let parsed;
     try { parsed = JSON.parse(raw); }
     catch(e) {
-      status.className   = 'json-status invalid';
+      status.className = 'json-status invalid';
       status.textContent = '✗ Invalid JSON: ' + e.message;
       return;
     }
-
-    // ── Score section ──
     if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && parsed.type === 'score') {
-      const rules = parsed.scoring_rules || [];
-      const maxS  = parsed.max_score || '?';
-      status.className   = 'json-status valid';
-      status.textContent = `✓ Score section — ${rules.length} scoring rule${rules.length !== 1 ? 's' : ''}, max ${maxS} pts.`;
-      if (!rules.length) { pe.style.display = 'block'; return; }
+      const rules   = parsed.scoring_rules || [];
+      const banners = parsed.score_banners || [];
+      const maxS    = parsed.max_score || '?';
+      status.className = 'json-status valid';
+      status.textContent = `✓ Score section — ${rules.length} scoring rule${rules.length !== 1 ? 's' : ''}, max ${maxS} pts${banners.length ? ', ' + banners.length + ' banners' : ''}.`;
+      if (!rules.length && !banners.length) { pe.style.display = 'block'; return; }
       scorePrev.innerHTML = renderScorePreview(parsed);
       scorePrev.classList.add('visible');
       return;
     }
-
-    // ── Standard section ──
     if (!Array.isArray(parsed)) {
-      status.className   = 'json-status invalid';
+      status.className = 'json-status invalid';
       status.textContent = '✗ Must be a JSON array (standard) or score object with "type":"score".';
       return;
     }
-    status.className   = 'json-status valid';
+    status.className = 'json-status valid';
     status.textContent = `✓ Valid — ${parsed.length} rule${parsed.length !== 1 ? 's' : ''} found.`;
     if (!parsed.length) { pe.style.display = 'block'; return; }
     const sorted = [...parsed].sort((a,b) => (a.order||0) - (b.order||0));
@@ -540,11 +419,11 @@
     stdPrev.classList.add('visible');
   }
 
-  // ── Score preview renderer ──
   function renderScorePreview(config) {
-    const rules  = config.scoring_rules || [];
-    const maxS   = config.max_score || '?';
-    const total  = rules.reduce((s, r) => s + (r.points || 0), 0);
+    const rules   = config.scoring_rules || [];
+    const banners = config.score_banners || [];
+    const maxS    = config.max_score || '?';
+    const total   = rules.reduce((s, r) => s + (r.points || 0), 0);
 
     let rows = rules.map(r => {
       const val = Array.isArray(r.value) ? JSON.stringify(r.value) : String(r.value ?? '');
@@ -556,31 +435,43 @@
       </tr>`;
     }).join('');
 
+    let bannerRows = '';
+    if (banners.length) {
+      bannerRows = `<div style="margin-top:10px;">
+        <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Score Banners</div>
+        <table class="score-table">
+          <thead><tr><th>Range</th><th>Label</th><th>Color</th><th>Banner Text</th></tr></thead>
+          <tbody>` +
+        banners.map(b => `<tr>
+          <td style="font-size:11px;">${b.min ?? 0}% – ${b.max ?? 100}%</td>
+          <td><strong>${esc(b.label || '')}</strong></td>
+          <td><span class="score-color-swatch" style="background:${esc(b.color || '#ccc')}"></span>${esc(b.color || '')}</td>
+          <td style="font-style:italic;color:#555;">${esc(b.banner || '')}</td>
+        </tr>`).join('') +
+        `</tbody></table></div>`;
+    }
+
     return `
       <div class="score-header">
         <span class="score-header-label">&#9733; Score Section</span>
         <span class="score-header-max">Max: ${maxS} pts</span>
-        <span style="font-size:11px;color:#2e7d32;margin-left:4px;">
-          (${rules.length} rules, up to ${total} pts possible before cap)
-        </span>
+        <span style="font-size:11px;color:#2e7d32;margin-left:4px;">(${rules.length} rules, up to ${total} pts possible)</span>
       </div>
       <table class="score-table">
-        <thead><tr>
-          <th>Variable</th><th>Operator</th><th>Value</th><th>Points</th>
-        </tr></thead>
+        <thead><tr><th>Variable</th><th>Operator</th><th>Value</th><th>Points</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <div class="score-total-row">
-        Result displayed as: <strong>score/${maxS} (xx.xx%)</strong>
-      </div>`;
+      ${bannerRows}
+      <div class="score-total-row">Result displayed as: <strong>score/${maxS} (xx.xx%)</strong></div>`;
   }
 
-  // ── Standard rule card renderer ──
   function renderRuleCard(rule) {
     const groups    = rule.condition_groups || [];
     const isDefault = !!rule.is_default;
     const outcome   = rule.outcome || '(no outcome)';
     const formula   = isFormula(outcome);
+    const banner    = rule.banner || '';
+    const color     = rule.color  || '';
 
     let groupsHtml = '';
     if (isDefault || !groups.length) {
@@ -604,6 +495,13 @@
       groupsHtml += `</div>`;
     }
 
+    const bannerHtml = banner
+      ? `<div class="rule-banner-preview" style="border-left-color:${esc(color) || '#aaa'};background:${esc(color) ? esc(color)+'18' : '#f0f0f0'};">
+          ${color ? `<span class="score-color-swatch" style="background:${esc(color)}"></span>` : ''}
+          ${esc(banner)}
+         </div>`
+      : '';
+
     return `<div class="rule-card">
       <div class="rule-card-header">
         <span class="rule-order-chip">Rule #${rule.order ?? '?'}</span>
@@ -614,11 +512,12 @@
         ${isDefault ? `<span class="rule-default-badge">DEFAULT</span>` : ''}
       </div>
       ${groupsHtml}
+      ${bannerHtml}
     </div>`;
   }
 
   function resetPreview() {
-    document.getElementById('json-status').className   = 'json-status';
+    document.getElementById('json-status').className = 'json-status';
     document.getElementById('json-status').textContent = '';
     const sp = document.getElementById('rules-preview');
     sp.classList.remove('visible'); sp.innerHTML = '';
