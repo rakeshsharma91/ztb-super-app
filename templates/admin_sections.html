@@ -195,12 +195,13 @@
           <code>contains</code> <code>not_contains</code>
           <code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code>
           <code>count_gt</code> <code>count_gte</code> <code>count_eq</code><br/>
-          Formula outcomes: <code>"outcome": "vp_no_of_sites*0.7*3800"</code> — set Format to <strong>$ Currency</strong>.
+          Formula outcomes: <code>"outcome": "vp_no_of_sites*0.7*3800"</code> — set Format to <strong>$ Currency</strong>.<br/>
+          Variable interpolation: use <code>[variable_name]</code> in any outcome or banner text — e.g. <code>"Segment is [gen_vertical]"</code>. Works in all three modes.
           <div class="hint-section">
             <strong>Mode 2 — Score (additive):</strong> a single JSON object with
             <code>"type": "score"</code>, <code>"max_score"</code>, <code>"scoring_rules"</code> array,
             and optional <code>"score_banners"</code> array for color-coded banners:<br/>
-            <code>[{"min": 75, "max": 100, "label": "HIGH", "banner": "Strong buy signal.", "color": "#28a745"}, ...]</code><br/>
+            <code>[{"min": 75, "max": 100, "label": "HIGH", "banner": "Strong buy signal for [gen_vertical].", "color": "#28a745"}, ...]</code><br/>
             Each scoring rule: <code>{"variable", "operator", "value", "points"}</code>.
           </div>
           <div class="hint-section">
@@ -208,7 +209,8 @@
             <code>"type": "banner"</code> and a <code>"banners"</code> array.<br/>
             Each entry: <code>{"order", "banner", "color", "condition_groups": [[...]]}</code>.<br/>
             Groups are <strong>OR</strong>'d; conditions inside a group are <strong>AND</strong>'d. Same operators as Mode 1.<br/>
-            First match wins. If <strong>nothing matches</strong>, the section is <strong>hidden entirely</strong> on the results page.
+            First match wins. If <strong>nothing matches</strong>, the section is <strong>hidden entirely</strong> on the results page.<br/>
+            Banner and outcome text support <code>[variable_name]</code> interpolation — e.g. <code>"Segment is [gen_vertical] — tailor your pitch accordingly."</code>
           </div>
         </div>
         <textarea class="form-control" id="modal-rules-json" placeholder='{
@@ -216,10 +218,10 @@
   "banners": [
     {
       "order": 1,
-      "banner": "No Champion Identified — engage a champion before progressing.",
-      "color": "#dc3545",
+      "banner": "Segment is [gen_vertical] — check vertical-specific assets before the call.",
+      "color": "#0070c0",
       "condition_groups": [
-        [{"variable": "vp_champion", "operator": "contains", "value": "No Champion Identified"}]
+        [{"variable": "gen_vertical", "operator": "!=", "value": ""}]
       ]
     }
   ]

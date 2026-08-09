@@ -1,5 +1,6 @@
 # routes/admin_sections_routes.py — Result Sections CRUD + Rule Evaluation Engine
 import ast
+import re
 import operator as op_module
 from flask import Blueprint, request, jsonify, session, render_template, redirect, url_for
 from models import db, ResultSection
@@ -104,10 +105,29 @@ def _safe_eval(node):
     else:
         raise ValueError(f"Unsupported node type: {type(node)}")
 
+def _interpolate(text, answers):
+    """
+    Replace [variable_name] tokens in text with the customer's answer value.
+    List answers are joined with ', '.
+    Missing or None variables are replaced with an empty string.
+    """
+    if not text:
+        return text
+    def replacer(match):
+        var = match.group(1).strip()
+        val = answers.get(var)
+        if val is None:
+            return ''
+        if isinstance(val, list):
+            return ', '.join(str(v) for v in val)
+        return str(val)
+    return re.sub(r'\[([a-zA-Z_][a-zA-Z0-9_]*)\]', replacer, text)
+
 def _resolve_outcome(outcome_str, answers):
-    import re
     if not outcome_str:
         return outcome_str
+    # First interpolate any [variable] tokens
+    outcome_str = _interpolate(outcome_str, answers)
     tokens = re.findall(r'[a-zA-Z_][a-zA-Z0-9_]*', outcome_str)
     if not tokens:
         return outcome_str
@@ -240,7 +260,7 @@ def _evaluate_score_section(section, answers):
     color  = ''
     for tier in config.get('score_banners', []):
         if pct >= tier.get('min', 0) and pct <= tier.get('max', 100):
-            banner = tier.get('banner', '')
+            banner = _interpolate(tier.get('banner', ''), answers)
             color  = tier.get('color', '')
             break
     return {'formatted': formatted, 'banner': banner, 'color': color}
@@ -280,10 +300,10 @@ def evaluate_sections(answers):
                 if matched:
                     outcomes.append({
                         'name':    section.name,
-                        'outcome': b.get('outcome', ''),
+                        'outcome': _interpolate(b.get('outcome', ''), answers),
                         'format':  'banner',
                         'order':   section.order,
-                        'banner':  b.get('banner', ''),
+                        'banner':  _interpolate(b.get('banner', ''), answers),
                         'color':   b.get('color', '#00aaff'),
                     })
                     break
@@ -296,7 +316,7 @@ def evaluate_sections(answers):
             for rule in rules:
                 if _eval_rule(rule, answers):
                     raw_outcome = rule.get('outcome', '')
-                    banner      = rule.get('banner', '')
+                    banner      = _interpolate(rule.get('banner', ''), answers)
                     color       = rule.get('color', '')
                     break
             resolved  = _resolve_outcome(raw_outcome or '—', answers)
