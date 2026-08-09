@@ -203,18 +203,25 @@
             <code>[{"min": 75, "max": 100, "label": "HIGH", "banner": "Strong buy signal.", "color": "#28a745"}, ...]</code><br/>
             Each scoring rule: <code>{"variable", "operator", "value", "points"}</code>.
           </div>
+          <div class="hint-section">
+            <strong>Mode 3 — Banner (conditional alert):</strong> a single JSON object with
+            <code>"type": "banner"</code> and a <code>"banners"</code> array.<br/>
+            Each entry: <code>{"order", "banner", "color", "condition_groups": [[...]]}</code>.<br/>
+            Groups are <strong>OR</strong>'d; conditions inside a group are <strong>AND</strong>'d. Same operators as Mode 1.<br/>
+            First match wins. If <strong>nothing matches</strong>, the section is <strong>hidden entirely</strong> on the results page.
+          </div>
         </div>
         <textarea class="form-control" id="modal-rules-json" placeholder='{
-  "type": "score",
-  "max_score": 20,
-  "score_banners": [
-    {"min": 75, "max": 100, "label": "HIGH",   "banner": "Strong propensity to buy.", "color": "#28a745"},
-    {"min": 50, "max": 74,  "label": "LIKELY",  "banner": "Good signals.",             "color": "#0070c0"},
-    {"min": 25, "max": 49,  "label": "MEDIUM",  "banner": "Needs qualification.",      "color": "#ffc107"},
-    {"min": 0,  "max": 24,  "label": "LOW",     "banner": "Weak signals.",             "color": "#6c757d"}
-  ],
-  "scoring_rules": [
-    {"variable": "vp_problem_to_be_solved", "operator": "not_contains", "value": "Not Applicable", "points": 3}
+  "type": "banner",
+  "banners": [
+    {
+      "order": 1,
+      "banner": "No Champion Identified — engage a champion before progressing.",
+      "color": "#dc3545",
+      "condition_groups": [
+        [{"variable": "vp_champion", "operator": "contains", "value": "No Champion Identified"}]
+      ]
+    }
   ]
 }'></textarea>
         <div class="json-status" id="json-status"></div>
@@ -272,16 +279,23 @@
     empty.style.display = 'none';
     list.style.display  = 'flex';
     list.innerHTML = sections.map(s => {
-      const rj = s.rules_json;
-      const isScore = rj && !Array.isArray(rj) && rj.type === 'score';
-      const rc = isScore ? (rj.scoring_rules || []).length : (Array.isArray(rj) ? rj.length : 0);
+      const rj       = s.rules_json;
+      const isScore  = rj && !Array.isArray(rj) && rj.type === 'score';
+      const isBanner = rj && !Array.isArray(rj) && rj.type === 'banner';
+      const rc = isScore  ? (rj.scoring_rules || []).length
+               : isBanner ? (rj.banners || []).length
+               : (Array.isArray(rj) ? rj.length : 0);
       const hasBanners = isScore
         ? (rj.score_banners || []).length > 0
+        : isBanner
+        ? true
         : (Array.isArray(rj) && rj.some(r => r.banner));
       const typeBadge = isScore
         ? `<span class="section-score-badge">&#9733; Score /${rj.max_score}</span>`
+        : isBanner
+        ? `<span style="background:#fff0e8;color:#7c3000;border:1px solid #fd7e14;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600;">&#127384; Banner Only</span>`
         : (s.format === 'currency_usd' ? `<span class="section-format-badge">$ USD</span>` : '');
-      const bannerBadge = hasBanners
+      const bannerBadge = hasBanners && !isBanner
         ? `<span style="background:#fff0f6;color:#c0392b;border:1px solid #f5c6cb;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600;">&#127384; Banners</span>`
         : '';
       return `<div class="section-row" data-id="${s.id}">
@@ -344,8 +358,10 @@
       // standard — ok
     } else if (rules_json && typeof rules_json === 'object' && rules_json.type === 'score') {
       // score — ok
+    } else if (rules_json && typeof rules_json === 'object' && rules_json.type === 'banner') {
+      // banner — ok
     } else {
-      showToast('Rules JSON must be an array (standard) or a score object.', true); return;
+      showToast('Rules JSON must be an array (standard), a score object, or a banner object.', true); return;
     }
     const url    = id ? `/admin/sections/api/${id}` : '/admin/sections/api';
     const method = id ? 'PUT' : 'POST';
@@ -385,7 +401,7 @@
     pe.style.display = 'none';
     if (!raw) {
       status.className = 'json-status invalid';
-      status.textContent = '✗ Empty — enter a valid JSON array or score object.';
+      status.textContent = '✗ Empty — enter a valid JSON array or object.';
       return;
     }
     let parsed;
@@ -395,6 +411,18 @@
       status.textContent = '✗ Invalid JSON: ' + e.message;
       return;
     }
+    // Mode 3 — Banner
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && parsed.type === 'banner') {
+      const banners = parsed.banners || [];
+      status.className = 'json-status valid';
+      status.textContent = `✓ Banner section — ${banners.length} banner${banners.length !== 1 ? 's' : ''}. Section is hidden if no condition matches.`;
+      if (!banners.length) { pe.style.display = 'block'; return; }
+      const sorted = [...banners].sort((a,b) => (a.order||0) - (b.order||0));
+      stdPrev.innerHTML = sorted.map(renderBannerCard).join('');
+      stdPrev.classList.add('visible');
+      return;
+    }
+    // Mode 2 — Score
     if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && parsed.type === 'score') {
       const rules   = parsed.scoring_rules || [];
       const banners = parsed.score_banners || [];
@@ -406,11 +434,13 @@
       scorePrev.classList.add('visible');
       return;
     }
+    // Must be array
     if (!Array.isArray(parsed)) {
       status.className = 'json-status invalid';
-      status.textContent = '✗ Must be a JSON array (standard) or score object with "type":"score".';
+      status.textContent = '✗ Must be a JSON array (standard), score object with "type":"score", or banner object with "type":"banner".';
       return;
     }
+    // Mode 1 — Standard
     status.className = 'json-status valid';
     status.textContent = `✓ Valid — ${parsed.length} rule${parsed.length !== 1 ? 's' : ''} found.`;
     if (!parsed.length) { pe.style.display = 'block'; return; }
@@ -463,6 +493,52 @@
       </table>
       ${bannerRows}
       <div class="score-total-row">Result displayed as: <strong>score/${maxS} (xx.xx%)</strong></div>`;
+  }
+
+  function renderBannerCard(b) {
+    const groups    = b.condition_groups || [];
+    const isDefault = !!b.is_default;
+    const banner    = b.banner || '';
+    const color     = b.color  || '#fd7e14';
+
+    let groupsHtml = '';
+    if (isDefault || !groups.length) {
+      groupsHtml = `<div class="rule-default-text">Always matches (default / no conditions)</div>`;
+    } else {
+      groupsHtml = `<div class="rule-groups">`;
+      groups.forEach((group, gi) => {
+        if (gi > 0) groupsHtml += `<div class="rule-or-separator">— OR —</div>`;
+        groupsHtml += `<div class="rule-group"><div class="rule-group-label">Group ${gi+1} &nbsp;(AND)</div>`;
+        group.forEach((cond, ci) => {
+          const val = Array.isArray(cond.value) ? JSON.stringify(cond.value) : String(cond.value ?? '');
+          groupsHtml += `<div class="rule-condition">
+            ${ci > 0 ? `<span class="cond-and">AND</span>` : ''}
+            <span class="cond-var">${esc(cond.variable || '?')}</span>
+            <span class="cond-op">${esc(cond.operator || '=')}</span>
+            <span class="cond-val">${esc(val)}</span>
+          </div>`;
+        });
+        groupsHtml += `</div>`;
+      });
+      groupsHtml += `</div>`;
+    }
+
+    const bannerHtml = banner
+      ? `<div class="rule-banner-preview" style="border-left-color:${esc(color)};background:${esc(color)}18;">
+          <span class="score-color-swatch" style="background:${esc(color)}"></span>
+          ${esc(banner)}
+         </div>`
+      : '';
+
+    return `<div class="rule-card">
+      <div class="rule-card-header">
+        <span class="rule-order-chip">Banner #${b.order ?? '?'}</span>
+        <span style="background:#fd7e14;color:#fff;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;">&#127384; BANNER</span>
+        ${isDefault ? `<span class="rule-default-badge">DEFAULT</span>` : ''}
+      </div>
+      ${groupsHtml}
+      ${bannerHtml}
+    </div>`;
   }
 
   function renderRuleCard(rule) {

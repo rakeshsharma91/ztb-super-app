@@ -264,6 +264,30 @@ def evaluate_sections(answers):
                 'banner':  result['banner'],
                 'color':   result['color'],
             })
+        elif isinstance(rj, dict) and rj.get('type') == 'banner':
+            # Banner-only: first matching banner is shown; if nothing matches, section is hidden
+            banners = sorted(rj.get('banners', []), key=lambda b: b.get('order', 0))
+            for b in banners:
+                groups  = b.get('condition_groups', [])
+                matched = False
+                if b.get('is_default') or not groups:
+                    matched = True
+                else:
+                    for group in groups:
+                        if all(_eval_condition(cond, answers) for cond in group):
+                            matched = True
+                            break
+                if matched:
+                    outcomes.append({
+                        'name':    section.name,
+                        'outcome': b.get('outcome', ''),
+                        'format':  'banner',
+                        'order':   section.order,
+                        'banner':  b.get('banner', ''),
+                        'color':   b.get('color', '#00aaff'),
+                    })
+                    break
+            # No match → append nothing; section silently disappears
         else:
             rules       = sorted(rj or [], key=lambda r: r.get('order', 0))
             raw_outcome = None
