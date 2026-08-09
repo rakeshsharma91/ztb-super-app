@@ -215,6 +215,40 @@ class AssessmentConfig(db.Model):
             'updated_at':    self.updated_at.isoformat() if self.updated_at else None,
         }
 
+class QuestionVisibilityRule(db.Model):
+    """
+    One row = "if option <option_id> is selected on question <parent_question_id>,
+               reveal question <child_question_id>".
+
+    Multiple rows with same parent+child but different option_id  → OR logic (any trigger reveals).
+    Multiple rows with same parent+child+option but diff parent   → multiple parents supported.
+    Chaining works naturally: child can itself be a parent in other rows.
+    """
+    __tablename__ = 'question_visibility_rules'
+    id                 = db.Column(db.Integer, primary_key=True)
+    parent_question_id = db.Column(db.Integer, db.ForeignKey('questions.id', ondelete='CASCADE'), nullable=False)
+    option_id          = db.Column(db.Integer, db.ForeignKey('question_options.id', ondelete='CASCADE'), nullable=False)
+    child_question_id  = db.Column(db.Integer, db.ForeignKey('questions.id', ondelete='CASCADE'), nullable=False)
+    created_at         = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint('parent_question_id', 'option_id', 'child_question_id', name='uq_vis_rule'),
+    )
+
+    parent_question = db.relationship('Question', foreign_keys=[parent_question_id],
+                                       backref=db.backref('visibility_rules_as_parent', cascade='all, delete-orphan', lazy=True))
+    child_question  = db.relationship('Question', foreign_keys=[child_question_id],
+                                       backref=db.backref('visibility_rules_as_child', cascade='all, delete-orphan', lazy=True))
+    option          = db.relationship('QuestionOption', foreign_keys=[option_id], lazy=True)
+
+    def to_dict(self):
+        return {
+            'id':                 self.id,
+            'parent_question_id': self.parent_question_id,
+            'option_id':          self.option_id,
+            'child_question_id':  self.child_question_id,
+        }
+
 class UserResponse(db.Model):
     __tablename__ = 'user_responses'
     id                     = db.Column(db.Integer, primary_key=True)
@@ -284,6 +318,10 @@ def run_migration(db):
     if 'result_sections' not in existing:
         db.metadata.tables['result_sections'].create(engine)
         print('[migration] Created table: result_sections')
+
+    if 'question_visibility_rules' not in existing:
+        db.metadata.tables['question_visibility_rules'].create(engine)
+        print('[migration] Created table: question_visibility_rules')
 
     with engine.connect() as conn:
         q_cols = [c['name'] for c in inspector.get_columns('questions')]

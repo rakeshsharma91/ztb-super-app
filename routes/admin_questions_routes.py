@@ -1,7 +1,7 @@
 # admin_questions_routes.py
 from flask import Blueprint, request, jsonify, session
 from models import (db, Question, QuestionCategory, QuestionOption,
-                    QuestionCategoryType,
+                    QuestionCategoryType, QuestionVisibilityRule,
                     Asset, ValueProp, TestCase, POVPlanner, Roadblock)
 from functools import wraps
 from datetime import datetime
@@ -142,7 +142,6 @@ def patch_question(qid):
         q.info_only = bool(value)
     elif field == 'hidden':
         q.hidden = bool(value)
-        # Clear default when un-hiding
         if not bool(value):
             q.default_option_id = None
     elif field == 'default_option_id':
@@ -151,7 +150,6 @@ def patch_question(qid):
         else:
             try:
                 opt_id = int(value)
-                # Validate the option belongs to this question
                 opt = QuestionOption.query.filter_by(id=opt_id, question_id=qid).first()
                 q.default_option_id = opt.id if opt else None
             except (ValueError, TypeError):
@@ -236,7 +234,6 @@ def patch_option(qid, oid):
 @require_admin
 def delete_option(qid, oid):
     opt = QuestionOption.query.filter_by(id=oid, question_id=qid).first_or_404()
-    # Clear default_option_id if this option was the default
     q = Question.query.get(qid)
     if q and q.default_option_id == oid:
         q.default_option_id = None
@@ -251,3 +248,54 @@ def list_categories():
     cats = QuestionCategory.query.order_by(QuestionCategory.order,
                                            QuestionCategory.name).all()
     return jsonify([{'id': c.id, 'name': c.name} for c in cats]), 200
+
+# ── GET /admin/questions/visibility-rules ────────────────────────────────────
+@admin_questions_bp.route('/visibility-rules', methods=['GET'])
+@require_admin
+def list_visibility_rules():
+    rules = QuestionVisibilityRule.query.all()
+    return jsonify([r.to_dict() for r in rules]), 200
+
+# ── POST /admin/questions/<id>/visibility-rules ───────────────────────────────
+@admin_questions_bp.route('/<int:qid>/visibility-rules', methods=['POST'])
+@require_admin
+def add_visibility_rule(qid):
+    Question.query.get_or_404(qid)
+    data             = request.get_json() or {}
+    option_id        = data.get('option_id')
+    child_question_id = data.get('child_question_id')
+    if not option_id or not child_question_id:
+        return jsonify({'error': 'option_id and child_question_id required'}), 400
+    # Validate option belongs to parent question
+    opt = QuestionOption.query.filter_by(id=int(option_id), question_id=qid).first()
+    if not opt:
+        return jsonify({'error': 'option not found on this question'}), 400
+    # Validate child question exists
+    child = Question.query.get(int(child_question_id))
+    if not child:
+        return jsonify({'error': 'child question not found'}), 400
+    # Upsert — silently ignore duplicate
+    existing = QuestionVisibilityRule.query.filter_by(
+        parent_question_id=qid,
+        option_id=int(option_id),
+        child_question_id=int(child_question_id)
+    ).first()
+    if existing:
+        return jsonify(existing.to_dict()), 200
+    rule = QuestionVisibilityRule(
+        parent_question_id=qid,
+        option_id=int(option_id),
+        child_question_id=int(child_question_id)
+    )
+    db.session.add(rule)
+    db.session.commit()
+    return jsonify(rule.to_dict()), 201
+
+# ── DELETE /admin/questions/visibility-rules/<rule_id> ───────────────────────
+@admin_questions_bp.route('/visibility-rules/<int:rule_id>', methods=['DELETE'])
+@require_admin
+def delete_visibility_rule(rule_id):
+    rule = QuestionVisibilityRule.query.get_or_404(rule_id)
+    db.session.delete(rule)
+    db.session.commit()
+    return jsonify({'message': 'deleted'}), 200

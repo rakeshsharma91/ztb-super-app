@@ -15,9 +15,7 @@
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
     font-size: 14px; font-weight: 600;
   }
-  .edit-banner a {
-    color: #7dd3fc; text-decoration: none; font-size: 13px; white-space: nowrap;
-  }
+  .edit-banner a { color: #7dd3fc; text-decoration: none; font-size: 13px; white-space: nowrap; }
   .edit-banner a:hover { text-decoration: underline; }
   .progress-bar-wrap { width: 100%; max-width: 700px; background: #dde3ea; border-radius: 8px; height: 8px; margin-bottom: 24px; }
   .progress-bar-fill { height: 8px; background: #003366; border-radius: 8px; transition: width 0.3s ease; }
@@ -90,20 +88,65 @@
 <div class="save-toast" id="saveToast"></div>
 
 <script>
-const questions = {{ questions | tojson }};
-const savedResponses = {{ saved_responses | tojson }};
-const resumeIndex = {{ resume_index }};
-const EDIT_MODE = {{ 'true' if edit_mode else 'false' }};
-const CUSTOMER_SLUG = {{ customer_slug | tojson }};
+// ── Data from server ──────────────────────────────────────────────────────────
+const ALL_QUESTIONS    = {{ questions | tojson }};
+const savedResponses   = {{ saved_responses | tojson }};
+const resumeIndex      = {{ resume_index }};
+const EDIT_MODE        = {{ 'true' if edit_mode else 'false' }};
+const CUSTOMER_SLUG    = {{ customer_slug | tojson }};
+const VISIBILITY_RULES = {{ visibility_rules | tojson }};
+// VISIBILITY_RULES is an array of {id, parent_question_id, option_id, child_question_id}
 
-let current = resumeIndex;
-let draftResponseId = null;
-
+// ── State ─────────────────────────────────────────────────────────────────────
 const responses = {};
 Object.keys(savedResponses).forEach(function(k) {
   responses[parseInt(k)] = savedResponses[k];
 });
 
+// Build the visible questions list based on current responses + visibility rules.
+// A question is visible if:
+//   (a) it is not hidden (hidden=false), OR
+//   (b) it IS hidden but at least one visibility rule says it should be shown
+//       given the current responses.
+function computeVisibleQuestions() {
+  // Collect all option IDs currently selected across all responses
+  const selectedOptionIds = new Set();
+  Object.values(responses).forEach(function(val) {
+    if (Array.isArray(val)) {
+      val.forEach(function(v) { if (v) selectedOptionIds.add(parseInt(v)); });
+    } else if (val && String(val).match(/^\d+$/)) {
+      selectedOptionIds.add(parseInt(val));
+    }
+  });
+
+  // Build set of child_question_ids that are unlocked by current selections
+  const unlockedChildIds = new Set();
+  VISIBILITY_RULES.forEach(function(rule) {
+    if (selectedOptionIds.has(rule.option_id)) {
+      unlockedChildIds.add(rule.child_question_id);
+    }
+  });
+
+  return ALL_QUESTIONS.filter(function(q) {
+    if (!q.hidden) return true;           // normal question — always show
+    return unlockedChildIds.has(q.question_id); // hidden — show only if unlocked
+  });
+}
+
+// questions is the currently visible list; current is an index into it.
+let questions = computeVisibleQuestions();
+let current   = 0;
+
+// On resume, find the position in the visible list that matches resumeIndex
+// (resumeIndex is the stored question index, not necessarily visible index)
+if (resumeIndex > 0) {
+  // Try to place cursor at same visible-list position
+  current = Math.min(resumeIndex, Math.max(0, questions.length - 1));
+}
+
+let draftResponseId = null;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function normalise(t) {
   return (t || '').toLowerCase().replace(/[^a-z]/g, '');
 }
@@ -116,37 +159,35 @@ function showToast(msg, isError) {
   setTimeout(function() { toast.classList.remove('show'); }, 3000);
 }
 
-function saveForLater() {
-  const saveBtn = document.getElementById('saveBtn');
-  saveBtn.disabled = true;
-  saveBtn.textContent = 'Saving…';
-  fetch('/user/save', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ responses: responses, current_index: current })
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    if (data.success) {
-      draftResponseId = data.response_id;
-      showToast('✓ Saved! Resume anytime from the home page.', false);
-    } else {
-      showToast('Save failed. Please try again.', true);
+// After any answer change: recompute visible questions and re-render.
+// If a previously-visible question is no longer visible, clear its response
+// so the default fires correctly on submit.
+function onAnswerChanged() {
+  const oldQ     = questions[current];
+  const newList  = computeVisibleQuestions();
+
+  // Find which question IDs disappeared from the visible list
+  const newIds = new Set(newList.map(function(q) { return q.question_id; }));
+  questions.forEach(function(q) {
+    if (!newIds.has(q.question_id) && q.hidden) {
+      // Question just got hidden again — clear its answer so default kicks in
+      delete responses[q.question_id];
     }
-  })
-  .catch(function() {
-    showToast('Network error — save failed.', true);
-  })
-  .finally(function() {
-    saveBtn.disabled = false;
-    saveBtn.textContent = '💾 Save for Later';
   });
+
+  questions = newList;
+
+  // Keep cursor on the same question if still visible; otherwise stay at same index
+  const newIdx = questions.findIndex(function(q) { return q.question_id === oldQ.question_id; });
+  if (newIdx !== -1) { current = newIdx; }
+  else { current = Math.min(current, questions.length - 1); }
 }
 
+// ── Rendering ─────────────────────────────────────────────────────────────────
 function render() {
-  const q = questions[current];
+  const q     = questions[current];
   const total = questions.length;
-  const type = normalise(q.options_type);
+  const type  = normalise(q.options_type);
 
   const pct = Math.round(((current + 1) / total) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
@@ -166,7 +207,7 @@ function render() {
   else if (type === 'text' || type === 'textbox') hint.textContent = 'Type your answer below';
   else hint.textContent = '';
 
-  const area = document.getElementById('optionsArea');
+  const area    = document.getElementById('optionsArea');
   area.innerHTML = '';
 
   const nextBtn = document.getElementById('nextBtn');
@@ -185,6 +226,8 @@ function render() {
         document.querySelectorAll('#optionsArea .option-btn').forEach(function(b) { b.classList.remove('selected'); });
         btn.classList.add('selected');
         nextBtn.disabled = false;
+        onAnswerChanged();
+        render();
       };
       area.appendChild(btn);
     });
@@ -200,8 +243,10 @@ function render() {
         const arr = responses[q.question_id];
         const idx = arr.indexOf(opt.id);
         if (idx > -1) { arr.splice(idx, 1); btn.classList.remove('selected'); }
-        else { arr.push(opt.id); btn.classList.add('selected'); }
+        else           { arr.push(opt.id);  btn.classList.add('selected'); }
         nextBtn.disabled = arr.length === 0;
+        onAnswerChanged();
+        render();
       };
       area.appendChild(btn);
     });
@@ -213,6 +258,7 @@ function render() {
     ta.oninput = function() {
       responses[q.question_id] = ta.value;
       nextBtn.disabled = ta.value.trim() === '';
+      onAnswerChanged();
     };
     area.appendChild(ta);
     if (responses[q.question_id] && responses[q.question_id].trim() !== '') nextBtn.disabled = false;
@@ -222,12 +268,12 @@ function render() {
 
   if (current === total - 1) {
     nextBtn.textContent = EDIT_MODE ? 'Save Changes ✓' : 'Submit ✓';
-    nextBtn.className = 'btn btn-submit';
-    nextBtn.onclick = EDIT_MODE ? submitEdit : submitAll;
+    nextBtn.className   = 'btn btn-submit';
+    nextBtn.onclick     = EDIT_MODE ? submitEdit : submitAll;
   } else {
     nextBtn.textContent = 'Next →';
-    nextBtn.className = 'btn btn-next';
-    nextBtn.onclick = goNext;
+    nextBtn.className   = 'btn btn-next';
+    nextBtn.onclick     = goNext;
   }
   if (q.info_only) nextBtn.disabled = false;
 }
@@ -240,11 +286,36 @@ function goBack() {
   if (current > 0) { current--; render(); }
 }
 
+// ── Save / Submit ─────────────────────────────────────────────────────────────
+function saveForLater() {
+  const saveBtn = document.getElementById('saveBtn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving…';
+  fetch('/user/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ responses: responses, current_index: current })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.success) {
+      draftResponseId = data.response_id;
+      showToast('✓ Saved! Resume anytime from the home page.', false);
+    } else {
+      showToast('Save failed. Please try again.', true);
+    }
+  })
+  .catch(function() { showToast('Network error — save failed.', true); })
+  .finally(function() {
+    saveBtn.disabled = false;
+    saveBtn.textContent = '💾 Save for Later';
+  });
+}
+
 function submitAll() {
   const nextBtn = document.getElementById('nextBtn');
   nextBtn.disabled = true;
   nextBtn.textContent = 'Submitting…';
-
   fetch('/user/submit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -272,7 +343,6 @@ function submitEdit() {
   const nextBtn = document.getElementById('nextBtn');
   nextBtn.disabled = true;
   nextBtn.textContent = 'Saving…';
-
   fetch('/user/' + CUSTOMER_SLUG + '/update', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

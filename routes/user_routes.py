@@ -3,7 +3,7 @@ from flask import Blueprint, request, jsonify, session, render_template, send_fi
 from models import (db, UserResponse, Question, QuestionOption,
                     AssessmentConfig, QuestionCategory,
                     ValueProp, Asset, TestCase, POVPlanner, Roadblock,
-                    ColumnDefinition, ResultSection)
+                    ColumnDefinition, ResultSection, QuestionVisibilityRule)
 from routes.admin_sections_routes import evaluate_sections
 import io
 import re
@@ -107,12 +107,15 @@ def _make_slug(name):
     slug = re.sub(r'-+', '-', slug).strip('-')
     return slug or 'unknown'
 
+def _get_visibility_rules():
+    """Return all visibility rules as a list of dicts for passing to templates."""
+    rules = QuestionVisibilityRule.query.all()
+    return [r.to_dict() for r in rules]
+
 def _inject_hidden_defaults(responses):
     """
     For every hidden question that has a default_option_id configured,
-    inject the default into responses if the SE has not already provided
-    an answer (i.e. via inline edit on the results page).
-    Mutates the responses dict in place and returns it.
+    inject the default into responses if an answer is not already present.
     """
     hidden_questions = Question.query.filter_by(hidden=True).all()
     for q in hidden_questions:
@@ -124,7 +127,6 @@ def _inject_hidden_defaults(responses):
     return responses
 
 def _run_mapping(responses):
-    # Inject defaults for hidden questions before processing
     responses = _inject_hidden_defaults(dict(responses))
 
     vp_ids    = set()
@@ -184,6 +186,25 @@ def _run_mapping(responses):
     }
     return results_payload, keyword_answers
 
+def _build_question_list(questions_qs):
+    """Convert a SQLAlchemy query result into the list of dicts the template expects."""
+    result = []
+    for q in questions_qs:
+        cat = QuestionCategory.query.get(q.category_id)
+        opts = [{'id': o.id, 'label': o.label}
+                for o in sorted(q.options, key=lambda x: x.id)]
+        result.append({
+            'question_id':        q.id,
+            'category':           cat.name if cat else '',
+            'category_type_name': q.category_type_ref.name if q.category_type_ref else '',
+            'text':               q.text,
+            'options_type':       q.options_type,
+            'info_only':          q.info_only,
+            'hidden':             q.hidden,
+            'options':            opts,
+        })
+    return result
+
 
 # ── Fixed routes ──────────────────────────────────────────────────────────────
 
@@ -194,7 +215,6 @@ def landing():
                    .order_by(UserResponse.started_at.desc())
                    .limit(15)
                    .all())
-    # Exclude hidden questions from the count shown on landing
     total_questions = Question.query.filter_by(info_only=False, hidden=False).count()
     return render_template('user_landing.html',
                            in_progress=in_progress,
@@ -221,29 +241,16 @@ def start_assessment():
 
 @user_bp.route('/questions', methods=['GET'])
 def get_questions():
-    # Exclude hidden questions from the assessment
-    all_questions = Question.query.filter_by(hidden=False).order_by(Question.order).all()
-    result = []
-    for q in all_questions:
-        cat = QuestionCategory.query.get(q.category_id)
-        opts = []
-        for o in sorted(q.options, key=lambda x: x.id):
-            opts.append({'id': o.id, 'label': o.label})
-        result.append({
-            'question_id':        q.id,
-            'category':           cat.name if cat else '',
-            'category_type_name': q.category_type_ref.name if q.category_type_ref else '',
-            'text':               q.text,
-            'options_type':       q.options_type,
-            'info_only':          q.info_only,
-            'options':            opts
-        })
+    # Include ALL questions (hidden=True ones included so visibility engine can show them)
+    all_questions = Question.query.order_by(Question.order).all()
+    result = _build_question_list(all_questions)
     return render_template('user_assessment.html',
                            questions=result,
                            saved_responses={},
                            resume_index=0,
                            edit_mode=False,
-                           customer_slug='')
+                           customer_slug='',
+                           visibility_rules=_get_visibility_rules())
 
 @user_bp.route('/save', methods=['POST'])
 def save_progress():
@@ -255,11 +262,8 @@ def save_progress():
     se_name         = session.get('se_name')        or data.get('se_name', '')
     opportunity_url = session.get('opportunity_url', '')
 
-    draft_id = session.get('draft_response_id')
-    if draft_id:
-        user_resp = UserResponse.query.get(draft_id)
-    else:
-        user_resp = None
+    draft_id  = session.get('draft_response_id')
+    user_resp = UserResponse.query.get(draft_id) if draft_id else None
 
     if user_resp and user_resp.status == 'in_progress':
         user_resp.raw_responses          = raw_responses
@@ -284,7 +288,6 @@ def save_progress():
 @user_bp.route('/resume/<int:response_id>', methods=['GET'])
 def resume_assessment(response_id):
     user_resp = UserResponse.query.get_or_404(response_id)
-
     if user_resp.status != 'in_progress':
         return redirect(url_for('user.landing'))
 
@@ -295,30 +298,16 @@ def resume_assessment(response_id):
     session['responses']          = {}
     session['draft_response_id']  = user_resp.id
 
-    # Exclude hidden questions from resume view too
-    all_questions = Question.query.filter_by(hidden=False).order_by(Question.order).all()
-    result = []
-    for q in all_questions:
-        cat = QuestionCategory.query.get(q.category_id)
-        opts = []
-        for o in sorted(q.options, key=lambda x: x.id):
-            opts.append({'id': o.id, 'label': o.label})
-        result.append({
-            'question_id':        q.id,
-            'category':           cat.name if cat else '',
-            'category_type_name': q.category_type_ref.name if q.category_type_ref else '',
-            'text':               q.text,
-            'options_type':       q.options_type,
-            'info_only':          q.info_only,
-            'options':            opts
-        })
+    all_questions = Question.query.order_by(Question.order).all()
+    result = _build_question_list(all_questions)
 
     return render_template('user_assessment.html',
                            questions=result,
                            saved_responses=user_resp.raw_responses or {},
                            resume_index=user_resp.current_question_index or 0,
                            edit_mode=False,
-                           customer_slug='')
+                           customer_slug='',
+                           visibility_rules=_get_visibility_rules())
 
 @user_bp.route('/submit', methods=['POST'])
 def submit_responses():
@@ -328,7 +317,6 @@ def submit_responses():
     se_name         = session.get('se_name')        or data.get('se_name', '')
     opportunity_url = session.get('opportunity_url', '')
 
-    # _run_mapping injects hidden defaults internally
     results_payload, keyword_answers = _run_mapping(responses)
 
     session['vp_ids']    = results_payload['vp_ids']
@@ -339,9 +327,6 @@ def submit_responses():
 
     draft_id  = session.get('draft_response_id')
     user_resp = UserResponse.query.get(draft_id) if draft_id else None
-
-    # Build the final raw_responses including injected defaults so the
-    # results page inline editor shows the correct current values
     full_responses = _inject_hidden_defaults(dict(responses))
 
     if user_resp and user_resp.status == 'in_progress':
@@ -468,7 +453,6 @@ def customer_results(customer_slug):
                  .filter_by(status='completed')
                  .order_by(UserResponse.completed_at.desc())
                  .all())
-
     user_resp = None
     for r in completed:
         if _make_slug(r.customer_name) == customer_slug:
@@ -491,8 +475,6 @@ def customer_results(customer_slug):
     answers  = user_resp.answers or {}
     qa_pairs = []
 
-    # questions_map includes ALL non-info questions (including hidden)
-    # so the inline editor works for hidden questions on the results page
     questions_map = {}
     for q in all_questions:
         if q.info_only:
@@ -544,7 +526,6 @@ def edit_assessment(customer_slug):
                  .filter_by(status='completed')
                  .order_by(UserResponse.completed_at.desc())
                  .all())
-
     user_resp = None
     for r in completed:
         if _make_slug(r.customer_name) == customer_slug:
@@ -559,30 +540,16 @@ def edit_assessment(customer_slug):
     session['opportunity_url']  = user_resp.opportunity_url
     session['edit_response_id'] = user_resp.id
 
-    # Hidden questions excluded from full edit flow too
-    all_questions = Question.query.filter_by(hidden=False).order_by(Question.order).all()
-    result = []
-    for q in all_questions:
-        cat = QuestionCategory.query.get(q.category_id)
-        opts = []
-        for o in sorted(q.options, key=lambda x: x.id):
-            opts.append({'id': o.id, 'label': o.label})
-        result.append({
-            'question_id':        q.id,
-            'category':           cat.name if cat else '',
-            'category_type_name': q.category_type_ref.name if q.category_type_ref else '',
-            'text':               q.text,
-            'options_type':       q.options_type,
-            'info_only':          q.info_only,
-            'options':            opts
-        })
+    all_questions = Question.query.order_by(Question.order).all()
+    result = _build_question_list(all_questions)
 
     return render_template('user_assessment.html',
                            questions=result,
                            saved_responses=user_resp.raw_responses or {},
                            resume_index=0,
                            edit_mode=True,
-                           customer_slug=customer_slug)
+                           customer_slug=customer_slug,
+                           visibility_rules=_get_visibility_rules())
 
 
 @user_bp.route('/<customer_slug>/update', methods=['POST'])
@@ -678,7 +645,6 @@ def customer_export(customer_slug):
                  .filter_by(status='completed')
                  .order_by(UserResponse.completed_at.desc())
                  .all())
-
     user_resp = None
     for r in completed:
         if _make_slug(r.customer_name) == customer_slug:
