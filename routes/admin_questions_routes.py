@@ -30,16 +30,18 @@ def opt_to_dict(o):
 
 def q_to_dict(q):
     return {
-        'id':                 q.id,
-        'question_text':      q.text,
-        'keyword':            q.category_ref.name if q.category_ref else '',
-        'category_id':        q.category_id,
-        'category_type_id':   q.category_type_id,
-        'category_type_name': q.category_type_ref.name if q.category_type_ref else '',
-        'options_type':       q.options_type or 'Select One',
-        'info_only':          q.info_only,
-        'order':              q.order,
-        'options':            [opt_to_dict(o) for o in sorted(q.options, key=lambda o: o.id)],
+        'id':                  q.id,
+        'question_text':       q.text,
+        'keyword':             q.category_ref.name if q.category_ref else '',
+        'category_id':         q.category_id,
+        'category_type_id':    q.category_type_id,
+        'category_type_name':  q.category_type_ref.name if q.category_type_ref else '',
+        'options_type':        q.options_type or 'Select One',
+        'info_only':           q.info_only,
+        'hidden':              q.hidden,
+        'default_option_id':   q.default_option_id,
+        'order':               q.order,
+        'options':             [opt_to_dict(o) for o in sorted(q.options, key=lambda o: o.id)],
     }
 
 def get_or_create_category(name):
@@ -94,12 +96,14 @@ def create_question():
     cat  = get_or_create_category(data.get('keyword') or data.get('category') or 'General')
     max_order = db.session.query(db.func.max(Question.order)).scalar() or 0
     q = Question(
-        text             = (data.get('question_text') or '').strip() or 'New Question',
-        category_id      = cat.id,
-        category_type_id = data.get('category_type_id') or None,
-        options_type     = data.get('options_type', 'Select One'),
-        info_only        = bool(data.get('info_only', False)),
-        order            = max_order + 1,
+        text              = (data.get('question_text') or '').strip() or 'New Question',
+        category_id       = cat.id,
+        category_type_id  = data.get('category_type_id') or None,
+        options_type      = data.get('options_type', 'Select One'),
+        info_only         = bool(data.get('info_only', False)),
+        hidden            = bool(data.get('hidden', False)),
+        default_option_id = data.get('default_option_id') or None,
+        order             = max_order + 1,
     )
     db.session.add(q)
     db.session.commit()
@@ -136,13 +140,29 @@ def patch_question(qid):
         q.options_type = value
     elif field == 'info_only':
         q.info_only = bool(value)
+    elif field == 'hidden':
+        q.hidden = bool(value)
+        # Clear default when un-hiding
+        if not bool(value):
+            q.default_option_id = None
+    elif field == 'default_option_id':
+        if value is None or value == '' or value == 0:
+            q.default_option_id = None
+        else:
+            try:
+                opt_id = int(value)
+                # Validate the option belongs to this question
+                opt = QuestionOption.query.filter_by(id=opt_id, question_id=qid).first()
+                q.default_option_id = opt.id if opt else None
+            except (ValueError, TypeError):
+                q.default_option_id = None
     elif field == 'order':
         try: q.order = int(value)
         except: pass
     elif field == 'category_type_id':
         if value is None or value == '':
             q.category_type_id = None
-        elif isinstance(value, int) or (isinstance(value, str) and value.isdigit()):
+        elif isinstance(value, int) or (isinstance(value, str) and str(value).isdigit()):
             q.category_type_id = int(value)
         else:
             name = str(value).strip()
@@ -216,6 +236,10 @@ def patch_option(qid, oid):
 @require_admin
 def delete_option(qid, oid):
     opt = QuestionOption.query.filter_by(id=oid, question_id=qid).first_or_404()
+    # Clear default_option_id if this option was the default
+    q = Question.query.get(qid)
+    if q and q.default_option_id == oid:
+        q.default_option_id = None
     db.session.delete(opt)
     db.session.commit()
     return jsonify({'message': 'deleted'}), 200

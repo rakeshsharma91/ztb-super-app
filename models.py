@@ -114,11 +114,20 @@ class Question(db.Model):
     options_type       = db.Column(db.String(50), default='select_one')
     order              = db.Column(db.Integer, default=0)
     info_only          = db.Column(db.Boolean, default=False)
+    hidden             = db.Column(db.Boolean, default=False)
+    default_option_id  = db.Column(db.Integer, db.ForeignKey('question_options.id',
+                                   use_alter=True, name='fk_question_default_option'),
+                                   nullable=True)
     created_at         = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at         = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    options            = db.relationship('QuestionOption', backref='question', lazy=True,
+    options            = db.relationship('QuestionOption',
+                                          foreign_keys='QuestionOption.question_id',
+                                          backref='question', lazy=True,
                                           cascade='all, delete-orphan')
+    default_option     = db.relationship('QuestionOption',
+                                          foreign_keys='Question.default_option_id',
+                                          lazy=True, post_update=True)
 
 option_assets = db.Table(
     'option_assets',
@@ -278,12 +287,26 @@ def run_migration(db):
 
     with engine.connect() as conn:
         q_cols = [c['name'] for c in inspector.get_columns('questions')]
+
         if 'category_type_id' not in q_cols:
             conn.execute(sa.text(
                 'ALTER TABLE questions ADD COLUMN category_type_id INTEGER '
                 'REFERENCES question_category_types(id) ON DELETE SET NULL'
             ))
             print('[migration] Added column questions.category_type_id')
+
+        if 'hidden' not in q_cols:
+            conn.execute(sa.text(
+                'ALTER TABLE questions ADD COLUMN hidden BOOLEAN NOT NULL DEFAULT FALSE'
+            ))
+            print('[migration] Added column questions.hidden')
+
+        if 'default_option_id' not in q_cols:
+            conn.execute(sa.text(
+                'ALTER TABLE questions ADD COLUMN default_option_id INTEGER '
+                'REFERENCES question_options(id) ON DELETE SET NULL'
+            ))
+            print('[migration] Added column questions.default_option_id')
 
         ur_cols = [c['name'] for c in inspector.get_columns('user_responses')]
         if 'status' not in ur_cols:

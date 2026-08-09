@@ -107,7 +107,26 @@ def _make_slug(name):
     slug = re.sub(r'-+', '-', slug).strip('-')
     return slug or 'unknown'
 
+def _inject_hidden_defaults(responses):
+    """
+    For every hidden question that has a default_option_id configured,
+    inject the default into responses if the SE has not already provided
+    an answer (i.e. via inline edit on the results page).
+    Mutates the responses dict in place and returns it.
+    """
+    hidden_questions = Question.query.filter_by(hidden=True).all()
+    for q in hidden_questions:
+        if q.default_option_id and str(q.id) not in responses:
+            if q.options_type in ('select_all', 'Select All'):
+                responses[str(q.id)] = [q.default_option_id]
+            else:
+                responses[str(q.id)] = q.default_option_id
+    return responses
+
 def _run_mapping(responses):
+    # Inject defaults for hidden questions before processing
+    responses = _inject_hidden_defaults(dict(responses))
+
     vp_ids    = set()
     asset_ids = set()
     tc_ids    = set()
@@ -175,7 +194,8 @@ def landing():
                    .order_by(UserResponse.started_at.desc())
                    .limit(15)
                    .all())
-    total_questions = Question.query.filter_by(info_only=False).count()
+    # Exclude hidden questions from the count shown on landing
+    total_questions = Question.query.filter_by(info_only=False, hidden=False).count()
     return render_template('user_landing.html',
                            in_progress=in_progress,
                            total_questions=total_questions)
@@ -201,7 +221,8 @@ def start_assessment():
 
 @user_bp.route('/questions', methods=['GET'])
 def get_questions():
-    all_questions = Question.query.order_by(Question.order).all()
+    # Exclude hidden questions from the assessment
+    all_questions = Question.query.filter_by(hidden=False).order_by(Question.order).all()
     result = []
     for q in all_questions:
         cat = QuestionCategory.query.get(q.category_id)
@@ -274,7 +295,8 @@ def resume_assessment(response_id):
     session['responses']          = {}
     session['draft_response_id']  = user_resp.id
 
-    all_questions = Question.query.order_by(Question.order).all()
+    # Exclude hidden questions from resume view too
+    all_questions = Question.query.filter_by(hidden=False).order_by(Question.order).all()
     result = []
     for q in all_questions:
         cat = QuestionCategory.query.get(q.category_id)
@@ -306,6 +328,7 @@ def submit_responses():
     se_name         = session.get('se_name')        or data.get('se_name', '')
     opportunity_url = session.get('opportunity_url', '')
 
+    # _run_mapping injects hidden defaults internally
     results_payload, keyword_answers = _run_mapping(responses)
 
     session['vp_ids']    = results_payload['vp_ids']
@@ -317,9 +340,13 @@ def submit_responses():
     draft_id  = session.get('draft_response_id')
     user_resp = UserResponse.query.get(draft_id) if draft_id else None
 
+    # Build the final raw_responses including injected defaults so the
+    # results page inline editor shows the correct current values
+    full_responses = _inject_hidden_defaults(dict(responses))
+
     if user_resp and user_resp.status == 'in_progress':
         user_resp.answers       = keyword_answers
-        user_resp.raw_responses = responses
+        user_resp.raw_responses = full_responses
         user_resp.results       = results_payload
         user_resp.status        = 'completed'
         user_resp.completed_at  = datetime.utcnow()
@@ -329,7 +356,7 @@ def submit_responses():
             se_name         = se_name,
             opportunity_url = opportunity_url,
             answers         = keyword_answers,
-            raw_responses   = responses,
+            raw_responses   = full_responses,
             results         = results_payload,
             status          = 'completed',
             completed_at    = datetime.utcnow()
@@ -464,6 +491,8 @@ def customer_results(customer_slug):
     answers  = user_resp.answers or {}
     qa_pairs = []
 
+    # questions_map includes ALL non-info questions (including hidden)
+    # so the inline editor works for hidden questions on the results page
     questions_map = {}
     for q in all_questions:
         if q.info_only:
@@ -530,7 +559,8 @@ def edit_assessment(customer_slug):
     session['opportunity_url']  = user_resp.opportunity_url
     session['edit_response_id'] = user_resp.id
 
-    all_questions = Question.query.order_by(Question.order).all()
+    # Hidden questions excluded from full edit flow too
+    all_questions = Question.query.filter_by(hidden=False).order_by(Question.order).all()
     result = []
     for q in all_questions:
         cat = QuestionCategory.query.get(q.category_id)
@@ -577,8 +607,9 @@ def update_assessment(customer_slug):
         return jsonify({'error': 'Assessment not found'}), 404
 
     results_payload, keyword_answers = _run_mapping(responses)
+    full_responses = _inject_hidden_defaults(dict(responses))
 
-    user_resp.raw_responses = responses
+    user_resp.raw_responses = full_responses
     user_resp.answers       = keyword_answers
     user_resp.results       = results_payload
     user_resp.completed_at  = datetime.utcnow()
@@ -607,8 +638,9 @@ def update_single_answer(customer_slug):
         return jsonify({'success': False, 'error': 'Assessment not found'}), 404
 
     results_payload, keyword_answers = _run_mapping(responses)
+    full_responses = _inject_hidden_defaults(dict(responses))
 
-    user_resp.raw_responses = responses
+    user_resp.raw_responses = full_responses
     user_resp.answers       = keyword_answers
     user_resp.results       = results_payload
     user_resp.completed_at  = datetime.utcnow()
