@@ -46,18 +46,60 @@
     .section-badge { background: rgba(0,170,255,0.12); border: 1px solid rgba(0,170,255,0.28); border-radius: 20px; padding: 1px 10px; font-size: 0.7rem; font-weight: 700; color: var(--accent); }
     .section-divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
 
-    /* ── ASSESSMENT SUMMARY ── */
-    .summary-grid { display: flex; flex-wrap: wrap; gap: 12px; }
-    .summary-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 12px; padding: 1rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex: 1 1 220px; min-width: 200px; transition: border-color 0.2s, box-shadow 0.2s; }
-    .summary-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.1); }
-    .summary-card-name { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
-    .summary-card-outcome { background: var(--accent); color: var(--navy-dark); font-size: 0.82rem; font-weight: 800; padding: 4px 14px; border-radius: 20px; white-space: nowrap; }
-    .summary-card-banner { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.4rem; flex: 1 1 100%; width: 100%; transition: border-color 0.2s, box-shadow 0.2s; }
-    .summary-card-banner:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-    .summary-card-banner-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.65rem; }
-    .summary-card-banner-name { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
-    .summary-card-banner-outcome { font-size: 0.82rem; font-weight: 800; padding: 4px 14px; border-radius: 20px; white-space: nowrap; color: #fff; }
-    .summary-card-banner-text { font-size: 0.85rem; line-height: 1.6; color: var(--white); padding: 0.65rem 0.9rem; border-radius: 8px; border-left: 3px solid; }
+    /* ── ASSESSMENT SUMMARY TILES ── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 900px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .summary-grid { grid-template-columns: 1fr; } }
+
+    .summary-tile {
+      background: linear-gradient(145deg, #0d2d52, #0a2244);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 12px;
+      padding: 1rem 1.2rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      transition: box-shadow 0.2s, border-top-color 0.2s;
+    }
+    .summary-tile:hover { box-shadow: 0 4px 20px rgba(0,170,255,0.12); }
+    .summary-tile-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.6rem;
+    }
+    .summary-tile-name {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      line-height: 1.3;
+      flex: 1;
+    }
+    .summary-tile-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 3px 11px;
+      border-radius: 20px;
+      white-space: nowrap;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .summary-tile-text {
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: var(--white);
+      padding: 0.5rem 0.75rem;
+      border-radius: 7px;
+      border-left: 3px solid;
+      background: rgba(255,255,255,0.04);
+    }
 
     /* VALUE PROPS */
     .vp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
@@ -191,7 +233,6 @@
       .navbar { padding: 0 1rem; }
       .download-section { flex-direction: column; align-items: flex-start; }
       .vp-grid { grid-template-columns: 1fr; }
-      .summary-grid { flex-direction: column; }
       .col-action { display: none; }
       .bva-body { padding: 1.5rem 1rem 4rem; }
     }
@@ -262,21 +303,16 @@
   </div>
   <div class="summary-grid">
     {% for sec in section_outcomes %}
-      {% if sec.banner %}
-        {% set c = sec.color if sec.color else '#00aaff' %}
-        <div class="summary-card-banner" style="border-color: {{ c }}40; border-left: 3px solid {{ c }};">
-          <div class="summary-card-banner-top">
-            <span class="summary-card-banner-name">{{ sec.name }}</span>
-            <span class="summary-card-banner-outcome" style="background: {{ c }};">{{ sec.outcome }}</span>
-          </div>
-          <div class="summary-card-banner-text" style="border-left-color: {{ c }}; background: {{ c }}18;">{{ sec.banner }}</div>
+      {% set c = sec.color if sec.color else '#00aaff' %}
+      <div class="summary-tile" style="border-top-color: {{ c }};">
+        <div class="summary-tile-top">
+          <span class="summary-tile-name">{{ sec.name }}</span>
+          <span class="summary-tile-badge" style="background: {{ c }};">{{ sec.outcome }}</span>
         </div>
-      {% else %}
-        <div class="summary-card">
-          <span class="summary-card-name">{{ sec.name }}</span>
-          <span class="summary-card-outcome">{{ sec.outcome }}</span>
-        </div>
-      {% endif %}
+        {% if sec.banner %}
+        <div class="summary-tile-text" style="border-left-color: {{ c }}; background: {{ c }}18;">{{ sec.banner }}</div>
+        {% endif %}
+      </div>
     {% endfor %}
   </div>
   <hr class="section-divider">
@@ -575,24 +611,22 @@ let _bvaSections = [];
 let _bvaChart    = null;
 let _bvaSaveTimer = null;
 
-// Slider definitions — maps to BVAConfig fields
 const SLIDER_DEFS = [
-  { key: 'site_count',     label: 'Number of Sites',              min: 1,   max: 500,     step: 1,    fmt: 'int',     hint: 'From assessment' },
-  { key: 'device_count',   label: 'Network Devices',              min: 1,   max: 5000,    step: 1,    fmt: 'int'      },
-  { key: 'hw_cost',        label: 'HW Cost / Device ($)',         min: 500, max: 20000,   step: 100,  fmt: 'dollar'   },
-  { key: 'hw_support_pct', label: 'HW Annual Support %',          min: 0,   max: 50,      step: 1,    fmt: 'pct'      },
-  { key: 'mpls_cost',      label: 'MPLS Cost / Site / Mo ($)',    min: 100, max: 10000,   step: 100,  fmt: 'dollar'   },
-  { key: 'broadband_cost', label: 'Broadband / Site / Mo ($)',    min: 50,  max: 2000,    step: 50,   fmt: 'dollar'   },
-  { key: 'mpls_usage_pct', label: 'MPLS Usage % of Sites',        min: 0,   max: 100,     step: 5,    fmt: 'pct'      },
-  { key: 'fte_count',      label: 'Network FTEs',                 min: 1,   max: 100,     step: 1,    fmt: 'int'      },
-  { key: 'fte_salary',     label: 'FTE Annual Salary ($)',        min: 40000, max: 400000, step: 5000, fmt: 'dollar'  },
-  { key: 'fte_time_pct',   label: 'FTE Time on Manual Ops %',     min: 0,   max: 100,     step: 5,    fmt: 'pct'      },
-  { key: 'breach_cost',    label: 'Breach Cost ($)',              min: 100000, max: 50000000, step: 100000, fmt: 'dollar' },
-  { key: 'legacy_risk_pct', label: 'Legacy Breach Risk % / yr',   min: 0,   max: 50,      step: 0.5,  fmt: 'pct'      },
-  { key: 'zscaler_risk_pct', label: 'Zscaler Breach Risk % / yr', min: 0,   max: 10,      step: 0.1,  fmt: 'pct'      },
+  { key: 'site_count',      label: 'Number of Sites',              min: 1,      max: 500,      step: 1,      fmt: 'int',    hint: 'From assessment' },
+  { key: 'device_count',    label: 'Network Devices',              min: 1,      max: 5000,     step: 1,      fmt: 'int'     },
+  { key: 'hw_cost',         label: 'HW Cost / Device ($)',         min: 500,    max: 20000,    step: 100,    fmt: 'dollar'  },
+  { key: 'hw_support_pct',  label: 'HW Annual Support %',          min: 0,      max: 50,       step: 1,      fmt: 'pct'     },
+  { key: 'mpls_cost',       label: 'MPLS Cost / Site / Mo ($)',    min: 100,    max: 10000,    step: 100,    fmt: 'dollar'  },
+  { key: 'broadband_cost',  label: 'Broadband / Site / Mo ($)',    min: 50,     max: 2000,     step: 50,     fmt: 'dollar'  },
+  { key: 'mpls_usage_pct',  label: 'MPLS Usage % of Sites',        min: 0,      max: 100,      step: 5,      fmt: 'pct'     },
+  { key: 'fte_count',       label: 'Network FTEs',                 min: 1,      max: 100,      step: 1,      fmt: 'int'     },
+  { key: 'fte_salary',      label: 'FTE Annual Salary ($)',        min: 40000,  max: 400000,   step: 5000,   fmt: 'dollar'  },
+  { key: 'fte_time_pct',    label: 'FTE Time on Manual Ops %',     min: 0,      max: 100,      step: 5,      fmt: 'pct'     },
+  { key: 'breach_cost',     label: 'Breach Cost ($)',              min: 100000, max: 50000000, step: 100000, fmt: 'dollar'  },
+  { key: 'legacy_risk_pct', label: 'Legacy Breach Risk % / yr',    min: 0,      max: 50,       step: 0.5,    fmt: 'pct'     },
+  { key: 'zscaler_risk_pct',label: 'Zscaler Breach Risk % / yr',   min: 0,      max: 10,       step: 0.1,    fmt: 'pct'     },
 ];
 
-// Current slider values (live)
 let _bvaVals = {};
 
 function fmtVal(val, fmt) {
@@ -600,7 +634,6 @@ function fmtVal(val, fmt) {
   if (fmt === 'pct')    return val + '%';
   return Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
 }
-
 function fmtDollar(val) {
   return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
 }
@@ -609,24 +642,19 @@ async function initBVA() {
   const res  = await fetch('/user/' + CUSTOMER_SLUG + '/bva-config');
   const data = await res.json();
   if (!data.success) return;
-
   _bvaConfig   = data.config;
   _bvaSections = data.sections;
-
-  // Build initial values: config defaults → overrides → site_count from answers
   SLIDER_DEFS.forEach(def => {
     let val = _bvaConfig[def.key] ?? def.min;
     if (data.overrides && data.overrides[def.key] !== undefined) val = data.overrides[def.key];
     _bvaVals[def.key] = Number(val);
   });
-  // site_count is special — not in BVAConfig, derived separately
   if (data.site_count_from_answers !== null && data.site_count_from_answers !== undefined) {
     if (!data.overrides || data.overrides['site_count'] === undefined) {
       _bvaVals['site_count'] = data.site_count_from_answers;
     }
   }
   if (!_bvaVals['site_count']) _bvaVals['site_count'] = 30;
-
   buildSliders();
   renderBVA();
 }
@@ -649,7 +677,6 @@ function buildSliders() {
         <span>${fmtVal(def.max, def.fmt)}</span>
       </div>`;
     container.appendChild(card);
-
     const slider = card.querySelector('#sl-' + def.key);
     slider.addEventListener('input', () => {
       const newVal = parseFloat(slider.value);
@@ -676,7 +703,6 @@ function computeVars() {
   const breachCost       = v.breach_cost       || 0;
   const legacyRiskPct    = v.legacy_risk_pct   || 0;
   const zscalerRiskPct   = v.zscaler_risk_pct  || 0;
-
   const legacyHwCost     = (devices * hwCost / 3) + (devices * hwCost * hwSupportPct / 100);
   const mplsSites        = sites * mplsUsagePct / 100;
   const broadbandSites   = sites * (1 - mplsUsagePct / 100);
@@ -690,7 +716,6 @@ function computeVars() {
   const legacy3yr        = (legacyHwCost + legacyNetwork + fteCount * fteSalary) * 3;
   const zscaler3yr       = (legacy3yr * 0.28) + (zscalerNetwork * 3) + (fteCount * fteSalary * 3) - (opsSavings * 3);
   const hardSavings3yr   = legacy3yr - zscaler3yr;
-
   return {
     sites, devices, legacyHwCost, mplsSites, broadbandSites,
     legacyNetwork, zscalerNetwork, networkSavings,
@@ -711,14 +736,12 @@ function safeEval(formula, vars) {
 
 function renderBVA() {
   const cv = computeVars();
-
-  // ── KPI Cards ──────────────────────────────────────────────────────────────
   const savingsPct = cv.legacy3yr > 0 ? Math.round(cv.hardSavings3yr / cv.legacy3yr * 100) : 0;
   const kpis = [
-    { title: 'TOTAL LEGACY RUN COST',     value: fmtDollar(cv.legacy3yr),       sub: 'Summing HW support, bandwidth, management labor.',   color: '#14b8a6' },
-    { title: 'ZSCALER SUBSCRIPTION EST.', value: fmtDollar(cv.zscaler3yr),      sub: 'Platform consolidates VPN, SWG, DLP & monitoring.',   color: '#6366f1' },
-    { title: '3-YR HARD COST SAVINGS',    value: fmtDollar(cv.hardSavings3yr),  sub: savingsPct + '% TCO reduction',                        color: '#22c55e' },
-    { title: 'AVOIDED RISK VALUE',        value: fmtDollar(cv.riskSaving * 3),  sub: 'Based on prevented lateral breach probability.',      color: '#f43f5e' },
+    { title: 'TOTAL LEGACY RUN COST',     value: fmtDollar(cv.legacy3yr),       sub: 'Summing HW support, bandwidth, management labor.',  color: '#14b8a6' },
+    { title: 'ZSCALER SUBSCRIPTION EST.', value: fmtDollar(cv.zscaler3yr),      sub: 'Platform consolidates VPN, SWG, DLP & monitoring.', color: '#6366f1' },
+    { title: '3-YR HARD COST SAVINGS',    value: fmtDollar(cv.hardSavings3yr),  sub: savingsPct + '% TCO reduction',                      color: '#22c55e' },
+    { title: 'AVOIDED RISK VALUE',        value: fmtDollar(cv.riskSaving * 3),  sub: 'Based on prevented lateral breach probability.',    color: '#f43f5e' },
   ];
   const kpiRow = document.getElementById('bva-kpi-row');
   kpiRow.innerHTML = kpis.map(k => `
@@ -728,24 +751,21 @@ function renderBVA() {
       <div class="bva-kpi-sub">${k.sub}</div>
     </div>`).join('');
 
-  // ── Chart ──────────────────────────────────────────────────────────────────
-  const legacyPerYr   = cv.legacy3yr / 3;
-  const zscalerPerYr  = cv.zscaler3yr / 3;
+  const legacyPerYr  = cv.legacy3yr / 3;
+  const zscalerPerYr = cv.zscaler3yr / 3;
   const chartData = {
     labels: ['Year 1 Run Cost', 'Year 2 Run Cost', 'Year 3 Run Cost'],
     datasets: [
-      { label: 'Legacy Hub-and-Spoke Infrastructure', data: [legacyPerYr, legacyPerYr, legacyPerYr], backgroundColor: 'rgba(244,63,94,0.75)', borderColor: '#f43f5e', borderWidth: 1, borderRadius: 4 },
+      { label: 'Legacy Hub-and-Spoke Infrastructure', data: [legacyPerYr, legacyPerYr, legacyPerYr],    backgroundColor: 'rgba(244,63,94,0.75)',  borderColor: '#f43f5e', borderWidth: 1, borderRadius: 4 },
       { label: 'Zscaler Zero Trust Strategy',          data: [zscalerPerYr, zscalerPerYr, zscalerPerYr], backgroundColor: 'rgba(20,184,166,0.75)', borderColor: '#14b8a6', borderWidth: 1, borderRadius: 4 },
     ]
   };
   if (_bvaChart) {
-    _bvaChart.data = chartData;
-    _bvaChart.update();
+    _bvaChart.data = chartData; _bvaChart.update();
   } else {
     const ctx = document.getElementById('bva-chart').getContext('2d');
     _bvaChart = new Chart(ctx, {
-      type: 'bar',
-      data: chartData,
+      type: 'bar', data: chartData,
       options: {
         responsive: true,
         plugins: {
@@ -760,7 +780,6 @@ function renderBVA() {
     });
   }
 
-  // ── Value Drivers (from admin-configured sections) ─────────────────────────
   const driversEl = document.getElementById('bva-drivers');
   if (!_bvaSections.length) {
     driversEl.innerHTML = '<div class="empty-state" style="padding:1rem;font-size:0.8rem;">No value driver sections configured.<br>Add them in Admin → BVA Config.</div>';
@@ -784,7 +803,6 @@ function renderBVA() {
     </div>`).join('');
 }
 
-// ── Debounced save ─────────────────────────────────────────────────────────────
 function scheduleSave() {
   const ind = document.getElementById('bva-save-indicator');
   ind.textContent = 'Saving…'; ind.className = 'bva-save-indicator saving';
