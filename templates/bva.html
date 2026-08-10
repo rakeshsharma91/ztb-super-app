@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BVA Config — ZTB Admin</title>
+  <style>
+    :root {
+      --navy: #003366; --blue: #0070c0; --light-blue: #e8f4fd;
+      --white: #ffffff; --gray: #f5f7fa; --border: #dee2e6;
+      --text: #333333; --danger: #dc3545; --success: #28a745;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--text); background: var(--gray); }
+    #navbar { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: var(--navy); display: flex; align-items: center; padding: 0 20px; z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+    #navbar .brand { color: #fff; font-size: 18px; font-weight: 700; }
+    #navbar .subtitle { color: #90c8f0; font-size: 14px; margin-left: 14px; }
+    #navbar .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    #navbar .nav-btn { background: transparent; border: 1px solid rgba(255,255,255,0.5); color: #fff; padding: 5px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s; }
+    #navbar .nav-btn:hover { background: rgba(255,255,255,0.15); }
+    #sidebar { position: fixed; top: 56px; left: 0; bottom: 0; width: 220px; background: #fff; border-right: 1px solid var(--border); overflow-y: auto; z-index: 900; }
+    #sidebar ul { list-style: none; padding: 12px 0; }
+    #sidebar ul li a { display: block; padding: 11px 20px; color: var(--text); text-decoration: none; font-size: 14px; transition: background 0.15s, color 0.15s; border-left: 3px solid transparent; }
+    #sidebar ul li a:hover { background: var(--light-blue); color: var(--blue); }
+    #sidebar ul li a.active { background: var(--light-blue); color: var(--blue); font-weight: 600; border-left-color: var(--blue); }
+    #main { margin-left: 220px; margin-top: 56px; padding: 28px 32px; min-height: calc(100vh - 56px); }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .page-header h2 { font-size: 22px; color: var(--navy); font-weight: 700; }
+    .panel { background: #fff; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .panel-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .panel-header h3 { font-size: 15px; font-weight: 700; color: var(--navy); }
+    .panel-subtitle { font-size: 12px; color: #888; margin-top: 2px; }
+    .panel-body { padding: 20px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-label { font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.4px; }
+    .form-control { padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; color: var(--text); font-family: inherit; transition: border-color 0.2s; }
+    .form-control:focus { outline: none; border-color: var(--blue); }
+    .form-hint { font-size: 11px; color: #999; margin-top: 2px; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 4px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: opacity 0.15s; }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary   { background: var(--blue);    color: #fff; }
+    .btn-danger    { background: var(--danger);  color: #fff; }
+    .btn-success   { background: var(--success); color: #fff; }
+    .btn-secondary { background: #6c757d;        color: #fff; }
+    .btn-sm { padding: 5px 11px; font-size: 12px; }
+    .sections-list { display: flex; flex-direction: column; gap: 10px; }
+    .section-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; transition: border-color 0.15s; }
+    .section-card:hover { border-color: var(--blue); }
+    .section-card-header { padding: 14px 18px; display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; }
+    .section-color-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+    .section-card-title { flex: 1; font-size: 14px; font-weight: 600; }
+    .section-card-formula { font-family: monospace; font-size: 12px; color: #27ae60; background: #f0fff4; border: 1px solid #c3e6cb; border-radius: 4px; padding: 2px 8px; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .section-card-arrow { font-size: 12px; color: #888; transition: transform 0.2s; }
+    .section-card.open .section-card-arrow { transform: rotate(180deg); }
+    .section-card-body { display: none; padding: 18px; border-top: 1px solid var(--border); background: #fafbfc; }
+    .section-card.open .section-card-body { display: block; }
+    .section-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .formula-hint { background: var(--light-blue); border: 1px solid #bee5f0; border-radius: 6px; padding: 12px 16px; font-size: 12px; color: #1a4060; line-height: 1.8; margin-bottom: 14px; }
+    .formula-hint code { background: rgba(0,0,0,0.07); padding: 1px 5px; border-radius: 3px; font-size: 11.5px; font-family: monospace; }
+    .formula-preview { margin-top: 6px; padding: 7px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+    .formula-preview.valid   { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .formula-preview.invalid { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .section-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+    .color-preview { display: inline-block; width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--border); vertical-align: middle; margin-left: 6px; }
+    .empty-state { text-align: center; padding: 40px 24px; color: #888; font-size: 14px; }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: #fff; border-radius: 10px; width: 100%; max-width: 560px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); padding: 24px; }
+    .modal-box h3 { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 18px; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    #toast { position: fixed; bottom: 24px; right: 24px; background: #28a745; color: #fff; padding: 11px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 9999; opacity: 0; transform: translateY(12px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.error { background: var(--danger); }
+  </style>
+</head>
+<body>
+<nav id="navbar">
+  <span class="brand">ZTB Super App</span>
+  <span class="subtitle">Admin — BVA Config</span>
+  <div class="nav-right">
+    <a class="nav-btn" href="/admin/dashboard">&#8592; Dashboard</a>
+    <a class="nav-btn" href="/admin/sections/">&#127381; Sections</a>
+    <a class="nav-btn" href="/user" target="_blank">&#128100; User View</a>
+    <a class="nav-btn" href="/admin/logout">Logout</a>
+  </div>
+</nav>
+<nav id="sidebar">
+  <ul>
+    <li><a href="/admin/dashboard">&#127775; Value Props</a></li>
+    <li><a href="/admin/dashboard">&#128196; Assets</a></li>
+    <li><a href="/admin/dashboard">&#9989; Test Cases</a></li>
+    <li><a href="/admin/dashboard">&#128203; POV Planner</a></li>
+    <li><a href="/admin/dashboard">&#128683; Roadblocks</a></li>
+    <li><a href="/admin/dashboard">&#10067; Questions Library</a></li>
+    <li><a href="/admin/dashboard">&#9881; Assessment Config</a></li>
+    <li><a href="/admin/sections/">&#127381; Assessment Sections</a></li>
+    <li><a href="/admin/bva/" class="active">&#128200; BVA Config</a></li>
+  </ul>
+</nav>
+<main id="main">
+  <div class="page-header">
+    <h2>&#128200; Business Value Assessment Config</h2>
+    <button class="btn btn-success" onclick="saveConfig()">&#10003; Save Raw Variables</button>
+  </div>
+
+  <!-- Panel 1: Raw Variables -->
+  <div class="panel">
+    <div class="panel-header">
+      <div>
+        <h3>&#9881; Raw Variables — Global Defaults</h3>
+        <div class="panel-subtitle">Starting values for every customer's BVA sliders. SE can override them live on the customer results page.</div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Site Count Keyword</label>
+          <input class="form-control" id="cfg-site_count_keyword" type="text" placeholder="no_of_sites" />
+          <span class="form-hint">Keyword from assessment answers used to auto-fill site count</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Device Count</label>
+          <input class="form-control" id="cfg-device_count" type="number" min="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">HW Cost per Device ($)</label>
+          <input class="form-control" id="cfg-hw_cost" type="number" min="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">HW Support % (annual)</label>
+          <input class="form-control" id="cfg-hw_support_pct" type="number" min="0" max="100" step="0.1" />
+          <span class="form-hint">e.g. 20 = 20%</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">MPLS Cost / Site / Month ($)</label>
+          <input class="form-control" id="cfg-mpls_cost" type="number" min="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Broadband Cost / Site / Month ($)</label>
+          <input class="form-control" id="cfg-broadband_cost" type="number" min="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">MPLS Usage % of Sites</label>
+          <input class="form-control" id="cfg-mpls_usage_pct" type="number" min="0" max="100" step="1" />
+          <span class="form-hint">e.g. 90 = 90% of sites on MPLS</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">FTE Count</label>
+          <input class="form-control" id="cfg-fte_count" type="number" min="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">FTE Annual Salary ($)</label>
+          <input class="form-control" id="cfg-fte_salary" type="number" min="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">FTE Time on Manual Ops %</label>
+          <input class="form-control" id="cfg-fte_time_pct" type="number" min="0" max="100" step="1" />
+          <span class="form-hint">e.g. 45 = 45% of time on manual ops</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Breach Cost ($)</label>
+          <input class="form-control" id="cfg-breach_cost" type="number" min="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Legacy Risk % (annual breach probability)</label>
+          <input class="form-control" id="cfg-legacy_risk_pct" type="number" min="0" max="100" step="0.1" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Zscaler Risk % (annual breach probability)</label>
+          <input class="form-control" id="cfg-zscaler_risk_pct" type="number" min="0" max="100" step="0.1" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel 2: BVA Sections -->
+  <div class="panel">
+    <div class="panel-header">
+      <div>
+        <h3>&#128200; Value Driver Sections</h3>
+        <div class="panel-subtitle">Each section is a calculated card on the customer BVA tab. Formula uses the computed variables listed below.</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openAddModal()">&#43; Add Section</button>
+    </div>
+    <div class="panel-body">
+      <div class="formula-hint">
+        <strong>Available variables for formulas:</strong><br/>
+        <code>sites</code> &nbsp;|&nbsp; <code>devices</code> &nbsp;|&nbsp; <code>legacyHwCost</code> &nbsp;|&nbsp;
+        <code>mplsSites</code> &nbsp;|&nbsp; <code>broadbandSites</code> &nbsp;|&nbsp; <code>legacyNetwork</code> &nbsp;|&nbsp;
+        <code>zscalerNetwork</code> &nbsp;|&nbsp; <code>networkSavings</code> &nbsp;|&nbsp;
+        <code>fteCost</code> &nbsp;|&nbsp; <code>fteSavingsFactor</code> (=0.70) &nbsp;|&nbsp; <code>opsSavings</code> &nbsp;|&nbsp;
+        <code>riskSaving</code> &nbsp;|&nbsp; <code>legacy3yr</code> &nbsp;|&nbsp; <code>zscaler3yr</code> &nbsp;|&nbsp; <code>hardSavings3yr</code><br/>
+        <strong>Examples:</strong> &nbsp;
+        <code>legacyHwCost * 0.75</code> &nbsp;|&nbsp;
+        <code>legacyNetwork - zscalerNetwork</code> &nbsp;|&nbsp;
+        <code>fteCost * fteSavingsFactor</code> &nbsp;|&nbsp;
+        <code>riskSaving * 3</code>
+      </div>
+      <div class="sections-list" id="sections-list">
+        <div class="empty-state">Loading…</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Add Section Modal -->
+<div class="modal-overlay" id="add-modal" onclick="if(event.target===this)closeAddModal()">
+  <div class="modal-box">
+    <h3>&#43; New Value Driver Section</h3>
+    <div class="section-form-grid">
+      <div class="form-group">
+        <label class="form-label">Key (unique, no spaces)</label>
+        <input class="form-control" id="new-key" type="text" placeholder="infra_reduction" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Label</label>
+        <input class="form-control" id="new-label" type="text" placeholder="Infrastructure Reduction" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Color</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input class="form-control" id="new-color" type="text" value="#6366f1" style="flex:1"
+            oninput="document.getElementById('new-cp').style.background=this.value" />
+          <span class="color-preview" id="new-cp" style="background:#6366f1;"></span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Formula</label>
+        <input class="form-control" id="new-formula" type="text" placeholder="legacyHwCost * 0.75" style="font-family:monospace" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input class="form-control" id="new-desc" type="text" placeholder="Short description shown on the card" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="createSection()">&#43; Create</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+let sections = [];
+
+document.addEventListener('DOMContentLoaded', () => { loadConfig(); loadSections(); });
+
+async function loadConfig() {
+  const res  = await fetch('/admin/bva/api/config');
+  const data = await res.json();
+  if (!data.success) return;
+  const cfg = data.config;
+  ['site_count_keyword','device_count','hw_cost','hw_support_pct','mpls_cost','broadband_cost',
+   'mpls_usage_pct','fte_count','fte_salary','fte_time_pct','breach_cost','legacy_risk_pct','zscaler_risk_pct'
+  ].forEach(f => { const el = document.getElementById('cfg-'+f); if (el) el.value = cfg[f] ?? ''; });
+}
+
+async function saveConfig() {
+  const fields = ['site_count_keyword','device_count','hw_cost','hw_support_pct','mpls_cost','broadband_cost',
+    'mpls_usage_pct','fte_count','fte_salary','fte_time_pct','breach_cost','legacy_risk_pct','zscaler_risk_pct'];
+  const payload = {};
+  fields.forEach(f => {
+    const el = document.getElementById('cfg-'+f);
+    if (!el) return;
+    payload[f] = f === 'site_count_keyword' ? el.value.trim() : (parseFloat(el.value) || 0);
+  });
+  const res  = await fetch('/admin/bva/api/config', { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+  const data = await res.json();
+  data.success ? showToast('Config saved ✓') : showToast(data.error||'Save failed', true);
+}
+
+async function loadSections() {
+  const res  = await fetch('/admin/bva/api/sections');
+  const data = await res.json();
+  if (!data.success) return;
+  sections = data.sections;
+  renderSections();
+}
+
+function renderSections() {
+  const list = document.getElementById('sections-list');
+  if (!sections.length) { list.innerHTML = '<div class="empty-state">No sections yet. Click + Add Section.</div>'; return; }
+  list.innerHTML = sections.map(s => `
+    <div class="section-card" id="sc-${s.id}">
+      <div class="section-card-header" onclick="toggleCard(${s.id})">
+        <span class="section-color-dot" style="background:${esc(s.color)}"></span>
+        <span class="section-card-title">${esc(s.label)}</span>
+        <span class="section-card-formula">${esc(s.formula)}</span>
+        <span class="section-card-arrow">&#9660;</span>
+      </div>
+      <div class="section-card-body">
+        <div class="section-form-grid">
+          <div class="form-group">
+            <label class="form-label">Key</label>
+            <input class="form-control" id="s-key-${s.id}" type="text" value="${esc(s.key)}" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Label</label>
+            <input class="form-control" id="s-label-${s.id}" type="text" value="${esc(s.label)}" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Color</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input class="form-control" id="s-color-${s.id}" type="text" value="${esc(s.color)}" style="flex:1"
+                oninput="document.getElementById('s-cp-${s.id}').style.background=this.value;document.querySelector('#sc-${s.id} .section-color-dot').style.background=this.value" />
+              <span class="color-preview" id="s-cp-${s.id}" style="background:${esc(s.color)}"></span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Order</label>
+            <input class="form-control" id="s-order-${s.id}" type="number" value="${s.order}" min="0" />
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label class="form-label">Formula</label>
+          <input class="form-control" id="s-formula-${s.id}" type="text" value="${esc(s.formula)}"
+            oninput="previewFormula(${s.id})" style="font-family:monospace" />
+          <div class="formula-preview" id="s-fp-${s.id}" style="display:none"></div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label">Description</label>
+          <input class="form-control" id="s-desc-${s.id}" type="text" value="${esc(s.description)}" />
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-danger btn-sm" onclick="deleteSection(${s.id})">&#128465; Delete</button>
+          <button class="btn btn-success btn-sm" onclick="saveSection(${s.id})">&#10003; Save</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleCard(id) { document.getElementById('sc-'+id).classList.toggle('open'); }
+
+const SAMPLE = { sites:30, devices:345, legacyHwCost:644000, mplsSites:27, broadbandSites:3,
+  legacyNetwork:401400, zscalerNetwork:126000, networkSavings:275400, fteCost:337500,
+  fteSavingsFactor:0.70, opsSavings:236250, riskSaving:412500,
+  legacy3yr:5386200, zscaler3yr:3427386, hardSavings3yr:1958814 };
+
+function previewFormula(id) {
+  const formula = document.getElementById('s-formula-'+id).value.trim();
+  const fp      = document.getElementById('s-fp-'+id);
+  if (!formula) { fp.style.display='none'; return; }
+  try {
+    const result = safeEval(formula, SAMPLE);
+    fp.style.display = 'block'; fp.className = 'formula-preview valid';
+    fp.textContent = '✓ Sample: $' + Number(result).toLocaleString('en-US',{maximumFractionDigits:0}) + ' /yr';
+  } catch(e) {
+    fp.style.display = 'block'; fp.className = 'formula-preview invalid';
+    fp.textContent = '✗ ' + e.message;
+  }
+}
+
+async function saveSection(id) {
+  const payload = {
+    key:         document.getElementById('s-key-'+id).value.trim(),
+    label:       document.getElementById('s-label-'+id).value.trim(),
+    color:       document.getElementById('s-color-'+id).value.trim(),
+    formula:     document.getElementById('s-formula-'+id).value.trim(),
+    description: document.getElementById('s-desc-'+id).value.trim(),
+    order:       parseInt(document.getElementById('s-order-'+id).value)||0,
+  };
+  if (!payload.key||!payload.formula) { showToast('Key and formula required',true); return; }
+  const res  = await fetch('/admin/bva/api/sections/'+id, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+  const data = await res.json();
+  if (data.success) {
+    showToast('Saved ✓');
+    document.querySelector('#sc-'+id+' .section-card-title').textContent  = payload.label;
+    document.querySelector('#sc-'+id+' .section-card-formula').textContent = payload.formula;
+    document.querySelector('#sc-'+id+' .section-color-dot').style.background = payload.color;
+    const idx = sections.findIndex(s=>s.id===id); if (idx>-1) sections[idx]=data.section;
+  } else { showToast(data.error||'Save failed',true); }
+}
+
+async function deleteSection(id) {
+  if (!confirm('Delete this section?')) return;
+  const res  = await fetch('/admin/bva/api/sections/'+id, { method:'DELETE' });
+  const data = await res.json();
+  if (data.success) { sections=sections.filter(s=>s.id!==id); renderSections(); showToast('Deleted.'); }
+  else showToast(data.error||'Delete failed',true);
+}
+
+function openAddModal()  { document.getElementById('add-modal').classList.add('open'); }
+function closeAddModal() { document.getElementById('add-modal').classList.remove('open'); }
+
+async function createSection() {
+  const payload = {
+    key:         document.getElementById('new-key').value.trim().replace(/\s+/g,'_'),
+    label:       document.getElementById('new-label').value.trim(),
+    color:       document.getElementById('new-color').value.trim()||'#6366f1',
+    formula:     document.getElementById('new-formula').value.trim(),
+    description: document.getElementById('new-desc').value.trim(),
+  };
+  if (!payload.key||!payload.label||!payload.formula) { showToast('Key, label and formula required',true); return; }
+  const res  = await fetch('/admin/bva/api/sections', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+  const data = await res.json();
+  if (data.success) {
+    sections.push(data.section); renderSections(); closeAddModal(); showToast('Section created ✓');
+    ['new-key','new-label','new-formula','new-desc'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('new-color').value='#6366f1'; document.getElementById('new-cp').style.background='#6366f1';
+  } else showToast(data.error||'Create failed',true);
+}
+
+function safeEval(formula, vars) {
+  let expr = formula;
+  Object.keys(vars).sort((a,b)=>b.length-a.length).forEach(k => {
+    expr = expr.replace(new RegExp('\\b'+k+'\\b','g'), vars[k]);
+  });
+  if (!/^[\d\s\+\-\*\/\.\(\)]+$/.test(expr)) throw new Error('Invalid characters in formula');
+  const result = Function('"use strict";return('+expr+')')();
+  if (!isFinite(result)) throw new Error('Result is not finite');
+  return result;
+}
+
+let _tt;
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = isError ? 'show error' : 'show';
+  clearTimeout(_tt); _tt = setTimeout(()=>{ t.className=''; }, 3000);
+}
+
+function esc(str) {
+  return String(str??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

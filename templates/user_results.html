@@ -4,17 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% if not not_found %}{{ user_resp.customer_name }} — ZTB Assessment Results{% else %}Not Found — ZTB Super App{% endif %}</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --navy-dark: #002244;
-      --navy:      #003366;
-      --blue:      #0070c0;
-      --accent:    #00aaff;
-      --white:     #ffffff;
-      --card-bg:   #0a2a50;
-      --text-muted:#a0bcd8;
-      --border:    rgba(0,170,255,0.25);
-      --shadow:    0 8px 40px rgba(0,0,0,0.55);
+      --navy-dark: #002244; --navy: #003366; --blue: #0070c0; --accent: #00aaff;
+      --white: #ffffff; --card-bg: #0a2a50; --text-muted: #a0bcd8;
+      --border: rgba(0,170,255,0.25); --shadow: 0 8px 40px rgba(0,0,0,0.55);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -36,6 +31,15 @@
     .hero-meta span { display: flex; align-items: center; gap: 5px; }
     .hero-meta a { color: var(--accent); text-decoration: none; word-break: break-all; }
     .hero-meta a:hover { text-decoration: underline; }
+
+    /* ── Page tabs ── */
+    .page-tabs { display: flex; gap: 0; padding: 0 2rem; background: rgba(0,22,44,0.7); border-bottom: 1px solid var(--border); overflow-x: auto; }
+    .page-tab { padding: 0.85rem 1.4rem; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.2s, border-color 0.2s; user-select: none; }
+    .page-tab:hover { color: var(--white); }
+    .page-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
     .page-body { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
     .section-heading { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.25rem; }
     .section-heading h2 { font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
@@ -44,27 +48,11 @@
 
     /* ── ASSESSMENT SUMMARY ── */
     .summary-grid { display: flex; flex-wrap: wrap; gap: 12px; }
-
-    .summary-card {
-      background: linear-gradient(145deg, #0d2d52, #0a2244);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--accent);
-      border-radius: 12px; padding: 1rem 1.4rem;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 1.5rem; flex: 1 1 220px; min-width: 200px;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
+    .summary-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 12px; padding: 1rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex: 1 1 220px; min-width: 200px; transition: border-color 0.2s, box-shadow 0.2s; }
     .summary-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.1); }
     .summary-card-name { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
     .summary-card-outcome { background: var(--accent); color: var(--navy-dark); font-size: 0.82rem; font-weight: 800; padding: 4px 14px; border-radius: 20px; white-space: nowrap; }
-
-    .summary-card-banner {
-      background: linear-gradient(145deg, #0d2d52, #0a2244);
-      border: 1px solid var(--border);
-      border-radius: 12px; padding: 1rem 1.4rem;
-      flex: 1 1 100%; width: 100%;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
+    .summary-card-banner { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.4rem; flex: 1 1 100%; width: 100%; transition: border-color 0.2s, box-shadow 0.2s; }
     .summary-card-banner:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
     .summary-card-banner-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.65rem; }
     .summary-card-banner-name { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
@@ -73,13 +61,7 @@
 
     /* VALUE PROPS */
     .vp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
-    .vp-card {
-      background: linear-gradient(145deg, #0d2d52, #0a2244);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--accent);
-      border-radius: 14px; padding: 1.25rem 1.4rem;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
+    .vp-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 14px; padding: 1.25rem 1.4rem; transition: border-color 0.2s, box-shadow 0.2s; }
     .vp-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.1); }
     .vp-card-title { font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 0.45rem; line-height: 1.35; }
     .vp-card-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; }
@@ -87,14 +69,7 @@
 
     /* DOCUMENTS */
     .assets-list { display: flex; flex-direction: column; gap: 0.7rem; }
-    .asset-row {
-      background: linear-gradient(145deg, #0d2d52, #0a2244);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--accent);
-      border-radius: 12px; padding: 1rem 1.25rem;
-      display: flex; align-items: flex-start; gap: 1rem;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
+    .asset-row { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: flex-start; gap: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
     .asset-row:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.1); }
     .asset-icon { width: 38px; height: 38px; flex-shrink: 0; background: rgba(0,170,255,0.1); border: 1px solid rgba(0,170,255,0.2); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
     .asset-info { flex: 1; min-width: 0; }
@@ -123,7 +98,7 @@
     .download-btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.78rem 1.6rem; background: linear-gradient(135deg, var(--blue), var(--accent)); border: none; border-radius: 10px; color: var(--white); font-size: 0.92rem; font-weight: 700; cursor: pointer; text-decoration: none; box-shadow: 0 4px 18px rgba(0,112,192,0.4); transition: opacity 0.2s, transform 0.15s; white-space: nowrap; }
     .download-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-    /* OPPORTUNITY NOTES */
+    /* NOTES */
     .notes-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem 1.6rem; }
     .notes-textarea { width: 100%; min-height: 130px; background: rgba(0,0,0,0.25); border: 1px solid rgba(0,170,255,0.2); border-radius: 9px; color: var(--white); font-size: 0.88rem; font-family: inherit; line-height: 1.6; padding: 0.85rem 1rem; resize: vertical; transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
     .notes-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,170,255,0.1); }
@@ -131,9 +106,9 @@
     .notes-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 0.65rem; min-height: 22px; }
     .notes-status { font-size: 0.75rem; color: var(--text-muted); transition: opacity 0.3s; opacity: 0; }
     .notes-status.visible { opacity: 1; }
-    .notes-status.saved   { color: #00dc82; }
-    .notes-status.saving  { color: var(--accent); }
-    .notes-status.error   { color: #ff6b6b; }
+    .notes-status.saved  { color: #00dc82; }
+    .notes-status.saving { color: var(--accent); }
+    .notes-status.error  { color: #ff6b6b; }
     .notes-hint { font-size: 0.72rem; color: rgba(160,188,216,0.35); }
 
     /* Q&A TABLE */
@@ -164,6 +139,39 @@
     .ie-save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .ie-cancel-btn { background: transparent; color: var(--text-muted); border: 1px solid rgba(160,188,216,0.22); border-radius: 7px; padding: 7px 14px; font-size: 0.82rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; font-family: inherit; }
     .ie-cancel-btn:hover { color: var(--white); border-color: var(--text-muted); }
+
+    /* ── BVA TAB ── */
+    .bva-body { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+    .bva-sliders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 2rem; }
+    .bva-slider-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; }
+    .bva-slider-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; display: flex; justify-content: space-between; align-items: center; }
+    .bva-slider-value { font-size: 0.9rem; font-weight: 700; color: var(--accent); }
+    .bva-slider { width: 100%; margin: 6px 0 2px; accent-color: var(--accent); cursor: pointer; }
+    .bva-slider-range { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted); }
+    .bva-kpi-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; margin-bottom: 2rem; }
+    .bva-kpi-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.4rem; border-left: 3px solid var(--accent); }
+    .bva-kpi-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .bva-kpi-value { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .bva-kpi-sub { font-size: 0.75rem; color: var(--text-muted); }
+    .bva-bottom { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; margin-bottom: 2rem; }
+    @media (max-width: 700px) { .bva-bottom { grid-template-columns: 1fr; } }
+    .bva-chart-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem; }
+    .bva-chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .bva-chart-title { font-size: 0.9rem; font-weight: 700; color: var(--white); }
+    .bva-chart-subtitle { font-size: 0.72rem; color: var(--text-muted); }
+    .bva-drivers-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem; }
+    .bva-drivers-title { font-size: 0.9rem; font-weight: 700; color: var(--white); margin-bottom: 1.1rem; }
+    .bva-driver-row { margin-bottom: 1.1rem; }
+    .bva-driver-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.3rem; }
+    .bva-driver-name { font-size: 0.8rem; font-weight: 700; }
+    .bva-driver-value { font-size: 0.88rem; font-weight: 800; color: var(--white); }
+    .bva-driver-bar-bg { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+    .bva-driver-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+    .bva-driver-desc { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem; }
+    .bva-save-indicator { font-size: 0.75rem; color: var(--text-muted); text-align: right; margin-bottom: 1rem; min-height: 18px; }
+    .bva-save-indicator.saved  { color: #00dc82; }
+    .bva-save-indicator.saving { color: var(--accent); }
+
     #ie-toast { position: fixed; bottom: 24px; right: 24px; background: #00875a; color: #fff; padding: 11px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.35); z-index: 9999; opacity: 0; transform: translateY(10px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
     #ie-toast.show { opacity: 1; transform: translateY(0); }
     #ie-toast.error { background: #b91c1c; }
@@ -185,6 +193,7 @@
       .vp-grid { grid-template-columns: 1fr; }
       .summary-grid { flex-direction: column; }
       .col-action { display: none; }
+      .bva-body { padding: 1.5rem 1rem 4rem; }
     }
   </style>
 </head>
@@ -236,9 +245,16 @@
   </div>
 </div>
 
+<!-- PAGE TABS -->
+<div class="page-tabs">
+  <div class="page-tab active" data-tab="results" onclick="switchTab('results')">📋 Results</div>
+  <div class="page-tab" data-tab="bva" onclick="switchTab('bva')">📊 Business Value</div>
+</div>
+
+<!-- ══════════════════════ RESULTS TAB ══════════════════════ -->
+<div class="tab-panel active" id="tab-results">
 <div class="page-body">
 
-  <!-- ASSESSMENT SUMMARY -->
   {% if section_outcomes %}
   <div class="section-heading">
     <h2>Assessment Summary</h2>
@@ -253,9 +269,7 @@
             <span class="summary-card-banner-name">{{ sec.name }}</span>
             <span class="summary-card-banner-outcome" style="background: {{ c }};">{{ sec.outcome }}</span>
           </div>
-          <div class="summary-card-banner-text" style="border-left-color: {{ c }}; background: {{ c }}18;">
-            {{ sec.banner }}
-          </div>
+          <div class="summary-card-banner-text" style="border-left-color: {{ c }}; background: {{ c }}18;">{{ sec.banner }}</div>
         </div>
       {% else %}
         <div class="summary-card">
@@ -268,7 +282,6 @@
   <hr class="section-divider">
   {% endif %}
 
-  <!-- VALUE PROPS -->
   <div class="section-heading">
     <h2>Value Propositions</h2>
     <span class="section-badge">{{ value_props | length }}</span>
@@ -277,9 +290,7 @@
   <div class="vp-grid">
     {% for vp in value_props %}
     <div class="vp-card">
-      <div class="vp-card-title">
-        {{ vp.get('Value Proposition Name') or vp.get('title') or vp.get('name') or ('Value Prop #' ~ vp.get('id','')) }}
-      </div>
+      <div class="vp-card-title">{{ vp.get('Value Proposition Name') or vp.get('title') or vp.get('name') or ('Value Prop #' ~ vp.get('id','')) }}</div>
       {% set desc = vp.get('Description') or vp.get('description') %}
       {% if desc %}<div class="vp-card-desc">{{ desc }}</div>{% endif %}
       {% set biz = vp.get('Business Value') or vp.get('business_value') %}
@@ -293,7 +304,6 @@
 
   <hr class="section-divider">
 
-  <!-- DOCUMENTS -->
   <div class="section-heading">
     <h2>Documents</h2>
     <span class="section-badge">{{ documents | length }}</span>
@@ -312,9 +322,7 @@
         {% if atype %}<div class="asset-type">{{ atype }}</div>{% endif %}
         {% if desc %}<div class="asset-desc">{{ desc }}</div>{% endif %}
       </div>
-      {% if url %}
-      <a class="asset-link" href="{{ url }}" target="_blank" rel="noopener">Open →</a>
-      {% endif %}
+      {% if url %}<a class="asset-link" href="{{ url }}" target="_blank" rel="noopener">Open →</a>{% endif %}
     </div>
     {% endfor %}
   </div>
@@ -336,13 +344,9 @@
     <div class="guideline-card">
       <div class="guideline-header">
         <div class="guideline-title">{{ title }}</div>
-        {% if url %}
-        <a class="guideline-link" href="{{ url }}" target="_blank" rel="noopener">Reference →</a>
-        {% endif %}
+        {% if url %}<a class="guideline-link" href="{{ url }}" target="_blank" rel="noopener">Reference →</a>{% endif %}
       </div>
-      {% if desc %}
-      <div class="guideline-body">{{ desc }}</div>
-      {% endif %}
+      {% if desc %}<div class="guideline-body">{{ desc }}</div>{% endif %}
     </div>
     {% endfor %}
   </div>
@@ -350,7 +354,6 @@
 
   <hr class="section-divider">
 
-  <!-- DOWNLOAD -->
   <div class="download-section">
     <div class="download-text">
       <h3>📋 POV Planner &amp; Test Cases</h3>
@@ -361,10 +364,7 @@
 
   <hr class="section-divider">
 
-  <!-- OPPORTUNITY NOTES -->
-  <div class="section-heading">
-    <h2>Opportunity Notes</h2>
-  </div>
+  <div class="section-heading"><h2>Opportunity Notes</h2></div>
   <div class="notes-card">
     <textarea class="notes-textarea" id="opportunityNotes"
       placeholder="Add notes about this opportunity — next steps, key contacts, blockers, context for the team…"
@@ -377,7 +377,6 @@
 
   <hr class="section-divider">
 
-  <!-- Q&A with inline edit -->
   <div class="section-heading">
     <h2>Assessment Responses</h2>
     <span class="section-badge">{{ qa_pairs | length }}</span>
@@ -420,6 +419,42 @@
   {% endif %}
 
 </div>
+</div><!-- /tab-results -->
+
+<!-- ══════════════════════ BVA TAB ══════════════════════ -->
+<div class="tab-panel" id="tab-bva">
+<div class="bva-body">
+
+  <div class="bva-save-indicator" id="bva-save-indicator"></div>
+
+  <!-- Sliders -->
+  <div class="section-heading"><h2>&#9881; Model Inputs</h2></div>
+  <div class="bva-sliders-grid" id="bva-sliders"></div>
+
+  <hr class="section-divider">
+
+  <!-- KPI Cards -->
+  <div class="section-heading"><h2>&#128200; 3-Year Value Summary</h2></div>
+  <div class="bva-kpi-row" id="bva-kpi-row"></div>
+
+  <!-- Chart + Drivers -->
+  <div class="bva-bottom">
+    <div class="bva-chart-card">
+      <div class="bva-chart-header">
+        <span class="bva-chart-title">📊 3-Year Projection Breakout</span>
+        <span class="bva-chart-subtitle">Updated in Real-Time</span>
+      </div>
+      <canvas id="bva-chart" height="260"></canvas>
+    </div>
+    <div class="bva-drivers-card">
+      <div class="bva-drivers-title">Value Drivers Split</div>
+      <div id="bva-drivers"></div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /tab-bva -->
+
 {% endif %}
 
 <footer class="footer">
@@ -434,148 +469,344 @@
 <div id="ie-toast"></div>
 
 <script>
-  const CUSTOMER_SLUG = {{ customer_slug | tojson }};
-  const QUESTIONS_MAP = {{ questions_map | tojson }};
-  let   RAW_RESPONSES = {{ raw_responses | tojson }};
-  let openQid = null;
+const CUSTOMER_SLUG  = {{ customer_slug | tojson }};
+const QUESTIONS_MAP  = {{ questions_map | tojson }};
+let   RAW_RESPONSES  = {{ raw_responses | tojson }};
+let openQid = null;
 
-  let _toastTimer;
-  function showToast(msg, isError) {
-    const t = document.getElementById('ie-toast');
-    t.textContent = msg;
-    t.className   = isError ? 'show error' : 'show';
-    clearTimeout(_toastTimer);
-    _toastTimer = setTimeout(() => { t.className = ''; }, 3200);
-  }
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.page-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+  if (name === 'bva' && !window._bvaLoaded) { initBVA(); window._bvaLoaded = true; }
+}
 
-  function normType(t) { return (t || '').toLowerCase().replace(/[^a-z]/g, ''); }
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let _toastTimer;
+function showToast(msg, isError) {
+  const t = document.getElementById('ie-toast');
+  t.textContent = msg; t.className = isError ? 'show error' : 'show';
+  clearTimeout(_toastTimer); _toastTimer = setTimeout(() => { t.className = ''; }, 3200);
+}
 
-  function toggleEditor(qid) {
-    if (openQid === qid) { closeEditor(qid); return; }
-    if (openQid !== null) closeEditor(openQid);
-    openEditor(qid);
-  }
-
-  function closeEditor(qid) {
-    const row = document.getElementById('ie-row-' + qid);
-    if (row) row.style.display = 'none';
-    openQid = null;
-  }
-
-  function openEditor(qid) {
-    const qdata = QUESTIONS_MAP[String(qid)];
-    if (!qdata) { showToast('Question data not found.', true); return; }
-    const panel = document.getElementById('ie-panel-' + qid);
-    panel.innerHTML = '';
-    const type       = normType(qdata.options_type);
-    const currentVal = RAW_RESPONSES[String(qid)];
-    if (type === 'text' || type === 'textbox') {
-      const input = document.createElement('input');
-      input.type = 'text'; input.className = 'ie-text-input';
-      input.value = currentVal || ''; input.placeholder = 'Type your answer…';
-      panel.appendChild(input);
-      buildActions(panel, qid, () => input.value.trim() || '');
-    } else if (type === 'selectallthatapply' || type === 'selectall') {
-      let selected = Array.isArray(currentVal) ? currentVal.map(Number) : [];
-      const hint = document.createElement('span');
-      hint.className = 'ie-hint'; hint.textContent = 'Select all that apply';
-      panel.appendChild(hint);
-      const wrap = document.createElement('div'); wrap.className = 'ie-options';
-      qdata.options.forEach(opt => {
-        const btn = document.createElement('button');
-        btn.className = 'ie-option-btn' + (selected.includes(opt.id) ? ' ie-sel' : '');
-        btn.textContent = opt.label;
-        btn.onclick = () => {
-          const idx = selected.indexOf(opt.id);
-          if (idx > -1) { selected.splice(idx, 1); btn.classList.remove('ie-sel'); }
-          else           { selected.push(opt.id);   btn.classList.add('ie-sel'); }
-        };
-        wrap.appendChild(btn);
-      });
-      panel.appendChild(wrap);
-      buildActions(panel, qid, () => selected.slice());
-    } else {
-      let selected = currentVal !== undefined && currentVal !== null ? Number(currentVal) : null;
-      const hint = document.createElement('span');
-      hint.className = 'ie-hint'; hint.textContent = 'Select one answer';
-      panel.appendChild(hint);
-      const wrap = document.createElement('div'); wrap.className = 'ie-options';
-      qdata.options.forEach(opt => {
-        const btn = document.createElement('button');
-        btn.className = 'ie-option-btn' + (selected === opt.id ? ' ie-sel' : '');
-        btn.textContent = opt.label;
-        btn.onclick = () => {
-          selected = opt.id;
-          wrap.querySelectorAll('.ie-option-btn').forEach(b => b.classList.remove('ie-sel'));
-          btn.classList.add('ie-sel');
-        };
-        wrap.appendChild(btn);
-      });
-      panel.appendChild(wrap);
-      buildActions(panel, qid, () => selected);
-    }
-    document.getElementById('ie-row-' + qid).style.display = '';
-    openQid = qid;
-  }
-
-  function buildActions(panel, qid, getVal) {
-    const actions = document.createElement('div'); actions.className = 'ie-actions';
-    const saveBtn = document.createElement('button');
-    saveBtn.className = 'ie-save-btn'; saveBtn.textContent = '✓ Save & Refresh';
-    const cancelBtn = document.createElement('button');
-    cancelBtn.className = 'ie-cancel-btn'; cancelBtn.textContent = 'Cancel';
-    cancelBtn.onclick = () => closeEditor(qid);
-    saveBtn.onclick = async () => {
-      const val = getVal();
-      saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
-      const updatedResponses = Object.assign({}, RAW_RESPONSES);
-      updatedResponses[String(qid)] = val;
-      try {
-        const res  = await fetch('/user/' + CUSTOMER_SLUG + '/update-answer', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question_id: qid, value: val, responses: updatedResponses })
-        });
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error || 'Save failed');
-        showToast('✓ Saved — refreshing…');
-        setTimeout(() => window.location.reload(), 900);
-      } catch(err) {
-        showToast('Error: ' + err.message, true);
-        saveBtn.disabled = false; saveBtn.textContent = '✓ Save & Refresh';
-      }
-    };
-    actions.appendChild(saveBtn); actions.appendChild(cancelBtn); panel.appendChild(actions);
-  }
-
-  (function () {
-    const textarea = document.getElementById('opportunityNotes');
-    const status   = document.getElementById('notesStatus');
-    if (!textarea) return;
-    let saveTimer = null;
-    function setStatus(type, msg) { status.textContent = msg; status.className = 'notes-status visible ' + type; }
-    function clearStatus() { status.className = 'notes-status'; }
-    function saveNotes() {
-      setStatus('saving', 'Saving…');
-      fetch('/user/' + CUSTOMER_SLUG + '/notes', {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes: textarea.value })
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
-          const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          setStatus('saved', '✓ Saved at ' + now);
-          setTimeout(clearStatus, 4000);
-        } else { setStatus('error', 'Save failed — try again'); }
-      })
-      .catch(() => setStatus('error', 'Save failed — check connection'));
-    }
-    textarea.addEventListener('blur', saveNotes);
-    textarea.addEventListener('input', function () {
-      clearTimeout(saveTimer); clearStatus();
-      saveTimer = setTimeout(saveNotes, 3000);
+// ── Inline editor ─────────────────────────────────────────────────────────────
+function normType(t) { return (t || '').toLowerCase().replace(/[^a-z]/g, ''); }
+function toggleEditor(qid) { if (openQid === qid) { closeEditor(qid); return; } if (openQid !== null) closeEditor(openQid); openEditor(qid); }
+function closeEditor(qid) { const row = document.getElementById('ie-row-' + qid); if (row) row.style.display = 'none'; openQid = null; }
+function openEditor(qid) {
+  const qdata = QUESTIONS_MAP[String(qid)]; if (!qdata) { showToast('Question data not found.', true); return; }
+  const panel = document.getElementById('ie-panel-' + qid); panel.innerHTML = '';
+  const type = normType(qdata.options_type); const currentVal = RAW_RESPONSES[String(qid)];
+  if (type === 'text' || type === 'textbox') {
+    const input = document.createElement('input'); input.type = 'text'; input.className = 'ie-text-input';
+    input.value = currentVal || ''; input.placeholder = 'Type your answer…'; panel.appendChild(input);
+    buildActions(panel, qid, () => input.value.trim() || '');
+  } else if (type === 'selectallthatapply' || type === 'selectall') {
+    let selected = Array.isArray(currentVal) ? currentVal.map(Number) : [];
+    const hint = document.createElement('span'); hint.className = 'ie-hint'; hint.textContent = 'Select all that apply'; panel.appendChild(hint);
+    const wrap = document.createElement('div'); wrap.className = 'ie-options';
+    qdata.options.forEach(opt => {
+      const btn = document.createElement('button'); btn.className = 'ie-option-btn' + (selected.includes(opt.id) ? ' ie-sel' : '');
+      btn.textContent = opt.label;
+      btn.onclick = () => { const idx = selected.indexOf(opt.id); if (idx > -1) { selected.splice(idx,1); btn.classList.remove('ie-sel'); } else { selected.push(opt.id); btn.classList.add('ie-sel'); } };
+      wrap.appendChild(btn);
     });
-  })();
+    panel.appendChild(wrap); buildActions(panel, qid, () => selected.slice());
+  } else {
+    let selected = currentVal !== undefined && currentVal !== null ? Number(currentVal) : null;
+    const hint = document.createElement('span'); hint.className = 'ie-hint'; hint.textContent = 'Select one answer'; panel.appendChild(hint);
+    const wrap = document.createElement('div'); wrap.className = 'ie-options';
+    qdata.options.forEach(opt => {
+      const btn = document.createElement('button'); btn.className = 'ie-option-btn' + (selected === opt.id ? ' ie-sel' : '');
+      btn.textContent = opt.label;
+      btn.onclick = () => { selected = opt.id; wrap.querySelectorAll('.ie-option-btn').forEach(b => b.classList.remove('ie-sel')); btn.classList.add('ie-sel'); };
+      wrap.appendChild(btn);
+    });
+    panel.appendChild(wrap); buildActions(panel, qid, () => selected);
+  }
+  document.getElementById('ie-row-' + qid).style.display = ''; openQid = qid;
+}
+function buildActions(panel, qid, getVal) {
+  const actions = document.createElement('div'); actions.className = 'ie-actions';
+  const saveBtn = document.createElement('button'); saveBtn.className = 'ie-save-btn'; saveBtn.textContent = '✓ Save & Refresh';
+  const cancelBtn = document.createElement('button'); cancelBtn.className = 'ie-cancel-btn'; cancelBtn.textContent = 'Cancel';
+  cancelBtn.onclick = () => closeEditor(qid);
+  saveBtn.onclick = async () => {
+    const val = getVal(); saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
+    const updatedResponses = Object.assign({}, RAW_RESPONSES); updatedResponses[String(qid)] = val;
+    try {
+      const res  = await fetch('/user/' + CUSTOMER_SLUG + '/update-answer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question_id: qid, value: val, responses: updatedResponses }) });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Save failed');
+      showToast('✓ Saved — refreshing…');
+      setTimeout(() => window.location.reload(), 900);
+    } catch(err) { showToast('Error: ' + err.message, true); saveBtn.disabled = false; saveBtn.textContent = '✓ Save & Refresh'; }
+  };
+  actions.appendChild(saveBtn); actions.appendChild(cancelBtn); panel.appendChild(actions);
+}
+
+// ── Notes auto-save ───────────────────────────────────────────────────────────
+(function () {
+  const textarea = document.getElementById('opportunityNotes');
+  const status   = document.getElementById('notesStatus');
+  if (!textarea) return;
+  let saveTimer = null;
+  function setStatus(type, msg) { status.textContent = msg; status.className = 'notes-status visible ' + type; }
+  function clearStatus() { status.className = 'notes-status'; }
+  function saveNotes() {
+    setStatus('saving', 'Saving…');
+    fetch('/user/' + CUSTOMER_SLUG + '/notes', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notes: textarea.value }) })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) { const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); setStatus('saved', '✓ Saved at ' + now); setTimeout(clearStatus, 4000); }
+      else setStatus('error', 'Save failed — try again');
+    })
+    .catch(() => setStatus('error', 'Save failed — check connection'));
+  }
+  textarea.addEventListener('blur', saveNotes);
+  textarea.addEventListener('input', function () { clearTimeout(saveTimer); clearStatus(); saveTimer = setTimeout(saveNotes, 3000); });
+})();
+
+// ══════════════════════════════════════════════════════════════════════════════
+// BVA ENGINE
+// ══════════════════════════════════════════════════════════════════════════════
+let _bvaConfig   = null;
+let _bvaSections = [];
+let _bvaChart    = null;
+let _bvaSaveTimer = null;
+
+// Slider definitions — maps to BVAConfig fields
+const SLIDER_DEFS = [
+  { key: 'site_count',     label: 'Number of Sites',              min: 1,   max: 500,     step: 1,    fmt: 'int',     hint: 'From assessment' },
+  { key: 'device_count',   label: 'Network Devices',              min: 1,   max: 5000,    step: 1,    fmt: 'int'      },
+  { key: 'hw_cost',        label: 'HW Cost / Device ($)',         min: 500, max: 20000,   step: 100,  fmt: 'dollar'   },
+  { key: 'hw_support_pct', label: 'HW Annual Support %',          min: 0,   max: 50,      step: 1,    fmt: 'pct'      },
+  { key: 'mpls_cost',      label: 'MPLS Cost / Site / Mo ($)',    min: 100, max: 10000,   step: 100,  fmt: 'dollar'   },
+  { key: 'broadband_cost', label: 'Broadband / Site / Mo ($)',    min: 50,  max: 2000,    step: 50,   fmt: 'dollar'   },
+  { key: 'mpls_usage_pct', label: 'MPLS Usage % of Sites',        min: 0,   max: 100,     step: 5,    fmt: 'pct'      },
+  { key: 'fte_count',      label: 'Network FTEs',                 min: 1,   max: 100,     step: 1,    fmt: 'int'      },
+  { key: 'fte_salary',     label: 'FTE Annual Salary ($)',        min: 40000, max: 400000, step: 5000, fmt: 'dollar'  },
+  { key: 'fte_time_pct',   label: 'FTE Time on Manual Ops %',     min: 0,   max: 100,     step: 5,    fmt: 'pct'      },
+  { key: 'breach_cost',    label: 'Breach Cost ($)',              min: 100000, max: 50000000, step: 100000, fmt: 'dollar' },
+  { key: 'legacy_risk_pct', label: 'Legacy Breach Risk % / yr',   min: 0,   max: 50,      step: 0.5,  fmt: 'pct'      },
+  { key: 'zscaler_risk_pct', label: 'Zscaler Breach Risk % / yr', min: 0,   max: 10,      step: 0.1,  fmt: 'pct'      },
+];
+
+// Current slider values (live)
+let _bvaVals = {};
+
+function fmtVal(val, fmt) {
+  if (fmt === 'dollar') return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
+  if (fmt === 'pct')    return val + '%';
+  return Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
+function fmtDollar(val) {
+  return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
+async function initBVA() {
+  const res  = await fetch('/user/' + CUSTOMER_SLUG + '/bva-config');
+  const data = await res.json();
+  if (!data.success) return;
+
+  _bvaConfig   = data.config;
+  _bvaSections = data.sections;
+
+  // Build initial values: config defaults → overrides → site_count from answers
+  SLIDER_DEFS.forEach(def => {
+    let val = _bvaConfig[def.key] ?? def.min;
+    if (data.overrides && data.overrides[def.key] !== undefined) val = data.overrides[def.key];
+    _bvaVals[def.key] = Number(val);
+  });
+  // site_count is special — not in BVAConfig, derived separately
+  if (data.site_count_from_answers !== null && data.site_count_from_answers !== undefined) {
+    if (!data.overrides || data.overrides['site_count'] === undefined) {
+      _bvaVals['site_count'] = data.site_count_from_answers;
+    }
+  }
+  if (!_bvaVals['site_count']) _bvaVals['site_count'] = 30;
+
+  buildSliders();
+  renderBVA();
+}
+
+function buildSliders() {
+  const container = document.getElementById('bva-sliders');
+  container.innerHTML = '';
+  SLIDER_DEFS.forEach(def => {
+    const val  = _bvaVals[def.key] ?? def.min;
+    const card = document.createElement('div'); card.className = 'bva-slider-card';
+    card.innerHTML = `
+      <div class="bva-slider-label">
+        <span>${def.label}${def.hint ? ' <span style="font-size:0.65rem;color:#00aaff;">(' + def.hint + ')</span>' : ''}</span>
+        <span class="bva-slider-value" id="sv-${def.key}">${fmtVal(val, def.fmt)}</span>
+      </div>
+      <input class="bva-slider" id="sl-${def.key}" type="range"
+        min="${def.min}" max="${def.max}" step="${def.step}" value="${val}" />
+      <div class="bva-slider-range">
+        <span>${fmtVal(def.min, def.fmt)}</span>
+        <span>${fmtVal(def.max, def.fmt)}</span>
+      </div>`;
+    container.appendChild(card);
+
+    const slider = card.querySelector('#sl-' + def.key);
+    slider.addEventListener('input', () => {
+      const newVal = parseFloat(slider.value);
+      _bvaVals[def.key] = newVal;
+      document.getElementById('sv-' + def.key).textContent = fmtVal(newVal, def.fmt);
+      renderBVA();
+      scheduleSave();
+    });
+  });
+}
+
+function computeVars() {
+  const v = _bvaVals;
+  const sites            = v.site_count        || 0;
+  const devices          = v.device_count      || 0;
+  const hwCost           = v.hw_cost           || 0;
+  const hwSupportPct     = v.hw_support_pct    || 0;
+  const mplsCost         = v.mpls_cost         || 0;
+  const broadbandCost    = v.broadband_cost     || 0;
+  const mplsUsagePct     = v.mpls_usage_pct    || 0;
+  const fteCount         = v.fte_count         || 0;
+  const fteSalary        = v.fte_salary        || 0;
+  const fteTimePct       = v.fte_time_pct      || 0;
+  const breachCost       = v.breach_cost       || 0;
+  const legacyRiskPct    = v.legacy_risk_pct   || 0;
+  const zscalerRiskPct   = v.zscaler_risk_pct  || 0;
+
+  const legacyHwCost     = (devices * hwCost / 3) + (devices * hwCost * hwSupportPct / 100);
+  const mplsSites        = sites * mplsUsagePct / 100;
+  const broadbandSites   = sites * (1 - mplsUsagePct / 100);
+  const legacyNetwork    = (mplsSites * mplsCost * 12) + (broadbandSites * broadbandCost * 12);
+  const zscalerNetwork   = sites * broadbandCost * 12;
+  const networkSavings   = legacyNetwork - zscalerNetwork;
+  const fteCost          = fteCount * fteSalary * fteTimePct / 100;
+  const fteSavingsFactor = 0.70;
+  const opsSavings       = fteCost * fteSavingsFactor;
+  const riskSaving       = breachCost * (legacyRiskPct / 100 - zscalerRiskPct / 100);
+  const legacy3yr        = (legacyHwCost + legacyNetwork + fteCount * fteSalary) * 3;
+  const zscaler3yr       = (legacy3yr * 0.28) + (zscalerNetwork * 3) + (fteCount * fteSalary * 3) - (opsSavings * 3);
+  const hardSavings3yr   = legacy3yr - zscaler3yr;
+
+  return {
+    sites, devices, legacyHwCost, mplsSites, broadbandSites,
+    legacyNetwork, zscalerNetwork, networkSavings,
+    fteCost, fteSavingsFactor, opsSavings,
+    riskSaving, legacy3yr, zscaler3yr, hardSavings3yr,
+    fteCount, fteSalary,
+  };
+}
+
+function safeEval(formula, vars) {
+  let expr = formula;
+  Object.keys(vars).sort((a,b) => b.length - a.length).forEach(k => {
+    expr = expr.replace(new RegExp('\\b' + k + '\\b', 'g'), vars[k]);
+  });
+  if (!/^[\d\s\+\-\*\/\.\(\)]+$/.test(expr)) throw new Error('Invalid formula');
+  return Function('"use strict";return(' + expr + ')')();
+}
+
+function renderBVA() {
+  const cv = computeVars();
+
+  // ── KPI Cards ──────────────────────────────────────────────────────────────
+  const savingsPct = cv.legacy3yr > 0 ? Math.round(cv.hardSavings3yr / cv.legacy3yr * 100) : 0;
+  const kpis = [
+    { title: 'TOTAL LEGACY RUN COST',     value: fmtDollar(cv.legacy3yr),       sub: 'Summing HW support, bandwidth, management labor.',   color: '#14b8a6' },
+    { title: 'ZSCALER SUBSCRIPTION EST.', value: fmtDollar(cv.zscaler3yr),      sub: 'Platform consolidates VPN, SWG, DLP & monitoring.',   color: '#6366f1' },
+    { title: '3-YR HARD COST SAVINGS',    value: fmtDollar(cv.hardSavings3yr),  sub: savingsPct + '% TCO reduction',                        color: '#22c55e' },
+    { title: 'AVOIDED RISK VALUE',        value: fmtDollar(cv.riskSaving * 3),  sub: 'Based on prevented lateral breach probability.',      color: '#f43f5e' },
+  ];
+  const kpiRow = document.getElementById('bva-kpi-row');
+  kpiRow.innerHTML = kpis.map(k => `
+    <div class="bva-kpi-card" style="border-left-color:${k.color}">
+      <div class="bva-kpi-title">${k.title}</div>
+      <div class="bva-kpi-value" style="color:${k.color}">${k.value}</div>
+      <div class="bva-kpi-sub">${k.sub}</div>
+    </div>`).join('');
+
+  // ── Chart ──────────────────────────────────────────────────────────────────
+  const legacyPerYr   = cv.legacy3yr / 3;
+  const zscalerPerYr  = cv.zscaler3yr / 3;
+  const chartData = {
+    labels: ['Year 1 Run Cost', 'Year 2 Run Cost', 'Year 3 Run Cost'],
+    datasets: [
+      { label: 'Legacy Hub-and-Spoke Infrastructure', data: [legacyPerYr, legacyPerYr, legacyPerYr], backgroundColor: 'rgba(244,63,94,0.75)', borderColor: '#f43f5e', borderWidth: 1, borderRadius: 4 },
+      { label: 'Zscaler Zero Trust Strategy',          data: [zscalerPerYr, zscalerPerYr, zscalerPerYr], backgroundColor: 'rgba(20,184,166,0.75)', borderColor: '#14b8a6', borderWidth: 1, borderRadius: 4 },
+    ]
+  };
+  if (_bvaChart) {
+    _bvaChart.data = chartData;
+    _bvaChart.update();
+  } else {
+    const ctx = document.getElementById('bva-chart').getContext('2d');
+    _bvaChart = new Chart(ctx, {
+      type: 'bar',
+      data: chartData,
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { labels: { color: '#a0bcd8', font: { size: 11 } } },
+          tooltip: { callbacks: { label: ctx => ' ' + fmtDollar(ctx.raw) } }
+        },
+        scales: {
+          x: { ticks: { color: '#a0bcd8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          y: { ticks: { color: '#a0bcd8', callback: v => fmtDollar(v) }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        }
+      }
+    });
+  }
+
+  // ── Value Drivers (from admin-configured sections) ─────────────────────────
+  const driversEl = document.getElementById('bva-drivers');
+  if (!_bvaSections.length) {
+    driversEl.innerHTML = '<div class="empty-state" style="padding:1rem;font-size:0.8rem;">No value driver sections configured.<br>Add them in Admin → BVA Config.</div>';
+    return;
+  }
+  const driverVals = _bvaSections.map(s => {
+    try { return { s, val: Math.max(0, safeEval(s.formula, cv)) }; }
+    catch(e) { return { s, val: 0 }; }
+  });
+  const maxVal = Math.max(...driverVals.map(d => d.val), 1);
+  driversEl.innerHTML = driverVals.map(({ s, val }) => `
+    <div class="bva-driver-row">
+      <div class="bva-driver-header">
+        <span class="bva-driver-name" style="color:${s.color}">${s.label}</span>
+        <span class="bva-driver-value">${fmtDollar(val)} / yr</span>
+      </div>
+      <div class="bva-driver-bar-bg">
+        <div class="bva-driver-bar-fill" style="width:${Math.round(val/maxVal*100)}%;background:${s.color}"></div>
+      </div>
+      ${s.description ? `<div class="bva-driver-desc">${s.description}</div>` : ''}
+    </div>`).join('');
+}
+
+// ── Debounced save ─────────────────────────────────────────────────────────────
+function scheduleSave() {
+  const ind = document.getElementById('bva-save-indicator');
+  ind.textContent = 'Saving…'; ind.className = 'bva-save-indicator saving';
+  clearTimeout(_bvaSaveTimer);
+  _bvaSaveTimer = setTimeout(saveBVA, 1200);
+}
+
+async function saveBVA() {
+  const ind = document.getElementById('bva-save-indicator');
+  try {
+    const res  = await fetch('/user/' + CUSTOMER_SLUG + '/bva-save', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ overrides: _bvaVals })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      ind.textContent = '✓ Saved at ' + now; ind.className = 'bva-save-indicator saved';
+      setTimeout(() => { ind.textContent = ''; ind.className = 'bva-save-indicator'; }, 4000);
+    } else { ind.textContent = 'Save failed'; ind.className = 'bva-save-indicator'; }
+  } catch(e) { ind.textContent = 'Save failed'; ind.className = 'bva-save-indicator'; }
+}
 </script>
 
 </body>

@@ -6,17 +6,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def create_app():
-    """App factory — used by init_db.py and gunicorn."""
     app = Flask(__name__)
 
-    # Load config
     from config import config
     app.config.from_object(config)
 
-    # Init db
     db.init_app(app)
 
-    # Register blueprints
     from routes.admin_routes import admin_bp
     from routes.admin_questions_routes import admin_questions_bp
     from routes.admin_assessment_routes import admin_assessment_bp
@@ -28,6 +24,7 @@ def create_app():
     from routes.admin_roadblocks_routes import bp as roadblocks_bp
     from routes.admin_responses_routes import responses_bp
     from routes.admin_sections_routes import sections_bp
+    from routes.bva_routes import bva_bp, bva_user_bp
 
     app.register_blueprint(admin_bp)
     app.register_blueprint(admin_questions_bp)
@@ -40,10 +37,11 @@ def create_app():
     app.register_blueprint(roadblocks_bp)
     app.register_blueprint(responses_bp)
     app.register_blueprint(sections_bp)
+    app.register_blueprint(bva_bp)
+    app.register_blueprint(bva_user_bp)
 
     return app
 
-# Create app instance for direct use (init_sample_data.py, gunicorn)
 app = create_app()
 
 if __name__ == '__main__':

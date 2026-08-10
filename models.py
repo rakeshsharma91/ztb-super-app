@@ -216,14 +216,6 @@ class AssessmentConfig(db.Model):
         }
 
 class QuestionVisibilityRule(db.Model):
-    """
-    One row = "if option <option_id> is selected on question <parent_question_id>,
-               reveal question <child_question_id>".
-
-    Multiple rows with same parent+child but different option_id  → OR logic (any trigger reveals).
-    Multiple rows with same parent+child+option but diff parent   → multiple parents supported.
-    Chaining works naturally: child can itself be a parent in other rows.
-    """
     __tablename__ = 'question_visibility_rules'
     id                 = db.Column(db.Integer, primary_key=True)
     parent_question_id = db.Column(db.Integer, db.ForeignKey('questions.id', ondelete='CASCADE'), nullable=False)
@@ -302,6 +294,66 @@ class ResultSection(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }
 
+class BVAConfig(db.Model):
+    __tablename__ = 'bva_config'
+    id                 = db.Column(db.Integer, primary_key=True)
+    site_count_keyword = db.Column(db.String(100), default='no_of_sites')
+    device_count       = db.Column(db.Float, default=345)
+    hw_cost            = db.Column(db.Float, default=3500)
+    hw_support_pct     = db.Column(db.Float, default=20)
+    mpls_cost          = db.Column(db.Float, default=1200)
+    broadband_cost     = db.Column(db.Float, default=350)
+    mpls_usage_pct     = db.Column(db.Float, default=90)
+    fte_count          = db.Column(db.Float, default=6)
+    fte_salary         = db.Column(db.Float, default=125000)
+    fte_time_pct       = db.Column(db.Float, default=45)
+    breach_cost        = db.Column(db.Float, default=2500000)
+    legacy_risk_pct    = db.Column(db.Float, default=18)
+    zscaler_risk_pct   = db.Column(db.Float, default=1.5)
+    updated_at         = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id':                 self.id,
+            'site_count_keyword': self.site_count_keyword,
+            'device_count':       self.device_count,
+            'hw_cost':            self.hw_cost,
+            'hw_support_pct':     self.hw_support_pct,
+            'mpls_cost':          self.mpls_cost,
+            'broadband_cost':     self.broadband_cost,
+            'mpls_usage_pct':     self.mpls_usage_pct,
+            'fte_count':          self.fte_count,
+            'fte_salary':         self.fte_salary,
+            'fte_time_pct':       self.fte_time_pct,
+            'breach_cost':        self.breach_cost,
+            'legacy_risk_pct':    self.legacy_risk_pct,
+            'zscaler_risk_pct':   self.zscaler_risk_pct,
+        }
+
+class BVASection(db.Model):
+    __tablename__ = 'bva_sections'
+    id          = db.Column(db.Integer, primary_key=True)
+    key         = db.Column(db.String(100), nullable=False, unique=True)
+    label       = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, default='')
+    color       = db.Column(db.String(20), default='#6366f1')
+    formula     = db.Column(db.Text, nullable=False)
+    order       = db.Column(db.Integer, default=0)
+    created_at  = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at  = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id':          self.id,
+            'key':         self.key,
+            'label':       self.label,
+            'description': self.description,
+            'color':       self.color,
+            'formula':     self.formula,
+            'order':       self.order,
+        }
+
+
 def run_migration(db):
     import sqlalchemy as sa
     engine    = db.engine
@@ -322,6 +374,39 @@ def run_migration(db):
     if 'question_visibility_rules' not in existing:
         db.metadata.tables['question_visibility_rules'].create(engine)
         print('[migration] Created table: question_visibility_rules')
+
+    if 'bva_config' not in existing:
+        db.metadata.tables['bva_config'].create(engine)
+        print('[migration] Created table: bva_config')
+        with engine.connect() as c:
+            c.execute(sa.text("""
+                INSERT INTO bva_config (
+                    id, site_count_keyword, device_count, hw_cost, hw_support_pct,
+                    mpls_cost, broadband_cost, mpls_usage_pct,
+                    fte_count, fte_salary, fte_time_pct,
+                    breach_cost, legacy_risk_pct, zscaler_risk_pct
+                ) VALUES (
+                    1, 'no_of_sites', 345, 3500, 20,
+                    1200, 350, 90,
+                    6, 125000, 45,
+                    2500000, 18, 1.5
+                )
+            """))
+            c.commit()
+        print('[migration] Seeded default BVAConfig row')
+
+    if 'bva_sections' not in existing:
+        db.metadata.tables['bva_sections'].create(engine)
+        print('[migration] Created table: bva_sections')
+        with engine.connect() as c:
+            c.execute(sa.text("""
+                INSERT INTO bva_sections (key, label, description, color, formula, "order") VALUES
+                ('infra_reduction', 'Infrastructure Reduction',     'No local WAN firewalls or VPN concentrators.',         '#6366f1', 'legacyHwCost * 0.75',           1),
+                ('network_savings', 'Networking Transform Savings', 'Expensive MPLS circuits converted to local broadband.','#22c55e', 'legacyNetwork - zscalerNetwork', 2),
+                ('fte_liberation',  'FTE Hours Liberated',          'Securing rule setups and troubleshooting logs.',        '#eab308', 'fteCost * fteSavingsFactor',     3)
+            """))
+            c.commit()
+        print('[migration] Seeded default BVASections')
 
     with engine.connect() as conn:
         q_cols = [c['name'] for c in inspector.get_columns('questions')]

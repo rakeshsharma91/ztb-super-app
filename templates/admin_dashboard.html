@@ -7,16 +7,9 @@
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <style>
 :root {
-  --navy: #003366;
-  --blue: #0070c0;
-  --light-blue: #e8f4fd;
-  --white: #ffffff;
-  --gray: #f5f7fa;
-  --border: #dee2e6;
-  --text: #333333;
-  --danger: #dc3545;
-  --success: #28a745;
-  --warning: #ffc107;
+  --navy: #003366; --blue: #0070c0; --light-blue: #e8f4fd;
+  --white: #ffffff; --gray: #f5f7fa; --border: #dee2e6;
+  --text: #333333; --danger: #dc3545; --success: #28a745; --warning: #ffc107;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--text); background: var(--gray); }
@@ -82,8 +75,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .hidden-default-row { margin-top: 10px; padding: 12px 14px; background: #fffbea; border: 1px solid #ffc107; border-radius: 6px; display: none; }
 .hidden-default-row label { font-size: 12px; font-weight: 600; color: #856404; margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: 0.4px; }
 .hidden-default-row select { width: 100%; padding: 7px 10px; border: 1px solid #ffc107; border-radius: 4px; font-size: 13px; background: #fff; }
-
-/* ── Visibility rules panel ── */
 .visibility-rules-panel { margin-top: 10px; padding: 14px 16px; background: #f0fdf4; border: 1px solid #6ee7b7; border-radius: 6px; display: none; }
 .visibility-rules-panel h5 { font-size: 12px; font-weight: 700; color: #065f46; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 10px; }
 .vis-rule-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; padding: 8px 10px; background: #fff; border: 1px solid #a7f3d0; border-radius: 6px; flex-wrap: wrap; font-size: 12px; }
@@ -93,7 +84,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .vis-add-row select { flex: 1; min-width: 140px; padding: 6px 8px; border: 1px solid #a7f3d0; border-radius: 4px; font-size: 12px; background: #fff; }
 .vis-add-row button { padding: 6px 14px; border-radius: 4px; border: none; background: #065f46; color: #fff; font-size: 12px; cursor: pointer; font-weight: 600; white-space: nowrap; }
 .vis-add-row button:hover { background: #047857; }
-
 .options-section { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px; }
 .options-section h4 { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.4px; }
 .option-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 10px; padding: 10px 12px; background: #f8f9fa; border-radius: 6px; flex-wrap: wrap; border: 1px solid var(--border); }
@@ -139,8 +129,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .q-card.drag-over-bottom { border-bottom: 3px solid var(--blue); }
 .q-card.dragging { opacity: 0.45; }
 </style>
+</head>
 <body>
-
 <nav id="navbar">
   <span class="brand">ZTB Super App</span>
   <span class="subtitle">Admin Dashboard</span>
@@ -149,6 +139,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <a class="nav-btn" href="/user" target="_blank">&#128100; User View</a>
     <a class="nav-btn" href="/admin/responses">&#128203; Responses</a>
     <a class="nav-btn" href="/admin/sections/">&#127381; Assessment Sections</a>
+    <a class="nav-btn" href="/admin/bva/">&#128200; BVA Config</a>
     <button class="logout-btn" onclick="window.location.href='/admin/logout'">Logout</button>
   </div>
 </nav>
@@ -162,6 +153,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <li><a href="#" class="nav-link" data-section="roadblocks" onclick="showSection('roadblocks');return false;">&#128683; Roadblocks</a></li>
     <li><a href="#" class="nav-link" data-section="questions" onclick="showSection('questions');return false;">&#10067; Questions Library</a></li>
     <li><a href="#" class="nav-link" data-section="assessment" onclick="showSection('assessment');return false;">&#9881; Assessment Config</a></li>
+    <li><a href="/admin/sections/">&#127381; Assessment Sections</a></li>
+    <li><a href="/admin/bva/">&#128200; BVA Config</a></li>
   </ul>
 </nav>
 
@@ -423,11 +416,9 @@ class LibraryTable {
     const ws = XLSX.utils.aoa_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, this.section); XLSX.writeFile(wb, `${this.section}_export.xlsx`); showToast('Export ready ✓', 'success');
   }
 }
-</script>
 
-<script>
-let questionsData     = [];
-let visibilityRules   = [];   // [{id, parent_question_id, option_id, child_question_id}]
+let questionsData   = [];
+let visibilityRules = [];
 
 async function loadQuestions() {
   const types = await apiGet('/admin/questions/category-types');
@@ -477,7 +468,6 @@ async function saveQuestionsOrder() {
   if (res && res.ok) { showToast('Order saved ✓', 'success'); } else { showToast('Reorder failed', 'error'); }
 }
 
-// Returns true if this question has any outgoing visibility rules
 function isParentQuestion(qId) {
   return visibilityRules.some(r => r.parent_question_id === qId);
 }
@@ -556,7 +546,6 @@ function buildQuestionBody(q) {
     return sel;
   }));
 
-  // Info Only
   const infoRow = document.createElement('div'); infoRow.className = 'form-row';
   const infoLabel = document.createElement('label'); infoLabel.className = 'checkbox-row';
   const infoChk = document.createElement('input'); infoChk.type = 'checkbox'; infoChk.checked = !!q.info_only;
@@ -564,7 +553,6 @@ function buildQuestionBody(q) {
   infoRow.appendChild(infoLabel); frag.appendChild(infoRow);
   infoChk.addEventListener('change', () => { patchQuestion(qId, 'info_only', infoChk.checked); });
 
-  // Hidden + Default Answer
   const hiddenRow = document.createElement('div'); hiddenRow.className = 'form-row';
   const hiddenLabel = document.createElement('label'); hiddenLabel.className = 'checkbox-row';
   const hiddenChk = document.createElement('input'); hiddenChk.type = 'checkbox'; hiddenChk.checked = !!q.hidden;
@@ -609,7 +597,6 @@ function buildQuestionBody(q) {
   });
   defaultSel.addEventListener('change', () => { const val = defaultSel.value ? parseInt(defaultSel.value) : null; q.default_option_id = val; patchQuestion(qId, 'default_option_id', val); });
 
-  // ── Parent Question / Visibility Rules ────────────────────────────────────
   const parentRow = document.createElement('div'); parentRow.className = 'form-row';
   const parentLabel = document.createElement('label'); parentLabel.className = 'checkbox-row';
   const parentChk = document.createElement('input'); parentChk.type = 'checkbox';
@@ -617,7 +604,6 @@ function buildQuestionBody(q) {
   parentLabel.appendChild(parentChk); parentLabel.appendChild(document.createTextNode(' Parent Question (selecting certain options reveals hidden child questions)'));
   parentRow.appendChild(parentLabel);
 
-  // Visibility rules builder panel
   const visPanel = document.createElement('div'); visPanel.className = 'visibility-rules-panel';
   visPanel.style.display = isParentQuestion(qId) ? 'block' : 'none';
   const visTitle = document.createElement('h5'); visTitle.innerHTML = '&#128279; Visibility Rules — When option is selected → reveal question';
@@ -638,19 +624,13 @@ function buildQuestionBody(q) {
       const delBtn = document.createElement('button'); delBtn.className = 'vis-rule-del'; delBtn.innerHTML = '&#10005;'; delBtn.title = 'Remove rule';
       delBtn.addEventListener('click', async () => {
         const ok = await apiDelete(`/admin/questions/visibility-rules/${rule.id}`);
-        if (ok) {
-          visibilityRules = visibilityRules.filter(r => r.id !== rule.id);
-          renderVisRules();
-          updateParentBadge();
-        }
+        if (ok) { visibilityRules = visibilityRules.filter(r => r.id !== rule.id); renderVisRules(); updateParentBadge(); }
       });
       row.appendChild(lbl); row.appendChild(delBtn); visRulesList.appendChild(row);
     });
   }
 
-  // Add-rule row
   const visAddRow = document.createElement('div'); visAddRow.className = 'vis-add-row';
-
   const optSel = document.createElement('select');
   const optBlank = document.createElement('option'); optBlank.value = ''; optBlank.textContent = '— Trigger option —'; optSel.appendChild(optBlank);
   function repopulateOptSel() {
@@ -671,8 +651,7 @@ function buildQuestionBody(q) {
 
   const addRuleBtn = document.createElement('button'); addRuleBtn.textContent = '+ Add Rule';
   addRuleBtn.addEventListener('click', async () => {
-    const optId   = parseInt(optSel.value);
-    const childId = parseInt(childSel.value);
+    const optId = parseInt(optSel.value); const childId = parseInt(childSel.value);
     if (!optId || !childId) { showToast('Select both a trigger option and a child question', 'warning'); return; }
     const res = await apiFetch(`/admin/questions/${qId}/visibility-rules`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -681,9 +660,7 @@ function buildQuestionBody(q) {
     if (res && (res.ok || res.status === 200)) {
       const newRule = await res.json();
       if (!visibilityRules.find(r => r.id === newRule.id)) { visibilityRules.push(newRule); }
-      optSel.value = ''; childSel.value = '';
-      renderVisRules();
-      updateParentBadge();
+      optSel.value = ''; childSel.value = ''; renderVisRules(); updateParentBadge();
     }
   });
 
@@ -715,7 +692,6 @@ function buildQuestionBody(q) {
 
   renderVisRules();
 
-  // ── Options section ───────────────────────────────────────────────────────
   const optSection = document.createElement('div'); optSection.className = 'options-section'; optSection.id = `options-section-${qId}`;
   const optTitle = document.createElement('h4'); optTitle.textContent = 'Options'; optSection.appendChild(optTitle);
   const optList = document.createElement('div'); optList.id = `options-list-${qId}`;
@@ -726,7 +702,6 @@ function buildQuestionBody(q) {
   addOptBtn.addEventListener('click', async () => {
     const newOpt = await addOption(qId);
     if (newOpt && q.hidden) { populateDefaultOptions(); }
-    // Refresh trigger option selector if vis panel is open
     if (visPanel.style.display !== 'none') { repopulateOptSel(); }
   });
   optSection.appendChild(addOptBtn);
@@ -873,16 +848,13 @@ async function deleteOption(qId, optId, rowEl) {
   const ok = await apiDelete(`/admin/questions/${qId}/options/${optId}`);
   if (ok) {
     rowEl.remove();
-    // Also remove any visibility rules that referenced this option
     visibilityRules = visibilityRules.filter(r => r.option_id !== optId);
     const q = questionsData.find(q => q.id === qId); if (q && q.options) q.options = q.options.filter(o => o.id !== optId);
   }
 }
 
 async function patchOption(qId, optId, field, value) { await apiPatch(`/admin/questions/${qId}/options/${optId}`, { field, value }); }
-</script>
 
-<script>
 let assessmentConfig = [];
 
 async function loadAssessmentConfig() {
