@@ -52,13 +52,14 @@
     .section-rule-count { color: #888; font-size: 12px; }
     .section-format-badge { background: #fff3cd; color: #856404; border: 1px solid #ffc107; border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
     .section-score-badge { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
+    .section-vd-badge { background: #ede9fe; color: #4c1d95; border: 1px solid #c4b5fd; border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
     .section-actions { display: flex; gap: 8px; }
     .empty-state { text-align: center; padding: 56px 24px; color: #888; }
     .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
     .empty-state p { font-size: 14px; margin-bottom: 16px; }
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; }
     .modal-overlay.open { display: flex; }
-    .modal { background: #fff; border-radius: 10px; width: 100%; max-width: 860px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+    .modal { background: #fff; border-radius: 10px; width: 100%; max-width: 900px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
     .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--border); }
     .modal-header h3 { font-size: 17px; font-weight: 700; color: var(--navy); }
     .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: #888; line-height: 1; transition: color 0.15s; }
@@ -78,6 +79,7 @@
     .schema-hint { background: var(--light-blue); border: 1px solid #bee5f0; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #1a4060; line-height: 1.75; }
     .schema-hint code { background: rgba(0,0,0,0.07); padding: 1px 5px; border-radius: 3px; font-size: 11.5px; }
     .schema-hint .hint-section { margin-top: 8px; padding-top: 8px; border-top: 1px solid #bee5f0; }
+    /* standard/score/banner preview — identical to old */
     .rules-preview { display: none; flex-direction: column; gap: 10px; }
     .rules-preview.visible { display: flex; }
     .rule-card { background: #f8f9fa; border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; }
@@ -110,6 +112,36 @@
     .score-points-badge { background: var(--navy); color: #fff; border-radius: 12px; padding: 2px 9px; font-size: 11px; font-weight: 700; display: inline-block; }
     .score-color-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 5px; border: 1px solid rgba(0,0,0,0.15); }
     .score-total-row { font-size: 12px; color: #555; font-style: italic; padding: 6px 0 0; }
+
+    /* ── Value Driver builder panel (appears below textarea for vd type) ── */
+    .vd-builder-panel { display: none; margin-top: 2px; border: 1px solid #c4b5fd; border-radius: 8px; background: #faf8ff; overflow: hidden; }
+    .vd-builder-panel.visible { display: block; }
+    .vd-builder-header { background: #ede9fe; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #c4b5fd; }
+    .vd-builder-header span { font-size: 12px; font-weight: 700; color: #4c1d95; text-transform: uppercase; letter-spacing: 0.4px; }
+    .vd-builder-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .vd-section-box { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; }
+    .vd-section-box h5 { font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 10px; }
+    .vd-gate-row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+    .vd-gate-row > div { display: flex; flex-direction: column; gap: 4px; }
+    .vd-gate-row label { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.3px; }
+    .vd-gate-row .form-control { min-width: 0; }
+    .vd-rows-header { display: grid; grid-template-columns: 1fr 1fr 1fr 28px; gap: 8px; padding: 0 4px 6px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+    .vd-rows-header span { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.3px; }
+    .vd-row-item { display: grid; grid-template-columns: 1fr 1fr 1fr 28px; gap: 8px; align-items: start; margin-bottom: 8px; padding: 8px; background: #f8f9fa; border-radius: 6px; border: 1px solid var(--border); }
+    .vd-row-item textarea.form-control { min-height: 56px; font-family: inherit; font-size: 12px; resize: vertical; }
+    .vd-row-del { background: transparent; border: none; color: var(--danger); font-size: 18px; cursor: pointer; padding: 0; align-self: center; justify-self: center; line-height: 1; opacity: 0.7; transition: opacity 0.15s; }
+    .vd-row-del:hover { opacity: 1; }
+    .vd-add-row-btn { background: transparent; border: 1px dashed #aaa; color: #555; border-radius: 5px; padding: 6px 12px; font-size: 12px; cursor: pointer; width: 100%; margin-top: 4px; transition: border-color 0.15s, color 0.15s; }
+    .vd-add-row-btn:hover { border-color: var(--blue); color: var(--blue); }
+    /* vd live preview table inside builder */
+    .vd-preview-wrap { margin-top: 4px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: #fff; }
+    .vd-preview-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .vd-preview-table th { text-align: left; padding: 7px 10px; background: #f0f4ff; color: #555; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.4px; border-bottom: 2px solid var(--border); }
+    .vd-preview-table td { padding: 7px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+    .vd-preview-table tr:last-child td { border-bottom: none; }
+    .vd-sync-btn { background: var(--navy); color: #fff; border: none; border-radius: 4px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+    .vd-sync-btn:hover { opacity: 0.85; }
+
     #toast { position: fixed; bottom: 24px; right: 24px; background: #28a745; color: #fff; padding: 11px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 9999; opacity: 0; transform: translateY(12px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
     #toast.show { opacity: 1; transform: translateY(0); }
     #toast.error { background: var(--danger); }
@@ -155,6 +187,10 @@
   </div>
 </main>
 
+<!-- ══════════════════════════════════════════════════════════
+     MODAL — identical to old except vd-builder-panel injected
+     below the textarea + preview area
+══════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
   <div class="modal">
     <div class="modal-header">
@@ -163,6 +199,8 @@
     </div>
     <div class="modal-body">
       <input type="hidden" id="modal-id" />
+
+      <!-- top row — unchanged -->
       <div class="form-row">
         <div>
           <label class="form-label" for="modal-name">Section Name</label>
@@ -180,6 +218,8 @@
           </select>
         </div>
       </div>
+
+      <!-- JSON editor — unchanged -->
       <div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
           <label class="form-label" style="margin-bottom:0;">Rules JSON</label>
@@ -196,45 +236,121 @@
           <code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code>
           <code>count_gt</code> <code>count_gte</code> <code>count_eq</code><br/>
           Formula outcomes: <code>"outcome": "vp_no_of_sites*0.7*3800"</code> — set Format to <strong>$ Currency</strong>.<br/>
-          Variable interpolation: use <code>[variable_name]</code> in any outcome or banner text — e.g. <code>"Segment is [gen_vertical]"</code>. Works in all three modes.
+          Variable interpolation: use <code>[variable_name]</code> in any outcome or banner text.
           <div class="hint-section">
-            <strong>Mode 2 — Score (additive):</strong> a single JSON object with
-            <code>"type": "score"</code>, <code>"max_score"</code>, <code>"scoring_rules"</code> array,
-            and optional <code>"score_banners"</code> array for color-coded banners:<br/>
-            <code>[{"min": 75, "max": 100, "label": "HIGH", "banner": "Strong buy signal for [gen_vertical].", "color": "#28a745"}, ...]</code><br/>
-            Each scoring rule: <code>{"variable", "operator", "value", "points"}</code>.
+            <strong>Mode 2 — Score (additive):</strong> <code>{"type":"score","max_score":N,"scoring_rules":[...],"score_banners":[...]}</code>
           </div>
           <div class="hint-section">
-            <strong>Mode 3 — Banner (conditional alert):</strong> a single JSON object with
-            <code>"type": "banner"</code> and a <code>"banners"</code> array.<br/>
-            Each entry: <code>{"order", "banner", "color", "condition_groups": [[...]]}</code>.<br/>
-            Groups are <strong>OR</strong>'d; conditions inside a group are <strong>AND</strong>'d. Same operators as Mode 1.<br/>
-            First match wins. If <strong>nothing matches</strong>, the section is <strong>hidden entirely</strong> on the results page.<br/>
-            Banner and outcome text support <code>[variable_name]</code> interpolation — e.g. <code>"Segment is [gen_vertical] — tailor your pitch accordingly."</code>
+            <strong>Mode 3 — Banner (conditional alert):</strong> <code>{"type":"banner","banners":[{"order","banner","color","condition_groups":[[...]]}]}</code>
+          </div>
+          <div class="hint-section">
+            <strong>Mode 4 — Value Driver:</strong> <code>{"type":"value_driver","condition_groups":[[...]],"label":"...","answer_variable":"...","rows":[{"option_value","current_state","future_state"}]}</code><br/>
+            Paste or edit the JSON above — the visual builder below will load automatically when type is <code>value_driver</code>.
           </div>
         </div>
-        <textarea class="form-control" id="modal-rules-json" placeholder='{
-  "type": "banner",
-  "banners": [
-    {
-      "order": 1,
-      "banner": "Segment is [gen_vertical] — check vertical-specific assets before the call.",
-      "color": "#0070c0",
-      "condition_groups": [
-        [{"variable": "gen_vertical", "operator": "!=", "value": ""}]
-      ]
-    }
-  ]
-}'></textarea>
+        <textarea class="form-control" id="modal-rules-json"
+          oninput="onJsonInput()"
+          placeholder='[]'></textarea>
         <div class="json-status" id="json-status"></div>
       </div>
-      <div>
+
+      <!-- standard / score / banner preview — unchanged -->
+      <div id="std-preview-section">
         <label class="form-label">Preview</label>
         <div class="rules-preview" id="rules-preview"></div>
         <div class="score-preview" id="score-preview"></div>
         <div id="preview-empty" style="display:none;font-size:13px;color:#888;font-style:italic;">No rules yet.</div>
       </div>
-    </div>
+
+      <!-- ── Value Driver visual builder — only visible for vd type ── -->
+      <div class="vd-builder-panel" id="vd-builder-panel">
+        <div class="vd-builder-header">
+          <span>&#9677; Value Driver Visual Builder</span>
+          <button class="vd-sync-btn" onclick="vdSyncToJSON()">&#8593; Sync to JSON</button>
+        </div>
+        <div class="vd-builder-body">
+
+          <!-- Gate condition -->
+          <div class="vd-section-box">
+            <h5>&#128272; Gate Condition — when does this driver row appear?</h5>
+            <div class="vd-gate-row">
+              <div style="flex:0 0 200px;">
+                <label>Variable</label>
+                <input type="text" class="form-control" id="vd-gate-variable"
+                  value="vp_problem_to_be_solved" oninput="vdLivePreview()" />
+              </div>
+              <div style="flex:0 0 140px;">
+                <label>Operator</label>
+                <select class="form-control" id="vd-gate-operator" onchange="vdLivePreview()">
+                  <option value="contains" selected>contains</option>
+                  <option value="=">=</option>
+                  <option value="!=">!=</option>
+                  <option value="in">in</option>
+                  <option value="not_contains">not_contains</option>
+                </select>
+              </div>
+              <div style="flex:1;min-width:140px;">
+                <label>Value (e.g. "Reduce Risks")</label>
+                <input type="text" class="form-control" id="vd-gate-value"
+                  placeholder="Reduce Risks" oninput="vdLivePreview()" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Label -->
+          <div class="vd-section-box">
+            <h5>Driver Label (Column 1 on results page)</h5>
+            <input type="text" class="form-control" id="vd-label"
+              placeholder="e.g. Reduce Risks" oninput="vdLivePreview()" />
+          </div>
+
+          <!-- Answer variable -->
+          <div class="vd-section-box">
+            <h5>&#128270; Answer Variable — keyword of the follow-up question</h5>
+            <input type="text" class="form-control" id="vd-answer-variable"
+              placeholder="vp_reduce_risks" oninput="vdLivePreview()" />
+          </div>
+
+          <!-- Rows -->
+          <div class="vd-section-box">
+            <h5 style="display:flex;align-items:center;justify-content:space-between;">
+              <span>&#9776; Option Rows</span>
+              <button class="btn btn-primary btn-sm" onclick="vdAddRow()">&#43; Add Row</button>
+            </h5>
+            <div class="vd-rows-header">
+              <span>Option Value</span>
+              <span>Current State</span>
+              <span>Future State</span>
+              <span></span>
+            </div>
+            <div id="vd-rows-container"></div>
+            <button class="vd-add-row-btn" onclick="vdAddRow()">&#43; Add another row</button>
+          </div>
+
+          <!-- Live preview -->
+          <div class="vd-section-box">
+            <h5>Live Preview</h5>
+            <div class="vd-preview-wrap">
+              <table class="vd-preview-table">
+                <thead>
+                  <tr>
+                    <th style="width:18%">Drivers</th>
+                    <th style="width:41%">Current State</th>
+                    <th style="width:41%">Future State</th>
+                  </tr>
+                </thead>
+                <tbody id="vd-preview-body">
+                  <tr><td colspan="3" style="color:#aaa;font-style:italic;text-align:center;padding:12px;">Fill in the fields above to preview.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /modal-body -->
+
     <div class="modal-footer">
       <button class="btn btn-danger btn-sm" id="modal-delete-btn" onclick="deleteSection()" style="display:none;">&#128465; Delete</button>
       <div class="modal-footer-right">
@@ -249,11 +365,24 @@
 
 <script>
   let sections = [];
+  let _vdRows  = [];
+  let _vdSyncing = false; // prevents re-entrant onJsonInput while we write vd json
 
+  // ── helpers ────────────────────────────────────────────────────────────────
   function isFormula(outcome) {
     return outcome && /[a-zA-Z_][a-zA-Z0-9_]*/.test(outcome) && /[+\-*/()]/.test(outcome);
   }
+  function esc(str) {
+    return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  let toastTimer;
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = isError ? 'show error' : 'show';
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.className = ''; }, 3000);
+  }
 
+  // ── load ───────────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', loadSections);
 
   async function loadSections() {
@@ -284,27 +413,33 @@
       const rj       = s.rules_json;
       const isScore  = rj && !Array.isArray(rj) && rj.type === 'score';
       const isBanner = rj && !Array.isArray(rj) && rj.type === 'banner';
+      const isVD     = rj && !Array.isArray(rj) && rj.type === 'value_driver';
       const rc = isScore  ? (rj.scoring_rules || []).length
                : isBanner ? (rj.banners || []).length
+               : isVD     ? (rj.rows || []).length
                : (Array.isArray(rj) ? rj.length : 0);
       const hasBanners = isScore
         ? (rj.score_banners || []).length > 0
-        : isBanner
-        ? true
-        : (Array.isArray(rj) && rj.some(r => r.banner));
+        : isBanner ? true
+        : (!isVD && Array.isArray(rj) && rj.some(r => r.banner));
       const typeBadge = isScore
         ? `<span class="section-score-badge">&#9733; Score /${rj.max_score}</span>`
         : isBanner
         ? `<span style="background:#fff0e8;color:#7c3000;border:1px solid #fd7e14;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600;">&#127384; Banner Only</span>`
+        : isVD
+        ? `<span class="section-vd-badge">&#9677; Value Driver</span>`
         : (s.format === 'currency_usd' ? `<span class="section-format-badge">$ USD</span>` : '');
-      const bannerBadge = hasBanners && !isBanner
+      const bannerBadge = hasBanners && !isBanner && !isVD
         ? `<span style="background:#fff0f6;color:#c0392b;border:1px solid #f5c6cb;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600;">&#127384; Banners</span>`
         : '';
+      const rowLabel = isVD
+        ? `${rc} option${rc !== 1 ? 's' : ''}`
+        : `${rc} rule${rc !== 1 ? 's' : ''}`;
       return `<div class="section-row" data-id="${s.id}">
         <span class="section-order-badge">#${s.order}</span>
         <span class="section-name">${esc(s.name)}</span>
         <div class="section-meta">
-          <span class="section-rule-count">${rc} rule${rc !== 1 ? 's' : ''}</span>
+          <span class="section-rule-count">${rowLabel}</span>
           ${typeBadge}${bannerBadge}
         </div>
         <div class="section-actions">
@@ -314,6 +449,7 @@
     }).join('');
   }
 
+  // ── modals ─────────────────────────────────────────────────────────────────
   function openAddModal() {
     document.getElementById('modal-title').textContent         = 'Add Section';
     document.getElementById('modal-id').value                 = '';
@@ -323,6 +459,7 @@
     document.getElementById('modal-rules-json').value         = '[]';
     document.getElementById('modal-delete-btn').style.display = 'none';
     resetPreview();
+    vdHideBuilder();
     document.getElementById('modal-overlay').classList.add('open');
   }
 
@@ -337,7 +474,14 @@
     document.getElementById('modal-rules-json').value         = JSON.stringify(s.rules_json || [], null, 2);
     document.getElementById('modal-delete-btn').style.display = 'inline-flex';
     resetPreview();
-    validateAndPreview();
+    // detect value_driver and load builder, else run normal preview
+    const rj = s.rules_json;
+    if (rj && !Array.isArray(rj) && rj.type === 'value_driver') {
+      vdLoadFromJSON(rj);
+    } else {
+      vdHideBuilder();
+      validateAndPreview();
+    }
     document.getElementById('modal-overlay').classList.add('open');
   }
 
@@ -346,6 +490,7 @@
     if (e.target === document.getElementById('modal-overlay')) closeModal();
   }
 
+  // ── save ───────────────────────────────────────────────────────────────────
   async function saveSection() {
     const id     = document.getElementById('modal-id').value;
     const name   = document.getElementById('modal-name').value.trim();
@@ -358,12 +503,12 @@
     catch(e) { showToast('Invalid JSON: ' + e.message, true); return; }
     if (Array.isArray(rules_json)) {
       // standard — ok
-    } else if (rules_json && typeof rules_json === 'object' && rules_json.type === 'score') {
-      // score — ok
-    } else if (rules_json && typeof rules_json === 'object' && rules_json.type === 'banner') {
-      // banner — ok
+    } else if (rules_json && typeof rules_json === 'object' &&
+               ['score','banner','value_driver'].includes(rules_json.type)) {
+      // typed mode — ok
     } else {
-      showToast('Rules JSON must be an array (standard), a score object, or a banner object.', true); return;
+      showToast('Rules JSON must be an array or a typed object (score/banner/value_driver).', true);
+      return;
     }
     const url    = id ? `/admin/sections/api/${id}` : '/admin/sections/api';
     const method = id ? 'PUT' : 'POST';
@@ -390,6 +535,22 @@
     } catch(err) { showToast('Error: ' + err.message, true); }
   }
 
+  // ── JSON textarea live detection ───────────────────────────────────────────
+  // Called oninput on the textarea. Detects value_driver and shows/hides builder.
+  function onJsonInput() {
+    if (_vdSyncing) return;
+    const raw = document.getElementById('modal-rules-json').value.trim();
+    if (!raw) { vdHideBuilder(); return; }
+    let parsed;
+    try { parsed = JSON.parse(raw); } catch(e) { vdHideBuilder(); return; }
+    if (parsed && !Array.isArray(parsed) && parsed.type === 'value_driver') {
+      vdLoadFromJSON(parsed);
+    } else {
+      vdHideBuilder();
+    }
+  }
+
+  // ── validate & preview (standard / score / banner — unchanged) ─────────────
   function validateAndPreview() {
     const raw       = document.getElementById('modal-rules-json').value.trim();
     const status    = document.getElementById('json-status');
@@ -402,221 +563,258 @@
     scorePrev.classList.remove('visible'); scorePrev.innerHTML = '';
     pe.style.display = 'none';
     if (!raw) {
-      status.className = 'json-status invalid';
+      status.className   = 'json-status invalid';
       status.textContent = '✗ Empty — enter a valid JSON array or object.';
       return;
     }
     let parsed;
     try { parsed = JSON.parse(raw); }
     catch(e) {
-      status.className = 'json-status invalid';
+      status.className   = 'json-status invalid';
       status.textContent = '✗ Invalid JSON: ' + e.message;
       return;
     }
-    // Mode 3 — Banner
-    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && parsed.type === 'banner') {
+    // value_driver — just show status, builder handles the rest
+    if (parsed && !Array.isArray(parsed) && parsed.type === 'value_driver') {
+      const rows = parsed.rows || [];
+      status.className   = 'json-status valid';
+      status.textContent = `✓ Value Driver — "${parsed.label || ''}", ${rows.length} option row${rows.length !== 1 ? 's' : ''}. Use the builder below.`;
+      vdLoadFromJSON(parsed);
+      return;
+    }
+    // Banner
+    if (parsed && !Array.isArray(parsed) && parsed.type === 'banner') {
       const banners = parsed.banners || [];
-      status.className = 'json-status valid';
+      status.className   = 'json-status valid';
       status.textContent = `✓ Banner section — ${banners.length} banner${banners.length !== 1 ? 's' : ''}. Section is hidden if no condition matches.`;
       if (!banners.length) { pe.style.display = 'block'; return; }
-      const sorted = [...banners].sort((a,b) => (a.order||0) - (b.order||0));
-      stdPrev.innerHTML = sorted.map(renderBannerCard).join('');
+      stdPrev.innerHTML = [...banners].sort((a,b)=>(a.order||0)-(b.order||0)).map(renderBannerCard).join('');
       stdPrev.classList.add('visible');
       return;
     }
-    // Mode 2 — Score
-    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && parsed.type === 'score') {
-      const rules   = parsed.scoring_rules || [];
-      const banners = parsed.score_banners || [];
-      const maxS    = parsed.max_score || '?';
-      status.className = 'json-status valid';
-      status.textContent = `✓ Score section — ${rules.length} scoring rule${rules.length !== 1 ? 's' : ''}, max ${maxS} pts${banners.length ? ', ' + banners.length + ' banners' : ''}.`;
-      if (!rules.length && !banners.length) { pe.style.display = 'block'; return; }
+    // Score
+    if (parsed && !Array.isArray(parsed) && parsed.type === 'score') {
+      const rules = parsed.scoring_rules || []; const bns = parsed.score_banners || [];
+      status.className   = 'json-status valid';
+      status.textContent = `✓ Score section — ${rules.length} scoring rule${rules.length !== 1 ? 's' : ''}, max ${parsed.max_score || '?'} pts${bns.length ? ', ' + bns.length + ' banners' : ''}.`;
+      if (!rules.length && !bns.length) { pe.style.display = 'block'; return; }
       scorePrev.innerHTML = renderScorePreview(parsed);
       scorePrev.classList.add('visible');
       return;
     }
     // Must be array
     if (!Array.isArray(parsed)) {
-      status.className = 'json-status invalid';
-      status.textContent = '✗ Must be a JSON array (standard), score object with "type":"score", or banner object with "type":"banner".';
+      status.className   = 'json-status invalid';
+      status.textContent = '✗ Must be a JSON array (standard), or a typed object (score/banner/value_driver).';
       return;
     }
-    // Mode 1 — Standard
-    status.className = 'json-status valid';
+    status.className   = 'json-status valid';
     status.textContent = `✓ Valid — ${parsed.length} rule${parsed.length !== 1 ? 's' : ''} found.`;
     if (!parsed.length) { pe.style.display = 'block'; return; }
-    const sorted = [...parsed].sort((a,b) => (a.order||0) - (b.order||0));
-    stdPrev.innerHTML = sorted.map(renderRuleCard).join('');
+    stdPrev.innerHTML = [...parsed].sort((a,b)=>(a.order||0)-(b.order||0)).map(renderRuleCard).join('');
     stdPrev.classList.add('visible');
   }
 
-  function renderScorePreview(config) {
-    const rules   = config.scoring_rules || [];
-    const banners = config.score_banners || [];
-    const maxS    = config.max_score || '?';
-    const total   = rules.reduce((s, r) => s + (r.points || 0), 0);
+  // ══════════════════════════════════════════════════════════════════════════
+  // VALUE DRIVER BUILDER
+  // ══════════════════════════════════════════════════════════════════════════
 
+  function vdShowBuilder() {
+    document.getElementById('vd-builder-panel').classList.add('visible');
+    document.getElementById('std-preview-section').style.display = 'none';
+  }
+  function vdHideBuilder() {
+    document.getElementById('vd-builder-panel').classList.remove('visible');
+    document.getElementById('std-preview-section').style.display = '';
+  }
+
+  function vdLoadFromJSON(rj) {
+    _vdRows = [];
+    // gate
+    const gate = ((rj.condition_groups || [[]])[0] || [])[0] || {};
+    document.getElementById('vd-gate-variable').value   = gate.variable  || 'vp_problem_to_be_solved';
+    document.getElementById('vd-gate-operator').value   = gate.operator  || 'contains';
+    document.getElementById('vd-gate-value').value      = gate.value     || '';
+    // label / answer_variable
+    document.getElementById('vd-label').value           = rj.label           || '';
+    document.getElementById('vd-answer-variable').value = rj.answer_variable || '';
+    // rows
+    _vdRows = (rj.rows || []).map(r => ({
+      option_value:  r.option_value  || '',
+      current_state: r.current_state || '',
+      future_state:  r.future_state  || '',
+    }));
+    vdRenderAllRows();
+    vdLivePreview();
+    vdShowBuilder();
+  }
+
+  function vdRenderAllRows() {
+    const container = document.getElementById('vd-rows-container');
+    container.innerHTML = '';
+    _vdRows.forEach((_, i) => vdRenderRow(i));
+  }
+
+  function vdRenderRow(idx) {
+    const container = document.getElementById('vd-rows-container');
+    const row = _vdRows[idx];
+    const div = document.createElement('div');
+    div.className = 'vd-row-item';
+    div.setAttribute('data-vd-idx', idx);
+    div.innerHTML = `
+      <input type="text" class="form-control" placeholder="Option value…"
+        value="${esc(row.option_value)}"
+        oninput="vdRowChange(${idx},'option_value',this.value)" />
+      <textarea class="form-control" placeholder="Current state sentence…"
+        oninput="vdRowChange(${idx},'current_state',this.value)"
+      >${esc(row.current_state)}</textarea>
+      <textarea class="form-control" placeholder="Future state sentence…"
+        oninput="vdRowChange(${idx},'future_state',this.value)"
+      >${esc(row.future_state)}</textarea>
+      <button class="vd-row-del" title="Delete row" onclick="vdDeleteRow(${idx})">&#10005;</button>
+    `;
+    container.appendChild(div);
+  }
+
+  function vdAddRow() {
+    _vdRows.push({ option_value: '', current_state: '', future_state: '' });
+    vdRenderRow(_vdRows.length - 1);
+    vdLivePreview();
+  }
+
+  function vdDeleteRow(idx) {
+    _vdRows.splice(idx, 1);
+    vdRenderAllRows();
+    vdLivePreview();
+  }
+
+  function vdRowChange(idx, field, value) {
+    if (_vdRows[idx]) _vdRows[idx][field] = value;
+    vdLivePreview();
+  }
+
+  function vdLivePreview() {
+    const label   = document.getElementById('vd-label').value || '(Driver)';
+    const body    = document.getElementById('vd-preview-body');
+    if (!_vdRows.length) {
+      body.innerHTML = `<tr><td colspan="3" style="color:#aaa;font-style:italic;text-align:center;padding:12px;">Add rows above to see a preview.</td></tr>`;
+      return;
+    }
+    const csHtml = _vdRows.map(r => r.current_state).filter(Boolean)
+      .map(l => `<div style="padding:2px 0;border-bottom:1px solid #f0f0f0;">${esc(l)}</div>`).join('') || '<span style="color:#aaa;">—</span>';
+    const fsHtml = _vdRows.map(r => r.future_state).filter(Boolean)
+      .map(l => `<div style="padding:2px 0;border-bottom:1px solid #f0f0f0;">${esc(l)}</div>`).join('') || '<span style="color:#aaa;">—</span>';
+    body.innerHTML = `<tr>
+      <td style="font-weight:700;color:#003366;vertical-align:top;">${esc(label)}</td>
+      <td style="vertical-align:top;">${csHtml}</td>
+      <td style="vertical-align:top;">${fsHtml}</td>
+    </tr>`;
+  }
+
+  // "Sync to JSON" button — writes builder state back into the textarea
+  function vdSyncToJSON() {
+    const gateVar = document.getElementById('vd-gate-variable').value.trim();
+    const gateOp  = document.getElementById('vd-gate-operator').value;
+    const gateVal = document.getElementById('vd-gate-value').value.trim();
+    const label   = document.getElementById('vd-label').value.trim();
+    const ansVar  = document.getElementById('vd-answer-variable').value.trim();
+    if (!label)   { showToast('Driver label is required.', true); return; }
+    if (!gateVal) { showToast('Gate condition value is required.', true); return; }
+    if (!ansVar)  { showToast('Answer variable is required.', true); return; }
+    const obj = {
+      type:             'value_driver',
+      condition_groups: [[{ variable: gateVar, operator: gateOp, value: gateVal }]],
+      label,
+      answer_variable:  ansVar,
+      rows: _vdRows.map(r => ({
+        option_value:  r.option_value.trim(),
+        current_state: r.current_state.trim(),
+        future_state:  r.future_state.trim(),
+      })).filter(r => r.option_value),
+    };
+    _vdSyncing = true;
+    document.getElementById('modal-rules-json').value = JSON.stringify(obj, null, 2);
+    _vdSyncing = false;
+    // update status bar
+    const status = document.getElementById('json-status');
+    status.className   = 'json-status valid';
+    status.textContent = `✓ Value Driver — "${label}", ${obj.rows.length} option row${obj.rows.length !== 1 ? 's' : ''}. Ready to save.`;
+    showToast('Synced to JSON ✓');
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // STANDARD / SCORE / BANNER PREVIEW RENDERERS — identical to original
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function renderScorePreview(config) {
+    const rules = config.scoring_rules || []; const banners = config.score_banners || [];
+    const maxS = config.max_score || '?'; const total = rules.reduce((s,r)=>s+(r.points||0),0);
     let rows = rules.map(r => {
       const val = Array.isArray(r.value) ? JSON.stringify(r.value) : String(r.value ?? '');
-      return `<tr>
-        <td><span class="cond-var">${esc(r.variable || '?')}</span></td>
-        <td><span class="cond-op">${esc(r.operator || '=')}</span></td>
-        <td><span class="cond-val">${esc(val)}</span></td>
-        <td><span class="score-points-badge">+${r.points || 0}</span></td>
-      </tr>`;
+      return `<tr><td><span class="cond-var">${esc(r.variable||'?')}</span></td><td><span class="cond-op">${esc(r.operator||'=')}</span></td><td><span class="cond-val">${esc(val)}</span></td><td><span class="score-points-badge">+${r.points||0}</span></td></tr>`;
     }).join('');
-
     let bannerRows = '';
     if (banners.length) {
-      bannerRows = `<div style="margin-top:10px;">
-        <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Score Banners</div>
-        <table class="score-table">
-          <thead><tr><th>Range</th><th>Label</th><th>Color</th><th>Banner Text</th></tr></thead>
-          <tbody>` +
-        banners.map(b => `<tr>
-          <td style="font-size:11px;">${b.min ?? 0}% – ${b.max ?? 100}%</td>
-          <td><strong>${esc(b.label || '')}</strong></td>
-          <td><span class="score-color-swatch" style="background:${esc(b.color || '#ccc')}"></span>${esc(b.color || '')}</td>
-          <td style="font-style:italic;color:#555;">${esc(b.banner || '')}</td>
-        </tr>`).join('') +
-        `</tbody></table></div>`;
+      bannerRows = `<div style="margin-top:10px;"><div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Score Banners</div><table class="score-table"><thead><tr><th>Range</th><th>Label</th><th>Color</th><th>Banner Text</th></tr></thead><tbody>`
+        + banners.map(b=>`<tr><td style="font-size:11px;">${b.min??0}% – ${b.max??100}%</td><td><strong>${esc(b.label||'')}</strong></td><td><span class="score-color-swatch" style="background:${esc(b.color||'#ccc')}"></span>${esc(b.color||'')}</td><td style="font-style:italic;color:#555;">${esc(b.banner||'')}</td></tr>`).join('')
+        + `</tbody></table></div>`;
     }
-
-    return `
-      <div class="score-header">
-        <span class="score-header-label">&#9733; Score Section</span>
-        <span class="score-header-max">Max: ${maxS} pts</span>
-        <span style="font-size:11px;color:#2e7d32;margin-left:4px;">(${rules.length} rules, up to ${total} pts possible)</span>
-      </div>
-      <table class="score-table">
-        <thead><tr><th>Variable</th><th>Operator</th><th>Value</th><th>Points</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      ${bannerRows}
-      <div class="score-total-row">Result displayed as: <strong>score/${maxS} (xx.xx%)</strong></div>`;
+    return `<div class="score-header"><span class="score-header-label">&#9733; Score Section</span><span class="score-header-max">Max: ${maxS} pts</span><span style="font-size:11px;color:#2e7d32;margin-left:4px;">(${rules.length} rules, up to ${total} pts possible)</span></div><table class="score-table"><thead><tr><th>Variable</th><th>Operator</th><th>Value</th><th>Points</th></tr></thead><tbody>${rows}</tbody></table>${bannerRows}<div class="score-total-row">Result displayed as: <strong>score/${maxS} (xx.xx%)</strong></div>`;
   }
 
   function renderBannerCard(b) {
-    const groups    = b.condition_groups || [];
-    const isDefault = !!b.is_default;
-    const banner    = b.banner || '';
-    const color     = b.color  || '#fd7e14';
-
+    const groups = b.condition_groups || []; const isDefault = !!b.is_default;
+    const banner = b.banner || ''; const color = b.color || '#fd7e14';
     let groupsHtml = '';
-    if (isDefault || !groups.length) {
-      groupsHtml = `<div class="rule-default-text">Always matches (default / no conditions)</div>`;
-    } else {
+    if (isDefault || !groups.length) { groupsHtml = `<div class="rule-default-text">Always matches (default / no conditions)</div>`; }
+    else {
       groupsHtml = `<div class="rule-groups">`;
-      groups.forEach((group, gi) => {
-        if (gi > 0) groupsHtml += `<div class="rule-or-separator">— OR —</div>`;
+      groups.forEach((group,gi) => {
+        if (gi>0) groupsHtml += `<div class="rule-or-separator">— OR —</div>`;
         groupsHtml += `<div class="rule-group"><div class="rule-group-label">Group ${gi+1} &nbsp;(AND)</div>`;
-        group.forEach((cond, ci) => {
-          const val = Array.isArray(cond.value) ? JSON.stringify(cond.value) : String(cond.value ?? '');
-          groupsHtml += `<div class="rule-condition">
-            ${ci > 0 ? `<span class="cond-and">AND</span>` : ''}
-            <span class="cond-var">${esc(cond.variable || '?')}</span>
-            <span class="cond-op">${esc(cond.operator || '=')}</span>
-            <span class="cond-val">${esc(val)}</span>
-          </div>`;
+        group.forEach((cond,ci) => {
+          const val = Array.isArray(cond.value)?JSON.stringify(cond.value):String(cond.value??'');
+          groupsHtml += `<div class="rule-condition">${ci>0?`<span class="cond-and">AND</span>`:''}<span class="cond-var">${esc(cond.variable||'?')}</span><span class="cond-op">${esc(cond.operator||'=')}</span><span class="cond-val">${esc(val)}</span></div>`;
         });
         groupsHtml += `</div>`;
       });
       groupsHtml += `</div>`;
     }
-
-    const bannerHtml = banner
-      ? `<div class="rule-banner-preview" style="border-left-color:${esc(color)};background:${esc(color)}18;">
-          <span class="score-color-swatch" style="background:${esc(color)}"></span>
-          ${esc(banner)}
-         </div>`
-      : '';
-
-    return `<div class="rule-card">
-      <div class="rule-card-header">
-        <span class="rule-order-chip">Banner #${b.order ?? '?'}</span>
-        <span style="background:#fd7e14;color:#fff;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;">&#127384; BANNER</span>
-        ${isDefault ? `<span class="rule-default-badge">DEFAULT</span>` : ''}
-      </div>
-      ${groupsHtml}
-      ${bannerHtml}
-    </div>`;
+    const bannerHtml = banner ? `<div class="rule-banner-preview" style="border-left-color:${esc(color)};background:${esc(color)}18;"><span class="score-color-swatch" style="background:${esc(color)}"></span>${esc(banner)}</div>` : '';
+    return `<div class="rule-card"><div class="rule-card-header"><span class="rule-order-chip">Banner #${b.order??'?'}</span><span style="background:#fd7e14;color:#fff;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;">&#127384; BANNER</span>${isDefault?`<span class="rule-default-badge">DEFAULT</span>`:''}</div>${groupsHtml}${bannerHtml}</div>`;
   }
 
   function renderRuleCard(rule) {
-    const groups    = rule.condition_groups || [];
-    const isDefault = !!rule.is_default;
-    const outcome   = rule.outcome || '(no outcome)';
-    const formula   = isFormula(outcome);
-    const banner    = rule.banner || '';
-    const color     = rule.color  || '';
-
+    const groups = rule.condition_groups || []; const isDefault = !!rule.is_default;
+    const outcome = rule.outcome || '(no outcome)'; const formula = isFormula(outcome);
+    const banner = rule.banner || ''; const color = rule.color || '';
     let groupsHtml = '';
-    if (isDefault || !groups.length) {
-      groupsHtml = `<div class="rule-default-text">Always matches (default / no conditions)</div>`;
-    } else {
+    if (isDefault || !groups.length) { groupsHtml = `<div class="rule-default-text">Always matches (default / no conditions)</div>`; }
+    else {
       groupsHtml = `<div class="rule-groups">`;
-      groups.forEach((group, gi) => {
-        if (gi > 0) groupsHtml += `<div class="rule-or-separator">— OR —</div>`;
+      groups.forEach((group,gi) => {
+        if (gi>0) groupsHtml += `<div class="rule-or-separator">— OR —</div>`;
         groupsHtml += `<div class="rule-group"><div class="rule-group-label">Group ${gi+1} &nbsp;(AND)</div>`;
-        group.forEach((cond, ci) => {
-          const val = Array.isArray(cond.value) ? JSON.stringify(cond.value) : String(cond.value ?? '');
-          groupsHtml += `<div class="rule-condition">
-            ${ci > 0 ? `<span class="cond-and">AND</span>` : ''}
-            <span class="cond-var">${esc(cond.variable || '?')}</span>
-            <span class="cond-op">${esc(cond.operator || '=')}</span>
-            <span class="cond-val">${esc(val)}</span>
-          </div>`;
+        group.forEach((cond,ci) => {
+          const val = Array.isArray(cond.value)?JSON.stringify(cond.value):String(cond.value??'');
+          groupsHtml += `<div class="rule-condition">${ci>0?`<span class="cond-and">AND</span>`:''}<span class="cond-var">${esc(cond.variable||'?')}</span><span class="cond-op">${esc(cond.operator||'=')}</span><span class="cond-val">${esc(val)}</span></div>`;
         });
         groupsHtml += `</div>`;
       });
       groupsHtml += `</div>`;
     }
-
-    const bannerHtml = banner
-      ? `<div class="rule-banner-preview" style="border-left-color:${esc(color) || '#aaa'};background:${esc(color) ? esc(color)+'18' : '#f0f0f0'};">
-          ${color ? `<span class="score-color-swatch" style="background:${esc(color)}"></span>` : ''}
-          ${esc(banner)}
-         </div>`
-      : '';
-
-    return `<div class="rule-card">
-      <div class="rule-card-header">
-        <span class="rule-order-chip">Rule #${rule.order ?? '?'}</span>
-        ${formula
-          ? `<span class="rule-formula-badge">&#402; ${esc(outcome)}</span>`
-          : `<span class="rule-outcome-badge">${esc(outcome)}</span>`
-        }
-        ${isDefault ? `<span class="rule-default-badge">DEFAULT</span>` : ''}
-      </div>
-      ${groupsHtml}
-      ${bannerHtml}
-    </div>`;
+    const bannerHtml = banner ? `<div class="rule-banner-preview" style="border-left-color:${esc(color)||'#aaa'};background:${esc(color)?esc(color)+'18':'#f0f0f0'};">${color?`<span class="score-color-swatch" style="background:${esc(color)}"></span>`:''} ${esc(banner)}</div>` : '';
+    return `<div class="rule-card"><div class="rule-card-header"><span class="rule-order-chip">Rule #${rule.order??'?'}</span>${formula?`<span class="rule-formula-badge">&#402; ${esc(outcome)}</span>`:`<span class="rule-outcome-badge">${esc(outcome)}</span>`}${isDefault?`<span class="rule-default-badge">DEFAULT</span>`:''}</div>${groupsHtml}${bannerHtml}</div>`;
   }
 
   function resetPreview() {
-    document.getElementById('json-status').className = 'json-status';
+    document.getElementById('json-status').className   = 'json-status';
     document.getElementById('json-status').textContent = '';
     const sp = document.getElementById('rules-preview');
     sp.classList.remove('visible'); sp.innerHTML = '';
     const sc = document.getElementById('score-preview');
     sc.classList.remove('visible'); sc.innerHTML = '';
     document.getElementById('preview-empty').style.display = 'none';
-  }
-
-  let toastTimer;
-  function showToast(msg, isError = false) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className   = isError ? 'show error' : 'show';
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { t.className = ''; }, 3000);
-  }
-
-  function esc(str) {
-    return String(str ?? '')
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 </script>
 </body>

@@ -54,7 +54,6 @@
     }
     @media (max-width: 900px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 560px) { .summary-grid { grid-template-columns: 1fr; } }
-
     .summary-tile {
       background: linear-gradient(145deg, #0d2d52, #0a2244);
       border: 1px solid var(--border);
@@ -99,6 +98,64 @@
       border-radius: 7px;
       border-left: 3px solid;
       background: rgba(255,255,255,0.04);
+    }
+
+    /* ── VALUE DRIVERS TABLE ── */
+    .vd-wrapper {
+      background: linear-gradient(145deg, #0d2d52, #0a2244);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .vd-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .vd-table th {
+      text-align: left;
+      padding: 11px 16px;
+      background: rgba(0,51,102,0.7);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+    }
+    .vd-table th:first-child { width: 18%; }
+    .vd-table th:nth-child(2) { width: 41%; }
+    .vd-table th:nth-child(3) { width: 41%; }
+    .vd-table td {
+      padding: 14px 16px;
+      font-size: 0.85rem;
+      border-bottom: 1px solid rgba(0,170,255,0.08);
+      vertical-align: top;
+      line-height: 1.65;
+    }
+    .vd-table tr:last-child td { border-bottom: none; }
+    .vd-table tr:hover td { background: rgba(0,170,255,0.04); }
+    .vd-table td.vd-driver {
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .vd-table td.vd-current {
+      color: #f87171;
+    }
+    .vd-table td.vd-future {
+      color: #4ade80;
+    }
+    .vd-line {
+      display: block;
+      padding: 2px 0;
+    }
+    .vd-line + .vd-line {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255,255,255,0.06);
     }
 
     /* VALUE PROPS */
@@ -235,6 +292,7 @@
       .vp-grid { grid-template-columns: 1fr; }
       .col-action { display: none; }
       .bva-body { padding: 1.5rem 1rem 4rem; }
+      .vd-table th, .vd-table td { padding: 10px 10px; font-size: 0.78rem; }
     }
   </style>
 </head>
@@ -270,6 +328,17 @@
   {% endif %}
 {% endfor %}
 
+{# ── Split section_outcomes into regular tiles vs value_driver rows ── #}
+{% set tile_outcomes   = [] %}
+{% set driver_outcomes = [] %}
+{% for sec in section_outcomes %}
+  {% if sec.format == 'value_driver' %}
+    {% set _ = driver_outcomes.append(sec) %}
+  {% else %}
+    {% set _ = tile_outcomes.append(sec) %}
+  {% endif %}
+{% endfor %}
+
 <div class="hero">
   <div class="hero-inner">
     <div class="hero-eyebrow">ZTB Opportunity Package</div>
@@ -296,13 +365,14 @@
 <div class="tab-panel active" id="tab-results">
 <div class="page-body">
 
-  {% if section_outcomes %}
+  {# ── Assessment Summary tiles (score / banner / standard only) ── #}
+  {% if tile_outcomes %}
   <div class="section-heading">
     <h2>Assessment Summary</h2>
-    <span class="section-badge">{{ section_outcomes | length }}</span>
+    <span class="section-badge">{{ tile_outcomes | length }}</span>
   </div>
   <div class="summary-grid">
-    {% for sec in section_outcomes %}
+    {% for sec in tile_outcomes %}
       {% set c = sec.color if sec.color else '#00aaff' %}
       <div class="summary-tile" style="border-top-color: {{ c }};">
         <div class="summary-tile-top">
@@ -314,6 +384,43 @@
         {% endif %}
       </div>
     {% endfor %}
+  </div>
+  <hr class="section-divider">
+  {% endif %}
+
+  {# ── Value Drivers table ── #}
+  {% if driver_outcomes %}
+  <div class="section-heading">
+    <h2>Value Drivers</h2>
+    <span class="section-badge">{{ driver_outcomes | length }}</span>
+  </div>
+  <div class="vd-wrapper">
+    <table class="vd-table">
+      <thead>
+        <tr>
+          <th>Drivers</th>
+          <th>Current State</th>
+          <th>Future State</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for drv in driver_outcomes %}
+        <tr>
+          <td class="vd-driver">{{ drv.label }}</td>
+          <td class="vd-current">
+            {% for line in drv.current_state_lines %}
+              <span class="vd-line">{{ line }}</span>
+            {% endfor %}
+          </td>
+          <td class="vd-future">
+            {% for line in drv.future_state_lines %}
+              <span class="vd-line">{{ line }}</span>
+            {% endfor %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
   <hr class="section-divider">
   {% endif %}

@@ -106,11 +106,6 @@ def _safe_eval(node):
         raise ValueError(f"Unsupported node type: {type(node)}")
 
 def _interpolate(text, answers):
-    """
-    Replace [variable_name] tokens in text with the customer's answer value.
-    List answers are joined with ', '.
-    Missing or None variables are replaced with an empty string.
-    """
     if not text:
         return text
     def replacer(match):
@@ -126,7 +121,6 @@ def _interpolate(text, answers):
 def _resolve_outcome(outcome_str, answers):
     if not outcome_str:
         return outcome_str
-    # First interpolate any [variable] tokens
     outcome_str = _interpolate(outcome_str, answers)
     tokens = re.findall(r'[a-zA-Z_][a-zA-Z0-9_]*', outcome_str)
     if not tokens:
@@ -239,11 +233,6 @@ def _eval_rule(rule, answers):
     return False
 
 def _evaluate_score_section(section, answers):
-    """
-    Score section. Supports optional score_banners:
-    [{"min": 75, "max": 100, "label": "HIGH", "banner": "...", "color": "#28a745"}, ...]
-    Returns dict: {formatted, banner, color}
-    """
     config = section.rules_json
     if not isinstance(config, dict):
         return {'formatted': '—', 'banner': '', 'color': ''}
@@ -265,16 +254,105 @@ def _evaluate_score_section(section, answers):
             break
     return {'formatted': formatted, 'banner': banner, 'color': color}
 
+def _evaluate_value_driver_section(section, answers):
+    """
+    Value Driver section.
+    rules_json structure:
+    {
+      "type": "value_driver",
+      "condition_groups": [[{"variable": "vp_problem_to_be_solved", "operator": "contains", "value": "Reduce Risks"}]],
+      "label": "Reduce Risks",
+      "answer_variable": "vp_reduce_risks",
+      "rows": [
+        {
+          "option_value": "Reduce Lateral Movement",
+          "current_state": "Lateral movement is a possibility at the branch.",
+          "future_state": "Zero Trust Branch completely eliminates lateral movement."
+        },
+        ...
+      ]
+    }
+    Returns dict: {label, current_state_lines, future_state_lines} or None if gate fails.
+    """
+    config = section.rules_json
+    if not isinstance(config, dict):
+        return None
+
+    # Check gate condition
+    gate_groups = config.get('condition_groups', [])
+    if gate_groups:
+        gate_passed = False
+        for group in gate_groups:
+            if all(_eval_condition(cond, answers) for cond in group):
+                gate_passed = True
+                break
+        if not gate_passed:
+            return None
+
+    label           = config.get('label', section.name)
+    answer_variable = config.get('answer_variable', '')
+    rows            = config.get('rows', [])
+
+    raw_answers = answers.get(answer_variable)
+    if raw_answers is None:
+        selected = []
+    elif isinstance(raw_answers, list):
+        selected = [str(v).strip().lower() for v in raw_answers]
+    else:
+        selected = [str(raw_answers).strip().lower()]
+
+    current_state_lines = []
+    future_state_lines  = []
+
+    for row in rows:
+        option_value = str(row.get('option_value', '')).strip().lower()
+        if not option_value:
+            continue
+        matched = any(option_value in sel or sel in option_value for sel in selected)
+        if matched:
+            cs = row.get('current_state', '').strip()
+            fs = row.get('future_state', '').strip()
+            if cs:
+                current_state_lines.append(cs)
+            if fs:
+                future_state_lines.append(fs)
+
+    return {
+        'label':               label,
+        'current_state_lines': current_state_lines,
+        'future_state_lines':  future_state_lines,
+    }
+
 def evaluate_sections(answers):
     """
     Run all ResultSections against the answers dict.
     Returns a list of dicts: [{name, outcome, format, order, banner, color}, ...]
+    Value driver sections return format='value_driver' with extra keys:
+      label, current_state_lines, future_state_lines
     """
     sections = ResultSection.query.order_by(ResultSection.order, ResultSection.id).all()
     outcomes = []
     for section in sections:
         rj = section.rules_json
-        if isinstance(rj, dict) and rj.get('type') == 'score':
+
+        # ── value_driver ────────────────────────────────────────────────────
+        if isinstance(rj, dict) and rj.get('type') == 'value_driver':
+            result = _evaluate_value_driver_section(section, answers)
+            if result is not None:
+                outcomes.append({
+                    'name':                section.name,
+                    'outcome':             result['label'],
+                    'format':              'value_driver',
+                    'order':               section.order,
+                    'banner':              '',
+                    'color':               '#00aaff',
+                    'label':               result['label'],
+                    'current_state_lines': result['current_state_lines'],
+                    'future_state_lines':  result['future_state_lines'],
+                })
+
+        # ── score ────────────────────────────────────────────────────────────
+        elif isinstance(rj, dict) and rj.get('type') == 'score':
             result = _evaluate_score_section(section, answers)
             outcomes.append({
                 'name':    section.name,
@@ -284,8 +362,9 @@ def evaluate_sections(answers):
                 'banner':  result['banner'],
                 'color':   result['color'],
             })
+
+        # ── banner ───────────────────────────────────────────────────────────
         elif isinstance(rj, dict) and rj.get('type') == 'banner':
-            # Banner-only: first matching banner is shown; if nothing matches, section is hidden
             banners = sorted(rj.get('banners', []), key=lambda b: b.get('order', 0))
             for b in banners:
                 groups  = b.get('condition_groups', [])
@@ -307,7 +386,9 @@ def evaluate_sections(answers):
                         'color':   b.get('color', '#00aaff'),
                     })
                     break
-            # No match → append nothing; section silently disappears
+            # No match → silently skip
+
+        # ── standard (first-match) ───────────────────────────────────────────
         else:
             rules       = sorted(rj or [], key=lambda r: r.get('order', 0))
             raw_outcome = None
@@ -329,4 +410,5 @@ def evaluate_sections(answers):
                 'banner':  banner,
                 'color':   color,
             })
+
     return outcomes
