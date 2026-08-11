@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZTB Super App — Pricing Grid</title>
+<style>
+:root {
+  --navy: #003366; --blue: #0070c0; --light-blue: #e8f4fd;
+  --white: #ffffff; --gray: #f5f7fa; --border: #dee2e6;
+  --text: #333333; --danger: #dc3545; --success: #28a745;
+  --warning: #ffc107; --accent: #00aaff;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--text); background: var(--gray); }
+
+/* NAVBAR */
+#navbar { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: var(--navy); display: flex; align-items: center; padding: 0 20px; z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.3); gap: 12px; }
+#navbar .brand { color: #fff; font-size: 18px; font-weight: 700; }
+#navbar .subtitle { color: #90c8f0; font-size: 14px; }
+#navbar .nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+#navbar .nav-btn { background: transparent; border: 1px solid rgba(255,255,255,0.5); color: #fff; padding: 5px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s; }
+#navbar .nav-btn:hover { background: rgba(255,255,255,0.15); }
+#navbar .nav-btn.active { background: rgba(255,255,255,0.2); border-color: #fff; }
+
+/* MAIN */
+#main { margin-top: 56px; padding: 28px 28px 60px; max-width: 1300px; margin-left: auto; margin-right: auto; }
+.page-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.page-header h1 { font-size: 22px; color: var(--navy); font-weight: 700; }
+.page-header p  { font-size: 13px; color: #666; margin-top: 3px; }
+
+/* TOOLBAR */
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+.btn { padding: 7px 16px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600; border: none; transition: opacity 0.2s, transform 0.1s; display: inline-flex; align-items: center; gap: 6px; }
+.btn:hover { opacity: 0.88; }
+.btn:active { transform: scale(0.97); }
+.btn-primary   { background: var(--blue);    color: #fff; }
+.btn-success   { background: var(--success); color: #fff; }
+.btn-danger    { background: var(--danger);  color: #fff; }
+.btn-secondary { background: #6c757d;        color: #fff; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+
+/* CATEGORY FILTER TABS */
+.cat-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+.cat-tab { padding: 9px 20px; font-size: 13px; font-weight: 600; color: #666; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color 0.2s, border-color 0.2s; white-space: nowrap; }
+.cat-tab:hover { color: var(--blue); }
+.cat-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+/* TABLE */
+.table-wrapper { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow-x: auto; }
+.pricing-table { width: 100%; border-collapse: collapse; min-width: 900px; }
+.pricing-table thead tr { background: var(--navy); }
+.pricing-table th { padding: 11px 14px; color: #fff; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; text-align: left; white-space: nowrap; }
+.pricing-table th.num { text-align: right; }
+.pricing-table td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+.pricing-table tr:last-child td { border-bottom: none; }
+.pricing-table tr:hover td { background: #f8fbff; }
+.pricing-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Editable cells */
+.editable { cursor: text; border-radius: 4px; transition: background 0.15s, outline 0.15s; min-width: 60px; display: inline-block; padding: 3px 6px; }
+.editable:focus { outline: 2px solid var(--accent); background: #fff; border-radius: 4px; }
+.editable[data-type="number"] { text-align: right; }
+
+/* Badges */
+.cat-badge { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.cat-badge.appliance    { background: #dbeafe; color: #1d4ed8; }
+.cat-badge.sdwan        { background: #d1fae5; color: #065f46; }
+.cat-badge.segmentation { background: #ede9fe; color: #5b21b6; }
+.ha-badge { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; background: #fef3c7; color: #92400e; margin-left: 4px; }
+.inactive-row td { opacity: 0.45; }
+
+/* SKU name inline edit */
+.sku-name-wrap { display: flex; align-items: center; gap: 6px; }
+.sku-code-tag  { font-size: 11px; color: #888; font-family: monospace; }
+
+/* Action cell */
+.action-cell { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
+
+/* HA sync indicator */
+.ha-sync-note { font-size: 11px; color: #888; font-style: italic; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 2000; display: none; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: #fff; border-radius: 10px; width: 520px; max-width: 95vw; box-shadow: 0 8px 40px rgba(0,0,0,0.25); overflow: hidden; }
+.modal-header { background: var(--navy); color: #fff; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+.modal-header h3 { font-size: 15px; font-weight: 700; }
+.modal-close { background: transparent; border: none; color: #fff; font-size: 20px; cursor: pointer; line-height: 1; padding: 0 4px; }
+.modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+.form-row { display: flex; flex-direction: column; gap: 4px; }
+.form-row label { font-size: 12px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.04em; }
+.form-row input, .form-row select { padding: 8px 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 13px; color: var(--text); width: 100%; }
+.form-row input:focus, .form-row select:focus { outline: none; border-color: var(--accent); }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.ha-info-box { background: #fef3c7; border: 1px solid #fbbf24; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #92400e; display: none; }
+.ha-info-box.show { display: block; }
+
+/* TOAST */
+#toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast { padding: 11px 18px; border-radius: 6px; color: #fff; font-size: 13px; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.2); animation: toastIn 0.25s ease; }
+.toast.success { background: var(--success); }
+.toast.error   { background: var(--danger); }
+.toast.warning { background: var(--warning); color: #333; }
+@keyframes toastIn  { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 40px 20px; color: #888; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<nav id="navbar">
+  <span class="brand">ZTB Super App</span>
+  <span class="subtitle">Pricing Grid</span>
+  <div class="nav-right">
+    <a class="nav-btn" href="/admin/dashboard">&#8592; Admin Dashboard</a>
+    <a class="nav-btn" href="/admin/bva/">&#128200; BVA Config</a>
+    <a class="nav-btn" href="/user" target="_blank">&#128100; User View</a>
+    <a class="nav-btn" href="/admin/logout">Logout</a>
+  </div>
+</nav>
+
+<main id="main">
+  <div class="page-header">
+    <div>
+      <h1>&#128176; ZTB Pricing Grid</h1>
+      <p>Manage SKUs, list prices, and all discount tiers. Changes reflect immediately in the SE pricing tool.</p>
+    </div>
+    <button class="btn btn-primary" onclick="openAddModal()">&#65291; Add SKU</button>
+  </div>
+
+  <!-- Category filter tabs -->
+  <div class="cat-tabs">
+    <div class="cat-tab active" data-cat="all"          onclick="filterCat('all')">All SKUs</div>
+    <div class="cat-tab"       data-cat="appliance"     onclick="filterCat('appliance')">&#128421; Appliances</div>
+    <div class="cat-tab"       data-cat="sdwan"         onclick="filterCat('sdwan')">&#127760; SD-WAN</div>
+    <div class="cat-tab"       data-cat="segmentation"  onclick="filterCat('segmentation')">&#128274; Segmentation</div>
+    <div class="cat-tab"       data-cat="inactive"      onclick="filterCat('inactive')">&#128683; Inactive</div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="pricing-table" id="pricing-table">
+      <thead>
+        <tr>
+          <th style="width:22%">SKU Name</th>
+          <th style="width:10%">Category</th>
+          <th class="num" style="width:8%">COGS</th>
+          <th class="num" style="width:9%">List Price</th>
+          <th class="num" style="width:9%">Budgetary</th>
+          <th class="num" style="width:9%">Standard</th>
+          <th class="num" style="width:9%">Aggressive</th>
+          <th style="width:6%">HA</th>
+          <th style="width:6%">Active</th>
+          <th style="width:12%">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="sku-tbody">
+        <tr><td colspan="10" class="empty-state">Loading SKUs…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- ── ADD / EDIT MODAL ─────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="sku-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Add SKU</h3>
+      <button class="modal-close" onclick="closeModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label>SKU Code</label>
+          <input type="text" id="m-sku-code" placeholder="e.g. ZTB-400">
+        </div>
+        <div class="form-row">
+          <label>SKU Name</label>
+          <input type="text" id="m-sku-name" placeholder="e.g. ZTB-400 (No HA)">
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label>Category</label>
+          <select id="m-category" onchange="onCategoryChange()">
+            <option value="appliance">Appliance</option>
+            <option value="sdwan">SD-WAN</option>
+            <option value="segmentation">Segmentation</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Display Order</label>
+          <input type="number" id="m-display-order" value="99" min="0">
+        </div>
+      </div>
+
+      <!-- HA options — only shown for appliance category -->
+      <div id="ha-section" style="display:none;">
+        <div class="form-row" style="margin-bottom:8px;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="m-is-ha" onchange="onHaChange()" style="width:16px;height:16px;">
+            <span style="font-size:13px;font-weight:600;">Include HA (High Availability — 2 appliances per site)</span>
+          </label>
+        </div>
+        <div id="ha-parent-row" class="form-row" style="display:none;">
+          <label>No-HA Parent SKU <span style="font-weight:400;color:#888;">(prices will auto-sync as ×2)</span></label>
+          <select id="m-ha-parent">
+            <option value="">— Select parent No-HA SKU —</option>
+          </select>
+        </div>
+        <div class="ha-info-box" id="ha-info-box">
+          ⚠️ When a No-HA parent is selected, saving this HA SKU will auto-set its prices to parent × 2. You can still override them manually below.
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label>Zscaler COGS ($)</label>
+          <input type="number" id="m-cogs" value="0" min="0">
+        </div>
+        <div class="form-row">
+          <label>List Price ($)</label>
+          <input type="number" id="m-list-price" value="0" min="0">
+        </div>
+      </div>
+      <div class="form-grid-3">
+        <div class="form-row">
+          <label>Budgetary ($)</label>
+          <input type="number" id="m-budgetary" value="0" min="0">
+        </div>
+        <div class="form-row">
+          <label>Standard ($)</label>
+          <input type="number" id="m-standard" value="0" min="0">
+        </div>
+        <div class="form-row">
+          <label>Aggressive ($)</label>
+          <input type="number" id="m-aggressive" value="0" min="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <input type="checkbox" id="m-active" checked style="width:16px;height:16px;">
+          <span style="font-size:13px;font-weight:600;">Active (visible in SE pricing tool)</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary"   id="modal-save-btn" onclick="saveSKU()">&#128190; Save SKU</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+let _skus       = [];
+let _editingId  = null;
+let _currentCat = 'all';
+
+// ── Utility ───────────────────────────────────────────────────────────────────
+function fmt(val) {
+  if (val === null || val === undefined || val === 0) return '—';
+  return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+function fmtEdit(val) { return Number(val || 0); }
+
+function showToast(msg, type = 'success') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`; t.textContent = msg; c.appendChild(t);
+  setTimeout(() => { t.style.animation = 'toastOut 0.3s ease forwards'; setTimeout(() => t.remove(), 300); }, 2800);
+}
+
+async function apiFetch(url, opts = {}) {
+  opts.credentials = 'include';
+  opts.headers = opts.headers || {};
+  const res = await fetch(url, opts);
+  if (res.status === 401) { window.location.href = '/admin/login'; return null; }
+  return res;
+}
+
+// ── Load SKUs ─────────────────────────────────────────────────────────────────
+async function loadSKUs() {
+  const res = await apiFetch('/admin/pricing/api/skus');
+  if (!res || !res.ok) { showToast('Failed to load SKUs', 'error'); return; }
+  const data = await res.json();
+  _skus = data.skus || [];
+  renderTable();
+}
+
+// ── Render table ──────────────────────────────────────────────────────────────
+function filterCat(cat) {
+  _currentCat = cat;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === cat));
+  renderTable();
+}
+
+function renderTable() {
+  const tbody = document.getElementById('sku-tbody');
+  let filtered = _skus;
+  if (_currentCat === 'inactive') {
+    filtered = _skus.filter(s => !s.active);
+  } else if (_currentCat !== 'all') {
+    filtered = _skus.filter(s => s.category === _currentCat && s.active);
+  } else {
+    filtered = _skus.filter(s => s.active);
+  }
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="10" class="empty-state">No SKUs found for this filter.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = '';
+  filtered.forEach(sku => {
+    const tr = document.createElement('tr');
+    if (!sku.active) tr.classList.add('inactive-row');
+    tr.setAttribute('data-id', sku.id);
+
+    const catLabel = { appliance: 'Appliance', sdwan: 'SD-WAN', segmentation: 'Segmentation' }[sku.category] || sku.category;
+
+    // Find parent name if HA
+    let parentNote = '';
+    if (sku.is_ha && sku.ha_parent_id) {
+      const parent = _skus.find(s => s.id === sku.ha_parent_id);
+      parentNote = parent ? `<span class="ha-sync-note">↑ ${parent.sku_code}</span>` : '';
+    }
+
+    tr.innerHTML = `
+      <td>
+        <div class="sku-name-wrap">
+          <span>${escHtml(sku.sku_name)}</span>
+          ${sku.is_ha ? '<span class="ha-badge">HA</span>' : ''}
+        </div>
+        <div class="sku-code-tag">${escHtml(sku.sku_code)} ${parentNote}</div>
+      </td>
+      <td><span class="cat-badge ${sku.category}">${catLabel}</span></td>
+      <td class="num">${fmt(sku.cogs)}</td>
+      <td class="num">${fmt(sku.list_price)}</td>
+      <td class="num" style="color:#f59e0b;font-weight:600;">${fmt(sku.budgetary)}</td>
+      <td class="num" style="color:#3b82f6;font-weight:600;">${fmt(sku.standard)}</td>
+      <td class="num" style="color:#10b981;font-weight:600;">${fmt(sku.aggressive)}</td>
+      <td>${sku.is_ha ? '<span style="color:#92400e;font-weight:700;">HA ✓</span>' : '—'}</td>
+      <td>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
+          <input type="checkbox" ${sku.active ? 'checked' : ''} onchange="toggleActive(${sku.id}, this.checked)" style="width:15px;height:15px;">
+          <span style="font-size:12px;">${sku.active ? 'Active' : 'Off'}</span>
+        </label>
+      </td>
+      <td>
+        <div class="action-cell">
+          <button class="btn btn-primary btn-sm" onclick="openEditModal(${sku.id})">✏ Edit</button>
+          <button class="btn btn-danger btn-sm"  onclick="deleteSKU(${sku.id})">✕</button>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Toggle active ─────────────────────────────────────────────────────────────
+async function toggleActive(id, active) {
+  const res = await apiFetch(`/admin/pricing/api/skus/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ active })
+  });
+  if (res && res.ok) {
+    const sku = _skus.find(s => s.id === id);
+    if (sku) sku.active = active;
+    showToast(active ? 'SKU activated' : 'SKU deactivated');
+    renderTable();
+  } else {
+    showToast('Update failed', 'error');
+  }
+}
+
+// ── Delete ────────────────────────────────────────────────────────────────────
+async function deleteSKU(id) {
+  const sku = _skus.find(s => s.id === id);
+  if (!confirm(`Deactivate "${sku ? sku.sku_name : id}"?\n\nThis hides it from the SE pricing tool but keeps history. Use the Inactive tab to re-activate.`)) return;
+  const res = await apiFetch(`/admin/pricing/api/skus/${id}`, { method: 'DELETE' });
+  if (res && res.ok) {
+    const s = _skus.find(s => s.id === id);
+    if (s) s.active = false;
+    showToast('SKU deactivated');
+    renderTable();
+  } else {
+    showToast('Delete failed', 'error');
+  }
+}
+
+// ── Modal helpers ─────────────────────────────────────────────────────────────
+function onCategoryChange() {
+  const cat = document.getElementById('m-category').value;
+  document.getElementById('ha-section').style.display = cat === 'appliance' ? 'block' : 'none';
+  if (cat !== 'appliance') {
+    document.getElementById('m-is-ha').checked = false;
+    document.getElementById('ha-parent-row').style.display = 'none';
+    document.getElementById('ha-info-box').classList.remove('show');
+  }
+}
+
+function onHaChange() {
+  const isHa = document.getElementById('m-is-ha').checked;
+  document.getElementById('ha-parent-row').style.display = isHa ? 'block' : 'none';
+  document.getElementById('ha-info-box').classList.toggle('show', isHa);
+  if (isHa) populateParentSelect();
+}
+
+function populateParentSelect(selectedId) {
+  const sel = document.getElementById('m-ha-parent');
+  sel.innerHTML = '<option value="">— Select parent No-HA SKU —</option>';
+  _skus.filter(s => s.category === 'appliance' && !s.is_ha && s.active).forEach(s => {
+    const o = document.createElement('option');
+    o.value = s.id; o.textContent = s.sku_name;
+    if (s.id === selectedId) o.selected = true;
+    sel.appendChild(o);
+  });
+  // Add inactive No-HA too
+  _skus.filter(s => s.category === 'appliance' && !s.is_ha && !s.active).forEach(s => {
+    const o = document.createElement('option');
+    o.value = s.id; o.textContent = s.sku_name + ' (inactive)';
+    if (s.id === selectedId) o.selected = true;
+    sel.appendChild(o);
+  });
+
+  // Auto-fill prices when parent is selected
+  sel.onchange = () => {
+    const parentId = parseInt(sel.value);
+    if (!parentId) return;
+    const parent = _skus.find(s => s.id === parentId);
+    if (!parent) return;
+    document.getElementById('m-cogs').value       = fmtEdit(parent.cogs * 2);
+    document.getElementById('m-list-price').value = fmtEdit(parent.list_price * 2);
+    document.getElementById('m-budgetary').value  = fmtEdit(parent.budgetary * 2);
+    document.getElementById('m-standard').value   = fmtEdit(parent.standard * 2);
+    document.getElementById('m-aggressive').value = fmtEdit(parent.aggressive * 2);
+  };
+}
+
+function resetModal() {
+  document.getElementById('m-sku-code').value     = '';
+  document.getElementById('m-sku-name').value     = '';
+  document.getElementById('m-category').value     = 'appliance';
+  document.getElementById('m-display-order').value = '99';
+  document.getElementById('m-is-ha').checked      = false;
+  document.getElementById('m-cogs').value         = '0';
+  document.getElementById('m-list-price').value   = '0';
+  document.getElementById('m-budgetary').value    = '0';
+  document.getElementById('m-standard').value     = '0';
+  document.getElementById('m-aggressive').value   = '0';
+  document.getElementById('m-active').checked     = true;
+  document.getElementById('ha-section').style.display    = 'block';
+  document.getElementById('ha-parent-row').style.display = 'none';
+  document.getElementById('ha-info-box').classList.remove('show');
+}
+
+function openAddModal() {
+  _editingId = null;
+  resetModal();
+  document.getElementById('modal-title').textContent = 'Add SKU';
+  document.getElementById('modal-save-btn').textContent = '＋ Add SKU';
+  document.getElementById('sku-modal').classList.add('open');
+}
+
+function openEditModal(id) {
+  const sku = _skus.find(s => s.id === id);
+  if (!sku) return;
+  _editingId = id;
+  resetModal();
+  document.getElementById('m-sku-code').value      = sku.sku_code;
+  document.getElementById('m-sku-name').value      = sku.sku_name;
+  document.getElementById('m-category').value      = sku.category;
+  document.getElementById('m-display-order').value = sku.display_order;
+  document.getElementById('m-is-ha').checked       = sku.is_ha;
+  document.getElementById('m-cogs').value          = fmtEdit(sku.cogs);
+  document.getElementById('m-list-price').value    = fmtEdit(sku.list_price);
+  document.getElementById('m-budgetary').value     = fmtEdit(sku.budgetary);
+  document.getElementById('m-standard').value      = fmtEdit(sku.standard);
+  document.getElementById('m-aggressive').value    = fmtEdit(sku.aggressive);
+  document.getElementById('m-active').checked      = sku.active;
+
+  onCategoryChange();
+  if (sku.is_ha) {
+    document.getElementById('ha-parent-row').style.display = 'block';
+    document.getElementById('ha-info-box').classList.add('show');
+    populateParentSelect(sku.ha_parent_id);
+  }
+
+  document.getElementById('modal-title').textContent    = 'Edit SKU — ' + sku.sku_name;
+  document.getElementById('modal-save-btn').textContent = '&#128190; Save Changes';
+  document.getElementById('sku-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('sku-modal').classList.remove('open');
+  _editingId = null;
+}
+
+// ── Save SKU ──────────────────────────────────────────────────────────────────
+async function saveSKU() {
+  const btn = document.getElementById('modal-save-btn');
+  const isHa       = document.getElementById('m-is-ha').checked;
+  const haParentId = isHa ? (parseInt(document.getElementById('m-ha-parent').value) || null) : null;
+
+  const payload = {
+    sku_code:      document.getElementById('m-sku-code').value.trim(),
+    sku_name:      document.getElementById('m-sku-name').value.trim(),
+    category:      document.getElementById('m-category').value,
+    display_order: parseInt(document.getElementById('m-display-order').value) || 99,
+    is_ha:         isHa,
+    ha_parent_id:  haParentId,
+    cogs:          parseFloat(document.getElementById('m-cogs').value)       || 0,
+    list_price:    parseFloat(document.getElementById('m-list-price').value) || 0,
+    budgetary:     parseFloat(document.getElementById('m-budgetary').value)  || 0,
+    standard:      parseFloat(document.getElementById('m-standard').value)   || 0,
+    aggressive:    parseFloat(document.getElementById('m-aggressive').value) || 0,
+    active:        document.getElementById('m-active').checked,
+  };
+
+  if (!payload.sku_code) { showToast('SKU code is required', 'warning'); return; }
+  if (!payload.sku_name) { showToast('SKU name is required', 'warning'); return; }
+
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  let res;
+  if (_editingId) {
+    res = await apiFetch(`/admin/pricing/api/skus/${_editingId}`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+  } else {
+    res = await apiFetch('/admin/pricing/api/skus', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+  }
+
+  btn.disabled = false;
+  btn.textContent = _editingId ? '&#128190; Save Changes' : '＋ Add SKU';
+
+  if (res && res.ok) {
+    showToast(_editingId ? 'SKU updated ✓' : 'SKU added ✓');
+    closeModal();
+    await loadSKUs();
+  } else {
+    showToast('Save failed', 'error');
+  }
+}
+
+// Close modal on overlay click
+document.getElementById('sku-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadSKUs();
+</script>
+</body>
+</html>

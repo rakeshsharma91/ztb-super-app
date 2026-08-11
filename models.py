@@ -255,6 +255,7 @@ class UserResponse(db.Model):
     answers                = db.Column(db.JSON, default=dict)
     results                = db.Column(db.JSON, default=dict)
     notes                  = db.Column(db.Text, nullable=True)
+    pricing_data           = db.Column(db.JSON, default=dict)
     created_at             = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -270,6 +271,7 @@ class UserResponse(db.Model):
             'answers':                self.answers or {},
             'results':                self.results or {},
             'notes':                  self.notes or '',
+            'pricing_data':           self.pricing_data or {},
             'created_at':             self.created_at.strftime('%Y-%m-%d %H:%M') if self.created_at else '',
         }
 
@@ -353,6 +355,44 @@ class BVASection(db.Model):
             'order':       self.order,
         }
 
+class PricingSKU(db.Model):
+    __tablename__ = 'pricing_skus'
+    id            = db.Column(db.Integer, primary_key=True)
+    sku_code      = db.Column(db.String(100), nullable=False)
+    sku_name      = db.Column(db.String(255), nullable=False)
+    category      = db.Column(db.String(50), nullable=False)
+    cogs          = db.Column(db.Float, default=0)
+    list_price    = db.Column(db.Float, default=0)
+    budgetary     = db.Column(db.Float, default=0)
+    standard      = db.Column(db.Float, default=0)
+    aggressive    = db.Column(db.Float, default=0)
+    is_ha         = db.Column(db.Boolean, default=False)
+    ha_parent_id  = db.Column(db.Integer, db.ForeignKey('pricing_skus.id', ondelete='SET NULL'), nullable=True)
+    display_order = db.Column(db.Integer, default=0)
+    active        = db.Column(db.Boolean, default=True)
+    created_at    = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at    = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    ha_parent     = db.relationship('PricingSKU', remote_side='PricingSKU.id',
+                                     foreign_keys='PricingSKU.ha_parent_id', lazy=True)
+
+    def to_dict(self):
+        return {
+            'id':            self.id,
+            'sku_code':      self.sku_code,
+            'sku_name':      self.sku_name,
+            'category':      self.category,
+            'cogs':          self.cogs,
+            'list_price':    self.list_price,
+            'budgetary':     self.budgetary,
+            'standard':      self.standard,
+            'aggressive':    self.aggressive,
+            'is_ha':         self.is_ha,
+            'ha_parent_id':  self.ha_parent_id,
+            'display_order': self.display_order,
+            'active':        self.active,
+        }
+
 
 def run_migration(db):
     import sqlalchemy as sa
@@ -408,6 +448,50 @@ def run_migration(db):
             c.commit()
         print('[migration] Seeded default BVASections')
 
+    # ── Pricing SKUs table ──────────────────────────────────────────────────
+    if 'pricing_skus' not in existing:
+        db.metadata.tables['pricing_skus'].create(engine)
+        print('[migration] Created table: pricing_skus')
+        with engine.connect() as c:
+            # Insert No-HA appliances first (rows 1-4), then HA (rows 5-8), then sdwan/seg
+            c.execute(sa.text("""
+                INSERT INTO pricing_skus
+                    (sku_code, sku_name, category, cogs, list_price, budgetary, standard, aggressive, is_ha, ha_parent_id, display_order, active)
+                VALUES
+                -- Appliances No HA
+                ('ZTB-400',        'ZTB-400 (No HA)',        'appliance',   914,   1200,   600,   450,   383,  false, NULL, 1,  true),
+                ('ZTB-600',        'ZTB-600 (No HA)',        'appliance',   760,   1800,   900,   675,   574,  false, NULL, 2,  true),
+                ('ZTB-800',        'ZTB-800 (No HA)',        'appliance',  2100,   3600,  1800,  1350,  1148,  false, NULL, 3,  true),
+                ('ZTB-8010',       'ZTB-8010 (No HA)',       'appliance',  6134,  18000,  9000,  6750,  5738,  false, NULL, 4,  true),
+                -- Appliances Include HA (ha_parent_id set below after we know the IDs)
+                ('ZTB-400-HA',     'ZTB-400 (Include HA)',   'appliance',  1828,   2400,  1200,   900,   766,  true,  NULL, 5,  true),
+                ('ZTB-600-HA',     'ZTB-600 (Include HA)',   'appliance',  1520,   3600,  1800,  1350,  1148,  true,  NULL, 6,  true),
+                ('ZTB-800-HA',     'ZTB-800 (Include HA)',   'appliance',  4200,   7200,  3600,  2700,  2296,  true,  NULL, 7,  true),
+                ('ZTB-8010-HA',    'ZTB-8010 (Include HA)',  'appliance', 12268,  36000, 18000, 13500, 11476,  true,  NULL, 8,  true),
+                -- SD-WAN
+                ('ZTB-SDWAN-SMALL','ZTB-SDWAN-SMALL',        'sdwan',         0,   2400,  1000,   750,   500,  false, NULL, 9,  true),
+                ('ZTB-SDWAN-MED',  'ZTB-SDWAN-MED',          'sdwan',         0,   4800,  2000,  1500,  1000,  false, NULL, 10, true),
+                ('ZTB-SDWAN-LARGE','ZTB-SDWAN-LARGE',         'sdwan',         0,  12000,  5000,  3750,  2500,  false, NULL, 11, true),
+                ('ZTB-SDWAN-XL',   'ZTB-SDWAN-XL',           'sdwan',         0,  30000, 12500,  9375,  6250,  false, NULL, 12, true),
+                -- Segmentation
+                ('ZTB-SG-SMALL',   'ZTB-SG-SMALL',           'segmentation',  0,   4800,  2000,  1500,  1000,  false, NULL, 13, true),
+                ('ZTB-SG-MED',     'ZTB-SG-MED',             'segmentation',  0,  18000,  7500,  5625,  3750,  false, NULL, 14, true),
+                ('ZTB-SG-LARGE',   'ZTB-SG-LARGE',           'segmentation',  0,  48000, 20000, 15000, 10000,  false, NULL, 15, true),
+                ('ZTB-SG-XL',      'ZTB-SG-XL',              'segmentation',  0, 120000, 50000, 37500, 25000,  false, NULL, 16, true)
+            """))
+            c.commit()
+            # Now wire up ha_parent_id: HA rows point to their No-HA counterpart
+            # We find them by sku_code
+            c.execute(sa.text("""
+                UPDATE pricing_skus ha
+                SET ha_parent_id = noha.id
+                FROM pricing_skus noha
+                WHERE ha.sku_code = noha.sku_code || '-HA'
+                  AND ha.is_ha = true
+            """))
+            c.commit()
+        print('[migration] Seeded 16 pricing SKUs')
+
     with engine.connect() as conn:
         q_cols = [c['name'] for c in inspector.get_columns('questions')]
 
@@ -452,6 +536,11 @@ def run_migration(db):
                 'ALTER TABLE user_responses ADD COLUMN notes TEXT'
             ))
             print('[migration] Added column user_responses.notes')
+        if 'pricing_data' not in ur_cols:
+            conn.execute(sa.text(
+                'ALTER TABLE user_responses ADD COLUMN pricing_data JSON'
+            ))
+            print('[migration] Added column user_responses.pricing_data')
 
         if 'result_sections' in existing:
             rs_cols = [c['name'] for c in inspector.get_columns('result_sections')]

@@ -47,116 +47,31 @@
     .section-divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
 
     /* ── ASSESSMENT SUMMARY TILES ── */
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
     @media (max-width: 900px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 560px) { .summary-grid { grid-template-columns: 1fr; } }
-    .summary-tile {
-      background: linear-gradient(145deg, #0d2d52, #0a2244);
-      border: 1px solid var(--border);
-      border-top: 3px solid var(--accent);
-      border-radius: 12px;
-      padding: 1rem 1.2rem 1.1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.55rem;
-      transition: box-shadow 0.2s, border-top-color 0.2s;
-    }
+    .summary-tile { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 12px; padding: 1rem 1.2rem 1.1rem; display: flex; flex-direction: column; gap: 0.55rem; transition: box-shadow 0.2s, border-top-color 0.2s; }
     .summary-tile:hover { box-shadow: 0 4px 20px rgba(0,170,255,0.12); }
-    .summary-tile-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 0.6rem;
-    }
-    .summary-tile-name {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      line-height: 1.3;
-      flex: 1;
-    }
-    .summary-tile-badge {
-      font-size: 0.75rem;
-      font-weight: 800;
-      padding: 3px 11px;
-      border-radius: 20px;
-      white-space: nowrap;
-      color: #fff;
-      flex-shrink: 0;
-    }
-    .summary-tile-text {
-      font-size: 0.8rem;
-      line-height: 1.6;
-      color: var(--white);
-      padding: 0.5rem 0.75rem;
-      border-radius: 7px;
-      border-left: 3px solid;
-      background: rgba(255,255,255,0.04);
-    }
+    .summary-tile-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; }
+    .summary-tile-name { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; line-height: 1.3; flex: 1; }
+    .summary-tile-badge { font-size: 0.75rem; font-weight: 800; padding: 3px 11px; border-radius: 20px; white-space: nowrap; color: #fff; flex-shrink: 0; }
+    .summary-tile-text { font-size: 0.8rem; line-height: 1.6; color: var(--white); padding: 0.5rem 0.75rem; border-radius: 7px; border-left: 3px solid; background: rgba(255,255,255,0.04); }
 
     /* ── VALUE DRIVERS TABLE ── */
-    .vd-wrapper {
-      background: linear-gradient(145deg, #0d2d52, #0a2244);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-    }
-    .vd-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .vd-table th {
-      text-align: left;
-      padding: 11px 16px;
-      background: rgba(0,51,102,0.7);
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--accent);
-      border-bottom: 1px solid var(--border);
-    }
+    .vd-wrapper { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .vd-table { width: 100%; border-collapse: collapse; }
+    .vd-table th { text-align: left; padding: 11px 16px; background: rgba(0,51,102,0.7); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent); border-bottom: 1px solid var(--border); }
     .vd-table th:first-child { width: 18%; }
     .vd-table th:nth-child(2) { width: 41%; }
     .vd-table th:nth-child(3) { width: 41%; }
-    .vd-table td {
-      padding: 14px 16px;
-      font-size: 0.85rem;
-      border-bottom: 1px solid rgba(0,170,255,0.08);
-      vertical-align: top;
-      line-height: 1.65;
-    }
+    .vd-table td { padding: 14px 16px; font-size: 0.85rem; border-bottom: 1px solid rgba(0,170,255,0.08); vertical-align: top; line-height: 1.65; }
     .vd-table tr:last-child td { border-bottom: none; }
     .vd-table tr:hover td { background: rgba(0,170,255,0.04); }
-    .vd-table td.vd-driver {
-      font-weight: 700;
-      color: var(--accent);
-      font-size: 0.82rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      white-space: nowrap;
-    }
-    .vd-table td.vd-current {
-      color: #f87171;
-    }
-    .vd-table td.vd-future {
-      color: #4ade80;
-    }
-    .vd-line {
-      display: block;
-      padding: 2px 0;
-    }
-    .vd-line + .vd-line {
-      margin-top: 6px;
-      padding-top: 6px;
-      border-top: 1px solid rgba(255,255,255,0.06);
-    }
+    .vd-table td.vd-driver { font-weight: 700; color: var(--accent); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+    .vd-table td.vd-current { color: #f87171; }
+    .vd-table td.vd-future  { color: #4ade80; }
+    .vd-line { display: block; padding: 2px 0; }
+    .vd-line + .vd-line { margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06); }
 
     /* VALUE PROPS */
     .vp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
@@ -271,6 +186,72 @@
     .bva-save-indicator.saved  { color: #00dc82; }
     .bva-save-indicator.saving { color: var(--accent); }
 
+    /* ── PRICING TAB ── */
+    .pricing-body { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+
+    /* Phase toggle */
+    .phase-toggle { display: inline-flex; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 1.5rem; }
+    .phase-btn { padding: 0.55rem 1.4rem; font-size: 0.82rem; font-weight: 700; cursor: pointer; border: none; background: transparent; color: var(--text-muted); transition: background 0.2s, color 0.2s; letter-spacing: 0.04em; }
+    .phase-btn:hover { color: var(--white); }
+    .phase-btn.active { background: var(--accent); color: var(--navy-dark); }
+    .phase-btn.budgetary.active  { background: #f59e0b; color: #1a1a00; }
+    .phase-btn.standard.active   { background: #3b82f6; color: #fff; }
+    .phase-btn.aggressive.active { background: #10b981; color: #fff; }
+
+    /* Pricing table */
+    .pricing-table-wrap { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem; }
+    .pricing-tbl { width: 100%; border-collapse: collapse; min-width: 800px; }
+    .pricing-tbl thead tr { background: rgba(0,51,102,0.8); }
+    .pricing-tbl th { padding: 11px 12px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border); }
+    .pricing-tbl th.num { text-align: right; }
+    .pricing-tbl td { padding: 10px 12px; font-size: 0.84rem; border-bottom: 1px solid rgba(0,170,255,0.06); vertical-align: middle; }
+    .pricing-tbl tr:last-child td { border-bottom: none; }
+    .pricing-tbl tr:hover td { background: rgba(0,170,255,0.04); }
+    .pricing-tbl td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .pricing-tbl td.total-col { font-weight: 700; color: var(--accent); text-align: right; }
+
+    /* Row inputs */
+    .p-label-input { background: transparent; border: 1px solid rgba(0,170,255,0.2); border-radius: 6px; color: var(--white); font-size: 0.82rem; padding: 5px 8px; width: 90px; outline: none; transition: border-color 0.2s; }
+    .p-label-input:focus { border-color: var(--accent); }
+    .p-qty-input { background: transparent; border: 1px solid rgba(0,170,255,0.2); border-radius: 6px; color: var(--white); font-size: 0.82rem; padding: 5px 8px; width: 70px; text-align: right; outline: none; transition: border-color 0.2s; }
+    .p-qty-input:focus { border-color: var(--accent); }
+    .p-select { background: #0a2244; border: 1px solid rgba(0,170,255,0.2); border-radius: 6px; color: var(--white); font-size: 0.8rem; padding: 5px 8px; width: 100%; outline: none; cursor: pointer; transition: border-color 0.2s; }
+    .p-select:focus { border-color: var(--accent); }
+    .p-select option { background: #0a2244; color: var(--white); }
+    .p-remove-btn { background: transparent; border: none; color: #f87171; font-size: 1.1rem; cursor: pointer; padding: 3px 6px; border-radius: 5px; transition: background 0.15s; line-height: 1; }
+    .p-remove-btn:hover { background: rgba(248,113,113,0.15); }
+
+    /* Grand total card */
+    .grand-total-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid rgba(0,170,255,0.4); border-radius: 14px; padding: 1.4rem 1.8rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+    .grand-total-label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
+    .grand-total-value { font-size: 2rem; font-weight: 800; color: var(--accent); }
+    .grand-total-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* Ramp table */
+    .ramp-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .ramp-card-header { padding: 1rem 1.4rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .ramp-card-title { font-size: 0.9rem; font-weight: 700; color: var(--white); }
+    .ramp-card-sub { font-size: 0.75rem; color: var(--text-muted); }
+    .ramp-tbl { width: 100%; border-collapse: collapse; min-width: 500px; }
+    .ramp-tbl th { padding: 10px 14px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); text-align: right; background: rgba(0,51,102,0.4); border-bottom: 1px solid var(--border); }
+    .ramp-tbl th:first-child { text-align: left; }
+    .ramp-tbl td { padding: 10px 14px; font-size: 0.83rem; border-bottom: 1px solid rgba(0,170,255,0.06); text-align: right; }
+    .ramp-tbl td:first-child { text-align: left; color: var(--text-muted); font-weight: 600; }
+    .ramp-tbl tr:last-child td { border-bottom: none; font-weight: 700; color: var(--accent); background: rgba(0,170,255,0.05); }
+    .ramp-tbl tr:last-child td:first-child { color: var(--accent); }
+
+    /* Pricing save indicator */
+    .pricing-save-ind { font-size: 0.75rem; text-align: right; margin-bottom: 0.75rem; min-height: 18px; color: var(--text-muted); }
+    .pricing-save-ind.saving { color: var(--accent); }
+    .pricing-save-ind.saved  { color: #00dc82; }
+
+    /* Add row button */
+    .add-row-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.6rem 1.2rem; background: transparent; border: 1px dashed rgba(0,170,255,0.4); border-radius: 9px; color: var(--accent); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.2s, border-color 0.2s; margin-bottom: 1rem; }
+    .add-row-btn:hover { background: rgba(0,170,255,0.08); border-color: var(--accent); }
+
+    /* Overflow wrapper for pricing table */
+    .pricing-tbl-overflow { overflow-x: auto; }
+
     #ie-toast { position: fixed; bottom: 24px; right: 24px; background: #00875a; color: #fff; padding: 11px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.35); z-index: 9999; opacity: 0; transform: translateY(10px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
     #ie-toast.show { opacity: 1; transform: translateY(0); }
     #ie-toast.error { background: #b91c1c; }
@@ -293,6 +274,7 @@
       .col-action { display: none; }
       .bva-body { padding: 1.5rem 1rem 4rem; }
       .vd-table th, .vd-table td { padding: 10px 10px; font-size: 0.78rem; }
+      .pricing-body { padding: 1.5rem 1rem 4rem; }
     }
   </style>
 </head>
@@ -328,7 +310,6 @@
   {% endif %}
 {% endfor %}
 
-{# ── Split section_outcomes into regular tiles vs value_driver rows ── #}
 {% set tile_outcomes   = [] %}
 {% set driver_outcomes = [] %}
 {% for sec in section_outcomes %}
@@ -357,15 +338,15 @@
 
 <!-- PAGE TABS -->
 <div class="page-tabs">
-  <div class="page-tab active" data-tab="results" onclick="switchTab('results')">📋 Results</div>
-  <div class="page-tab" data-tab="bva" onclick="switchTab('bva')">📊 Business Value</div>
+  <div class="page-tab active" data-tab="results"  onclick="switchTab('results')">📋 Results</div>
+  <div class="page-tab"        data-tab="pricing"  onclick="switchTab('pricing')">💰 Pricing</div>
+  <div class="page-tab"        data-tab="bva"      onclick="switchTab('bva')">📊 Business Value</div>
 </div>
 
 <!-- ══════════════════════ RESULTS TAB ══════════════════════ -->
 <div class="tab-panel active" id="tab-results">
 <div class="page-body">
 
-  {# ── Assessment Summary tiles (score / banner / standard only) ── #}
   {% if tile_outcomes %}
   <div class="section-heading">
     <h2>Assessment Summary</h2>
@@ -388,7 +369,6 @@
   <hr class="section-divider">
   {% endif %}
 
-  {# ── Value Drivers table ── #}
   {% if driver_outcomes %}
   <div class="section-heading">
     <h2>Value Drivers</h2>
@@ -564,23 +544,104 @@
 </div>
 </div><!-- /tab-results -->
 
+<!-- ══════════════════════ PRICING TAB ══════════════════════ -->
+<div class="tab-panel" id="tab-pricing">
+<div class="pricing-body">
+
+  <div class="pricing-save-ind" id="pricing-save-ind"></div>
+
+  <!-- Phase toggle -->
+  <div class="section-heading"><h2>💰 Pricing Phase</h2></div>
+  <div class="phase-toggle" id="phase-toggle">
+    <button class="phase-btn budgetary"  onclick="setPhase('budgetary')">Budgetary</button>
+    <button class="phase-btn standard active" onclick="setPhase('standard')">Standard</button>
+    <button class="phase-btn aggressive" onclick="setPhase('aggressive')">Aggressive</button>
+  </div>
+
+  <hr class="section-divider" style="margin-top:0;">
+
+  <!-- Site rows table -->
+  <div class="section-heading"><h2>Site Configuration</h2></div>
+  <div class="pricing-tbl-overflow">
+    <div class="pricing-table-wrap">
+      <table class="pricing-tbl" id="pricing-tbl">
+        <thead>
+          <tr>
+            <th style="width:10%">Site Label</th>
+            <th style="width:7%  " class="num">QTY</th>
+            <th style="width:18%">Appliance</th>
+            <th style="width:16%">SD-WAN</th>
+            <th style="width:16%">Segmentation</th>
+            <th style="width:9%" class="num">Appliance $</th>
+            <th style="width:8%" class="num">SD-WAN $</th>
+            <th style="width:8%" class="num">Seg $</th>
+            <th style="width:9%" class="num">Site Total</th>
+            <th style="width:9%" class="num">Line Total</th>
+            <th style="width:4%"></th>
+          </tr>
+        </thead>
+        <tbody id="pricing-rows">
+          <tr><td colspan="11" class="empty-state">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <button class="add-row-btn" onclick="addPricingRow()">＋ Add Row</button>
+
+  <!-- Grand total -->
+  <div class="grand-total-card">
+    <div>
+      <div class="grand-total-label">Grand Total (Annual)</div>
+      <div class="grand-total-sub" id="grand-total-sub">— sites configured</div>
+    </div>
+    <div class="grand-total-value" id="grand-total">$0</div>
+  </div>
+
+  <!-- Ramp table -->
+  <div class="section-heading"><h2>📅 Ramped Roll-Out</h2></div>
+  <div class="ramp-card">
+    <div class="ramp-card-header">
+      <span class="ramp-card-title">Phased Deployment Cost Overview</span>
+      <span class="ramp-card-sub">25% → 50% → 75% → 100% of sites per year</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="ramp-tbl" id="ramp-tbl">
+        <thead>
+          <tr>
+            <th>Site Label</th>
+            <th>Sites</th>
+            <th>Site Total</th>
+            <th>Year 1 (25%)</th>
+            <th>Year 2 (50%)</th>
+            <th>Year 3 (75%)</th>
+            <th>Year 4 (100%)</th>
+          </tr>
+        </thead>
+        <tbody id="ramp-rows">
+          <tr><td colspan="7" class="empty-state" style="color:var(--text-muted);">Add rows above to see ramp projection.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</div><!-- /tab-pricing -->
+
 <!-- ══════════════════════ BVA TAB ══════════════════════ -->
 <div class="tab-panel" id="tab-bva">
 <div class="bva-body">
 
   <div class="bva-save-indicator" id="bva-save-indicator"></div>
 
-  <!-- Sliders -->
   <div class="section-heading"><h2>&#9881; Model Inputs</h2></div>
   <div class="bva-sliders-grid" id="bva-sliders"></div>
 
   <hr class="section-divider">
 
-  <!-- KPI Cards -->
   <div class="section-heading"><h2>&#128200; 3-Year Value Summary</h2></div>
   <div class="bva-kpi-row" id="bva-kpi-row"></div>
 
-  <!-- Chart + Drivers -->
   <div class="bva-bottom">
     <div class="bva-chart-card">
       <div class="bva-chart-header">
@@ -621,7 +682,8 @@ let openQid = null;
 function switchTab(name) {
   document.querySelectorAll('.page-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
-  if (name === 'bva' && !window._bvaLoaded) { initBVA(); window._bvaLoaded = true; }
+  if (name === 'bva'     && !window._bvaLoaded)     { initBVA();     window._bvaLoaded = true; }
+  if (name === 'pricing' && !window._pricingLoaded) { initPricing(); window._pricingLoaded = true; }
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
@@ -708,6 +770,280 @@ function buildActions(panel, qid, getVal) {
   }
   textarea.addEventListener('blur', saveNotes);
   textarea.addEventListener('input', function () { clearTimeout(saveTimer); clearStatus(); saveTimer = setTimeout(saveNotes, 3000); });
+})();
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PRICING ENGINE
+// ══════════════════════════════════════════════════════════════════════════════
+let _pricingPhase    = 'standard';
+let _pricingRows     = [];   // [{ id, label, qty, appliance_id, sdwan_id, seg_id }]
+let _appliances      = [];
+let _sdwan           = [];
+let _segmentation    = [];
+let _pricingSaveTimer = null;
+let _rowCounter      = 0;
+
+function fmtMoney(v) {
+  if (!v || v === 0) return '—';
+  return '$' + Number(v).toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
+function skuPrice(skuList, id, phase) {
+  if (!id) return 0;
+  const sku = skuList.find(s => s.id === parseInt(id));
+  if (!sku) return 0;
+  return sku[phase] || 0;
+}
+
+async function initPricing() {
+  const res  = await fetch('/user/' + CUSTOMER_SLUG + '/pricing-config');
+  const data = await res.json();
+  if (!data.success) return;
+
+  _appliances   = data.appliances   || [];
+  _sdwan        = data.sdwan        || [];
+  _segmentation = data.segmentation || [];
+
+  // Load saved state
+  if (data.saved && data.saved.phase) {
+    _pricingPhase = data.saved.phase;
+  }
+  if (data.saved && data.saved.rows && data.saved.rows.length) {
+    _pricingRows = data.saved.rows.map(r => ({ ...r, id: r.id || (++_rowCounter) }));
+    _rowCounter = Math.max(_rowCounter, ..._pricingRows.map(r => r.id || 0));
+  } else {
+    // Start with one empty row
+    _pricingRows = [newEmptyRow()];
+  }
+
+  setPhase(_pricingPhase, false);  // set toggle without save
+  renderPricingRows();
+  updateTotals();
+}
+
+function newEmptyRow() {
+  return { id: ++_rowCounter, label: 'Small', qty: 0, appliance_id: null, sdwan_id: null, seg_id: null };
+}
+
+function setPhase(phase, doSave = true) {
+  _pricingPhase = phase;
+  document.querySelectorAll('.phase-btn').forEach(b => {
+    b.classList.toggle('active', b.classList.contains(phase));
+  });
+  updateTotals();
+  if (doSave) schedulePricingSave();
+}
+
+function addPricingRow() {
+  _pricingRows.push(newEmptyRow());
+  renderPricingRows();
+  updateTotals();
+  schedulePricingSave();
+}
+
+function removePricingRow(id) {
+  _pricingRows = _pricingRows.filter(r => r.id !== id);
+  renderPricingRows();
+  updateTotals();
+  schedulePricingSave();
+}
+
+function buildSelectOptions(list, selectedId, allowNone, noneLabel) {
+  let html = '';
+  if (allowNone) html += `<option value="">${noneLabel || '— None —'}</option>`;
+  list.forEach(s => {
+    html += `<option value="${s.id}" ${parseInt(selectedId) === s.id ? 'selected' : ''}>${s.sku_name}</option>`;
+  });
+  return html;
+}
+
+function renderPricingRows() {
+  const tbody = document.getElementById('pricing-rows');
+  if (!_pricingRows.length) {
+    tbody.innerHTML = `<tr><td colspan="11" class="empty-state">No rows yet — click "+ Add Row" to start.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = '';
+  _pricingRows.forEach(row => {
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-row-id', row.id);
+
+    const appPrice  = skuPrice(_appliances,   row.appliance_id, _pricingPhase);
+    const sdwanPrice = skuPrice(_sdwan,        row.sdwan_id,     _pricingPhase);
+    const segPrice  = skuPrice(_segmentation, row.seg_id,       _pricingPhase);
+    const siteTotal = appPrice + sdwanPrice + segPrice;
+    const lineTotal = (row.qty || 0) * siteTotal;
+
+    tr.innerHTML = `
+      <td>
+        <input class="p-label-input" type="text" value="${escHtml(row.label || '')}"
+          list="label-suggestions"
+          onchange="updateRowField(${row.id}, 'label', this.value)"
+          oninput="updateRowField(${row.id}, 'label', this.value)">
+      </td>
+      <td class="num">
+        <input class="p-qty-input" type="number" min="0" value="${row.qty || 0}"
+          onchange="updateRowField(${row.id}, 'qty', parseInt(this.value)||0)"
+          oninput="updateRowField(${row.id}, 'qty', parseInt(this.value)||0)">
+      </td>
+      <td>
+        <select class="p-select" onchange="updateRowField(${row.id}, 'appliance_id', this.value ? parseInt(this.value) : null)">
+          <option value="">— Select —</option>
+          ${buildSelectOptions(_appliances, row.appliance_id, false)}
+        </select>
+      </td>
+      <td>
+        <select class="p-select" onchange="updateRowField(${row.id}, 'sdwan_id', this.value ? parseInt(this.value) : null)">
+          ${buildSelectOptions(_sdwan, row.sdwan_id, true, '— None —')}
+        </select>
+      </td>
+      <td>
+        <select class="p-select" onchange="updateRowField(${row.id}, 'seg_id', this.value ? parseInt(this.value) : null)">
+          ${buildSelectOptions(_segmentation, row.seg_id, true, '— None —')}
+        </select>
+      </td>
+      <td class="num">${fmtMoney(appPrice)}</td>
+      <td class="num">${fmtMoney(sdwanPrice)}</td>
+      <td class="num">${fmtMoney(segPrice)}</td>
+      <td class="num" style="color:var(--accent);font-weight:600;">${fmtMoney(siteTotal)}</td>
+      <td class="total-col">${fmtMoney(lineTotal)}</td>
+      <td><button class="p-remove-btn" onclick="removePricingRow(${row.id})" title="Remove row">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function updateRowField(id, field, value) {
+  const row = _pricingRows.find(r => r.id === id);
+  if (!row) return;
+  row[field] = value;
+  // Re-render just the price cells without full re-render (to preserve focus)
+  const tr = document.querySelector(`tr[data-row-id="${id}"]`);
+  if (tr) {
+    const appPrice   = skuPrice(_appliances,   row.appliance_id, _pricingPhase);
+    const sdwanPrice = skuPrice(_sdwan,         row.sdwan_id,     _pricingPhase);
+    const segPrice   = skuPrice(_segmentation, row.seg_id,       _pricingPhase);
+    const siteTotal  = appPrice + sdwanPrice + segPrice;
+    const lineTotal  = (row.qty || 0) * siteTotal;
+    const tds = tr.querySelectorAll('td');
+    tds[5].textContent = fmtMoney(appPrice)  === '—' ? '—' : fmtMoney(appPrice);
+    tds[6].textContent = fmtMoney(sdwanPrice) === '—' ? '—' : fmtMoney(sdwanPrice);
+    tds[7].textContent = fmtMoney(segPrice)  === '—' ? '—' : fmtMoney(segPrice);
+    tds[8].textContent = fmtMoney(siteTotal);
+    tds[9].textContent = fmtMoney(lineTotal);
+  }
+  updateTotals();
+  schedulePricingSave();
+}
+
+function updateTotals() {
+  let grandTotal = 0;
+  let totalSites = 0;
+  _pricingRows.forEach(row => {
+    const appPrice   = skuPrice(_appliances,   row.appliance_id, _pricingPhase);
+    const sdwanPrice = skuPrice(_sdwan,         row.sdwan_id,     _pricingPhase);
+    const segPrice   = skuPrice(_segmentation, row.seg_id,       _pricingPhase);
+    const siteTotal  = appPrice + sdwanPrice + segPrice;
+    const lineTotal  = (row.qty || 0) * siteTotal;
+    grandTotal  += lineTotal;
+    totalSites  += (row.qty || 0);
+  });
+
+  document.getElementById('grand-total').textContent = grandTotal ? ('$' + grandTotal.toLocaleString('en-US', { maximumFractionDigits: 0 })) : '$0';
+  document.getElementById('grand-total-sub').textContent = totalSites + ' total site' + (totalSites !== 1 ? 's' : '') + ' configured';
+
+  renderRampTable();
+}
+
+function renderRampTable() {
+  const tbody = document.getElementById('ramp-rows');
+  const activeRows = _pricingRows.filter(r => r.qty > 0);
+  if (!activeRows.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty-state" style="color:var(--text-muted);">Add rows with qty > 0 to see ramp projection.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = '';
+  let totY1 = 0, totY2 = 0, totY3 = 0, totY4 = 0, totSites = 0;
+
+  activeRows.forEach(row => {
+    const appPrice   = skuPrice(_appliances,   row.appliance_id, _pricingPhase);
+    const sdwanPrice = skuPrice(_sdwan,         row.sdwan_id,     _pricingPhase);
+    const segPrice   = skuPrice(_segmentation, row.seg_id,       _pricingPhase);
+    const siteTotal  = appPrice + sdwanPrice + segPrice;
+    const qty = row.qty || 0;
+
+    const y1 = Math.round(qty * 0.25) * siteTotal;
+    const y2 = Math.round(qty * 0.50) * siteTotal;
+    const y3 = Math.round(qty * 0.75) * siteTotal;
+    const y4 = qty * siteTotal;
+
+    totY1 += y1; totY2 += y2; totY3 += y3; totY4 += y4; totSites += qty;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${escHtml(row.label || 'Row')}</td>
+      <td>${qty}</td>
+      <td>${fmtMoney(siteTotal)}</td>
+      <td>${fmtMoney(y1)} <span style="font-size:0.7rem;color:var(--text-muted);">(${Math.round(qty*0.25)} sites)</span></td>
+      <td>${fmtMoney(y2)} <span style="font-size:0.7rem;color:var(--text-muted);">(${Math.round(qty*0.50)} sites)</span></td>
+      <td>${fmtMoney(y3)} <span style="font-size:0.7rem;color:var(--text-muted);">(${Math.round(qty*0.75)} sites)</span></td>
+      <td>${fmtMoney(y4)} <span style="font-size:0.7rem;color:var(--text-muted);">(${qty} sites)</span></td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Totals row
+  const totTr = document.createElement('tr');
+  totTr.innerHTML = `
+    <td>TOTAL</td>
+    <td>${totSites}</td>
+    <td>—</td>
+    <td>${fmtMoney(totY1)}</td>
+    <td>${fmtMoney(totY2)}</td>
+    <td>${fmtMoney(totY3)}</td>
+    <td>${fmtMoney(totY4)}</td>`;
+  tbody.appendChild(totTr);
+}
+
+function schedulePricingSave() {
+  const ind = document.getElementById('pricing-save-ind');
+  ind.textContent = 'Saving…'; ind.className = 'pricing-save-ind saving';
+  clearTimeout(_pricingSaveTimer);
+  _pricingSaveTimer = setTimeout(savePricing, 1200);
+}
+
+async function savePricing() {
+  const ind = document.getElementById('pricing-save-ind');
+  try {
+    const res = await fetch('/user/' + CUSTOMER_SLUG + '/pricing-save', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phase: _pricingPhase, rows: _pricingRows })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      ind.textContent = '✓ Saved at ' + now; ind.className = 'pricing-save-ind saved';
+      setTimeout(() => { ind.textContent = ''; ind.className = 'pricing-save-ind'; }, 4000);
+    } else {
+      ind.textContent = 'Save failed'; ind.className = 'pricing-save-ind';
+    }
+  } catch(e) {
+    ind.textContent = 'Save failed'; ind.className = 'pricing-save-ind';
+  }
+}
+
+// datalist for label suggestions
+(function() {
+  const dl = document.createElement('datalist');
+  dl.id = 'label-suggestions';
+  ['Small','Medium','Large','XL'].forEach(v => {
+    const o = document.createElement('option'); o.value = v; dl.appendChild(o);
+  });
+  document.body.appendChild(dl);
 })();
 
 // ══════════════════════════════════════════════════════════════════════════════
