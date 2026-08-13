@@ -31,22 +31,17 @@
     .hero-meta span { display: flex; align-items: center; gap: 5px; }
     .hero-meta a { color: var(--accent); text-decoration: none; word-break: break-all; }
     .hero-meta a:hover { text-decoration: underline; }
-
-    /* ── Page tabs ── */
     .page-tabs { display: flex; gap: 0; padding: 0 2rem; background: rgba(0,22,44,0.7); border-bottom: 1px solid var(--border); overflow-x: auto; }
     .page-tab { padding: 0.85rem 1.4rem; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.2s, border-color 0.2s; user-select: none; }
     .page-tab:hover { color: var(--white); }
     .page-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
-
     .page-body { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
     .section-heading { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.25rem; }
     .section-heading h2 { font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
     .section-badge { background: rgba(0,170,255,0.12); border: 1px solid rgba(0,170,255,0.28); border-radius: 20px; padding: 1px 10px; font-size: 0.7rem; font-weight: 700; color: var(--accent); }
     .section-divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
-
-    /* ── ASSESSMENT SUMMARY TILES ── */
     .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
     @media (max-width: 900px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 560px) { .summary-grid { grid-template-columns: 1fr; } }
@@ -56,8 +51,6 @@
     .summary-tile-name { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; line-height: 1.3; flex: 1; }
     .summary-tile-badge { font-size: 0.75rem; font-weight: 800; padding: 3px 11px; border-radius: 20px; white-space: nowrap; color: #fff; flex-shrink: 0; }
     .summary-tile-text { font-size: 0.8rem; line-height: 1.6; color: var(--white); padding: 0.5rem 0.75rem; border-radius: 7px; border-left: 3px solid; background: rgba(255,255,255,0.04); }
-
-    /* ── VALUE DRIVERS TABLE ── */
     .vd-wrapper { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
     .vd-table { width: 100%; border-collapse: collapse; }
     .vd-table th { text-align: left; padding: 11px 16px; background: rgba(0,51,102,0.7); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent); border-bottom: 1px solid var(--border); }
@@ -72,16 +65,12 @@
     .vd-table td.vd-future  { color: #4ade80; }
     .vd-line { display: block; padding: 2px 0; }
     .vd-line + .vd-line { margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06); }
-
-    /* VALUE PROPS */
     .vp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
     .vp-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 14px; padding: 1.25rem 1.4rem; transition: border-color 0.2s, box-shadow 0.2s; }
     .vp-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.1); }
     .vp-card-title { font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 0.45rem; line-height: 1.35; }
     .vp-card-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; }
     .vp-card-biz { margin-top: 0.65rem; display: inline-block; background: rgba(0,170,255,0.1); border: 1px solid rgba(0,170,255,0.22); border-radius: 20px; padding: 2px 10px; font-size: 0.7rem; font-weight: 600; color: var(--accent); }
-
-    /* DOCUMENTS */
     .assets-list { display: flex; flex-direction: column; gap: 0.7rem; }
     .asset-row { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: flex-start; gap: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
     .asset-row:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.1); }
@@ -92,8 +81,6 @@
     .asset-desc { font-size: 0.81rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.5; }
     .asset-link { flex-shrink: 0; padding: 0.45rem 1rem; background: transparent; border: 1px solid var(--accent); border-radius: 7px; color: var(--accent); font-size: 0.78rem; font-weight: 600; text-decoration: none; transition: background 0.2s, color 0.2s; white-space: nowrap; align-self: center; }
     .asset-link:hover { background: var(--accent); color: var(--white); }
-
-    /* GUIDELINES */
     .guidelines-list { display: flex; flex-direction: column; gap: 1rem; }
     .guideline-card { background: linear-gradient(145deg, #0a2a1a, #072018); border: 1px solid rgba(0,220,130,0.2); border-left: 3px solid #00dc82; border-radius: 12px; padding: 1.25rem 1.4rem; transition: border-color 0.2s, box-shadow 0.2s; }
     .guideline-card:hover { border-color: rgba(0,220,130,0.45); box-shadow: 0 4px 20px rgba(0,220,130,0.08); }
@@ -103,16 +90,12 @@
     .guideline-link { flex-shrink: 0; padding: 0.35rem 0.85rem; background: transparent; border: 1px solid rgba(0,220,130,0.4); border-radius: 7px; color: #00dc82; font-size: 0.75rem; font-weight: 600; text-decoration: none; transition: background 0.2s, color 0.2s; white-space: nowrap; }
     .guideline-link:hover { background: #00dc82; color: #072018; }
     .guideline-body { font-size: 0.85rem; color: #a0c8b0; line-height: 1.7; white-space: pre-wrap; }
-
-    /* DOWNLOAD */
     .download-section { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem 2rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
     .download-text { flex: 1; min-width: 200px; }
     .download-text h3 { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 0.3rem; }
     .download-text p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
     .download-btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.78rem 1.6rem; background: linear-gradient(135deg, var(--blue), var(--accent)); border: none; border-radius: 10px; color: var(--white); font-size: 0.92rem; font-weight: 700; cursor: pointer; text-decoration: none; box-shadow: 0 4px 18px rgba(0,112,192,0.4); transition: opacity 0.2s, transform 0.15s; white-space: nowrap; }
     .download-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-
-    /* NOTES */
     .notes-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem 1.6rem; }
     .notes-textarea { width: 100%; min-height: 130px; background: rgba(0,0,0,0.25); border: 1px solid rgba(0,170,255,0.2); border-radius: 9px; color: var(--white); font-size: 0.88rem; font-family: inherit; line-height: 1.6; padding: 0.85rem 1rem; resize: vertical; transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
     .notes-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,170,255,0.1); }
@@ -124,8 +107,6 @@
     .notes-status.saving { color: var(--accent); }
     .notes-status.error  { color: #ff6b6b; }
     .notes-hint { font-size: 0.72rem; color: rgba(160,188,216,0.35); }
-
-    /* Q&A TABLE */
     .qa-wrapper { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
     .qa-table { width: 100%; border-collapse: collapse; }
     .qa-table th { text-align: left; padding: 10px 14px; background: rgba(0,51,102,0.6); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); border-bottom: 1px solid var(--border); }
@@ -153,8 +134,6 @@
     .ie-save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .ie-cancel-btn { background: transparent; color: var(--text-muted); border: 1px solid rgba(160,188,216,0.22); border-radius: 7px; padding: 7px 14px; font-size: 0.82rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; font-family: inherit; }
     .ie-cancel-btn:hover { color: var(--white); border-color: var(--text-muted); }
-
-    /* ── BVA TAB ── */
     .bva-body { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
     .bva-sliders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 2rem; }
     .bva-slider-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; }
@@ -185,11 +164,7 @@
     .bva-save-indicator { font-size: 0.75rem; color: var(--text-muted); text-align: right; margin-bottom: 1rem; min-height: 18px; }
     .bva-save-indicator.saved  { color: #00dc82; }
     .bva-save-indicator.saving { color: var(--accent); }
-
-    /* ── PRICING TAB ── */
     .pricing-body { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
-
-    /* Phase toggle */
     .phase-toggle { display: inline-flex; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 1.5rem; }
     .phase-btn { padding: 0.55rem 1.4rem; font-size: 0.82rem; font-weight: 700; cursor: pointer; border: none; background: transparent; color: var(--text-muted); transition: background 0.2s, color 0.2s; letter-spacing: 0.04em; }
     .phase-btn:hover { color: var(--white); }
@@ -197,8 +172,6 @@
     .phase-btn.budgetary.active  { background: #f59e0b; color: #1a1a00; }
     .phase-btn.standard.active   { background: #3b82f6; color: #fff; }
     .phase-btn.aggressive.active { background: #10b981; color: #fff; }
-
-    /* Pricing table */
     .pricing-table-wrap { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem; }
     .pricing-tbl { width: 100%; border-collapse: collapse; min-width: 800px; }
     .pricing-tbl thead tr { background: rgba(0,51,102,0.8); }
@@ -209,8 +182,6 @@
     .pricing-tbl tr:hover td { background: rgba(0,170,255,0.04); }
     .pricing-tbl td.num { text-align: right; font-variant-numeric: tabular-nums; }
     .pricing-tbl td.total-col { font-weight: 700; color: var(--accent); text-align: right; }
-
-    /* Row inputs */
     .p-label-input { background: transparent; border: 1px solid rgba(0,170,255,0.2); border-radius: 6px; color: var(--white); font-size: 0.82rem; padding: 5px 8px; width: 90px; outline: none; transition: border-color 0.2s; }
     .p-label-input:focus { border-color: var(--accent); }
     .p-qty-input { background: transparent; border: 1px solid rgba(0,170,255,0.2); border-radius: 6px; color: var(--white); font-size: 0.82rem; padding: 5px 8px; width: 70px; text-align: right; outline: none; transition: border-color 0.2s; }
@@ -220,14 +191,10 @@
     .p-select option { background: #0a2244; color: var(--white); }
     .p-remove-btn { background: transparent; border: none; color: #f87171; font-size: 1.1rem; cursor: pointer; padding: 3px 6px; border-radius: 5px; transition: background 0.15s; line-height: 1; }
     .p-remove-btn:hover { background: rgba(248,113,113,0.15); }
-
-    /* Grand total card */
     .grand-total-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid rgba(0,170,255,0.4); border-radius: 14px; padding: 1.4rem 1.8rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
     .grand-total-label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
     .grand-total-value { font-size: 2rem; font-weight: 800; color: var(--accent); }
     .grand-total-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
-
-    /* Ramp table */
     .ramp-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
     .ramp-card-header { padding: 1rem 1.4rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .ramp-card-title { font-size: 0.9rem; font-weight: 700; color: var(--white); }
@@ -239,19 +206,12 @@
     .ramp-tbl td:first-child { text-align: left; color: var(--text-muted); font-weight: 600; }
     .ramp-tbl tr:last-child td { border-bottom: none; font-weight: 700; color: var(--accent); background: rgba(0,170,255,0.05); }
     .ramp-tbl tr:last-child td:first-child { color: var(--accent); }
-
-    /* Pricing save indicator */
     .pricing-save-ind { font-size: 0.75rem; text-align: right; margin-bottom: 0.75rem; min-height: 18px; color: var(--text-muted); }
     .pricing-save-ind.saving { color: var(--accent); }
     .pricing-save-ind.saved  { color: #00dc82; }
-
-    /* Add row button */
     .add-row-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.6rem 1.2rem; background: transparent; border: 1px dashed rgba(0,170,255,0.4); border-radius: 9px; color: var(--accent); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.2s, border-color 0.2s; margin-bottom: 1rem; }
     .add-row-btn:hover { background: rgba(0,170,255,0.08); border-color: var(--accent); }
-
-    /* Overflow wrapper for pricing table */
     .pricing-tbl-overflow { overflow-x: auto; }
-
     #ie-toast { position: fixed; bottom: 24px; right: 24px; background: #00875a; color: #fff; padding: 11px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.35); z-index: 9999; opacity: 0; transform: translateY(10px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
     #ie-toast.show { opacity: 1; transform: translateY(0); }
     #ie-toast.error { background: #b91c1c; }
@@ -336,7 +296,6 @@
   </div>
 </div>
 
-<!-- PAGE TABS -->
 <div class="page-tabs">
   <div class="page-tab active" data-tab="results"  onclick="switchTab('results')">📋 Results</div>
   <div class="page-tab"        data-tab="pricing"  onclick="switchTab('pricing')">💰 Pricing</div>
@@ -550,7 +509,6 @@
 
   <div class="pricing-save-ind" id="pricing-save-ind"></div>
 
-  <!-- Phase toggle -->
   <div class="section-heading"><h2>💰 Pricing Phase</h2></div>
   <div class="phase-toggle" id="phase-toggle">
     <button class="phase-btn budgetary"  onclick="setPhase('budgetary')">Budgetary</button>
@@ -560,7 +518,6 @@
 
   <hr class="section-divider" style="margin-top:0;">
 
-  <!-- Site rows table -->
   <div class="section-heading"><h2>Site Configuration</h2></div>
   <div class="pricing-tbl-overflow">
     <div class="pricing-table-wrap">
@@ -568,7 +525,7 @@
         <thead>
           <tr>
             <th style="width:10%">Site Label</th>
-            <th style="width:7%  " class="num">QTY</th>
+            <th style="width:7%" class="num">QTY</th>
             <th style="width:18%">Appliance</th>
             <th style="width:16%">SD-WAN</th>
             <th style="width:16%">Segmentation</th>
@@ -589,7 +546,6 @@
 
   <button class="add-row-btn" onclick="addPricingRow()">＋ Add Row</button>
 
-  <!-- Grand total -->
   <div class="grand-total-card">
     <div>
       <div class="grand-total-label">Grand Total (Annual)</div>
@@ -598,7 +554,6 @@
     <div class="grand-total-value" id="grand-total">$0</div>
   </div>
 
-  <!-- Ramp table -->
   <div class="section-heading"><h2>📅 Ramped Roll-Out</h2></div>
   <div class="ramp-card">
     <div class="ramp-card-header">
@@ -678,7 +633,6 @@ const QUESTIONS_MAP  = {{ questions_map | tojson }};
 let   RAW_RESPONSES  = {{ raw_responses | tojson }};
 let openQid = null;
 
-// ── Tab switching ─────────────────────────────────────────────────────────────
 function switchTab(name) {
   document.querySelectorAll('.page-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
@@ -686,7 +640,6 @@ function switchTab(name) {
   if (name === 'pricing' && !window._pricingLoaded) { initPricing(); window._pricingLoaded = true; }
 }
 
-// ── Toast ─────────────────────────────────────────────────────────────────────
 let _toastTimer;
 function showToast(msg, isError) {
   const t = document.getElementById('ie-toast');
@@ -694,7 +647,6 @@ function showToast(msg, isError) {
   clearTimeout(_toastTimer); _toastTimer = setTimeout(() => { t.className = ''; }, 3200);
 }
 
-// ── Inline editor ─────────────────────────────────────────────────────────────
 function normType(t) { return (t || '').toLowerCase().replace(/[^a-z]/g, ''); }
 function toggleEditor(qid) { if (openQid === qid) { closeEditor(qid); return; } if (openQid !== null) closeEditor(openQid); openEditor(qid); }
 function closeEditor(qid) { const row = document.getElementById('ie-row-' + qid); if (row) row.style.display = 'none'; openQid = null; }
@@ -750,7 +702,6 @@ function buildActions(panel, qid, getVal) {
   actions.appendChild(saveBtn); actions.appendChild(cancelBtn); panel.appendChild(actions);
 }
 
-// ── Notes auto-save ───────────────────────────────────────────────────────────
 (function () {
   const textarea = document.getElementById('opportunityNotes');
   const status   = document.getElementById('notesStatus');
@@ -776,7 +727,7 @@ function buildActions(panel, qid, getVal) {
 // PRICING ENGINE
 // ══════════════════════════════════════════════════════════════════════════════
 let _pricingPhase    = 'standard';
-let _pricingRows     = [];   // [{ id, label, qty, appliance_id, sdwan_id, seg_id }]
+let _pricingRows     = [];
 let _appliances      = [];
 let _sdwan           = [];
 let _segmentation    = [];
@@ -804,7 +755,6 @@ async function initPricing() {
   _sdwan        = data.sdwan        || [];
   _segmentation = data.segmentation || [];
 
-  // Load saved state
   if (data.saved && data.saved.phase) {
     _pricingPhase = data.saved.phase;
   }
@@ -812,11 +762,10 @@ async function initPricing() {
     _pricingRows = data.saved.rows.map(r => ({ ...r, id: r.id || (++_rowCounter) }));
     _rowCounter = Math.max(_rowCounter, ..._pricingRows.map(r => r.id || 0));
   } else {
-    // Start with one empty row
     _pricingRows = [newEmptyRow()];
   }
 
-  setPhase(_pricingPhase, false);  // set toggle without save
+  setPhase(_pricingPhase, false);
   renderPricingRows();
   updateTotals();
 }
@@ -830,6 +779,7 @@ function setPhase(phase, doSave = true) {
   document.querySelectorAll('.phase-btn').forEach(b => {
     b.classList.toggle('active', b.classList.contains(phase));
   });
+  renderPricingRows();
   updateTotals();
   if (doSave) schedulePricingSave();
 }
@@ -868,11 +818,11 @@ function renderPricingRows() {
     const tr = document.createElement('tr');
     tr.setAttribute('data-row-id', row.id);
 
-    const appPrice  = skuPrice(_appliances,   row.appliance_id, _pricingPhase);
-    const sdwanPrice = skuPrice(_sdwan,        row.sdwan_id,     _pricingPhase);
-    const segPrice  = skuPrice(_segmentation, row.seg_id,       _pricingPhase);
-    const siteTotal = appPrice + sdwanPrice + segPrice;
-    const lineTotal = (row.qty || 0) * siteTotal;
+    const appPrice   = skuPrice(_appliances,   row.appliance_id, _pricingPhase);
+    const sdwanPrice = skuPrice(_sdwan,         row.sdwan_id,     _pricingPhase);
+    const segPrice   = skuPrice(_segmentation, row.seg_id,       _pricingPhase);
+    const siteTotal  = appPrice + sdwanPrice + segPrice;
+    const lineTotal  = (row.qty || 0) * siteTotal;
 
     tr.innerHTML = `
       <td>
@@ -920,7 +870,6 @@ function updateRowField(id, field, value) {
   const row = _pricingRows.find(r => r.id === id);
   if (!row) return;
   row[field] = value;
-  // Re-render just the price cells without full re-render (to preserve focus)
   const tr = document.querySelector(`tr[data-row-id="${id}"]`);
   if (tr) {
     const appPrice   = skuPrice(_appliances,   row.appliance_id, _pricingPhase);
@@ -929,9 +878,9 @@ function updateRowField(id, field, value) {
     const siteTotal  = appPrice + sdwanPrice + segPrice;
     const lineTotal  = (row.qty || 0) * siteTotal;
     const tds = tr.querySelectorAll('td');
-    tds[5].textContent = fmtMoney(appPrice)  === '—' ? '—' : fmtMoney(appPrice);
-    tds[6].textContent = fmtMoney(sdwanPrice) === '—' ? '—' : fmtMoney(sdwanPrice);
-    tds[7].textContent = fmtMoney(segPrice)  === '—' ? '—' : fmtMoney(segPrice);
+    tds[5].textContent = fmtMoney(appPrice);
+    tds[6].textContent = fmtMoney(sdwanPrice);
+    tds[7].textContent = fmtMoney(segPrice);
     tds[8].textContent = fmtMoney(siteTotal);
     tds[9].textContent = fmtMoney(lineTotal);
   }
@@ -948,8 +897,8 @@ function updateTotals() {
     const segPrice   = skuPrice(_segmentation, row.seg_id,       _pricingPhase);
     const siteTotal  = appPrice + sdwanPrice + segPrice;
     const lineTotal  = (row.qty || 0) * siteTotal;
-    grandTotal  += lineTotal;
-    totalSites  += (row.qty || 0);
+    grandTotal += lineTotal;
+    totalSites += (row.qty || 0);
   });
 
   document.getElementById('grand-total').textContent = grandTotal ? ('$' + grandTotal.toLocaleString('en-US', { maximumFractionDigits: 0 })) : '$0';
@@ -995,7 +944,6 @@ function renderRampTable() {
     tbody.appendChild(tr);
   });
 
-  // Totals row
   const totTr = document.createElement('tr');
   totTr.innerHTML = `
     <td>TOTAL</td>
@@ -1036,7 +984,6 @@ async function savePricing() {
   }
 }
 
-// datalist for label suggestions
 (function() {
   const dl = document.createElement('datalist');
   dl.id = 'label-suggestions';
