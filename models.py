@@ -393,6 +393,34 @@ class PricingSKU(db.Model):
             'active':        self.active,
         }
 
+# ── NEW: TCO Entry ─────────────────────────────────────────────────────────────
+# Stores per-category vendor/size pricing for the TCO Analysis tab.
+# category values: fw_ns | sdwan | mpls | fw_ew | iot_ot | nac | l3sw | pam
+class TCOEntry(db.Model):
+    __tablename__ = 'tco_entries'
+    id            = db.Column(db.Integer, primary_key=True)
+    category      = db.Column(db.String(30), nullable=False)   # e.g. 'fw_ns'
+    vendor        = db.Column(db.String(150), nullable=False)
+    size          = db.Column(db.String(20), nullable=False)   # Small/Medium/Large/XL
+    sku_name      = db.Column(db.String(255), nullable=False)  # display label in dropdown
+    annual_cost   = db.Column(db.Float, nullable=False, default=0)  # $ per site per year
+    display_order = db.Column(db.Integer, default=0)
+    active        = db.Column(db.Boolean, default=True)
+    created_at    = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at    = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id':            self.id,
+            'category':      self.category,
+            'vendor':        self.vendor,
+            'size':          self.size,
+            'sku_name':      self.sku_name,
+            'annual_cost':   self.annual_cost,
+            'display_order': self.display_order,
+            'active':        self.active,
+        }
+
 
 def run_migration(db):
     import sqlalchemy as sa
@@ -448,40 +476,33 @@ def run_migration(db):
             c.commit()
         print('[migration] Seeded default BVASections')
 
-    # ── Pricing SKUs table ──────────────────────────────────────────────────
+    # ── Pricing SKUs ──────────────────────────────────────────────────────────
     if 'pricing_skus' not in existing:
         db.metadata.tables['pricing_skus'].create(engine)
         print('[migration] Created table: pricing_skus')
         with engine.connect() as c:
-            # Insert No-HA appliances first (rows 1-4), then HA (rows 5-8), then sdwan/seg
             c.execute(sa.text("""
                 INSERT INTO pricing_skus
                     (sku_code, sku_name, category, cogs, list_price, budgetary, standard, aggressive, is_ha, ha_parent_id, display_order, active)
                 VALUES
-                -- Appliances No HA
                 ('ZTB-400',        'ZTB-400 (No HA)',        'appliance',   914,   1200,   600,   450,   383,  false, NULL, 1,  true),
                 ('ZTB-600',        'ZTB-600 (No HA)',        'appliance',   760,   1800,   900,   675,   574,  false, NULL, 2,  true),
                 ('ZTB-800',        'ZTB-800 (No HA)',        'appliance',  2100,   3600,  1800,  1350,  1148,  false, NULL, 3,  true),
                 ('ZTB-8010',       'ZTB-8010 (No HA)',       'appliance',  6134,  18000,  9000,  6750,  5738,  false, NULL, 4,  true),
-                -- Appliances Include HA (ha_parent_id set below after we know the IDs)
                 ('ZTB-400-HA',     'ZTB-400 (Include HA)',   'appliance',  1828,   2400,  1200,   900,   766,  true,  NULL, 5,  true),
                 ('ZTB-600-HA',     'ZTB-600 (Include HA)',   'appliance',  1520,   3600,  1800,  1350,  1148,  true,  NULL, 6,  true),
                 ('ZTB-800-HA',     'ZTB-800 (Include HA)',   'appliance',  4200,   7200,  3600,  2700,  2296,  true,  NULL, 7,  true),
                 ('ZTB-8010-HA',    'ZTB-8010 (Include HA)',  'appliance', 12268,  36000, 18000, 13500, 11476,  true,  NULL, 8,  true),
-                -- SD-WAN
                 ('ZTB-SDWAN-SMALL','ZTB-SDWAN-SMALL',        'sdwan',         0,   2400,  1000,   750,   500,  false, NULL, 9,  true),
                 ('ZTB-SDWAN-MED',  'ZTB-SDWAN-MED',          'sdwan',         0,   4800,  2000,  1500,  1000,  false, NULL, 10, true),
                 ('ZTB-SDWAN-LARGE','ZTB-SDWAN-LARGE',         'sdwan',         0,  12000,  5000,  3750,  2500,  false, NULL, 11, true),
                 ('ZTB-SDWAN-XL',   'ZTB-SDWAN-XL',           'sdwan',         0,  30000, 12500,  9375,  6250,  false, NULL, 12, true),
-                -- Segmentation
                 ('ZTB-SG-SMALL',   'ZTB-SG-SMALL',           'segmentation',  0,   4800,  2000,  1500,  1000,  false, NULL, 13, true),
                 ('ZTB-SG-MED',     'ZTB-SG-MED',             'segmentation',  0,  18000,  7500,  5625,  3750,  false, NULL, 14, true),
                 ('ZTB-SG-LARGE',   'ZTB-SG-LARGE',           'segmentation',  0,  48000, 20000, 15000, 10000,  false, NULL, 15, true),
                 ('ZTB-SG-XL',      'ZTB-SG-XL',              'segmentation',  0, 120000, 50000, 37500, 25000,  false, NULL, 16, true)
             """))
             c.commit()
-            # Now wire up ha_parent_id: HA rows point to their No-HA counterpart
-            # We find them by sku_code
             c.execute(sa.text("""
                 UPDATE pricing_skus ha
                 SET ha_parent_id = noha.id
@@ -491,6 +512,129 @@ def run_migration(db):
             """))
             c.commit()
         print('[migration] Seeded 16 pricing SKUs')
+
+    # ── TCO Entries ───────────────────────────────────────────────────────────
+    if 'tco_entries' not in existing:
+        db.metadata.tables['tco_entries'].create(engine)
+        print('[migration] Created table: tco_entries')
+        with engine.connect() as c:
+            c.execute(sa.text("""
+                INSERT INTO tco_entries (category, vendor, size, sku_name, annual_cost, display_order, active) VALUES
+                -- FW N/S
+                ('fw_ns','Palo Alto Networks','Small', 'PA-460 Small',          683,  1, true),
+                ('fw_ns','Palo Alto Networks','Medium','PA-1410 Medium',        1900, 2, true),
+                ('fw_ns','Palo Alto Networks','Large', 'PA-3420 Large',         8759, 3, true),
+                ('fw_ns','Palo Alto Networks','XL',    'PA-5440 XL',           47653, 4, true),
+                ('fw_ns','Fortinet','Small',  'FortiGate 80F Small',            268,  5, true),
+                ('fw_ns','Fortinet','Medium', 'FortiGate 200F Medium',          947,  6, true),
+                ('fw_ns','Fortinet','Large',  'FortiGate 600E Large',          2276,  7, true),
+                ('fw_ns','Fortinet','XL',     'FortiGate 3400E XL',            7227,  8, true),
+                ('fw_ns','Cisco','Small',     'Cisco FTD 1010 Small',           450,  9, true),
+                ('fw_ns','Cisco','Medium',    'Cisco FTD 2110 Medium',         1200, 10, true),
+                ('fw_ns','Cisco','Large',     'Cisco FTD 4115 Large',          5400, 11, true),
+                ('fw_ns','Cisco','XL',        'Cisco FTD 4145 XL',            18000, 12, true),
+                ('fw_ns','Check Point','Small', 'CP 1570 Small',               380, 13, true),
+                ('fw_ns','Check Point','Medium','CP 6200 Medium',             1100, 14, true),
+                ('fw_ns','Check Point','Large', 'CP 16200 Large',             4200, 15, true),
+                ('fw_ns','Check Point','XL',    'CP 26000 XL',               14000, 16, true),
+                -- SD-WAN
+                ('sdwan','Fortinet Secure SD-WAN','Small', 'FortiGate SD-WAN Small',   220, 17, true),
+                ('sdwan','Fortinet Secure SD-WAN','Medium','FortiGate SD-WAN Medium',  780, 18, true),
+                ('sdwan','Fortinet Secure SD-WAN','Large', 'FortiGate SD-WAN Large',  2100, 19, true),
+                ('sdwan','Fortinet Secure SD-WAN','XL',    'FortiGate SD-WAN XL',     5600, 20, true),
+                ('sdwan','Cisco Meraki','Small', 'MX68 SD-WAN Small',                 237, 21, true),
+                ('sdwan','Cisco Meraki','Medium','MX250 SD-WAN Medium',             2050, 22, true),
+                ('sdwan','Cisco Meraki','Large', 'MX450 SD-WAN Large',             3434, 23, true),
+                ('sdwan','Cisco Meraki','XL',    'MX600 SD-WAN XL',               6868, 24, true),
+                ('sdwan','VMware VeloCloud','Small', 'VeloCloud 510 Small',          195, 25, true),
+                ('sdwan','VMware VeloCloud','Medium','VeloCloud 540 Medium',         680, 26, true),
+                ('sdwan','VMware VeloCloud','Large', 'VeloCloud 3400 Large',        1850, 27, true),
+                ('sdwan','VMware VeloCloud','XL',    'VeloCloud 3800 XL',          4900, 28, true),
+                ('sdwan','Palo Alto Prisma SD-WAN','Small', 'Prisma SD-WAN 3200 Small',  310, 29, true),
+                ('sdwan','Palo Alto Prisma SD-WAN','Medium','Prisma SD-WAN 5200 Medium', 960, 30, true),
+                ('sdwan','Palo Alto Prisma SD-WAN','Large', 'Prisma SD-WAN 7200 Large', 2600, 31, true),
+                ('sdwan','Palo Alto Prisma SD-WAN','XL',    'Prisma SD-WAN 7200 XL',   6900, 32, true),
+                -- MPLS
+                ('mpls','AT&T','Small', 'AT&T AVPN Small',    9600,  33, true),
+                ('mpls','AT&T','Medium','AT&T AVPN Medium',   16200, 34, true),
+                ('mpls','AT&T','Large', 'AT&T AVPN Large',    21000, 35, true),
+                ('mpls','AT&T','XL',    'AT&T AVPN XL',      138000, 36, true),
+                ('mpls','Verizon','Small', 'Verizon Private IP Small',   8400,  37, true),
+                ('mpls','Verizon','Medium','Verizon Private IP Medium',  14400, 38, true),
+                ('mpls','Verizon','Large', 'Verizon Private IP Large',   19200, 39, true),
+                ('mpls','Verizon','XL',    'Verizon Private IP XL',     120000, 40, true),
+                ('mpls','Lumen','Small', 'Lumen IP VPN Small',   7200,  41, true),
+                ('mpls','Lumen','Medium','Lumen IP VPN Medium',  12000, 42, true),
+                ('mpls','Lumen','Large', 'Lumen IP VPN Large',   16800, 43, true),
+                ('mpls','Lumen','XL',    'Lumen IP VPN XL',     108000, 44, true),
+                -- FW E/W (Micro-Seg)
+                ('fw_ew','Illumio','Small', 'Illumio Core Small',      1800, 45, true),
+                ('fw_ew','Illumio','Medium','Illumio Core Medium',      7200, 46, true),
+                ('fw_ew','Illumio','Large', 'Illumio Core Large',      36000, 47, true),
+                ('fw_ew','Illumio','XL',    'Illumio Core XL',        144000, 48, true),
+                ('fw_ew','Akamai Guardicore','Small', 'Guardicore Small',   2100, 49, true),
+                ('fw_ew','Akamai Guardicore','Medium','Guardicore Medium',  8400, 50, true),
+                ('fw_ew','Akamai Guardicore','Large', 'Guardicore Large',  42000, 51, true),
+                ('fw_ew','Akamai Guardicore','XL',    'Guardicore XL',    168000, 52, true),
+                ('fw_ew','Broadcom vDefend','Small', 'VMware NSX Small',    2592, 53, true),
+                ('fw_ew','Broadcom vDefend','Medium','VMware NSX Medium',  11520, 54, true),
+                ('fw_ew','Broadcom vDefend','Large', 'VMware NSX Large',   96000, 55, true),
+                ('fw_ew','Broadcom vDefend','XL',    'VMware NSX XL',     384000, 56, true),
+                -- IoT/OT
+                ('iot_ot','Claroty xDome','Small', 'Claroty xDome Small',     1200, 57, true),
+                ('iot_ot','Claroty xDome','Medium','Claroty xDome Medium',    4800, 58, true),
+                ('iot_ot','Claroty xDome','Large', 'Claroty xDome Large',    24000, 59, true),
+                ('iot_ot','Claroty xDome','XL',    'Claroty xDome XL',      113400, 60, true),
+                ('iot_ot','Armis Centrix','Small', 'Armis Centrix Small',    1440, 61, true),
+                ('iot_ot','Armis Centrix','Medium','Armis Centrix Medium',   5760, 62, true),
+                ('iot_ot','Armis Centrix','Large', 'Armis Centrix Large',   28800, 63, true),
+                ('iot_ot','Armis Centrix','XL',    'Armis Centrix XL',     136080, 64, true),
+                ('iot_ot','Forescout','Small', 'Forescout eyeInspect Small',   2213, 65, true),
+                ('iot_ot','Forescout','Medium','Forescout eyeInspect Medium',  8850, 66, true),
+                ('iot_ot','Forescout','Large', 'Forescout eyeInspect Large',  44250, 67, true),
+                ('iot_ot','Forescout','XL',    'Forescout eyeInspect XL',   209250, 68, true),
+                -- NAC
+                ('nac','Cisco ISE','Small', 'Cisco ISE Small',      5339, 69, true),
+                ('nac','Cisco ISE','Medium','Cisco ISE Medium',     12141, 70, true),
+                ('nac','Cisco ISE','Large', 'Cisco ISE Large',      31647, 71, true),
+                ('nac','Cisco ISE','XL',    'Cisco ISE XL',         63294, 72, true),
+                ('nac','HPE Aruba ClearPass','Small', 'ClearPass Small',   3600, 73, true),
+                ('nac','HPE Aruba ClearPass','Medium','ClearPass Medium',  8640, 74, true),
+                ('nac','HPE Aruba ClearPass','Large', 'ClearPass Large',  21600, 75, true),
+                ('nac','HPE Aruba ClearPass','XL',    'ClearPass XL',     43200, 76, true),
+                ('nac','Fortinet FortiNAC','Small', 'FortiNAC Small',   2400, 77, true),
+                ('nac','Fortinet FortiNAC','Medium','FortiNAC Medium',  5760, 78, true),
+                ('nac','Fortinet FortiNAC','Large', 'FortiNAC Large',  14400, 79, true),
+                ('nac','Fortinet FortiNAC','XL',    'FortiNAC XL',    28800, 80, true),
+                -- L3 Switching
+                ('l3sw','Cisco Catalyst 9000','Small', 'Catalyst 9200 Small',   851,  81, true),
+                ('l3sw','Cisco Catalyst 9000','Medium','Catalyst 9300 Medium',  2906, 82, true),
+                ('l3sw','Cisco Catalyst 9000','Large', 'Catalyst 9400 Large',  13428, 83, true),
+                ('l3sw','Cisco Catalyst 9000','XL',    'Catalyst 9600 XL',    12263, 84, true),
+                ('l3sw','Cisco Meraki MS','Small', 'Meraki MS120 Small',   960,  85, true),
+                ('l3sw','Cisco Meraki MS','Medium','Meraki MS250 Medium', 3240, 86, true),
+                ('l3sw','Cisco Meraki MS','Large', 'Meraki MS410 Large', 15000, 87, true),
+                ('l3sw','Cisco Meraki MS','XL',    'Meraki MS425 XL',   13800, 88, true),
+                ('l3sw','HPE Aruba CX','Small', 'Aruba CX 6200 Small',   720,  89, true),
+                ('l3sw','HPE Aruba CX','Medium','Aruba CX 6300 Medium', 2400, 90, true),
+                ('l3sw','HPE Aruba CX','Large', 'Aruba CX 8360 Large', 10800, 91, true),
+                ('l3sw','HPE Aruba CX','XL',    'Aruba CX 10000 XL',   9600, 92, true),
+                -- PAM
+                ('pam','CyberArk Privilege Cloud','Small', 'CyberArk PAM Small',    13410, 93, true),
+                ('pam','CyberArk Privilege Cloud','Medium','CyberArk PAM Medium',   72000, 94, true),
+                ('pam','CyberArk Privilege Cloud','Large', 'CyberArk PAM Large',   210000, 95, true),
+                ('pam','CyberArk Privilege Cloud','XL',    'CyberArk PAM XL',      660000, 96, true),
+                ('pam','BeyondTrust PRA','Small', 'BeyondTrust PRA Small',   9600,  97, true),
+                ('pam','BeyondTrust PRA','Medium','BeyondTrust PRA Medium',  48000, 98, true),
+                ('pam','BeyondTrust PRA','Large', 'BeyondTrust PRA Large',  144000, 99, true),
+                ('pam','BeyondTrust PRA','XL',    'BeyondTrust PRA XL',     480000, 100, true),
+                ('pam','Delinea Secret Server','Small', 'Delinea SS Small',    7200,  101, true),
+                ('pam','Delinea Secret Server','Medium','Delinea SS Medium',   36000, 102, true),
+                ('pam','Delinea Secret Server','Large', 'Delinea SS Large',   108000, 103, true),
+                ('pam','Delinea Secret Server','XL',    'Delinea SS XL',      360000, 104, true)
+            """))
+            c.commit()
+        print('[migration] Seeded TCO entries (104 rows across 8 categories)')
 
     with engine.connect() as conn:
         q_cols = [c['name'] for c in inspector.get_columns('questions')]

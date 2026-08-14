@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TCO Config — ZTB Admin</title>
+  <style>
+    :root {
+      --navy: #003366; --blue: #0070c0; --light-blue: #e8f4fd;
+      --white: #ffffff; --gray: #f5f7fa; --border: #dee2e6;
+      --text: #333333; --danger: #dc3545; --success: #28a745;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--text); background: var(--gray); }
+    #navbar { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: var(--navy); display: flex; align-items: center; padding: 0 20px; z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+    #navbar .brand { color: #fff; font-size: 18px; font-weight: 700; }
+    #navbar .subtitle { color: #90c8f0; font-size: 14px; margin-left: 14px; }
+    #navbar .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    #navbar .nav-btn { background: transparent; border: 1px solid rgba(255,255,255,0.5); color: #fff; padding: 5px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s; }
+    #navbar .nav-btn:hover { background: rgba(255,255,255,0.15); }
+    #sidebar { position: fixed; top: 56px; left: 0; bottom: 0; width: 220px; background: #fff; border-right: 1px solid var(--border); overflow-y: auto; z-index: 900; }
+    #sidebar ul { list-style: none; padding: 12px 0; }
+    #sidebar ul li a { display: block; padding: 11px 20px; color: var(--text); text-decoration: none; font-size: 14px; transition: background 0.15s, color 0.15s; border-left: 3px solid transparent; }
+    #sidebar ul li a:hover { background: var(--light-blue); color: var(--blue); }
+    #sidebar ul li a.active { background: var(--light-blue); color: var(--blue); font-weight: 600; border-left-color: var(--blue); }
+    #main { margin-left: 220px; margin-top: 56px; padding: 28px 32px; min-height: calc(100vh - 56px); }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .page-header h2 { font-size: 22px; color: var(--navy); font-weight: 700; }
+    /* Category tabs */
+    .cat-tabs { display: flex; gap: 0; background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 24px; flex-wrap: wrap; }
+    .cat-tab { padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; border-right: 1px solid var(--border); color: #666; transition: background 0.15s, color 0.15s; user-select: none; white-space: nowrap; }
+    .cat-tab:last-child { border-right: none; }
+    .cat-tab:hover { background: var(--light-blue); color: var(--blue); }
+    .cat-tab.active { background: var(--blue); color: #fff; }
+    .cat-panel { display: none; }
+    .cat-panel.active { display: block; }
+    /* Panel */
+    .panel { background: #fff; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .panel-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .panel-header h3 { font-size: 15px; font-weight: 700; color: var(--navy); }
+    .panel-subtitle { font-size: 12px; color: #888; margin-top: 2px; }
+    .panel-body { padding: 0; }
+    /* Table */
+    .tco-table-wrap { overflow-x: auto; }
+    .tco-tbl { width: 100%; border-collapse: collapse; min-width: 600px; }
+    .tco-tbl thead tr { background: #f8f9fa; }
+    .tco-tbl th { padding: 10px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: #555; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .tco-tbl th.num { text-align: right; }
+    .tco-tbl td { padding: 9px 14px; font-size: 13px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+    .tco-tbl tr:last-child td { border-bottom: none; }
+    .tco-tbl tr:hover td { background: #f8fbff; }
+    .tco-tbl td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .tco-input { width: 100%; padding: 5px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; font-family: inherit; transition: border-color 0.2s; }
+    .tco-input:focus { outline: none; border-color: var(--blue); }
+    .tco-num-input { width: 110px; padding: 5px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; text-align: right; font-family: inherit; transition: border-color 0.2s; }
+    .tco-num-input:focus { outline: none; border-color: var(--blue); }
+    .size-badge { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+    .size-Small  { background: #d1fae5; color: #065f46; }
+    .size-Medium { background: #dbeafe; color: #1e40af; }
+    .size-Large  { background: #fef3c7; color: #92400e; }
+    .size-XL     { background: #fce7f3; color: #9d174d; }
+    .row-del-btn { background: transparent; color: var(--danger); border: none; font-size: 16px; cursor: pointer; padding: 2px 6px; opacity: 0.65; transition: opacity 0.15s; }
+    .row-del-btn:hover { opacity: 1; }
+    .add-entry-btn { display: inline-flex; align-items: center; gap: 6px; margin: 12px 16px; padding: 7px 14px; background: transparent; border: 1px dashed #aaa; border-radius: 6px; color: var(--blue); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+    .add-entry-btn:hover { background: var(--light-blue); border-color: var(--blue); }
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 2000; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: #fff; border-radius: 10px; width: 100%; max-width: 480px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); padding: 24px; }
+    .modal-box h3 { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 18px; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+    .form-label { font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.4px; }
+    .form-control { padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; font-family: inherit; transition: border-color 0.2s; }
+    .form-control:focus { outline: none; border-color: var(--blue); }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 4px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: opacity 0.15s; }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary   { background: var(--blue);   color: #fff; }
+    .btn-secondary { background: #6c757d;       color: #fff; }
+    .btn-danger    { background: var(--danger);  color: #fff; }
+    /* Toast */
+    #toast { position: fixed; bottom: 24px; right: 24px; background: #28a745; color: #fff; padding: 11px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 9999; opacity: 0; transform: translateY(12px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.error { background: var(--danger); }
+    .empty-state { text-align: center; padding: 30px 16px; color: #999; font-size: 13px; }
+    .cat-count-badge { background: #e2e8f0; color: #475569; border-radius: 10px; padding: 1px 7px; font-size: 11px; font-weight: 700; margin-left: 5px; }
+  </style>
+</head>
+<body>
+<nav id="navbar">
+  <span class="brand">ZTB Super App</span>
+  <span class="subtitle">Admin — TCO Config</span>
+  <div class="nav-right">
+    <a class="nav-btn" href="/admin/dashboard">&#8592; Dashboard</a>
+    <a class="nav-btn" href="/admin/sections/">&#127381; Sections</a>
+    <a class="nav-btn" href="/user" target="_blank">&#128100; User View</a>
+    <a class="nav-btn" href="/admin/logout">Logout</a>
+  </div>
+</nav>
+<nav id="sidebar">
+  <ul>
+    <li><a href="/admin/dashboard">&#127775; Value Props</a></li>
+    <li><a href="/admin/dashboard">&#128196; Assets</a></li>
+    <li><a href="/admin/dashboard">&#9989; Test Cases</a></li>
+    <li><a href="/admin/dashboard">&#128203; POV Planner</a></li>
+    <li><a href="/admin/dashboard">&#128683; Roadblocks</a></li>
+    <li><a href="/admin/dashboard">&#10067; Questions Library</a></li>
+    <li><a href="/admin/dashboard">&#9881; Assessment Config</a></li>
+    <li><a href="/admin/sections/">&#127381; Assessment Sections</a></li>
+    <li><a href="/admin/tco/" class="active">&#128200; TCO Config</a></li>
+    <li><a href="/admin/pricing/">&#128176; Pricing Grid</a></li>
+  </ul>
+</nav>
+
+<main id="main">
+  <div class="page-header">
+    <h2>&#128200; TCO Analysis — Vendor Pricing Tables</h2>
+  </div>
+
+  <div class="cat-tabs" id="cat-tabs">
+    <!-- built by JS -->
+  </div>
+
+  <div id="cat-panels">
+    <!-- built by JS -->
+  </div>
+</main>
+
+<!-- Add Entry Modal -->
+<div class="modal-overlay" id="add-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <h3 id="modal-title">&#43; Add Entry</h3>
+    <input type="hidden" id="modal-entry-id" value="">
+    <input type="hidden" id="modal-category" value="">
+    <div class="form-group">
+      <label class="form-label">Vendor</label>
+      <input class="form-control" id="modal-vendor" type="text" placeholder="e.g. Palo Alto Networks" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Size</label>
+      <select class="form-control" id="modal-size">
+        <option value="Small">Small</option>
+        <option value="Medium">Medium</option>
+        <option value="Large">Large</option>
+        <option value="XL">XL</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">SKU / Display Name</label>
+      <input class="form-control" id="modal-sku" type="text" placeholder="e.g. PA-460 Small" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Annual Cost per Site ($/yr)</label>
+      <input class="form-control" id="modal-cost" type="number" min="0" step="1" placeholder="0" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="modal-save-btn" onclick="saveEntry()">&#43; Add</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const CATEGORIES = ['fw_ns','sdwan','mpls','fw_ew','iot_ot','nac','l3sw','pam'];
+const CAT_LABELS = {
+  fw_ns:  'FW N/S', sdwan: 'SD-WAN', mpls: 'MPLS',
+  fw_ew:  'FW E/W', iot_ot: 'IoT/OT', nac: 'NAC',
+  l3sw:   'L3 Switch', pam: 'PAM',
+};
+const CAT_ICONS = {
+  fw_ns: '🔥', sdwan: '🌐', mpls: '📡', fw_ew: '🔒',
+  iot_ot: '🤖', nac: '🛡', l3sw: '🔀', pam: '🔑',
+};
+let _data = {}; // { category: [entry, ...] }
+let _currentCat = CATEGORIES[0];
+
+document.addEventListener('DOMContentLoaded', loadAll);
+
+async function loadAll() {
+  const res  = await fetch('/admin/tco/api/entries');
+  const data = await res.json();
+  if (!data.success) { showToast('Load failed', true); return; }
+  _data = data.entries;
+  buildTabs();
+  buildPanels();
+  switchCat(CATEGORIES[0]);
+}
+
+function buildTabs() {
+  const tabsEl = document.getElementById('cat-tabs');
+  tabsEl.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const tab = document.createElement('div');
+    tab.className = 'cat-tab';
+    tab.setAttribute('data-cat', cat);
+    const count = (_data[cat] || []).length;
+    tab.innerHTML = `${CAT_ICONS[cat]} ${CAT_LABELS[cat]} <span class="cat-count-badge" id="cnt-${cat}">${count}</span>`;
+    tab.addEventListener('click', () => switchCat(cat));
+    tabsEl.appendChild(tab);
+  });
+}
+
+function buildPanels() {
+  const panelsEl = document.getElementById('cat-panels');
+  panelsEl.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const panel = document.createElement('div');
+    panel.className = 'cat-panel';
+    panel.id = 'panel-' + cat;
+    panel.innerHTML = `
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h3>${CAT_ICONS[cat]} ${CAT_LABELS[cat]}</h3>
+            <div class="panel-subtitle">Annual cost per site/yr (discounted). Shown in TCO dropdown as "Vendor · Size — $X/yr".</div>
+          </div>
+          <button class="btn btn-primary" style="font-size:12px;padding:6px 14px;" onclick="openAddModal('${cat}')">&#43; Add Entry</button>
+        </div>
+        <div class="panel-body">
+          <div class="tco-table-wrap">
+            <table class="tco-tbl">
+              <thead>
+                <tr>
+                  <th style="width:24%">Vendor</th>
+                  <th style="width:10%">Size</th>
+                  <th style="width:34%">SKU / Display Name</th>
+                  <th class="num" style="width:16%">$/site/yr</th>
+                  <th style="width:10%">Order</th>
+                  <th style="width:6%"></th>
+                </tr>
+              </thead>
+              <tbody id="tbody-${cat}"></tbody>
+            </table>
+          </div>
+          <div id="empty-${cat}" class="empty-state" style="display:none;">No entries yet. Click "+ Add Entry" to start.</div>
+        </div>
+      </div>`;
+    panelsEl.appendChild(panel);
+    renderRows(cat);
+  });
+}
+
+function renderRows(cat) {
+  const tbody   = document.getElementById('tbody-' + cat);
+  const emptyEl = document.getElementById('empty-' + cat);
+  const entries = _data[cat] || [];
+  tbody.innerHTML = '';
+  if (!entries.length) {
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  entries.forEach(e => {
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-id', e.id);
+    tr.innerHTML = `
+      <td><input class="tco-input" value="${esc(e.vendor)}" onblur="patchField(${e.id},'vendor',this.value,'${cat}')"></td>
+      <td>
+        <select class="tco-input" onchange="patchField(${e.id},'size',this.value,'${cat}')">
+          ${['Small','Medium','Large','XL'].map(s=>`<option value="${s}" ${e.size===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </td>
+      <td><input class="tco-input" value="${esc(e.sku_name)}" onblur="patchField(${e.id},'sku_name',this.value,'${cat}')"></td>
+      <td class="num"><input class="tco-num-input" type="number" min="0" value="${e.annual_cost}" onblur="patchField(${e.id},'annual_cost',parseFloat(this.value)||0,'${cat}')"></td>
+      <td><input class="tco-num-input" type="number" min="0" value="${e.display_order}" style="width:70px;" onblur="patchField(${e.id},'display_order',parseInt(this.value)||0,'${cat}')"></td>
+      <td><button class="row-del-btn" onclick="deleteEntry(${e.id},'${cat}')" title="Delete">&#10005;</button></td>`;
+    tbody.appendChild(tr);
+  });
+  // Update count badge
+  const badge = document.getElementById('cnt-' + cat);
+  if (badge) badge.textContent = entries.length;
+}
+
+function switchCat(cat) {
+  _currentCat = cat;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.toggle('active', t.getAttribute('data-cat') === cat));
+  document.querySelectorAll('.cat-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + cat));
+}
+
+async function patchField(id, field, value, cat) {
+  const entry = (_data[cat] || []).find(e => e.id === id);
+  if (entry) entry[field] = value;
+  const res  = await fetch(`/admin/tco/api/entries/${id}`, {
+    method: 'PUT', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ [field]: value })
+  });
+  const data = await res.json();
+  if (!data.success) { showToast('Save failed', true); return; }
+  // update local
+  if (entry) Object.assign(entry, data.entry);
+}
+
+function openAddModal(cat) {
+  document.getElementById('modal-title').textContent    = '＋ Add Entry';
+  document.getElementById('modal-entry-id').value       = '';
+  document.getElementById('modal-category').value       = cat;
+  document.getElementById('modal-vendor').value         = '';
+  document.getElementById('modal-size').value           = 'Small';
+  document.getElementById('modal-sku').value            = '';
+  document.getElementById('modal-cost').value           = '';
+  document.getElementById('modal-save-btn').textContent = '+ Add';
+  document.getElementById('add-modal').classList.add('open');
+  setTimeout(() => document.getElementById('modal-vendor').focus(), 50);
+}
+
+function closeModal() { document.getElementById('add-modal').classList.remove('open'); }
+
+async function saveEntry() {
+  const entryId = document.getElementById('modal-entry-id').value;
+  const cat     = document.getElementById('modal-category').value;
+  const vendor  = document.getElementById('modal-vendor').value.trim();
+  const size    = document.getElementById('modal-size').value;
+  const sku     = document.getElementById('modal-sku').value.trim();
+  const cost    = parseFloat(document.getElementById('modal-cost').value) || 0;
+
+  if (!vendor || !sku) { showToast('Vendor and SKU Name are required', true); return; }
+
+  if (entryId) {
+    // edit existing
+    const res  = await fetch(`/admin/tco/api/entries/${entryId}`, {
+      method: 'PUT', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ vendor, size, sku_name: sku, annual_cost: cost })
+    });
+    const data = await res.json();
+    if (!data.success) { showToast('Save failed', true); return; }
+    const idx = (_data[cat] || []).findIndex(e => e.id === parseInt(entryId));
+    if (idx > -1) _data[cat][idx] = data.entry;
+    renderRows(cat);
+    showToast('Updated ✓');
+  } else {
+    // create new
+    const res  = await fetch('/admin/tco/api/entries', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ category: cat, vendor, size, sku_name: sku, annual_cost: cost })
+    });
+    const data = await res.json();
+    if (!data.success) { showToast(data.error || 'Create failed', true); return; }
+    if (!_data[cat]) _data[cat] = [];
+    _data[cat].push(data.entry);
+    renderRows(cat);
+    showToast('Entry created ✓');
+  }
+  closeModal();
+}
+
+async function deleteEntry(id, cat) {
+  if (!confirm('Delete this entry?')) return;
+  const res  = await fetch(`/admin/tco/api/entries/${id}`, { method: 'DELETE' });
+  const data = await res.json();
+  if (!data.success) { showToast('Delete failed', true); return; }
+  _data[cat] = (_data[cat] || []).filter(e => e.id !== id);
+  renderRows(cat);
+  showToast('Deleted ✓');
+}
+
+let _tt;
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = isError ? 'show error' : 'show';
+  clearTimeout(_tt); _tt = setTimeout(() => { t.className = ''; }, 3000);
+}
+
+function esc(str) {
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

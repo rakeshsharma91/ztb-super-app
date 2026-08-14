@@ -134,36 +134,7 @@
     .ie-save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .ie-cancel-btn { background: transparent; color: var(--text-muted); border: 1px solid rgba(160,188,216,0.22); border-radius: 7px; padding: 7px 14px; font-size: 0.82rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; font-family: inherit; }
     .ie-cancel-btn:hover { color: var(--white); border-color: var(--text-muted); }
-    .bva-body { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
-    .bva-sliders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 2rem; }
-    .bva-slider-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; }
-    .bva-slider-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; display: flex; justify-content: space-between; align-items: center; }
-    .bva-slider-value { font-size: 0.9rem; font-weight: 700; color: var(--accent); }
-    .bva-slider { width: 100%; margin: 6px 0 2px; accent-color: var(--accent); cursor: pointer; }
-    .bva-slider-range { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted); }
-    .bva-kpi-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; margin-bottom: 2rem; }
-    .bva-kpi-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.4rem; border-left: 3px solid var(--accent); }
-    .bva-kpi-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.5rem; }
-    .bva-kpi-value { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; }
-    .bva-kpi-sub { font-size: 0.75rem; color: var(--text-muted); }
-    .bva-bottom { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; margin-bottom: 2rem; }
-    @media (max-width: 700px) { .bva-bottom { grid-template-columns: 1fr; } }
-    .bva-chart-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem; }
-    .bva-chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-    .bva-chart-title { font-size: 0.9rem; font-weight: 700; color: var(--white); }
-    .bva-chart-subtitle { font-size: 0.72rem; color: var(--text-muted); }
-    .bva-drivers-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem; }
-    .bva-drivers-title { font-size: 0.9rem; font-weight: 700; color: var(--white); margin-bottom: 1.1rem; }
-    .bva-driver-row { margin-bottom: 1.1rem; }
-    .bva-driver-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.3rem; }
-    .bva-driver-name { font-size: 0.8rem; font-weight: 700; }
-    .bva-driver-value { font-size: 0.88rem; font-weight: 800; color: var(--white); }
-    .bva-driver-bar-bg { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
-    .bva-driver-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
-    .bva-driver-desc { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem; }
-    .bva-save-indicator { font-size: 0.75rem; color: var(--text-muted); text-align: right; margin-bottom: 1rem; min-height: 18px; }
-    .bva-save-indicator.saved  { color: #00dc82; }
-    .bva-save-indicator.saving { color: var(--accent); }
+    /* ── Pricing ── */
     .pricing-body { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
     .phase-toggle { display: inline-flex; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 1.5rem; }
     .phase-btn { padding: 0.55rem 1.4rem; font-size: 0.82rem; font-weight: 700; cursor: pointer; border: none; background: transparent; color: var(--text-muted); transition: background 0.2s, color 0.2s; letter-spacing: 0.04em; }
@@ -242,6 +213,54 @@
     .ps-attach-icon  { width: 26px; height: 26px; flex-shrink: 0; background: rgba(0,220,130,0.1); border: 1px solid rgba(0,220,130,0.22); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; margin-top: 1px; }
     .ps-attach-text  { font-size: 0.83rem; color: #a0c8b0; line-height: 1.6; }
     .ps-attach-text strong { color: var(--white); }
+    /* ── TCO ── */
+    .tco-body { max-width: 1300px; margin: 0 auto; padding: 2rem 1.5rem 5rem; overflow: hidden; }
+    .tco-save-ind { font-size: 0.75rem; text-align: right; margin-bottom: 0.75rem; min-height: 18px; color: var(--text-muted); }
+    .tco-save-ind.saving { color: var(--accent); }
+    .tco-save-ind.saved  { color: #00dc82; }
+    .tco-tbl-outer { overflow-x: scroll; margin-bottom: 1rem; -webkit-overflow-scrolling: touch; border: 1px solid rgba(0,170,255,0.15); border-radius: 14px; }
+    .tco-tbl-wrap { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: visible; }
+    .tco-main-tbl { width: 100%; border-collapse: collapse; min-width: 980px; }
+    .tco-main-tbl thead tr { background: rgba(0,51,102,0.8); }
+    .tco-main-tbl th { padding: 10px 8px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border); }
+    .tco-main-tbl th.num { text-align: right; }
+    .tco-main-tbl td { padding: 8px 8px; font-size: 0.82rem; border-bottom: 1px solid rgba(0,170,255,0.06); vertical-align: middle; }
+    .tco-main-tbl tr:last-child td { border-bottom: none; }
+    .tco-main-tbl tr:hover td { background: rgba(0,170,255,0.04); }
+    .tco-main-tbl td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .tco-main-tbl td.tco-annual { font-weight: 700; color: var(--accent); text-align: right; }
+    .tco-main-tbl td.tco-3yr    { font-weight: 700; color: #22c55e; text-align: right; }
+    .t-label-input { background: transparent; border: 1px solid rgba(0,170,255,0.2); border-radius: 6px; color: var(--white); font-size: 0.82rem; padding: 4px 7px; width: 100px; outline: none; transition: border-color 0.2s; }
+    .t-label-input:focus { border-color: var(--accent); }
+    .t-qty-input { background: transparent; border: 1px solid rgba(0,170,255,0.2); border-radius: 6px; color: var(--white); font-size: 0.82rem; padding: 4px 7px; width: 60px; text-align: right; outline: none; transition: border-color 0.2s; }
+    .t-qty-input:focus { border-color: var(--accent); }
+    .t-select { background: #0a2244; border: 1px solid rgba(0,170,255,0.2); border-radius: 6px; color: var(--white); font-size: 0.75rem; padding: 4px 6px; width: 100%; min-width: 95px; outline: none; cursor: pointer; transition: border-color 0.2s; }
+    .t-select:focus { border-color: var(--accent); }
+    .t-select option { background: #0a2244; color: var(--white); }
+    .t-remove-btn { background: transparent; border: none; color: #f87171; font-size: 1.1rem; cursor: pointer; padding: 2px 5px; border-radius: 5px; transition: background 0.15s; line-height: 1; }
+    .t-remove-btn:hover { background: rgba(248,113,113,0.15); }
+    /* TCO Savings */
+    .tco-acv-row { display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; margin-bottom: 1.5rem; background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem 1.6rem; }
+    .tco-acv-label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); white-space: nowrap; }
+    .tco-acv-source { font-size: 0.75rem; color: var(--text-muted); }
+    .tco-acv-input { background: rgba(0,0,0,0.3); border: 1px solid rgba(0,170,255,0.35); border-radius: 8px; color: var(--white); font-size: 1.2rem; font-weight: 700; padding: 0.5rem 1rem; width: 200px; outline: none; transition: border-color 0.2s; text-align: right; }
+    .tco-acv-input:focus { border-color: var(--accent); }
+    .tco-savings-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.5rem; }
+    @media (max-width: 900px) { .tco-savings-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .tco-savings-grid { grid-template-columns: 1fr; } }
+    .tco-kpi { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.4rem; border-left: 3px solid var(--accent); }
+    .tco-kpi-title { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .tco-kpi-value { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.2rem; }
+    .tco-kpi-sub { font-size: 0.72rem; color: var(--text-muted); }
+    .tco-summary-tbl-wrap { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .tco-summary-tbl { width: 100%; border-collapse: collapse; }
+    .tco-summary-tbl th { padding: 10px 14px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); text-align: left; background: rgba(0,51,102,0.8); border-bottom: 1px solid var(--border); }
+    .tco-summary-tbl th.num { text-align: right; }
+    .tco-summary-tbl td { padding: 10px 14px; font-size: 0.84rem; border-bottom: 1px solid rgba(0,170,255,0.06); vertical-align: middle; }
+    .tco-summary-tbl tr:last-child td { border-bottom: none; font-weight: 700; background: rgba(0,170,255,0.05); }
+    .tco-summary-tbl td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .tco-summary-tbl td.s-annual { font-weight: 700; color: var(--accent); text-align: right; }
+    .tco-summary-tbl td.s-3yr    { font-weight: 700; color: #22c55e; text-align: right; }
     #ie-toast { position: fixed; bottom: 24px; right: 24px; background: #00875a; color: #fff; padding: 11px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.35); z-index: 9999; opacity: 0; transform: translateY(10px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
     #ie-toast.show { opacity: 1; transform: translateY(0); }
     #ie-toast.error { background: #b91c1c; }
@@ -262,9 +281,9 @@
       .download-section { flex-direction: column; align-items: flex-start; }
       .vp-grid { grid-template-columns: 1fr; }
       .col-action { display: none; }
-      .bva-body { padding: 1.5rem 1rem 4rem; }
       .vd-table th, .vd-table td { padding: 10px 10px; font-size: 0.78rem; }
       .pricing-body { padding: 1.5rem 1rem 4rem; }
+      .tco-body { padding: 1.5rem 1rem 4rem; }
     }
   </style>
 </head>
@@ -329,7 +348,7 @@
 <div class="page-tabs">
   <div class="page-tab active" data-tab="results" onclick="switchTab('results')">📋 Results</div>
   <div class="page-tab"        data-tab="pricing" onclick="switchTab('pricing')">💰 Pricing</div>
-  <div class="page-tab"        data-tab="bva"     onclick="switchTab('bva')">📊 Business Value</div>
+  <div class="page-tab"        data-tab="tco"     onclick="switchTab('tco')">📊 TCO Analysis</div>
 </div>
 
 <!-- ══════════════════════ RESULTS TAB ══════════════════════ -->
@@ -548,7 +567,6 @@
 
   <hr class="section-divider" style="margin-top:0;">
 
-  <!-- ── Site Configuration ── -->
   <div class="section-heading"><h2>Site Configuration</h2></div>
   <div class="pricing-tbl-overflow">
     <div class="pricing-table-wrap">
@@ -585,24 +603,21 @@
     <div class="grand-total-value" id="grand-total">$0</div>
   </div>
 
-  <!-- ── Bill of Materials ── -->
+  <!-- BOM -->
   <hr class="section-divider">
   <div class="section-heading"><h2>🧾 Bill of Materials</h2></div>
-
   <div class="section-heading" style="margin-bottom:0.6rem;margin-top:-0.5rem;">
     <h2 style="font-size:0.82rem;">🖥 Appliances</h2>
   </div>
   <div class="bom-wrap" id="bom-appliances-wrap">
     <div class="empty-state">Configure site rows above to generate BOM.</div>
   </div>
-
   <div class="section-heading" style="margin-bottom:0.6rem;">
     <h2 style="font-size:0.82rem;">📦 Software Licenses</h2>
   </div>
   <div class="bom-wrap" id="bom-licenses-wrap">
     <div class="empty-state">Configure site rows above to generate BOM.</div>
   </div>
-
   <div class="bom-grand-card">
     <div>
       <div class="bom-grand-label">BOM Total</div>
@@ -611,7 +626,7 @@
     <div class="bom-grand-value" id="bom-grand-total">$0</div>
   </div>
 
-  <!-- ── PS Credits Notice ── -->
+  <!-- PS Notice -->
   <div class="ps-notice">
     <div class="ps-notice-title">🛠 Professional Services</div>
     <div class="ps-notice-lead">Zscaler PS Credits auto calculate in SFDC based on quote, or leverage a ZTB service delivery authorized partner for deployment.</div>
@@ -634,7 +649,7 @@
 
   <hr class="section-divider">
 
-  <!-- ── Ramped Roll-Out ── -->
+  <!-- Ramped Roll-Out -->
   <div class="section-heading"><h2>📅 Ramped Roll-Out</h2></div>
   <div class="ramp-card">
     <div class="ramp-card-header">
@@ -645,13 +660,8 @@
       <table class="ramp-tbl" id="ramp-tbl">
         <thead>
           <tr>
-            <th>Site Label</th>
-            <th>Sites</th>
-            <th>Site Total</th>
-            <th>Year 1 (25%)</th>
-            <th>Year 2 (50%)</th>
-            <th>Year 3 (75%)</th>
-            <th>Year 4 (100%)</th>
+            <th>Site Label</th><th>Sites</th><th>Site Total</th>
+            <th>Year 1 (25%)</th><th>Year 2 (50%)</th><th>Year 3 (75%)</th><th>Year 4 (100%)</th>
           </tr>
         </thead>
         <tbody id="ramp-rows">
@@ -664,36 +674,109 @@
 </div>
 </div><!-- /tab-pricing -->
 
-<!-- ══════════════════════ BVA TAB ══════════════════════ -->
-<div class="tab-panel" id="tab-bva">
-<div class="bva-body">
+<!-- ══════════════════════ TCO TAB ══════════════════════ -->
+<div class="tab-panel" id="tab-tco">
+<div class="tco-body">
 
-  <div class="bva-save-indicator" id="bva-save-indicator"></div>
+  <div class="tco-save-ind" id="tco-save-ind"></div>
 
-  <div class="section-heading"><h2>&#9881; Model Inputs</h2></div>
-  <div class="bva-sliders-grid" id="bva-sliders"></div>
+  <div class="section-heading"><h2>🏢 Site TCO Grid</h2></div>
+  <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1.2rem;">Each row = one site tier. Select the vendor/product in each solution column. All costs are annual per-site × number of sites.</p>
 
-  <hr class="section-divider">
-
-  <div class="section-heading"><h2>&#128200; 3-Year Value Summary</h2></div>
-  <div class="bva-kpi-row" id="bva-kpi-row"></div>
-
-  <div class="bva-bottom">
-    <div class="bva-chart-card">
-      <div class="bva-chart-header">
-        <span class="bva-chart-title">📊 3-Year Projection Breakout</span>
-        <span class="bva-chart-subtitle">Updated in Real-Time</span>
-      </div>
-      <canvas id="bva-chart" height="260"></canvas>
-    </div>
-    <div class="bva-drivers-card">
-      <div class="bva-drivers-title">Value Drivers Split</div>
-      <div id="bva-drivers"></div>
+  <div class="tco-tbl-outer">
+    <div class="tco-tbl-wrap">
+      <table class="tco-main-tbl" id="tco-main-tbl">
+        <thead>
+          <tr id="tco-thead-row">
+            <th style="width:90px">Label</th>
+            <th class="num" style="width:55px"># Sites</th>
+            <th style="min-width:120px">FW N/S</th>
+            <th style="min-width:120px">SD-WAN</th>
+            <th style="min-width:120px">MPLS</th>
+            <th style="min-width:120px">FW E/W</th>
+            <th style="min-width:120px">IoT/OT</th>
+            <th style="min-width:120px">NAC</th>
+            <th style="min-width:120px">L3 Switch</th>
+            <th style="min-width:120px">PAM</th>
+            <th class="num" style="width:95px">Annual</th>
+            <th class="num" style="width:95px">3-Year</th>
+            <th style="width:30px"></th>
+          </tr>
+        </thead>
+        <tbody id="tco-rows">
+          <tr><td colspan="13" class="empty-state">Loading…</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
+  <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.5rem;text-align:right;">← scroll to see all columns →</div>
+  <button class="add-row-btn" onclick="addTCORow()" style="margin-top:0.25rem;">＋ Add Row</button>
+
+  <!-- ACV row -->
+  <hr class="section-divider">
+  <div class="section-heading"><h2>⚡ Zscaler ACV vs Legacy TCO</h2></div>
+  <div class="tco-acv-row">
+    <div>
+      <div class="tco-acv-label">Zscaler ACV (Annual)</div>
+      <div class="tco-acv-source" id="tco-acv-source">Auto-filled from Pricing tab</div>
+    </div>
+    <input class="tco-acv-input" id="tco-acv-input" type="number" min="0" placeholder="0"
+      oninput="onACVInput()" onblur="scheduleTCOSave()">
+    <button onclick="resetACVtoPricing()" style="font-size:0.75rem;background:transparent;border:1px solid rgba(0,170,255,0.3);color:var(--accent);border-radius:6px;padding:6px 12px;cursor:pointer;">↺ Reset to Pricing Total</button>
+  </div>
+
+  <!-- Savings KPIs -->
+  <div class="tco-savings-grid" id="tco-savings-grid">
+    <div class="tco-kpi" style="border-left-color:#f87171">
+      <div class="tco-kpi-title">Legacy Annual Spend</div>
+      <div class="tco-kpi-value" style="color:#f87171" id="tco-kpi-legacy">$0</div>
+      <div class="tco-kpi-sub">Sum of all TCO rows</div>
+    </div>
+    <div class="tco-kpi" style="border-left-color:#22c55e">
+      <div class="tco-kpi-title">Annual Savings</div>
+      <div class="tco-kpi-value" style="color:#22c55e" id="tco-kpi-annual-sav">$0</div>
+      <div class="tco-kpi-sub">Legacy − Zscaler ACV</div>
+    </div>
+    <div class="tco-kpi" style="border-left-color:#22c55e">
+      <div class="tco-kpi-title">3-Year Savings</div>
+      <div class="tco-kpi-value" style="color:#22c55e" id="tco-kpi-3yr-sav">$0</div>
+      <div class="tco-kpi-sub">3× Annual Savings</div>
+    </div>
+    <div class="tco-kpi" style="border-left-color:#f59e0b">
+      <div class="tco-kpi-title">ROI %</div>
+      <div class="tco-kpi-value" style="color:#f59e0b" id="tco-kpi-roi">—</div>
+      <div class="tco-kpi-sub" id="tco-kpi-payback">—</div>
+    </div>
+  </div>
+
+  <!-- Per-row summary -->
+  <hr class="section-divider">
+  <div class="section-heading"><h2>📋 TCO Summary by Row</h2></div>
+  <div class="tco-summary-tbl-wrap">
+    <table class="tco-summary-tbl">
+      <thead>
+        <tr>
+          <th>Label</th>
+          <th class="num"># Sites</th>
+          <th class="num">FW N/S</th>
+          <th class="num">SD-WAN</th>
+          <th class="num">MPLS</th>
+          <th class="num">FW E/W</th>
+          <th class="num">IoT/OT</th>
+          <th class="num">NAC</th>
+          <th class="num">L3 Switch</th>
+          <th class="num">PAM</th>
+          <th class="num s-annual">Annual</th>
+          <th class="num s-3yr">3-Year</th>
+        </tr>
+      </thead>
+      <tbody id="tco-summary-tbody"></tbody>
+    </table>
+  </div>
+
 </div>
-</div><!-- /tab-bva -->
+</div><!-- /tab-tco -->
 
 {% endif %}
 
@@ -717,7 +800,7 @@ let openQid = null;
 function switchTab(name) {
   document.querySelectorAll('.page-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
-  if (name === 'bva'     && !window._bvaLoaded)     { initBVA();     window._bvaLoaded = true; }
+  if (name === 'tco'     && !window._tcoLoaded)     { initTCO();     window._tcoLoaded = true; }
   if (name === 'pricing' && !window._pricingLoaded) { initPricing(); window._pricingLoaded = true; }
 }
 
@@ -814,6 +897,7 @@ let _sdwan            = [];
 let _segmentation     = [];
 let _pricingSaveTimer = null;
 let _rowCounter       = 0;
+let _pricingGrandTotal = 0; // exposed for TCO tab
 
 function fmtMoney(v) {
   if (!v || v === 0) return '—';
@@ -947,22 +1031,26 @@ function updateTotals() {
     grandTotal += (row.qty || 0) * (appPrice + sdwanPrice + segPrice);
     totalSites += (row.qty || 0);
   });
+  _pricingGrandTotal = grandTotal;
   document.getElementById('grand-total').textContent = grandTotal ? ('$' + grandTotal.toLocaleString('en-US',{maximumFractionDigits:0})) : '$0';
   document.getElementById('grand-total-sub').textContent = totalSites + ' total site' + (totalSites !== 1 ? 's' : '') + ' configured';
   renderBOM();
   renderRampTable();
+  // Update TCO ACV if not overridden
+  if (window._tcoLoaded && !_tcoACVOverridden) {
+    _tcoACV = grandTotal;
+    const acvInput = document.getElementById('tco-acv-input');
+    if (acvInput) acvInput.value = grandTotal || '';
+    updateTCOSavings();
+  }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// BOM ENGINE
-// ══════════════════════════════════════════════════════════════════════════════
+// ── BOM ENGINE ────────────────────────────────────────────────────────────────
 function computeBOM() {
-  // APPLIANCES: group by base model, HA SKUs (is_ha=true) count x2 at parent unit price
   const appMap = {};
   _pricingRows.forEach(row => {
     if (!row.appliance_id || !row.qty) return;
-    const sku = _appliances.find(s => s.id === parseInt(row.appliance_id));
-    if (!sku) return;
+    const sku = _appliances.find(s => s.id === parseInt(row.appliance_id)); if (!sku) return;
     let baseCode, baseName, unitPrice, physUnits;
     if (sku.is_ha && sku.ha_parent_id) {
       const parent = _appliances.find(s => s.id === parseInt(sku.ha_parent_id));
@@ -971,16 +1059,11 @@ function computeBOM() {
       unitPrice = parent ? (parent[_pricingPhase] || 0) : Math.round((sku[_pricingPhase] || 0) / 2);
       physUnits = row.qty * 2;
     } else {
-      baseCode  = sku.sku_code;
-      baseName  = sku.sku_name;
-      unitPrice = sku[_pricingPhase] || 0;
-      physUnits = row.qty;
+      baseCode = sku.sku_code; baseName = sku.sku_name; unitPrice = sku[_pricingPhase] || 0; physUnits = row.qty;
     }
     if (!appMap[baseCode]) appMap[baseCode] = { sku_code: baseCode, sku_name: baseName, unit_price: unitPrice, qty: 0 };
     appMap[baseCode].qty += physUnits;
   });
-
-  // LICENSES: SD-WAN and Segmentation — 1 license per site, group by sku_code
   const licMap = {};
   function addLic(list, idField) {
     _pricingRows.forEach(row => {
@@ -990,104 +1073,52 @@ function computeBOM() {
       licMap[sku.sku_code].qty += row.qty;
     });
   }
-  addLic(_sdwan,        'sdwan_id');
-  addLic(_segmentation, 'seg_id');
+  addLic(_sdwan,'sdwan_id'); addLic(_segmentation,'seg_id');
   return { appliances: Object.values(appMap), licenses: Object.values(licMap) };
 }
 
 function renderBOM() {
   const { appliances, licenses } = computeBOM();
   let grandTotal = 0, totalAppUnits = 0, totalLicUnits = 0;
-
-  // Appliances table
   const appWrap = document.getElementById('bom-appliances-wrap');
   if (!appliances.length) {
     appWrap.innerHTML = '<div class="empty-state" style="padding:1.5rem;">No appliances configured yet.</div>';
   } else {
     let appSubtotal = 0, rows = '';
     appliances.forEach(a => {
-      const ext = a.qty * a.unit_price;
-      appSubtotal    += ext;
-      totalAppUnits  += a.qty;
-      rows += `<tr>
-        <td class="bom-sku">${escHtml(a.sku_code)}</td>
-        <td class="bom-name">${escHtml(a.sku_name)}</td>
-        <td class="bom-qty num">${a.qty}</td>
-        <td class="bom-unit num">${fmtMoney(a.unit_price)}</td>
-        <td class="bom-ext num">${fmtMoney(ext)}</td>
-      </tr>`;
+      const ext = a.qty * a.unit_price; appSubtotal += ext; totalAppUnits += a.qty;
+      rows += `<tr><td class="bom-sku">${escHtml(a.sku_code)}</td><td class="bom-name">${escHtml(a.sku_name)}</td><td class="bom-qty num">${a.qty}</td><td class="bom-unit num">${fmtMoney(a.unit_price)}</td><td class="bom-ext num">${fmtMoney(ext)}</td></tr>`;
     });
-    rows += `<tr class="bom-subtotal-row">
-      <td colspan="2">Appliance Subtotal</td>
-      <td class="num">${totalAppUnits}</td><td class="num">—</td>
-      <td class="num">${fmtMoney(appSubtotal)}</td>
-    </tr>`;
+    rows += `<tr class="bom-subtotal-row"><td colspan="2">Appliance Subtotal</td><td class="num">${totalAppUnits}</td><td class="num">—</td><td class="num">${fmtMoney(appSubtotal)}</td></tr>`;
     grandTotal += appSubtotal;
-    appWrap.innerHTML = `<div style="overflow-x:auto;"><table class="bom-tbl">
-      <thead><tr>
-        <th style="width:18%">SKU Code</th>
-        <th style="width:40%">Description</th>
-        <th class="num" style="width:14%">Physical Units</th>
-        <th class="num" style="width:14%">Unit Price</th>
-        <th class="num" style="width:14%">Extended</th>
-      </tr></thead><tbody>${rows}</tbody></table></div>`;
+    appWrap.innerHTML = `<div style="overflow-x:auto;"><table class="bom-tbl"><thead><tr><th style="width:18%">SKU Code</th><th style="width:40%">Description</th><th class="num" style="width:14%">Physical Units</th><th class="num" style="width:14%">Unit Price</th><th class="num" style="width:14%">Extended</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }
-
-  // Licenses table
   const licWrap = document.getElementById('bom-licenses-wrap');
   if (!licenses.length) {
     licWrap.innerHTML = '<div class="empty-state" style="padding:1.5rem;">No software licenses configured yet.</div>';
   } else {
-    // group by category
-    const cats = {};
-    licenses.forEach(l => { const c = l.category || 'License'; if (!cats[c]) cats[c] = []; cats[c].push(l); });
+    const cats = {}; licenses.forEach(l => { const c = l.category||'License'; if (!cats[c]) cats[c]=[]; cats[c].push(l); });
     let licSubtotal = 0, rows = '';
     Object.keys(cats).forEach(cat => {
       rows += `<tr><td colspan="5" class="bom-section-label">${escHtml(cat)}</td></tr>`;
       cats[cat].forEach(l => {
-        const ext = l.qty * l.unit_price;
-        licSubtotal   += ext;
-        totalLicUnits += l.qty;
-        rows += `<tr>
-          <td class="bom-sku">${escHtml(l.sku_code)}</td>
-          <td class="bom-name">${escHtml(l.sku_name)}</td>
-          <td class="bom-qty num">${l.qty}</td>
-          <td class="bom-unit num">${fmtMoney(l.unit_price)}</td>
-          <td class="bom-ext num">${fmtMoney(ext)}</td>
-        </tr>`;
+        const ext = l.qty * l.unit_price; licSubtotal += ext; totalLicUnits += l.qty;
+        rows += `<tr><td class="bom-sku">${escHtml(l.sku_code)}</td><td class="bom-name">${escHtml(l.sku_name)}</td><td class="bom-qty num">${l.qty}</td><td class="bom-unit num">${fmtMoney(l.unit_price)}</td><td class="bom-ext num">${fmtMoney(ext)}</td></tr>`;
       });
     });
-    rows += `<tr class="bom-subtotal-row">
-      <td colspan="2">License Subtotal</td>
-      <td class="num">${totalLicUnits}</td><td class="num">—</td>
-      <td class="num">${fmtMoney(licSubtotal)}</td>
-    </tr>`;
+    rows += `<tr class="bom-subtotal-row"><td colspan="2">License Subtotal</td><td class="num">${totalLicUnits}</td><td class="num">—</td><td class="num">${fmtMoney(licSubtotal)}</td></tr>`;
     grandTotal += licSubtotal;
-    licWrap.innerHTML = `<div style="overflow-x:auto;"><table class="bom-tbl">
-      <thead><tr>
-        <th style="width:18%">SKU Code</th>
-        <th style="width:40%">Description</th>
-        <th class="num" style="width:14%">Site Licenses</th>
-        <th class="num" style="width:14%">Unit Price</th>
-        <th class="num" style="width:14%">Extended</th>
-      </tr></thead><tbody>${rows}</tbody></table></div>`;
+    licWrap.innerHTML = `<div style="overflow-x:auto;"><table class="bom-tbl"><thead><tr><th style="width:18%">SKU Code</th><th style="width:40%">Description</th><th class="num" style="width:14%">Site Licenses</th><th class="num" style="width:14%">Unit Price</th><th class="num" style="width:14%">Extended</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }
-
   const totalSites = _pricingRows.reduce((s, r) => s + (r.qty || 0), 0);
   document.getElementById('bom-grand-total').textContent = grandTotal ? ('$' + grandTotal.toLocaleString('en-US',{maximumFractionDigits:0})) : '$0';
-  document.getElementById('bom-grand-sub').textContent =
-    totalAppUnits + ' appliance unit' + (totalAppUnits !== 1 ? 's' : '') +
-    ' · ' + totalLicUnits + ' license' + (totalLicUnits !== 1 ? 's' : '') +
-    ' · ' + totalSites + ' site' + (totalSites !== 1 ? 's' : '');
+  document.getElementById('bom-grand-sub').textContent = totalAppUnits + ' appliance unit' + (totalAppUnits!==1?'s':'') + ' · ' + totalLicUnits + ' license' + (totalLicUnits!==1?'s':'') + ' · ' + totalSites + ' site' + (totalSites!==1?'s':'');
 }
 
 function renderRampTable() {
   const tbody = document.getElementById('ramp-rows');
   const activeRows = _pricingRows.filter(r => r.qty > 0);
-  if (!activeRows.length) {
-    tbody.innerHTML = `<tr><td colspan="7" class="empty-state" style="color:var(--text-muted);">Add rows with qty > 0 to see ramp projection.</td></tr>`;
-    return;
-  }
+  if (!activeRows.length) { tbody.innerHTML = `<tr><td colspan="7" class="empty-state" style="color:var(--text-muted);">Add rows with qty > 0 to see ramp projection.</td></tr>`; return; }
   tbody.innerHTML = '';
   let totY1=0,totY2=0,totY3=0,totY4=0,totSites=0;
   activeRows.forEach(row => {
@@ -1100,8 +1131,7 @@ function renderRampTable() {
           y3=Math.round(qty*0.75)*siteTotal, y4=qty*siteTotal;
     totY1+=y1; totY2+=y2; totY3+=y3; totY4+=y4; totSites+=qty;
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${escHtml(row.label||'Row')}</td><td>${qty}</td><td>${fmtMoney(siteTotal)}</td>
+    tr.innerHTML = `<td>${escHtml(row.label||'Row')}</td><td>${qty}</td><td>${fmtMoney(siteTotal)}</td>
       <td>${fmtMoney(y1)} <span style="font-size:0.7rem;color:var(--text-muted);">(${Math.round(qty*0.25)} sites)</span></td>
       <td>${fmtMoney(y2)} <span style="font-size:0.7rem;color:var(--text-muted);">(${Math.round(qty*0.50)} sites)</span></td>
       <td>${fmtMoney(y3)} <span style="font-size:0.7rem;color:var(--text-muted);">(${Math.round(qty*0.75)} sites)</span></td>
@@ -1109,8 +1139,7 @@ function renderRampTable() {
     tbody.appendChild(tr);
   });
   const totTr = document.createElement('tr');
-  totTr.innerHTML = `<td>TOTAL</td><td>${totSites}</td><td>—</td>
-    <td>${fmtMoney(totY1)}</td><td>${fmtMoney(totY2)}</td><td>${fmtMoney(totY3)}</td><td>${fmtMoney(totY4)}</td>`;
+  totTr.innerHTML = `<td>TOTAL</td><td>${totSites}</td><td>—</td><td>${fmtMoney(totY1)}</td><td>${fmtMoney(totY2)}</td><td>${fmtMoney(totY3)}</td><td>${fmtMoney(totY4)}</td>`;
   tbody.appendChild(totTr);
 }
 
@@ -1143,180 +1172,223 @@ async function savePricing() {
 })();
 
 // ══════════════════════════════════════════════════════════════════════════════
-// BVA ENGINE
+// TCO ENGINE
 // ══════════════════════════════════════════════════════════════════════════════
-let _bvaConfig   = null;
-let _bvaSections = [];
-let _bvaChart    = null;
-let _bvaSaveTimer = null;
+const TCO_CATS = ['fw_ns','sdwan','mpls','fw_ew','iot_ot','nac','l3sw','pam'];
+const TCO_LABELS = { fw_ns:'FW N/S', sdwan:'SD-WAN', mpls:'MPLS', fw_ew:'FW E/W', iot_ot:'IoT/OT', nac:'NAC', l3sw:'L3 Switch', pam:'PAM' };
+let _tcoEntries      = {};   // { category: [entry, ...] }
+let _tcoRows         = [];   // saved rows
+let _tcoRowCounter   = 0;
+let _tcoACV          = 0;    // from Pricing tab or override
+let _tcoACVOverridden = false;
+let _tcoSaveTimer    = null;
 
-const SLIDER_DEFS = [
-  { key: 'site_count',       label: 'Number of Sites',           min: 1,      max: 500,      step: 1,      fmt: 'int',    hint: 'From assessment' },
-  { key: 'device_count',     label: 'Network Devices',           min: 1,      max: 5000,     step: 1,      fmt: 'int'     },
-  { key: 'hw_cost',          label: 'HW Cost / Device ($)',      min: 500,    max: 20000,    step: 100,    fmt: 'dollar'  },
-  { key: 'hw_support_pct',   label: 'HW Annual Support %',       min: 0,      max: 50,       step: 1,      fmt: 'pct'     },
-  { key: 'mpls_cost',        label: 'MPLS Cost / Site / Mo ($)', min: 100,    max: 10000,    step: 100,    fmt: 'dollar'  },
-  { key: 'broadband_cost',   label: 'Broadband / Site / Mo ($)', min: 50,     max: 2000,     step: 50,     fmt: 'dollar'  },
-  { key: 'mpls_usage_pct',   label: 'MPLS Usage % of Sites',     min: 0,      max: 100,      step: 5,      fmt: 'pct'     },
-  { key: 'fte_count',        label: 'Network FTEs',              min: 1,      max: 100,      step: 1,      fmt: 'int'     },
-  { key: 'fte_salary',       label: 'FTE Annual Salary ($)',     min: 40000,  max: 400000,   step: 5000,   fmt: 'dollar'  },
-  { key: 'fte_time_pct',     label: 'FTE Time on Manual Ops %',  min: 0,      max: 100,      step: 5,      fmt: 'pct'     },
-  { key: 'breach_cost',      label: 'Breach Cost ($)',           min: 100000, max: 50000000, step: 100000, fmt: 'dollar'  },
-  { key: 'legacy_risk_pct',  label: 'Legacy Breach Risk % / yr', min: 0,      max: 50,       step: 0.5,    fmt: 'pct'     },
-  { key: 'zscaler_risk_pct', label: 'Zscaler Breach Risk % / yr',min: 0,      max: 10,       step: 0.1,    fmt: 'pct'     },
-];
-let _bvaVals = {};
-
-function fmtVal(val, fmt) {
-  if (fmt === 'dollar') return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
-  if (fmt === 'pct')    return val + '%';
-  return Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
-}
-function fmtDollar(val) { return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 }); }
-
-async function initBVA() {
-  const res  = await fetch('/user/' + CUSTOMER_SLUG + '/bva-config');
+async function initTCO() {
+  const res  = await fetch('/user/' + CUSTOMER_SLUG + '/tco-config');
   const data = await res.json();
   if (!data.success) return;
-  _bvaConfig   = data.config;
-  _bvaSections = data.sections;
-  SLIDER_DEFS.forEach(def => {
-    let val = _bvaConfig[def.key] ?? def.min;
-    if (data.overrides && data.overrides[def.key] !== undefined) val = data.overrides[def.key];
-    _bvaVals[def.key] = Number(val);
-  });
-  if (data.site_count_from_answers !== null && data.site_count_from_answers !== undefined) {
-    if (!data.overrides || data.overrides['site_count'] === undefined) _bvaVals['site_count'] = data.site_count_from_answers;
+  _tcoEntries = data.entries || {};
+
+  const saved = data.saved || {};
+  if (saved.rows && saved.rows.length) {
+    _tcoRows = saved.rows.map(r => ({ ...r, id: r.id || (++_tcoRowCounter) }));
+    _tcoRowCounter = Math.max(_tcoRowCounter, ..._tcoRows.map(r => r.id || 0));
+  } else {
+    _tcoRows = [newTCORow()];
   }
-  if (!_bvaVals['site_count']) _bvaVals['site_count'] = 30;
-  buildSliders();
-  renderBVA();
-}
 
-function buildSliders() {
-  const container = document.getElementById('bva-sliders');
-  container.innerHTML = '';
-  SLIDER_DEFS.forEach(def => {
-    const val  = _bvaVals[def.key] ?? def.min;
-    const card = document.createElement('div'); card.className = 'bva-slider-card';
-    card.innerHTML = `
-      <div class="bva-slider-label">
-        <span>${def.label}${def.hint ? ' <span style="font-size:0.65rem;color:#00aaff;">('+def.hint+')</span>' : ''}</span>
-        <span class="bva-slider-value" id="sv-${def.key}">${fmtVal(val, def.fmt)}</span>
-      </div>
-      <input class="bva-slider" id="sl-${def.key}" type="range" min="${def.min}" max="${def.max}" step="${def.step}" value="${val}" />
-      <div class="bva-slider-range"><span>${fmtVal(def.min,def.fmt)}</span><span>${fmtVal(def.max,def.fmt)}</span></div>`;
-    container.appendChild(card);
-    card.querySelector('#sl-' + def.key).addEventListener('input', function() {
-      const newVal = parseFloat(this.value);
-      _bvaVals[def.key] = newVal;
-      document.getElementById('sv-' + def.key).textContent = fmtVal(newVal, def.fmt);
-      renderBVA(); scheduleSave();
-    });
-  });
-}
-
-function computeVars() {
-  const v = _bvaVals;
-  const sites=v.site_count||0, devices=v.device_count||0, hwCost=v.hw_cost||0,
-        hwSupportPct=v.hw_support_pct||0, mplsCost=v.mpls_cost||0, broadbandCost=v.broadband_cost||0,
-        mplsUsagePct=v.mpls_usage_pct||0, fteCount=v.fte_count||0, fteSalary=v.fte_salary||0,
-        fteTimePct=v.fte_time_pct||0, breachCost=v.breach_cost||0,
-        legacyRiskPct=v.legacy_risk_pct||0, zscalerRiskPct=v.zscaler_risk_pct||0;
-  const legacyHwCost   = (devices*hwCost/3)+(devices*hwCost*hwSupportPct/100);
-  const mplsSites      = sites*mplsUsagePct/100;
-  const broadbandSites = sites*(1-mplsUsagePct/100);
-  const legacyNetwork  = (mplsSites*mplsCost*12)+(broadbandSites*broadbandCost*12);
-  const zscalerNetwork = sites*broadbandCost*12;
-  const networkSavings = legacyNetwork-zscalerNetwork;
-  const fteCost        = fteCount*fteSalary*fteTimePct/100;
-  const opsSavings     = fteCost*0.70;
-  const riskSaving     = breachCost*(legacyRiskPct/100-zscalerRiskPct/100);
-  const legacy3yr      = (legacyHwCost+legacyNetwork+fteCount*fteSalary)*3;
-  const zscaler3yr     = (legacy3yr*0.28)+(zscalerNetwork*3)+(fteCount*fteSalary*3)-(opsSavings*3);
-  const hardSavings3yr = legacy3yr-zscaler3yr;
-  return { sites,devices,legacyHwCost,mplsSites,broadbandSites,legacyNetwork,zscalerNetwork,
-           networkSavings,fteCost,fteSavingsFactor:0.70,opsSavings,riskSaving,
-           legacy3yr,zscaler3yr,hardSavings3yr,fteCount,fteSalary };
-}
-
-function safeEval(formula, vars) {
-  let expr = formula;
-  Object.keys(vars).sort((a,b)=>b.length-a.length).forEach(k=>{
-    expr = expr.replace(new RegExp('\\b'+k+'\\b','g'), vars[k]);
-  });
-  if (!/^[\d\s\+\-\*\/\.\(\)]+$/.test(expr)) throw new Error('Invalid formula');
-  return Function('"use strict";return('+expr+')')();
-}
-
-function renderBVA() {
-  const cv = computeVars();
-  const savingsPct = cv.legacy3yr > 0 ? Math.round(cv.hardSavings3yr/cv.legacy3yr*100) : 0;
-  const kpis = [
-    { title:'TOTAL LEGACY RUN COST',     value:fmtDollar(cv.legacy3yr),      sub:'Summing HW support, bandwidth, management labor.',  color:'#14b8a6' },
-    { title:'ZSCALER SUBSCRIPTION EST.', value:fmtDollar(cv.zscaler3yr),     sub:'Platform consolidates VPN, SWG, DLP & monitoring.', color:'#6366f1' },
-    { title:'3-YR HARD COST SAVINGS',    value:fmtDollar(cv.hardSavings3yr), sub:savingsPct+'% TCO reduction',                        color:'#22c55e' },
-    { title:'AVOIDED RISK VALUE',        value:fmtDollar(cv.riskSaving*3),   sub:'Based on prevented lateral breach probability.',    color:'#f43f5e' },
-  ];
-  document.getElementById('bva-kpi-row').innerHTML = kpis.map(k=>`
-    <div class="bva-kpi-card" style="border-left-color:${k.color}">
-      <div class="bva-kpi-title">${k.title}</div>
-      <div class="bva-kpi-value" style="color:${k.color}">${k.value}</div>
-      <div class="bva-kpi-sub">${k.sub}</div>
-    </div>`).join('');
-  const legPY=cv.legacy3yr/3, zsPY=cv.zscaler3yr/3;
-  const chartData = {
-    labels:['Year 1 Run Cost','Year 2 Run Cost','Year 3 Run Cost'],
-    datasets:[
-      {label:'Legacy Hub-and-Spoke Infrastructure',data:[legPY,legPY,legPY],backgroundColor:'rgba(244,63,94,0.75)',borderColor:'#f43f5e',borderWidth:1,borderRadius:4},
-      {label:'Zscaler Zero Trust Strategy',         data:[zsPY,zsPY,zsPY], backgroundColor:'rgba(20,184,166,0.75)',borderColor:'#14b8a6',borderWidth:1,borderRadius:4},
-    ]
-  };
-  if (_bvaChart) { _bvaChart.data=chartData; _bvaChart.update(); }
-  else {
-    const ctx = document.getElementById('bva-chart').getContext('2d');
-    _bvaChart = new Chart(ctx,{type:'bar',data:chartData,options:{responsive:true,plugins:{
-      legend:{labels:{color:'#a0bcd8',font:{size:11}}},
-      tooltip:{callbacks:{label:ctx=>' '+fmtDollar(ctx.raw)}}
-    },scales:{
-      x:{ticks:{color:'#a0bcd8'},grid:{color:'rgba(255,255,255,0.05)'}},
-      y:{ticks:{color:'#a0bcd8',callback:v=>fmtDollar(v)},grid:{color:'rgba(255,255,255,0.05)'}}
-    }}});
+  // ACV: use override if present, else use Pricing tab total
+  if (saved.acv_override != null) {
+    _tcoACV = saved.acv_override;
+    _tcoACVOverridden = true;
+    document.getElementById('tco-acv-input').value = _tcoACV;
+    document.getElementById('tco-acv-source').textContent = 'Manual override';
+  } else {
+    _tcoACV = _pricingGrandTotal;
+    _tcoACVOverridden = false;
+    document.getElementById('tco-acv-input').value = _tcoACV || '';
+    document.getElementById('tco-acv-source').textContent = 'Auto-filled from Pricing tab';
   }
-  const driversEl = document.getElementById('bva-drivers');
-  if (!_bvaSections.length) {
-    driversEl.innerHTML = '<div class="empty-state" style="padding:1rem;font-size:0.8rem;">No value driver sections configured.<br>Add them in Admin → BVA Config.</div>';
+
+  renderTCORows();
+  updateTCOSavings();
+}
+
+function newTCORow() {
+  const row = { id: ++_tcoRowCounter, label: 'Small Branch', qty: 1 };
+  TCO_CATS.forEach(c => { row[c + '_id'] = null; });
+  return row;
+}
+
+function addTCORow() {
+  _tcoRows.push(newTCORow());
+  renderTCORows(); updateTCOSavings(); scheduleTCOSave();
+}
+function removeTCORow(id) {
+  _tcoRows = _tcoRows.filter(r => r.id !== id);
+  renderTCORows(); updateTCOSavings(); scheduleTCOSave();
+}
+
+function buildTCOOptions(cat, selectedId) {
+  let html = '<option value="">— None —</option>';
+  const entries = _tcoEntries[cat] || [];
+  entries.forEach(e => {
+    const label = `${e.vendor} · ${e.size} — $${Number(e.annual_cost).toLocaleString('en-US',{maximumFractionDigits:0})}/yr`;
+    html += `<option value="${e.id}" ${parseInt(selectedId) === e.id ? 'selected' : ''}>${label}</option>`;
+  });
+  return html;
+}
+
+function tcoEntryPrice(cat, entryId) {
+  if (!entryId) return 0;
+  const entries = _tcoEntries[cat] || [];
+  const e = entries.find(x => x.id === parseInt(entryId));
+  return e ? (e.annual_cost || 0) : 0;
+}
+
+function tcoRowAnnual(row) {
+  return TCO_CATS.reduce((sum, c) => sum + tcoEntryPrice(c, row[c + '_id']) * (row.qty || 0), 0);
+}
+
+function renderTCORows() {
+  const tbody = document.getElementById('tco-rows');
+  if (!_tcoRows.length) {
+    tbody.innerHTML = `<tr><td colspan="13" class="empty-state">No rows yet — click "+ Add Row" to start.</td></tr>`;
+    renderTCOSummary();
     return;
   }
-  const driverVals = _bvaSections.map(s => { try { return {s,val:Math.max(0,safeEval(s.formula,cv))}; } catch(e) { return {s,val:0}; } });
-  const maxVal = Math.max(...driverVals.map(d=>d.val),1);
-  driversEl.innerHTML = driverVals.map(({s,val})=>`
-    <div class="bva-driver-row">
-      <div class="bva-driver-header">
-        <span class="bva-driver-name" style="color:${s.color}">${s.label}</span>
-        <span class="bva-driver-value">${fmtDollar(val)} / yr</span>
-      </div>
-      <div class="bva-driver-bar-bg"><div class="bva-driver-bar-fill" style="width:${Math.round(val/maxVal*100)}%;background:${s.color}"></div></div>
-      ${s.description?`<div class="bva-driver-desc">${s.description}</div>`:''}
-    </div>`).join('');
+  tbody.innerHTML = '';
+  _tcoRows.forEach(row => {
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-tco-row-id', row.id);
+    const annual = tcoRowAnnual(row);
+    const yr3    = annual * 3;
+    let html = `
+      <td><input class="t-label-input" type="text" value="${escHtml(row.label||'')}"
+        onchange="updateTCOField(${row.id},'label',this.value)" oninput="updateTCOField(${row.id},'label',this.value)"></td>
+      <td class="num"><input class="t-qty-input" type="number" min="0" value="${row.qty||1}"
+        onchange="updateTCOField(${row.id},'qty',parseInt(this.value)||0)" oninput="updateTCOField(${row.id},'qty',parseInt(this.value)||0)"></td>`;
+    TCO_CATS.forEach(c => {
+      html += `<td><select class="t-select" onchange="updateTCOField(${row.id},'${c}_id',this.value?parseInt(this.value):null)">
+        ${buildTCOOptions(c, row[c+'_id'])}</select></td>`;
+    });
+    html += `<td class="tco-annual">${fmtMoney(annual)}</td>
+      <td class="tco-3yr">${fmtMoney(yr3)}</td>
+      <td><button class="t-remove-btn" onclick="removeTCORow(${row.id})" title="Remove">✕</button></td>`;
+    tr.innerHTML = html;
+    tbody.appendChild(tr);
+  });
+  renderTCOSummary();
 }
 
-function scheduleSave() {
-  const ind = document.getElementById('bva-save-indicator');
-  ind.textContent='Saving…'; ind.className='bva-save-indicator saving';
-  clearTimeout(_bvaSaveTimer); _bvaSaveTimer=setTimeout(saveBVA,1200);
+function updateTCOField(id, field, value) {
+  const row = _tcoRows.find(r => r.id === id); if (!row) return;
+  row[field] = value;
+  const tr = document.querySelector(`tr[data-tco-row-id="${id}"]`);
+  if (tr) {
+    const annual = tcoRowAnnual(row);
+    const tds = tr.querySelectorAll('td');
+    // annual = tds[10], 3yr = tds[11]
+    tds[10].textContent = fmtMoney(annual);
+    tds[11].textContent = fmtMoney(annual * 3);
+  }
+  updateTCOSavings(); scheduleTCOSave();
 }
-async function saveBVA() {
-  const ind = document.getElementById('bva-save-indicator');
+
+function renderTCOSummary() {
+  const tbody = document.getElementById('tco-summary-tbody');
+  tbody.innerHTML = '';
+  let totals = { qty: 0, annual: 0 };
+  const catTotals = {};
+  TCO_CATS.forEach(c => { catTotals[c] = 0; });
+
+  _tcoRows.forEach(row => {
+    const qty = row.qty || 0;
+    totals.qty += qty;
+    let rowAnnual = 0;
+    const catVals = {};
+    TCO_CATS.forEach(c => {
+      const v = tcoEntryPrice(c, row[c+'_id']) * qty;
+      catVals[c] = v; catTotals[c] += v; rowAnnual += v;
+    });
+    totals.annual += rowAnnual;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${escHtml(row.label||'—')}</td><td class="num">${qty}</td>` +
+      TCO_CATS.map(c => `<td class="num">${catVals[c] ? fmtMoney(catVals[c]) : '—'}</td>`).join('') +
+      `<td class="num s-annual">${fmtMoney(rowAnnual)}</td><td class="num s-3yr">${fmtMoney(rowAnnual*3)}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Total row
+  const totTr = document.createElement('tr');
+  totTr.innerHTML = `<td>TOTAL</td><td class="num">${totals.qty}</td>` +
+    TCO_CATS.map(c => `<td class="num">${catTotals[c] ? fmtMoney(catTotals[c]) : '—'}</td>`).join('') +
+    `<td class="num s-annual">${fmtMoney(totals.annual)}</td><td class="num s-3yr">${fmtMoney(totals.annual*3)}</td>`;
+  tbody.appendChild(totTr);
+}
+
+function getTCOLegacyAnnual() {
+  return _tcoRows.reduce((sum, row) => sum + tcoRowAnnual(row), 0);
+}
+
+function updateTCOSavings() {
+  const legacy = getTCOLegacyAnnual();
+  const acv    = _tcoACV || 0;
+  const annualSav = legacy - acv;
+  const yr3Sav    = annualSav * 3;
+  const roi       = legacy > 0 ? Math.round(annualSav / legacy * 100) : 0;
+  const payback   = annualSav > 0 ? Math.round((acv / annualSav) * 12) : null;
+
+  document.getElementById('tco-kpi-legacy').textContent     = fmtMoney(legacy) || '$0';
+  document.getElementById('tco-kpi-annual-sav').textContent = annualSav >= 0 ? fmtMoney(annualSav) : '-' + fmtMoney(-annualSav);
+  document.getElementById('tco-kpi-3yr-sav').textContent    = yr3Sav >= 0 ? fmtMoney(yr3Sav) : '-' + fmtMoney(-yr3Sav);
+  document.getElementById('tco-kpi-roi').textContent        = legacy > 0 ? roi + '%' : '—';
+  document.getElementById('tco-kpi-payback').textContent    = payback !== null ? `Payback: ~${payback} months` : (acv > 0 ? 'No savings vs ACV' : 'Enter ACV above');
+
+  renderTCOSummary();
+}
+
+function onACVInput() {
+  const val = parseFloat(document.getElementById('tco-acv-input').value) || 0;
+  _tcoACV = val;
+  _tcoACVOverridden = (val !== _pricingGrandTotal);
+  document.getElementById('tco-acv-source').textContent = _tcoACVOverridden ? 'Manual override' : 'Auto-filled from Pricing tab';
+  updateTCOSavings();
+}
+
+function resetACVtoPricing() {
+  _tcoACV = _pricingGrandTotal;
+  _tcoACVOverridden = false;
+  document.getElementById('tco-acv-input').value = _tcoACV || '';
+  document.getElementById('tco-acv-source').textContent = 'Auto-filled from Pricing tab';
+  updateTCOSavings();
+  scheduleTCOSave();
+}
+
+function scheduleTCOSave() {
+  const ind = document.getElementById('tco-save-ind');
+  ind.textContent = 'Saving…'; ind.className = 'tco-save-ind saving';
+  clearTimeout(_tcoSaveTimer);
+  _tcoSaveTimer = setTimeout(saveTCO, 1200);
+}
+async function saveTCO() {
+  const ind = document.getElementById('tco-save-ind');
   try {
-    const res  = await fetch('/user/'+CUSTOMER_SLUG+'/bva-save',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({overrides:_bvaVals})});
+    const payload = {
+      rows: _tcoRows,
+      acv_override: _tcoACVOverridden ? _tcoACV : null,
+    };
+    const res  = await fetch('/user/' + CUSTOMER_SLUG + '/tco-save', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
     const data = await res.json();
     if (data.success) {
-      const now = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-      ind.textContent='✓ Saved at '+now; ind.className='bva-save-indicator saved';
-      setTimeout(()=>{ind.textContent='';ind.className='bva-save-indicator';},4000);
-    } else { ind.textContent='Save failed'; ind.className='bva-save-indicator'; }
-  } catch(e) { ind.textContent='Save failed'; ind.className='bva-save-indicator'; }
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      ind.textContent = '✓ Saved at ' + now; ind.className = 'tco-save-ind saved';
+      setTimeout(() => { ind.textContent = ''; ind.className = 'tco-save-ind'; }, 4000);
+    } else { ind.textContent = 'Save failed'; ind.className = 'tco-save-ind'; }
+  } catch(e) { ind.textContent = 'Save failed'; ind.className = 'tco-save-ind'; }
 }
 </script>
 
