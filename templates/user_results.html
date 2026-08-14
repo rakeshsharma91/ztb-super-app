@@ -212,6 +212,36 @@
     .add-row-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.6rem 1.2rem; background: transparent; border: 1px dashed rgba(0,170,255,0.4); border-radius: 9px; color: var(--accent); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.2s, border-color 0.2s; margin-bottom: 1rem; }
     .add-row-btn:hover { background: rgba(0,170,255,0.08); border-color: var(--accent); }
     .pricing-tbl-overflow { overflow-x: auto; }
+    /* ── BOM ── */
+    .bom-wrap { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem; }
+    .bom-section-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--accent); padding: 6px 14px 5px; background: rgba(0,170,255,0.07); border-bottom: 1px solid rgba(0,170,255,0.1); }
+    .bom-tbl { width: 100%; border-collapse: collapse; min-width: 480px; }
+    .bom-tbl th { padding: 10px 14px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); text-align: left; background: rgba(0,51,102,0.8); border-bottom: 1px solid var(--border); }
+    .bom-tbl th.num { text-align: right; }
+    .bom-tbl td { padding: 10px 14px; font-size: 0.84rem; border-bottom: 1px solid rgba(0,170,255,0.06); vertical-align: middle; }
+    .bom-tbl tr:last-child td { border-bottom: none; }
+    .bom-tbl tr:hover td { background: rgba(0,170,255,0.03); }
+    .bom-tbl td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .bom-tbl td.bom-sku  { font-family: 'SF Mono','Fira Mono',monospace; font-size: 0.78rem; color: var(--accent); }
+    .bom-tbl td.bom-name { color: var(--white); }
+    .bom-tbl td.bom-qty  { font-weight: 700; color: var(--white); text-align: right; }
+    .bom-tbl td.bom-unit { color: var(--text-muted); text-align: right; }
+    .bom-tbl td.bom-ext  { font-weight: 700; color: var(--accent); text-align: right; }
+    .bom-subtotal-row td { font-weight: 700; color: var(--accent); background: rgba(0,170,255,0.06); border-top: 1px solid rgba(0,170,255,0.18); }
+    .bom-grand-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid rgba(0,170,255,0.4); border-radius: 14px; padding: 1.2rem 1.8rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+    .bom-grand-label { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
+    .bom-grand-sub   { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    .bom-grand-value { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+    /* ── PS Notice ── */
+    .ps-notice { background: linear-gradient(145deg, #0a2218, #062015); border: 1px solid rgba(0,220,130,0.22); border-left: 4px solid #00dc82; border-radius: 14px; padding: 1.4rem 1.6rem; margin-bottom: 1.5rem; }
+    .ps-notice-title { font-size: 0.92rem; font-weight: 700; color: #00dc82; margin-bottom: 0.75rem; }
+    .ps-notice-lead  { font-size: 0.85rem; color: var(--white); line-height: 1.65; margin-bottom: 1rem; }
+    .ps-notice-sub   { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #00dc82; margin-bottom: 0.65rem; }
+    .ps-attach-list  { display: flex; flex-direction: column; gap: 0.65rem; }
+    .ps-attach-item  { display: flex; gap: 0.75rem; align-items: flex-start; }
+    .ps-attach-icon  { width: 26px; height: 26px; flex-shrink: 0; background: rgba(0,220,130,0.1); border: 1px solid rgba(0,220,130,0.22); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; margin-top: 1px; }
+    .ps-attach-text  { font-size: 0.83rem; color: #a0c8b0; line-height: 1.6; }
+    .ps-attach-text strong { color: var(--white); }
     #ie-toast { position: fixed; bottom: 24px; right: 24px; background: #00875a; color: #fff; padding: 11px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.35); z-index: 9999; opacity: 0; transform: translateY(10px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
     #ie-toast.show { opacity: 1; transform: translateY(0); }
     #ie-toast.error { background: #b91c1c; }
@@ -223,7 +253,7 @@
     .footer { border-top: 1px solid var(--border); padding: 1.6rem 2rem; text-align: center; background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.55rem; }
     .footer-logo { display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
     .footer-z { width: 20px; height: 20px; background: linear-gradient(135deg, var(--blue), var(--accent)); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; color: var(--white); }
-    .footer-sep { color: rgba(160,188,216,0.25); margin: 0 0.15rem; }
+    .footer-sep  { color: rgba(160,188,216,0.25); margin: 0 0.15rem; }
     .footer-copy { font-size: 0.76rem; color: rgba(160,188,216,0.4); }
     @media (max-width: 600px) {
       .hero { padding: 2.5rem 1rem 2rem; }
@@ -297,9 +327,9 @@
 </div>
 
 <div class="page-tabs">
-  <div class="page-tab active" data-tab="results"  onclick="switchTab('results')">📋 Results</div>
-  <div class="page-tab"        data-tab="pricing"  onclick="switchTab('pricing')">💰 Pricing</div>
-  <div class="page-tab"        data-tab="bva"      onclick="switchTab('bva')">📊 Business Value</div>
+  <div class="page-tab active" data-tab="results" onclick="switchTab('results')">📋 Results</div>
+  <div class="page-tab"        data-tab="pricing" onclick="switchTab('pricing')">💰 Pricing</div>
+  <div class="page-tab"        data-tab="bva"     onclick="switchTab('bva')">📊 Business Value</div>
 </div>
 
 <!-- ══════════════════════ RESULTS TAB ══════════════════════ -->
@@ -518,6 +548,7 @@
 
   <hr class="section-divider" style="margin-top:0;">
 
+  <!-- ── Site Configuration ── -->
   <div class="section-heading"><h2>Site Configuration</h2></div>
   <div class="pricing-tbl-overflow">
     <div class="pricing-table-wrap">
@@ -554,6 +585,56 @@
     <div class="grand-total-value" id="grand-total">$0</div>
   </div>
 
+  <!-- ── Bill of Materials ── -->
+  <hr class="section-divider">
+  <div class="section-heading"><h2>🧾 Bill of Materials</h2></div>
+
+  <div class="section-heading" style="margin-bottom:0.6rem;margin-top:-0.5rem;">
+    <h2 style="font-size:0.82rem;">🖥 Appliances</h2>
+  </div>
+  <div class="bom-wrap" id="bom-appliances-wrap">
+    <div class="empty-state">Configure site rows above to generate BOM.</div>
+  </div>
+
+  <div class="section-heading" style="margin-bottom:0.6rem;">
+    <h2 style="font-size:0.82rem;">📦 Software Licenses</h2>
+  </div>
+  <div class="bom-wrap" id="bom-licenses-wrap">
+    <div class="empty-state">Configure site rows above to generate BOM.</div>
+  </div>
+
+  <div class="bom-grand-card">
+    <div>
+      <div class="bom-grand-label">BOM Total</div>
+      <div class="bom-grand-sub" id="bom-grand-sub">—</div>
+    </div>
+    <div class="bom-grand-value" id="bom-grand-total">$0</div>
+  </div>
+
+  <!-- ── PS Credits Notice ── -->
+  <div class="ps-notice">
+    <div class="ps-notice-title">🛠 Professional Services</div>
+    <div class="ps-notice-lead">Zscaler PS Credits auto calculate in SFDC based on quote, or leverage a ZTB service delivery authorized partner for deployment.</div>
+    <div class="ps-notice-sub">How PS Auto Attach Works</div>
+    <div class="ps-attach-list">
+      <div class="ps-attach-item">
+        <div class="ps-attach-icon">💰</div>
+        <div class="ps-attach-text"><strong>ACV-Based:</strong> Credits are attached based on the Annual Contract Value of the quote.</div>
+      </div>
+      <div class="ps-attach-item">
+        <div class="ps-attach-icon">📦</div>
+        <div class="ps-attach-text"><strong>Product/Hardware-Based:</strong> Credits are attached based on specific SKUs or hardware included in the quote.</div>
+      </div>
+      <div class="ps-attach-item">
+        <div class="ps-attach-icon">⚙️</div>
+        <div class="ps-attach-text">The system calculates how many credits are needed for the customer to be successful, and attaches them automatically when a quote is created.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- ── Ramped Roll-Out ── -->
   <div class="section-heading"><h2>📅 Ramped Roll-Out</h2></div>
   <div class="ramp-card">
     <div class="ramp-card-header">
@@ -628,9 +709,9 @@
 <div id="ie-toast"></div>
 
 <script>
-const CUSTOMER_SLUG  = {{ customer_slug | tojson }};
-const QUESTIONS_MAP  = {{ questions_map | tojson }};
-let   RAW_RESPONSES  = {{ raw_responses | tojson }};
+const CUSTOMER_SLUG = {{ customer_slug | tojson }};
+const QUESTIONS_MAP = {{ questions_map | tojson }};
+let   RAW_RESPONSES = {{ raw_responses | tojson }};
 let openQid = null;
 
 function switchTab(name) {
@@ -726,19 +807,18 @@ function buildActions(panel, qid, getVal) {
 // ══════════════════════════════════════════════════════════════════════════════
 // PRICING ENGINE
 // ══════════════════════════════════════════════════════════════════════════════
-let _pricingPhase    = 'standard';
-let _pricingRows     = [];
-let _appliances      = [];
-let _sdwan           = [];
-let _segmentation    = [];
+let _pricingPhase     = 'standard';
+let _pricingRows      = [];
+let _appliances       = [];
+let _sdwan            = [];
+let _segmentation     = [];
 let _pricingSaveTimer = null;
-let _rowCounter      = 0;
+let _rowCounter       = 0;
 
 function fmtMoney(v) {
   if (!v || v === 0) return '—';
   return '$' + Number(v).toLocaleString('en-US', { maximumFractionDigits: 0 });
 }
-
 function skuPrice(skuList, id, phase) {
   if (!id) return 0;
   const sku = skuList.find(s => s.id === parseInt(id));
@@ -750,24 +830,20 @@ async function initPricing() {
   const res  = await fetch('/user/' + CUSTOMER_SLUG + '/pricing-config');
   const data = await res.json();
   if (!data.success) return;
-
   _appliances   = data.appliances   || [];
   _sdwan        = data.sdwan        || [];
   _segmentation = data.segmentation || [];
-
-  if (data.saved && data.saved.phase) {
-    _pricingPhase = data.saved.phase;
-  }
+  if (data.saved && data.saved.phase) _pricingPhase = data.saved.phase;
   if (data.saved && data.saved.rows && data.saved.rows.length) {
     _pricingRows = data.saved.rows.map(r => ({ ...r, id: r.id || (++_rowCounter) }));
-    _rowCounter = Math.max(_rowCounter, ..._pricingRows.map(r => r.id || 0));
+    _rowCounter  = Math.max(_rowCounter, ..._pricingRows.map(r => r.id || 0));
   } else {
     _pricingRows = [newEmptyRow()];
   }
-
   setPhase(_pricingPhase, false);
   renderPricingRows();
   updateTotals();
+  window._pricingLoaded = true;
 }
 
 function newEmptyRow() {
@@ -786,16 +862,11 @@ function setPhase(phase, doSave = true) {
 
 function addPricingRow() {
   _pricingRows.push(newEmptyRow());
-  renderPricingRows();
-  updateTotals();
-  schedulePricingSave();
+  renderPricingRows(); updateTotals(); schedulePricingSave();
 }
-
 function removePricingRow(id) {
   _pricingRows = _pricingRows.filter(r => r.id !== id);
-  renderPricingRows();
-  updateTotals();
-  schedulePricingSave();
+  renderPricingRows(); updateTotals(); schedulePricingSave();
 }
 
 function buildSelectOptions(list, selectedId, allowNone, noneLabel) {
@@ -817,47 +888,28 @@ function renderPricingRows() {
   _pricingRows.forEach(row => {
     const tr = document.createElement('tr');
     tr.setAttribute('data-row-id', row.id);
-
     const appPrice   = skuPrice(_appliances,   row.appliance_id, _pricingPhase);
     const sdwanPrice = skuPrice(_sdwan,         row.sdwan_id,     _pricingPhase);
     const segPrice   = skuPrice(_segmentation, row.seg_id,       _pricingPhase);
     const siteTotal  = appPrice + sdwanPrice + segPrice;
     const lineTotal  = (row.qty || 0) * siteTotal;
-
     tr.innerHTML = `
-      <td>
-        <input class="p-label-input" type="text" value="${escHtml(row.label || '')}"
-          list="label-suggestions"
-          onchange="updateRowField(${row.id}, 'label', this.value)"
-          oninput="updateRowField(${row.id}, 'label', this.value)">
-      </td>
-      <td class="num">
-        <input class="p-qty-input" type="number" min="0" value="${row.qty || 0}"
-          onchange="updateRowField(${row.id}, 'qty', parseInt(this.value)||0)"
-          oninput="updateRowField(${row.id}, 'qty', parseInt(this.value)||0)">
-      </td>
-      <td>
-        <select class="p-select" onchange="updateRowField(${row.id}, 'appliance_id', this.value ? parseInt(this.value) : null)">
-          <option value="">— Select —</option>
-          ${buildSelectOptions(_appliances, row.appliance_id, false)}
-        </select>
-      </td>
-      <td>
-        <select class="p-select" onchange="updateRowField(${row.id}, 'sdwan_id', this.value ? parseInt(this.value) : null)">
-          ${buildSelectOptions(_sdwan, row.sdwan_id, true, '— None —')}
-        </select>
-      </td>
-      <td>
-        <select class="p-select" onchange="updateRowField(${row.id}, 'seg_id', this.value ? parseInt(this.value) : null)">
-          ${buildSelectOptions(_segmentation, row.seg_id, true, '— None —')}
-        </select>
-      </td>
+      <td><input class="p-label-input" type="text" value="${escHtml(row.label || '')}" list="label-suggestions"
+        onchange="updateRowField(${row.id},'label',this.value)" oninput="updateRowField(${row.id},'label',this.value)"></td>
+      <td class="num"><input class="p-qty-input" type="number" min="0" value="${row.qty || 0}"
+        onchange="updateRowField(${row.id},'qty',parseInt(this.value)||0)" oninput="updateRowField(${row.id},'qty',parseInt(this.value)||0)"></td>
+      <td><select class="p-select" onchange="updateRowField(${row.id},'appliance_id',this.value?parseInt(this.value):null)">
+        <option value="">— Select —</option>${buildSelectOptions(_appliances,row.appliance_id,false)}</select></td>
+      <td><select class="p-select" onchange="updateRowField(${row.id},'sdwan_id',this.value?parseInt(this.value):null)">
+        ${buildSelectOptions(_sdwan,row.sdwan_id,true,'— None —')}</select></td>
+      <td><select class="p-select" onchange="updateRowField(${row.id},'seg_id',this.value?parseInt(this.value):null)">
+        ${buildSelectOptions(_segmentation,row.seg_id,true,'— None —')}</select></td>
       <td class="num">${fmtMoney(appPrice)}</td>
       <td class="num">${fmtMoney(sdwanPrice)}</td>
       <td class="num">${fmtMoney(segPrice)}</td>
       <td class="num" style="color:var(--accent);font-weight:600;">${fmtMoney(siteTotal)}</td>
       <td class="total-col">${fmtMoney(lineTotal)}</td>
-      <td><button class="p-remove-btn" onclick="removePricingRow(${row.id})" title="Remove row">✕</button></td>`;
+      <td><button class="p-remove-btn" onclick="removePricingRow(${row.id})" title="Remove">✕</button></td>`;
     tbody.appendChild(tr);
   });
 }
@@ -867,8 +919,7 @@ function escHtml(str) {
 }
 
 function updateRowField(id, field, value) {
-  const row = _pricingRows.find(r => r.id === id);
-  if (!row) return;
+  const row = _pricingRows.find(r => r.id === id); if (!row) return;
   row[field] = value;
   const tr = document.querySelector(`tr[data-row-id="${id}"]`);
   if (tr) {
@@ -884,27 +935,150 @@ function updateRowField(id, field, value) {
     tds[8].textContent = fmtMoney(siteTotal);
     tds[9].textContent = fmtMoney(lineTotal);
   }
-  updateTotals();
-  schedulePricingSave();
+  updateTotals(); schedulePricingSave();
 }
 
 function updateTotals() {
-  let grandTotal = 0;
-  let totalSites = 0;
+  let grandTotal = 0, totalSites = 0;
   _pricingRows.forEach(row => {
     const appPrice   = skuPrice(_appliances,   row.appliance_id, _pricingPhase);
     const sdwanPrice = skuPrice(_sdwan,         row.sdwan_id,     _pricingPhase);
     const segPrice   = skuPrice(_segmentation, row.seg_id,       _pricingPhase);
-    const siteTotal  = appPrice + sdwanPrice + segPrice;
-    const lineTotal  = (row.qty || 0) * siteTotal;
-    grandTotal += lineTotal;
+    grandTotal += (row.qty || 0) * (appPrice + sdwanPrice + segPrice);
     totalSites += (row.qty || 0);
   });
-
-  document.getElementById('grand-total').textContent = grandTotal ? ('$' + grandTotal.toLocaleString('en-US', { maximumFractionDigits: 0 })) : '$0';
+  document.getElementById('grand-total').textContent = grandTotal ? ('$' + grandTotal.toLocaleString('en-US',{maximumFractionDigits:0})) : '$0';
   document.getElementById('grand-total-sub').textContent = totalSites + ' total site' + (totalSites !== 1 ? 's' : '') + ' configured';
-
+  renderBOM();
   renderRampTable();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// BOM ENGINE
+// ══════════════════════════════════════════════════════════════════════════════
+function computeBOM() {
+  // APPLIANCES: group by base model, HA SKUs (is_ha=true) count x2 at parent unit price
+  const appMap = {};
+  _pricingRows.forEach(row => {
+    if (!row.appliance_id || !row.qty) return;
+    const sku = _appliances.find(s => s.id === parseInt(row.appliance_id));
+    if (!sku) return;
+    let baseCode, baseName, unitPrice, physUnits;
+    if (sku.is_ha && sku.ha_parent_id) {
+      const parent = _appliances.find(s => s.id === parseInt(sku.ha_parent_id));
+      baseCode  = parent ? parent.sku_code : sku.sku_code.replace(/-HA$/,'');
+      baseName  = parent ? parent.sku_name : sku.sku_name.replace(' (Include HA)',' (No HA)');
+      unitPrice = parent ? (parent[_pricingPhase] || 0) : Math.round((sku[_pricingPhase] || 0) / 2);
+      physUnits = row.qty * 2;
+    } else {
+      baseCode  = sku.sku_code;
+      baseName  = sku.sku_name;
+      unitPrice = sku[_pricingPhase] || 0;
+      physUnits = row.qty;
+    }
+    if (!appMap[baseCode]) appMap[baseCode] = { sku_code: baseCode, sku_name: baseName, unit_price: unitPrice, qty: 0 };
+    appMap[baseCode].qty += physUnits;
+  });
+
+  // LICENSES: SD-WAN and Segmentation — 1 license per site, group by sku_code
+  const licMap = {};
+  function addLic(list, idField) {
+    _pricingRows.forEach(row => {
+      if (!row[idField] || !row.qty) return;
+      const sku = list.find(s => s.id === parseInt(row[idField])); if (!sku) return;
+      if (!licMap[sku.sku_code]) licMap[sku.sku_code] = { sku_code: sku.sku_code, sku_name: sku.sku_name, unit_price: sku[_pricingPhase] || 0, qty: 0, category: sku.category || 'License' };
+      licMap[sku.sku_code].qty += row.qty;
+    });
+  }
+  addLic(_sdwan,        'sdwan_id');
+  addLic(_segmentation, 'seg_id');
+  return { appliances: Object.values(appMap), licenses: Object.values(licMap) };
+}
+
+function renderBOM() {
+  const { appliances, licenses } = computeBOM();
+  let grandTotal = 0, totalAppUnits = 0, totalLicUnits = 0;
+
+  // Appliances table
+  const appWrap = document.getElementById('bom-appliances-wrap');
+  if (!appliances.length) {
+    appWrap.innerHTML = '<div class="empty-state" style="padding:1.5rem;">No appliances configured yet.</div>';
+  } else {
+    let appSubtotal = 0, rows = '';
+    appliances.forEach(a => {
+      const ext = a.qty * a.unit_price;
+      appSubtotal    += ext;
+      totalAppUnits  += a.qty;
+      rows += `<tr>
+        <td class="bom-sku">${escHtml(a.sku_code)}</td>
+        <td class="bom-name">${escHtml(a.sku_name)}</td>
+        <td class="bom-qty num">${a.qty}</td>
+        <td class="bom-unit num">${fmtMoney(a.unit_price)}</td>
+        <td class="bom-ext num">${fmtMoney(ext)}</td>
+      </tr>`;
+    });
+    rows += `<tr class="bom-subtotal-row">
+      <td colspan="2">Appliance Subtotal</td>
+      <td class="num">${totalAppUnits}</td><td class="num">—</td>
+      <td class="num">${fmtMoney(appSubtotal)}</td>
+    </tr>`;
+    grandTotal += appSubtotal;
+    appWrap.innerHTML = `<div style="overflow-x:auto;"><table class="bom-tbl">
+      <thead><tr>
+        <th style="width:18%">SKU Code</th>
+        <th style="width:40%">Description</th>
+        <th class="num" style="width:14%">Physical Units</th>
+        <th class="num" style="width:14%">Unit Price</th>
+        <th class="num" style="width:14%">Extended</th>
+      </tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+
+  // Licenses table
+  const licWrap = document.getElementById('bom-licenses-wrap');
+  if (!licenses.length) {
+    licWrap.innerHTML = '<div class="empty-state" style="padding:1.5rem;">No software licenses configured yet.</div>';
+  } else {
+    // group by category
+    const cats = {};
+    licenses.forEach(l => { const c = l.category || 'License'; if (!cats[c]) cats[c] = []; cats[c].push(l); });
+    let licSubtotal = 0, rows = '';
+    Object.keys(cats).forEach(cat => {
+      rows += `<tr><td colspan="5" class="bom-section-label">${escHtml(cat)}</td></tr>`;
+      cats[cat].forEach(l => {
+        const ext = l.qty * l.unit_price;
+        licSubtotal   += ext;
+        totalLicUnits += l.qty;
+        rows += `<tr>
+          <td class="bom-sku">${escHtml(l.sku_code)}</td>
+          <td class="bom-name">${escHtml(l.sku_name)}</td>
+          <td class="bom-qty num">${l.qty}</td>
+          <td class="bom-unit num">${fmtMoney(l.unit_price)}</td>
+          <td class="bom-ext num">${fmtMoney(ext)}</td>
+        </tr>`;
+      });
+    });
+    rows += `<tr class="bom-subtotal-row">
+      <td colspan="2">License Subtotal</td>
+      <td class="num">${totalLicUnits}</td><td class="num">—</td>
+      <td class="num">${fmtMoney(licSubtotal)}</td>
+    </tr>`;
+    grandTotal += licSubtotal;
+    licWrap.innerHTML = `<div style="overflow-x:auto;"><table class="bom-tbl">
+      <thead><tr>
+        <th style="width:18%">SKU Code</th>
+        <th style="width:40%">Description</th>
+        <th class="num" style="width:14%">Site Licenses</th>
+        <th class="num" style="width:14%">Unit Price</th>
+        <th class="num" style="width:14%">Extended</th>
+      </tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+
+  const totalSites = _pricingRows.reduce((s, r) => s + (r.qty || 0), 0);
+  document.getElementById('bom-grand-total').textContent = grandTotal ? ('$' + grandTotal.toLocaleString('en-US',{maximumFractionDigits:0})) : '$0';
+  document.getElementById('bom-grand-sub').textContent =
+    totalAppUnits + ' appliance unit' + (totalAppUnits !== 1 ? 's' : '') +
+    ' · ' + totalLicUnits + ' license' + (totalLicUnits !== 1 ? 's' : '') +
+    ' · ' + totalSites + ' site' + (totalSites !== 1 ? 's' : '');
 }
 
 function renderRampTable() {
@@ -914,45 +1088,29 @@ function renderRampTable() {
     tbody.innerHTML = `<tr><td colspan="7" class="empty-state" style="color:var(--text-muted);">Add rows with qty > 0 to see ramp projection.</td></tr>`;
     return;
   }
-
   tbody.innerHTML = '';
-  let totY1 = 0, totY2 = 0, totY3 = 0, totY4 = 0, totSites = 0;
-
+  let totY1=0,totY2=0,totY3=0,totY4=0,totSites=0;
   activeRows.forEach(row => {
     const appPrice   = skuPrice(_appliances,   row.appliance_id, _pricingPhase);
     const sdwanPrice = skuPrice(_sdwan,         row.sdwan_id,     _pricingPhase);
     const segPrice   = skuPrice(_segmentation, row.seg_id,       _pricingPhase);
     const siteTotal  = appPrice + sdwanPrice + segPrice;
     const qty = row.qty || 0;
-
-    const y1 = Math.round(qty * 0.25) * siteTotal;
-    const y2 = Math.round(qty * 0.50) * siteTotal;
-    const y3 = Math.round(qty * 0.75) * siteTotal;
-    const y4 = qty * siteTotal;
-
-    totY1 += y1; totY2 += y2; totY3 += y3; totY4 += y4; totSites += qty;
-
+    const y1=Math.round(qty*0.25)*siteTotal, y2=Math.round(qty*0.50)*siteTotal,
+          y3=Math.round(qty*0.75)*siteTotal, y4=qty*siteTotal;
+    totY1+=y1; totY2+=y2; totY3+=y3; totY4+=y4; totSites+=qty;
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${escHtml(row.label || 'Row')}</td>
-      <td>${qty}</td>
-      <td>${fmtMoney(siteTotal)}</td>
+      <td>${escHtml(row.label||'Row')}</td><td>${qty}</td><td>${fmtMoney(siteTotal)}</td>
       <td>${fmtMoney(y1)} <span style="font-size:0.7rem;color:var(--text-muted);">(${Math.round(qty*0.25)} sites)</span></td>
       <td>${fmtMoney(y2)} <span style="font-size:0.7rem;color:var(--text-muted);">(${Math.round(qty*0.50)} sites)</span></td>
       <td>${fmtMoney(y3)} <span style="font-size:0.7rem;color:var(--text-muted);">(${Math.round(qty*0.75)} sites)</span></td>
       <td>${fmtMoney(y4)} <span style="font-size:0.7rem;color:var(--text-muted);">(${qty} sites)</span></td>`;
     tbody.appendChild(tr);
   });
-
   const totTr = document.createElement('tr');
-  totTr.innerHTML = `
-    <td>TOTAL</td>
-    <td>${totSites}</td>
-    <td>—</td>
-    <td>${fmtMoney(totY1)}</td>
-    <td>${fmtMoney(totY2)}</td>
-    <td>${fmtMoney(totY3)}</td>
-    <td>${fmtMoney(totY4)}</td>`;
+  totTr.innerHTML = `<td>TOTAL</td><td>${totSites}</td><td>—</td>
+    <td>${fmtMoney(totY1)}</td><td>${fmtMoney(totY2)}</td><td>${fmtMoney(totY3)}</td><td>${fmtMoney(totY4)}</td>`;
   tbody.appendChild(totTr);
 }
 
@@ -962,13 +1120,11 @@ function schedulePricingSave() {
   clearTimeout(_pricingSaveTimer);
   _pricingSaveTimer = setTimeout(savePricing, 1200);
 }
-
 async function savePricing() {
   const ind = document.getElementById('pricing-save-ind');
   try {
     const res = await fetch('/user/' + CUSTOMER_SLUG + '/pricing-save', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phase: _pricingPhase, rows: _pricingRows })
     });
     const data = await res.json();
@@ -976,20 +1132,13 @@ async function savePricing() {
       const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       ind.textContent = '✓ Saved at ' + now; ind.className = 'pricing-save-ind saved';
       setTimeout(() => { ind.textContent = ''; ind.className = 'pricing-save-ind'; }, 4000);
-    } else {
-      ind.textContent = 'Save failed'; ind.className = 'pricing-save-ind';
-    }
-  } catch(e) {
-    ind.textContent = 'Save failed'; ind.className = 'pricing-save-ind';
-  }
+    } else { ind.textContent = 'Save failed'; ind.className = 'pricing-save-ind'; }
+  } catch(e) { ind.textContent = 'Save failed'; ind.className = 'pricing-save-ind'; }
 }
 
 (function() {
-  const dl = document.createElement('datalist');
-  dl.id = 'label-suggestions';
-  ['Small','Medium','Large','XL'].forEach(v => {
-    const o = document.createElement('option'); o.value = v; dl.appendChild(o);
-  });
+  const dl = document.createElement('datalist'); dl.id = 'label-suggestions';
+  ['Small','Medium','Large','XL'].forEach(v => { const o = document.createElement('option'); o.value = v; dl.appendChild(o); });
   document.body.appendChild(dl);
 })();
 
@@ -1002,21 +1151,20 @@ let _bvaChart    = null;
 let _bvaSaveTimer = null;
 
 const SLIDER_DEFS = [
-  { key: 'site_count',      label: 'Number of Sites',              min: 1,      max: 500,      step: 1,      fmt: 'int',    hint: 'From assessment' },
-  { key: 'device_count',    label: 'Network Devices',              min: 1,      max: 5000,     step: 1,      fmt: 'int'     },
-  { key: 'hw_cost',         label: 'HW Cost / Device ($)',         min: 500,    max: 20000,    step: 100,    fmt: 'dollar'  },
-  { key: 'hw_support_pct',  label: 'HW Annual Support %',          min: 0,      max: 50,       step: 1,      fmt: 'pct'     },
-  { key: 'mpls_cost',       label: 'MPLS Cost / Site / Mo ($)',    min: 100,    max: 10000,    step: 100,    fmt: 'dollar'  },
-  { key: 'broadband_cost',  label: 'Broadband / Site / Mo ($)',    min: 50,     max: 2000,     step: 50,     fmt: 'dollar'  },
-  { key: 'mpls_usage_pct',  label: 'MPLS Usage % of Sites',        min: 0,      max: 100,      step: 5,      fmt: 'pct'     },
-  { key: 'fte_count',       label: 'Network FTEs',                 min: 1,      max: 100,      step: 1,      fmt: 'int'     },
-  { key: 'fte_salary',      label: 'FTE Annual Salary ($)',        min: 40000,  max: 400000,   step: 5000,   fmt: 'dollar'  },
-  { key: 'fte_time_pct',    label: 'FTE Time on Manual Ops %',     min: 0,      max: 100,      step: 5,      fmt: 'pct'     },
-  { key: 'breach_cost',     label: 'Breach Cost ($)',              min: 100000, max: 50000000, step: 100000, fmt: 'dollar'  },
-  { key: 'legacy_risk_pct', label: 'Legacy Breach Risk % / yr',    min: 0,      max: 50,       step: 0.5,    fmt: 'pct'     },
-  { key: 'zscaler_risk_pct',label: 'Zscaler Breach Risk % / yr',   min: 0,      max: 10,       step: 0.1,    fmt: 'pct'     },
+  { key: 'site_count',       label: 'Number of Sites',           min: 1,      max: 500,      step: 1,      fmt: 'int',    hint: 'From assessment' },
+  { key: 'device_count',     label: 'Network Devices',           min: 1,      max: 5000,     step: 1,      fmt: 'int'     },
+  { key: 'hw_cost',          label: 'HW Cost / Device ($)',      min: 500,    max: 20000,    step: 100,    fmt: 'dollar'  },
+  { key: 'hw_support_pct',   label: 'HW Annual Support %',       min: 0,      max: 50,       step: 1,      fmt: 'pct'     },
+  { key: 'mpls_cost',        label: 'MPLS Cost / Site / Mo ($)', min: 100,    max: 10000,    step: 100,    fmt: 'dollar'  },
+  { key: 'broadband_cost',   label: 'Broadband / Site / Mo ($)', min: 50,     max: 2000,     step: 50,     fmt: 'dollar'  },
+  { key: 'mpls_usage_pct',   label: 'MPLS Usage % of Sites',     min: 0,      max: 100,      step: 5,      fmt: 'pct'     },
+  { key: 'fte_count',        label: 'Network FTEs',              min: 1,      max: 100,      step: 1,      fmt: 'int'     },
+  { key: 'fte_salary',       label: 'FTE Annual Salary ($)',     min: 40000,  max: 400000,   step: 5000,   fmt: 'dollar'  },
+  { key: 'fte_time_pct',     label: 'FTE Time on Manual Ops %',  min: 0,      max: 100,      step: 5,      fmt: 'pct'     },
+  { key: 'breach_cost',      label: 'Breach Cost ($)',           min: 100000, max: 50000000, step: 100000, fmt: 'dollar'  },
+  { key: 'legacy_risk_pct',  label: 'Legacy Breach Risk % / yr', min: 0,      max: 50,       step: 0.5,    fmt: 'pct'     },
+  { key: 'zscaler_risk_pct', label: 'Zscaler Breach Risk % / yr',min: 0,      max: 10,       step: 0.1,    fmt: 'pct'     },
 ];
-
 let _bvaVals = {};
 
 function fmtVal(val, fmt) {
@@ -1024,9 +1172,7 @@ function fmtVal(val, fmt) {
   if (fmt === 'pct')    return val + '%';
   return Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
 }
-function fmtDollar(val) {
-  return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
-}
+function fmtDollar(val) { return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 }); }
 
 async function initBVA() {
   const res  = await fetch('/user/' + CUSTOMER_SLUG + '/bva-config');
@@ -1040,9 +1186,7 @@ async function initBVA() {
     _bvaVals[def.key] = Number(val);
   });
   if (data.site_count_from_answers !== null && data.site_count_from_answers !== undefined) {
-    if (!data.overrides || data.overrides['site_count'] === undefined) {
-      _bvaVals['site_count'] = data.site_count_from_answers;
-    }
+    if (!data.overrides || data.overrides['site_count'] === undefined) _bvaVals['site_count'] = data.site_count_from_answers;
   }
   if (!_bvaVals['site_count']) _bvaVals['site_count'] = 30;
   buildSliders();
@@ -1057,163 +1201,122 @@ function buildSliders() {
     const card = document.createElement('div'); card.className = 'bva-slider-card';
     card.innerHTML = `
       <div class="bva-slider-label">
-        <span>${def.label}${def.hint ? ' <span style="font-size:0.65rem;color:#00aaff;">(' + def.hint + ')</span>' : ''}</span>
+        <span>${def.label}${def.hint ? ' <span style="font-size:0.65rem;color:#00aaff;">('+def.hint+')</span>' : ''}</span>
         <span class="bva-slider-value" id="sv-${def.key}">${fmtVal(val, def.fmt)}</span>
       </div>
-      <input class="bva-slider" id="sl-${def.key}" type="range"
-        min="${def.min}" max="${def.max}" step="${def.step}" value="${val}" />
-      <div class="bva-slider-range">
-        <span>${fmtVal(def.min, def.fmt)}</span>
-        <span>${fmtVal(def.max, def.fmt)}</span>
-      </div>`;
+      <input class="bva-slider" id="sl-${def.key}" type="range" min="${def.min}" max="${def.max}" step="${def.step}" value="${val}" />
+      <div class="bva-slider-range"><span>${fmtVal(def.min,def.fmt)}</span><span>${fmtVal(def.max,def.fmt)}</span></div>`;
     container.appendChild(card);
-    const slider = card.querySelector('#sl-' + def.key);
-    slider.addEventListener('input', () => {
-      const newVal = parseFloat(slider.value);
+    card.querySelector('#sl-' + def.key).addEventListener('input', function() {
+      const newVal = parseFloat(this.value);
       _bvaVals[def.key] = newVal;
       document.getElementById('sv-' + def.key).textContent = fmtVal(newVal, def.fmt);
-      renderBVA();
-      scheduleSave();
+      renderBVA(); scheduleSave();
     });
   });
 }
 
 function computeVars() {
   const v = _bvaVals;
-  const sites            = v.site_count        || 0;
-  const devices          = v.device_count      || 0;
-  const hwCost           = v.hw_cost           || 0;
-  const hwSupportPct     = v.hw_support_pct    || 0;
-  const mplsCost         = v.mpls_cost         || 0;
-  const broadbandCost    = v.broadband_cost     || 0;
-  const mplsUsagePct     = v.mpls_usage_pct    || 0;
-  const fteCount         = v.fte_count         || 0;
-  const fteSalary        = v.fte_salary        || 0;
-  const fteTimePct       = v.fte_time_pct      || 0;
-  const breachCost       = v.breach_cost       || 0;
-  const legacyRiskPct    = v.legacy_risk_pct   || 0;
-  const zscalerRiskPct   = v.zscaler_risk_pct  || 0;
-  const legacyHwCost     = (devices * hwCost / 3) + (devices * hwCost * hwSupportPct / 100);
-  const mplsSites        = sites * mplsUsagePct / 100;
-  const broadbandSites   = sites * (1 - mplsUsagePct / 100);
-  const legacyNetwork    = (mplsSites * mplsCost * 12) + (broadbandSites * broadbandCost * 12);
-  const zscalerNetwork   = sites * broadbandCost * 12;
-  const networkSavings   = legacyNetwork - zscalerNetwork;
-  const fteCost          = fteCount * fteSalary * fteTimePct / 100;
-  const fteSavingsFactor = 0.70;
-  const opsSavings       = fteCost * fteSavingsFactor;
-  const riskSaving       = breachCost * (legacyRiskPct / 100 - zscalerRiskPct / 100);
-  const legacy3yr        = (legacyHwCost + legacyNetwork + fteCount * fteSalary) * 3;
-  const zscaler3yr       = (legacy3yr * 0.28) + (zscalerNetwork * 3) + (fteCount * fteSalary * 3) - (opsSavings * 3);
-  const hardSavings3yr   = legacy3yr - zscaler3yr;
-  return {
-    sites, devices, legacyHwCost, mplsSites, broadbandSites,
-    legacyNetwork, zscalerNetwork, networkSavings,
-    fteCost, fteSavingsFactor, opsSavings,
-    riskSaving, legacy3yr, zscaler3yr, hardSavings3yr,
-    fteCount, fteSalary,
-  };
+  const sites=v.site_count||0, devices=v.device_count||0, hwCost=v.hw_cost||0,
+        hwSupportPct=v.hw_support_pct||0, mplsCost=v.mpls_cost||0, broadbandCost=v.broadband_cost||0,
+        mplsUsagePct=v.mpls_usage_pct||0, fteCount=v.fte_count||0, fteSalary=v.fte_salary||0,
+        fteTimePct=v.fte_time_pct||0, breachCost=v.breach_cost||0,
+        legacyRiskPct=v.legacy_risk_pct||0, zscalerRiskPct=v.zscaler_risk_pct||0;
+  const legacyHwCost   = (devices*hwCost/3)+(devices*hwCost*hwSupportPct/100);
+  const mplsSites      = sites*mplsUsagePct/100;
+  const broadbandSites = sites*(1-mplsUsagePct/100);
+  const legacyNetwork  = (mplsSites*mplsCost*12)+(broadbandSites*broadbandCost*12);
+  const zscalerNetwork = sites*broadbandCost*12;
+  const networkSavings = legacyNetwork-zscalerNetwork;
+  const fteCost        = fteCount*fteSalary*fteTimePct/100;
+  const opsSavings     = fteCost*0.70;
+  const riskSaving     = breachCost*(legacyRiskPct/100-zscalerRiskPct/100);
+  const legacy3yr      = (legacyHwCost+legacyNetwork+fteCount*fteSalary)*3;
+  const zscaler3yr     = (legacy3yr*0.28)+(zscalerNetwork*3)+(fteCount*fteSalary*3)-(opsSavings*3);
+  const hardSavings3yr = legacy3yr-zscaler3yr;
+  return { sites,devices,legacyHwCost,mplsSites,broadbandSites,legacyNetwork,zscalerNetwork,
+           networkSavings,fteCost,fteSavingsFactor:0.70,opsSavings,riskSaving,
+           legacy3yr,zscaler3yr,hardSavings3yr,fteCount,fteSalary };
 }
 
 function safeEval(formula, vars) {
   let expr = formula;
-  Object.keys(vars).sort((a,b) => b.length - a.length).forEach(k => {
-    expr = expr.replace(new RegExp('\\b' + k + '\\b', 'g'), vars[k]);
+  Object.keys(vars).sort((a,b)=>b.length-a.length).forEach(k=>{
+    expr = expr.replace(new RegExp('\\b'+k+'\\b','g'), vars[k]);
   });
   if (!/^[\d\s\+\-\*\/\.\(\)]+$/.test(expr)) throw new Error('Invalid formula');
-  return Function('"use strict";return(' + expr + ')')();
+  return Function('"use strict";return('+expr+')')();
 }
 
 function renderBVA() {
   const cv = computeVars();
-  const savingsPct = cv.legacy3yr > 0 ? Math.round(cv.hardSavings3yr / cv.legacy3yr * 100) : 0;
+  const savingsPct = cv.legacy3yr > 0 ? Math.round(cv.hardSavings3yr/cv.legacy3yr*100) : 0;
   const kpis = [
-    { title: 'TOTAL LEGACY RUN COST',     value: fmtDollar(cv.legacy3yr),       sub: 'Summing HW support, bandwidth, management labor.',  color: '#14b8a6' },
-    { title: 'ZSCALER SUBSCRIPTION EST.', value: fmtDollar(cv.zscaler3yr),      sub: 'Platform consolidates VPN, SWG, DLP & monitoring.', color: '#6366f1' },
-    { title: '3-YR HARD COST SAVINGS',    value: fmtDollar(cv.hardSavings3yr),  sub: savingsPct + '% TCO reduction',                      color: '#22c55e' },
-    { title: 'AVOIDED RISK VALUE',        value: fmtDollar(cv.riskSaving * 3),  sub: 'Based on prevented lateral breach probability.',    color: '#f43f5e' },
+    { title:'TOTAL LEGACY RUN COST',     value:fmtDollar(cv.legacy3yr),      sub:'Summing HW support, bandwidth, management labor.',  color:'#14b8a6' },
+    { title:'ZSCALER SUBSCRIPTION EST.', value:fmtDollar(cv.zscaler3yr),     sub:'Platform consolidates VPN, SWG, DLP & monitoring.', color:'#6366f1' },
+    { title:'3-YR HARD COST SAVINGS',    value:fmtDollar(cv.hardSavings3yr), sub:savingsPct+'% TCO reduction',                        color:'#22c55e' },
+    { title:'AVOIDED RISK VALUE',        value:fmtDollar(cv.riskSaving*3),   sub:'Based on prevented lateral breach probability.',    color:'#f43f5e' },
   ];
-  const kpiRow = document.getElementById('bva-kpi-row');
-  kpiRow.innerHTML = kpis.map(k => `
+  document.getElementById('bva-kpi-row').innerHTML = kpis.map(k=>`
     <div class="bva-kpi-card" style="border-left-color:${k.color}">
       <div class="bva-kpi-title">${k.title}</div>
       <div class="bva-kpi-value" style="color:${k.color}">${k.value}</div>
       <div class="bva-kpi-sub">${k.sub}</div>
     </div>`).join('');
-
-  const legacyPerYr  = cv.legacy3yr / 3;
-  const zscalerPerYr = cv.zscaler3yr / 3;
+  const legPY=cv.legacy3yr/3, zsPY=cv.zscaler3yr/3;
   const chartData = {
-    labels: ['Year 1 Run Cost', 'Year 2 Run Cost', 'Year 3 Run Cost'],
-    datasets: [
-      { label: 'Legacy Hub-and-Spoke Infrastructure', data: [legacyPerYr, legacyPerYr, legacyPerYr],    backgroundColor: 'rgba(244,63,94,0.75)',  borderColor: '#f43f5e', borderWidth: 1, borderRadius: 4 },
-      { label: 'Zscaler Zero Trust Strategy',          data: [zscalerPerYr, zscalerPerYr, zscalerPerYr], backgroundColor: 'rgba(20,184,166,0.75)', borderColor: '#14b8a6', borderWidth: 1, borderRadius: 4 },
+    labels:['Year 1 Run Cost','Year 2 Run Cost','Year 3 Run Cost'],
+    datasets:[
+      {label:'Legacy Hub-and-Spoke Infrastructure',data:[legPY,legPY,legPY],backgroundColor:'rgba(244,63,94,0.75)',borderColor:'#f43f5e',borderWidth:1,borderRadius:4},
+      {label:'Zscaler Zero Trust Strategy',         data:[zsPY,zsPY,zsPY], backgroundColor:'rgba(20,184,166,0.75)',borderColor:'#14b8a6',borderWidth:1,borderRadius:4},
     ]
   };
-  if (_bvaChart) {
-    _bvaChart.data = chartData; _bvaChart.update();
-  } else {
+  if (_bvaChart) { _bvaChart.data=chartData; _bvaChart.update(); }
+  else {
     const ctx = document.getElementById('bva-chart').getContext('2d');
-    _bvaChart = new Chart(ctx, {
-      type: 'bar', data: chartData,
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { labels: { color: '#a0bcd8', font: { size: 11 } } },
-          tooltip: { callbacks: { label: ctx => ' ' + fmtDollar(ctx.raw) } }
-        },
-        scales: {
-          x: { ticks: { color: '#a0bcd8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-          y: { ticks: { color: '#a0bcd8', callback: v => fmtDollar(v) }, grid: { color: 'rgba(255,255,255,0.05)' } }
-        }
-      }
-    });
+    _bvaChart = new Chart(ctx,{type:'bar',data:chartData,options:{responsive:true,plugins:{
+      legend:{labels:{color:'#a0bcd8',font:{size:11}}},
+      tooltip:{callbacks:{label:ctx=>' '+fmtDollar(ctx.raw)}}
+    },scales:{
+      x:{ticks:{color:'#a0bcd8'},grid:{color:'rgba(255,255,255,0.05)'}},
+      y:{ticks:{color:'#a0bcd8',callback:v=>fmtDollar(v)},grid:{color:'rgba(255,255,255,0.05)'}}
+    }}});
   }
-
   const driversEl = document.getElementById('bva-drivers');
   if (!_bvaSections.length) {
     driversEl.innerHTML = '<div class="empty-state" style="padding:1rem;font-size:0.8rem;">No value driver sections configured.<br>Add them in Admin → BVA Config.</div>';
     return;
   }
-  const driverVals = _bvaSections.map(s => {
-    try { return { s, val: Math.max(0, safeEval(s.formula, cv)) }; }
-    catch(e) { return { s, val: 0 }; }
-  });
-  const maxVal = Math.max(...driverVals.map(d => d.val), 1);
-  driversEl.innerHTML = driverVals.map(({ s, val }) => `
+  const driverVals = _bvaSections.map(s => { try { return {s,val:Math.max(0,safeEval(s.formula,cv))}; } catch(e) { return {s,val:0}; } });
+  const maxVal = Math.max(...driverVals.map(d=>d.val),1);
+  driversEl.innerHTML = driverVals.map(({s,val})=>`
     <div class="bva-driver-row">
       <div class="bva-driver-header">
         <span class="bva-driver-name" style="color:${s.color}">${s.label}</span>
         <span class="bva-driver-value">${fmtDollar(val)} / yr</span>
       </div>
-      <div class="bva-driver-bar-bg">
-        <div class="bva-driver-bar-fill" style="width:${Math.round(val/maxVal*100)}%;background:${s.color}"></div>
-      </div>
-      ${s.description ? `<div class="bva-driver-desc">${s.description}</div>` : ''}
+      <div class="bva-driver-bar-bg"><div class="bva-driver-bar-fill" style="width:${Math.round(val/maxVal*100)}%;background:${s.color}"></div></div>
+      ${s.description?`<div class="bva-driver-desc">${s.description}</div>`:''}
     </div>`).join('');
 }
 
 function scheduleSave() {
   const ind = document.getElementById('bva-save-indicator');
-  ind.textContent = 'Saving…'; ind.className = 'bva-save-indicator saving';
-  clearTimeout(_bvaSaveTimer);
-  _bvaSaveTimer = setTimeout(saveBVA, 1200);
+  ind.textContent='Saving…'; ind.className='bva-save-indicator saving';
+  clearTimeout(_bvaSaveTimer); _bvaSaveTimer=setTimeout(saveBVA,1200);
 }
-
 async function saveBVA() {
   const ind = document.getElementById('bva-save-indicator');
   try {
-    const res  = await fetch('/user/' + CUSTOMER_SLUG + '/bva-save', {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ overrides: _bvaVals })
-    });
+    const res  = await fetch('/user/'+CUSTOMER_SLUG+'/bva-save',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({overrides:_bvaVals})});
     const data = await res.json();
     if (data.success) {
-      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      ind.textContent = '✓ Saved at ' + now; ind.className = 'bva-save-indicator saved';
-      setTimeout(() => { ind.textContent = ''; ind.className = 'bva-save-indicator'; }, 4000);
-    } else { ind.textContent = 'Save failed'; ind.className = 'bva-save-indicator'; }
-  } catch(e) { ind.textContent = 'Save failed'; ind.className = 'bva-save-indicator'; }
+      const now = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      ind.textContent='✓ Saved at '+now; ind.className='bva-save-indicator saved';
+      setTimeout(()=>{ind.textContent='';ind.className='bva-save-indicator';},4000);
+    } else { ind.textContent='Save failed'; ind.className='bva-save-indicator'; }
+  } catch(e) { ind.textContent='Save failed'; ind.className='bva-save-indicator'; }
 }
 </script>
 
