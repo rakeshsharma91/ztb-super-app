@@ -134,6 +134,8 @@
     .ie-save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .ie-cancel-btn { background: transparent; color: var(--text-muted); border: 1px solid rgba(160,188,216,0.22); border-radius: 7px; padding: 7px 14px; font-size: 0.82rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; font-family: inherit; }
     .ie-cancel-btn:hover { color: var(--white); border-color: var(--text-muted); }
+    /* ── POV tab body ── */
+    .pov-body { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
     /* ── Pricing ── */
     .pricing-body { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
     .phase-toggle { display: inline-flex; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 1.5rem; }
@@ -302,7 +304,7 @@
     .footer-copy { font-size: 0.76rem; color: rgba(160,188,216,0.4); }
     @media (max-width: 600px) {
       .hero { padding: 2.5rem 1rem 2rem; }
-      .page-body { padding: 1.75rem 1rem 4rem; }
+      .page-body, .pov-body { padding: 1.75rem 1rem 4rem; }
       .navbar { padding: 0 1rem; }
       .download-section { flex-direction: column; align-items: flex-start; }
       .vp-grid { grid-template-columns: 1fr; }
@@ -372,7 +374,8 @@
 </div>
 
 <div class="page-tabs">
-  <div class="page-tab active" data-tab="results" onclick="switchTab('results')">📋 Results</div>
+  <div class="page-tab active" data-tab="results" onclick="switchTab('results')">📋 Opportunity Assessment</div>
+  <div class="page-tab"        data-tab="pov"     onclick="switchTab('pov')">🔧 POV &amp; Deployment</div>
   <div class="page-tab"        data-tab="pricing" onclick="switchTab('pricing')">💰 Pricing</div>
   <div class="page-tab"        data-tab="tco"     onclick="switchTab('tco')">📊 TCO Analysis</div>
 </div>
@@ -487,38 +490,6 @@
   <div class="empty-state">No documents tagged for this assessment.</div>
   {% endif %}
 
-  {% if guidelines %}
-  <hr class="section-divider">
-  <div class="section-heading">
-    <h2>Guidelines</h2>
-    <span class="section-badge">{{ guidelines | length }}</span>
-  </div>
-  <div class="guidelines-list">
-    {% for gl in guidelines %}
-    {% set title = gl.get('asset_name') or gl.get('title') or ('Guideline #' ~ gl.get('id','')) %}
-    {% set desc  = gl.get('description') or gl.get('Description') or '' %}
-    {% set url   = gl.get('url') or gl.get('link') or '' %}
-    <div class="guideline-card">
-      <div class="guideline-header">
-        <div class="guideline-title">{{ title }}</div>
-        {% if url %}<a class="guideline-link" href="{{ url }}" target="_blank" rel="noopener">Reference →</a>{% endif %}
-      </div>
-      {% if desc %}<div class="guideline-body">{{ desc }}</div>{% endif %}
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
-
-  <hr class="section-divider">
-
-  <div class="download-section">
-    <div class="download-text">
-      <h3>📋 POV Planner &amp; Test Cases</h3>
-      <p>Download the execution plan and test cases tailored to this opportunity.</p>
-    </div>
-    <a class="download-btn" href="/user/{{ customer_slug }}/export">⬇ Download Excel</a>
-  </div>
-
   <hr class="section-divider">
 
   <div class="section-heading"><h2>Opportunity Notes</h2></div>
@@ -577,6 +548,56 @@
 
 </div>
 </div><!-- /tab-results -->
+
+<!-- ══════════════════════ POV & DEPLOYMENT TAB ══════════════════════ -->
+<div class="tab-panel" id="tab-pov">
+<div class="pov-body">
+
+  {% if guidelines %}
+  <div class="section-heading">
+    <h2>Guidelines</h2>
+    <span class="section-badge">{{ guidelines | length }}</span>
+  </div>
+  <div class="guidelines-list">
+    {% for gl in guidelines %}
+    {% set title = gl.get('asset_name') or gl.get('title') or ('Guideline #' ~ gl.get('id','')) %}
+    {% set desc  = gl.get('description') or gl.get('Description') or '' %}
+    {% set url   = gl.get('url') or gl.get('link') or '' %}
+    <div class="guideline-card">
+      <div class="guideline-header">
+        <div class="guideline-title">{{ title }}</div>
+        {% if url %}<a class="guideline-link" href="{{ url }}" target="_blank" rel="noopener">Reference →</a>{% endif %}
+      </div>
+      {% if desc %}<div class="guideline-body">{{ desc }}</div>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  <hr class="section-divider">
+  {% endif %}
+
+  <div class="download-section">
+    <div class="download-text">
+      <h3>📋 POV Planner &amp; Test Cases</h3>
+      <p>Download the execution plan and test cases tailored to this opportunity.</p>
+    </div>
+    <a class="download-btn" href="/user/{{ customer_slug }}/export">⬇ Download Excel</a>
+  </div>
+
+  <hr class="section-divider">
+
+  <div class="section-heading"><h2>Technical Notes</h2></div>
+  <div class="notes-card">
+    <textarea class="notes-textarea" id="technicalNotes"
+      placeholder="Technical notes — architecture decisions, environment details, test plan, open items, blockers…"
+    >{{ user_resp.technical_notes or '' }}</textarea>
+    <div class="notes-footer">
+      <span class="notes-status" id="techNotesStatus"></span>
+      <span class="notes-hint">Auto-saves when you click away</span>
+    </div>
+  </div>
+
+</div>
+</div><!-- /tab-pov -->
 
 <!-- ══════════════════════ PRICING TAB ══════════════════════ -->
 <div class="tab-panel" id="tab-pricing">
@@ -940,6 +961,7 @@ function buildActions(panel, qid, getVal) {
   actions.appendChild(saveBtn); actions.appendChild(cancelBtn); panel.appendChild(actions);
 }
 
+// ── Opportunity Notes (auto-save) ─────────────────────────────────────────────
 (function () {
   const textarea = document.getElementById('opportunityNotes');
   const status   = document.getElementById('notesStatus');
@@ -959,6 +981,28 @@ function buildActions(panel, qid, getVal) {
   }
   textarea.addEventListener('blur', saveNotes);
   textarea.addEventListener('input', function () { clearTimeout(saveTimer); clearStatus(); saveTimer = setTimeout(saveNotes, 3000); });
+})();
+
+// ── Technical Notes (auto-save) ───────────────────────────────────────────────
+(function () {
+  const textarea = document.getElementById('technicalNotes');
+  const status   = document.getElementById('techNotesStatus');
+  if (!textarea) return;
+  let saveTimer = null;
+  function setStatus(type, msg) { status.textContent = msg; status.className = 'notes-status visible ' + type; }
+  function clearStatus() { status.className = 'notes-status'; }
+  function saveTechNotes() {
+    setStatus('saving', 'Saving…');
+    fetch('/user/' + CUSTOMER_SLUG + '/technical-notes', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ technical_notes: textarea.value }) })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) { const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); setStatus('saved', '✓ Saved at ' + now); setTimeout(clearStatus, 4000); }
+      else setStatus('error', 'Save failed — try again');
+    })
+    .catch(() => setStatus('error', 'Save failed — check connection'));
+  }
+  textarea.addEventListener('blur', saveTechNotes);
+  textarea.addEventListener('input', function () { clearTimeout(saveTimer); clearStatus(); saveTimer = setTimeout(saveTechNotes, 3000); });
 })();
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1265,7 +1309,6 @@ async function initTCO() {
   if (!data.success) return;
   _tcoEntries = data.entries || {};
 
-  // Load defaults
   if (data.defaults) {
     _tcoHeroFTECount   = data.defaults.fte_count || 0;
     _tcoHeroFTECost    = data.defaults.fte_cost || 0;
@@ -1280,17 +1323,14 @@ async function initTCO() {
     _tcoRows = [newTCORow()];
   }
 
-  // Override hero metrics if saved
   if (saved.fte_count !== undefined && saved.fte_count !== null) _tcoHeroFTECount = saved.fte_count;
   if (saved.fte_cost !== undefined && saved.fte_cost !== null) _tcoHeroFTECost = saved.fte_cost;
   if (saved.breach_cost !== undefined && saved.breach_cost !== null) _tcoHeroBreachCost = saved.breach_cost;
 
-  // Load hero metric inputs
   document.getElementById('tco-hero-fte-count').value = _tcoHeroFTECount || '';
   document.getElementById('tco-hero-fte-cost').value = _tcoHeroFTECost || '';
   document.getElementById('tco-hero-breach-cost').value = _tcoHeroBreachCost || '';
 
-  // ACV
   if (saved.acv_override != null) {
     _tcoACV = saved.acv_override;
     _tcoACVOverridden = true;
@@ -1446,69 +1486,35 @@ function updateTCOCalculations() {
 function updateTCOChart() {
   const legacy = getTCOLegacyAnnual();
   const acv = _tcoACV || 0;
-  
   const canvas = document.getElementById('tco-chart');
   if (!canvas) return;
-
   const ctx = canvas.getContext('2d');
   if (_tcoChartInstance) _tcoChartInstance.destroy();
-
   _tcoChartInstance = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: ['Year 1', 'Year 2', 'Year 3'],
       datasets: [
-        {
-          label: 'Legacy Annual Cost',
-          data: [legacy, legacy, legacy],
-          backgroundColor: '#f87171',
-          borderRadius: 6,
-          borderSkipped: false,
-        },
-        {
-          label: 'Zscaler ACV',
-          data: [acv, acv, acv],
-          backgroundColor: '#00d9ff',
-          borderRadius: 6,
-          borderSkipped: false,
-        }
+        { label: 'Legacy Annual Cost', data: [legacy, legacy, legacy], backgroundColor: '#f87171', borderRadius: 6, borderSkipped: false },
+        { label: 'Zscaler ACV',        data: [acv, acv, acv],         backgroundColor: '#00d9ff', borderRadius: 6, borderSkipped: false }
       ]
     },
     options: {
-      indexAxis: 'x',
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false,
-        }
-      },
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
       scales: {
         y: {
           beginAtZero: true,
-          ticks: {
-            color: '#a0bcd8',
-            font: { size: 12 },
+          ticks: { color: '#a0bcd8', font: { size: 12 },
             callback: function(v) {
-              if (v >= 1000000) return '$' + (v / 1000000).toFixed(1) + 'M';
-              if (v >= 1000) return '$' + (v / 1000).toFixed(0) + 'K';
+              if (v >= 1000000) return '$' + (v/1000000).toFixed(1) + 'M';
+              if (v >= 1000)    return '$' + (v/1000).toFixed(0) + 'K';
               return '$' + v;
             }
           },
-          grid: {
-            color: 'rgba(0,170,255,0.1)',
-            drawBorder: false,
-          }
+          grid: { color: 'rgba(0,170,255,0.1)', drawBorder: false }
         },
-        x: {
-          ticks: {
-            color: '#a0bcd8',
-            font: { size: 12 }
-          },
-          grid: {
-            display: false,
-          }
-        }
+        x: { ticks: { color: '#a0bcd8', font: { size: 12 } }, grid: { display: false } }
       }
     }
   });
@@ -1533,27 +1539,15 @@ function resetACVtoPricing() {
 
 function saveTCOHeroMetrics() {
   const status = document.getElementById('tco-hero-status');
-  status.textContent = 'Saving…';
-  status.className = 'tco-hero-status saving';
-
-  const fteCount = parseFloat(document.getElementById('tco-hero-fte-count').value) || 0;
-  const fteCost = parseFloat(document.getElementById('tco-hero-fte-cost').value) || 0;
-  const breachCost = parseFloat(document.getElementById('tco-hero-breach-cost').value) || 0;
-
-  _tcoHeroFTECount = fteCount;
-  _tcoHeroFTECost = fteCost;
-  _tcoHeroBreachCost = breachCost;
-
+  status.textContent = 'Saving…'; status.className = 'tco-hero-status saving';
+  _tcoHeroFTECount   = parseFloat(document.getElementById('tco-hero-fte-count').value)  || 0;
+  _tcoHeroFTECost    = parseFloat(document.getElementById('tco-hero-fte-cost').value)   || 0;
+  _tcoHeroBreachCost = parseFloat(document.getElementById('tco-hero-breach-cost').value)|| 0;
   updateTCOCalculations();
   scheduleTCOSave();
-
   setTimeout(() => {
-    status.textContent = '✓ Saved';
-    status.className = 'tco-hero-status saved';
-    setTimeout(() => {
-      status.textContent = '';
-      status.className = 'tco-hero-status';
-    }, 3000);
+    status.textContent = '✓ Saved'; status.className = 'tco-hero-status saved';
+    setTimeout(() => { status.textContent = ''; status.className = 'tco-hero-status'; }, 3000);
   }, 600);
 }
 
@@ -1566,16 +1560,10 @@ function scheduleTCOSave() {
 async function saveTCO() {
   const ind = document.getElementById('tco-save-ind');
   try {
-    const payload = {
-      rows: _tcoRows,
-      acv_override: _tcoACVOverridden ? _tcoACV : null,
-      fte_count: _tcoHeroFTECount,
-      fte_cost: _tcoHeroFTECost,
-      breach_cost: _tcoHeroBreachCost,
-    };
     const res  = await fetch('/user/' + CUSTOMER_SLUG + '/tco-save', {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ rows: _tcoRows, acv_override: _tcoACVOverridden ? _tcoACV : null,
+        fte_count: _tcoHeroFTECount, fte_cost: _tcoHeroFTECost, breach_cost: _tcoHeroBreachCost })
     });
     const data = await res.json();
     if (data.success) {

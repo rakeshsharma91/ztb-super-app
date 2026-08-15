@@ -255,6 +255,7 @@ class UserResponse(db.Model):
     answers                = db.Column(db.JSON, default=dict)
     results                = db.Column(db.JSON, default=dict)
     notes                  = db.Column(db.Text, nullable=True)
+    technical_notes        = db.Column(db.Text, nullable=True)
     pricing_data           = db.Column(db.JSON, default=dict)
     created_at             = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -271,6 +272,7 @@ class UserResponse(db.Model):
             'answers':                self.answers or {},
             'results':                self.results or {},
             'notes':                  self.notes or '',
+            'technical_notes':        self.technical_notes or '',
             'pricing_data':           self.pricing_data or {},
             'created_at':             self.created_at.strftime('%Y-%m-%d %H:%M') if self.created_at else '',
         }
@@ -420,10 +422,6 @@ class TCOEntry(db.Model):
         }
 
 # ── TCO Config ─────────────────────────────────────────────────────────────────
-# Stores default values for the three TCO hero metrics shown on the user TCO tab.
-# fte_count    : default number of FTEs supporting legacy infra
-# fte_cost     : default annual fully-loaded cost per FTE ($)
-# breach_cost  : default avg cost of a data breach ($)  — IBM 2024 default
 class TCOConfig(db.Model):
     __tablename__ = 'tco_config'
     id           = db.Column(db.Integer, primary_key=True)
@@ -651,7 +649,6 @@ def run_migration(db):
     if 'tco_config' not in existing:
         db.metadata.tables['tco_config'].create(engine)
         print('[migration] Created table: tco_config')
-        # Seed defaults — borrow fte_count & fte_salary from BVAConfig if present
         bva_fte_count = 6.0
         bva_fte_cost  = 120000.0
         try:
@@ -713,6 +710,11 @@ def run_migration(db):
                 'ALTER TABLE user_responses ADD COLUMN notes TEXT'
             ))
             print('[migration] Added column user_responses.notes')
+        if 'technical_notes' not in ur_cols:
+            conn.execute(sa.text(
+                'ALTER TABLE user_responses ADD COLUMN technical_notes TEXT'
+            ))
+            print('[migration] Added column user_responses.technical_notes')
         if 'pricing_data' not in ur_cols:
             conn.execute(sa.text(
                 'ALTER TABLE user_responses ADD COLUMN pricing_data JSON'
