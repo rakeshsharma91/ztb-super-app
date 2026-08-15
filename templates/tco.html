@@ -26,6 +26,24 @@
     #main { margin-left: 220px; margin-top: 56px; padding: 28px 32px; min-height: calc(100vh - 56px); }
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
     .page-header h2 { font-size: 22px; color: var(--navy); font-weight: 700; }
+    .panel { background: #fff; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .panel-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .panel-header h3 { font-size: 15px; font-weight: 700; color: var(--navy); }
+    .panel-subtitle { font-size: 12px; color: #888; margin-top: 2px; }
+    .panel-body { padding: 20px; }
+    /* Defaults panel */
+    .defaults-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    @media (max-width: 800px) { .defaults-grid { grid-template-columns: 1fr; } }
+    .default-field { display: flex; flex-direction: column; gap: 6px; }
+    .default-field label { font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.4px; }
+    .default-field input { padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; font-family: inherit; transition: border-color 0.2s; }
+    .default-field input:focus { outline: none; border-color: var(--blue); }
+    .default-field .field-hint { font-size: 11px; color: #aaa; }
+    .defaults-save-row { display: flex; align-items: center; gap: 12px; margin-top: 18px; }
+    .defaults-status { font-size: 12px; color: #888; }
+    .defaults-status.saved  { color: var(--success); }
+    .defaults-status.saving { color: var(--blue); }
+    .defaults-status.error  { color: var(--danger); }
     /* Category tabs */
     .cat-tabs { display: flex; gap: 0; background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 24px; flex-wrap: wrap; }
     .cat-tab { padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; border-right: 1px solid var(--border); color: #666; transition: background 0.15s, color 0.15s; user-select: none; white-space: nowrap; }
@@ -34,13 +52,6 @@
     .cat-tab.active { background: var(--blue); color: #fff; }
     .cat-panel { display: none; }
     .cat-panel.active { display: block; }
-    /* Panel */
-    .panel { background: #fff; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-    .panel-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-    .panel-header h3 { font-size: 15px; font-weight: 700; color: var(--navy); }
-    .panel-subtitle { font-size: 12px; color: #888; margin-top: 2px; }
-    .panel-body { padding: 0; }
-    /* Table */
     .tco-table-wrap { overflow-x: auto; }
     .tco-tbl { width: 100%; border-collapse: collapse; min-width: 600px; }
     .tco-tbl thead tr { background: #f8f9fa; }
@@ -54,16 +65,8 @@
     .tco-input:focus { outline: none; border-color: var(--blue); }
     .tco-num-input { width: 110px; padding: 5px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; text-align: right; font-family: inherit; transition: border-color 0.2s; }
     .tco-num-input:focus { outline: none; border-color: var(--blue); }
-    .size-badge { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 11px; font-weight: 700; }
-    .size-Small  { background: #d1fae5; color: #065f46; }
-    .size-Medium { background: #dbeafe; color: #1e40af; }
-    .size-Large  { background: #fef3c7; color: #92400e; }
-    .size-XL     { background: #fce7f3; color: #9d174d; }
     .row-del-btn { background: transparent; color: var(--danger); border: none; font-size: 16px; cursor: pointer; padding: 2px 6px; opacity: 0.65; transition: opacity 0.15s; }
     .row-del-btn:hover { opacity: 1; }
-    .add-entry-btn { display: inline-flex; align-items: center; gap: 6px; margin: 12px 16px; padding: 7px 14px; background: transparent; border: 1px dashed #aaa; border-radius: 6px; color: var(--blue); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
-    .add-entry-btn:hover { background: var(--light-blue); border-color: var(--blue); }
-    /* Modal */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 2000; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
     .modal-box { background: #fff; border-radius: 10px; width: 100%; max-width: 480px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); padding: 24px; }
@@ -78,7 +81,6 @@
     .btn-primary   { background: var(--blue);   color: #fff; }
     .btn-secondary { background: #6c757d;       color: #fff; }
     .btn-danger    { background: var(--danger);  color: #fff; }
-    /* Toast */
     #toast { position: fixed; bottom: 24px; right: 24px; background: #28a745; color: #fff; padding: 11px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 9999; opacity: 0; transform: translateY(12px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
     #toast.show { opacity: 1; transform: translateY(0); }
     #toast.error { background: var(--danger); }
@@ -114,19 +116,48 @@
 
 <main id="main">
   <div class="page-header">
-    <h2>&#128200; TCO Analysis — Vendor Pricing Tables</h2>
+    <h2>&#128200; TCO Analysis — Config</h2>
   </div>
 
-  <div class="cat-tabs" id="cat-tabs">
-    <!-- built by JS -->
+  <!-- ── TCO Defaults Panel ─────────────────────────────────────────────── -->
+  <div class="panel">
+    <div class="panel-header">
+      <div>
+        <h3>⚙️ TCO Hero Metric Defaults</h3>
+        <div class="panel-subtitle">Default values pre-filled on the user TCO tab. Users can override per-customer.</div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="defaults-grid">
+        <div class="default-field">
+          <label>👷 Default FTE Count</label>
+          <input type="number" id="cfg-fte-count" min="0" step="0.5" placeholder="6" />
+          <span class="field-hint">FTEs currently supporting legacy infrastructure</span>
+        </div>
+        <div class="default-field">
+          <label>💵 Annual Cost per FTE ($)</label>
+          <input type="number" id="cfg-fte-cost" min="0" step="1000" placeholder="120000" />
+          <span class="field-hint">Fully-loaded annual cost per FTE</span>
+        </div>
+        <div class="default-field">
+          <label>💀 Avg. Cost of a Data Breach ($)</label>
+          <input type="number" id="cfg-breach-cost" min="0" step="10000" placeholder="4450000" />
+          <span class="field-hint">IBM 2024 default: $4,450,000</span>
+        </div>
+      </div>
+      <div class="defaults-save-row">
+        <button class="btn btn-primary" onclick="saveDefaults()">💾 Save Defaults</button>
+        <span class="defaults-status" id="defaults-status"></span>
+      </div>
+    </div>
   </div>
 
-  <div id="cat-panels">
-    <!-- built by JS -->
-  </div>
+  <!-- ── Vendor Pricing Tabs ────────────────────────────────────────────── -->
+  <div class="cat-tabs" id="cat-tabs"></div>
+  <div id="cat-panels"></div>
 </main>
 
-<!-- Add Entry Modal -->
+<!-- Add / Edit Entry Modal -->
 <div class="modal-overlay" id="add-modal" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
     <h3 id="modal-title">&#43; Add Entry</h3>
@@ -165,27 +196,61 @@
 <script>
 const CATEGORIES = ['fw_ns','sdwan','mpls','fw_ew','iot_ot','nac','l3sw','pam'];
 const CAT_LABELS = {
-  fw_ns:  'FW N/S', sdwan: 'SD-WAN', mpls: 'MPLS',
-  fw_ew:  'FW E/W', iot_ot: 'IoT/OT', nac: 'NAC',
-  l3sw:   'L3 Switch', pam: 'PAM',
+  fw_ns:'FW N/S', sdwan:'SD-WAN', mpls:'MPLS', fw_ew:'FW E/W',
+  iot_ot:'IoT/OT', nac:'NAC', l3sw:'L3 Switch', pam:'PAM',
 };
 const CAT_ICONS = {
-  fw_ns: '🔥', sdwan: '🌐', mpls: '📡', fw_ew: '🔒',
-  iot_ot: '🤖', nac: '🛡', l3sw: '🔀', pam: '🔑',
+  fw_ns:'🔥', sdwan:'🌐', mpls:'📡', fw_ew:'🔒',
+  iot_ot:'🤖', nac:'🛡', l3sw:'🔀', pam:'🔑',
 };
-let _data = {}; // { category: [entry, ...] }
-let _currentCat = CATEGORIES[0];
+let _data = {};
 
 document.addEventListener('DOMContentLoaded', loadAll);
 
 async function loadAll() {
-  const res  = await fetch('/admin/tco/api/entries');
-  const data = await res.json();
-  if (!data.success) { showToast('Load failed', true); return; }
-  _data = data.entries;
+  // load defaults + entries in parallel
+  const [cfgRes, entriesRes] = await Promise.all([
+    fetch('/admin/tco/api/config'),
+    fetch('/admin/tco/api/entries'),
+  ]);
+  const cfgData     = await cfgRes.json();
+  const entriesData = await entriesRes.json();
+
+  if (cfgData.success) {
+    const c = cfgData.config;
+    document.getElementById('cfg-fte-count').value   = c.fte_count;
+    document.getElementById('cfg-fte-cost').value    = c.fte_cost;
+    document.getElementById('cfg-breach-cost').value = c.breach_cost;
+  }
+
+  if (!entriesData.success) { showToast('Load failed', true); return; }
+  _data = entriesData.entries;
   buildTabs();
   buildPanels();
   switchCat(CATEGORIES[0]);
+}
+
+async function saveDefaults() {
+  const st = document.getElementById('defaults-status');
+  st.textContent = 'Saving…'; st.className = 'defaults-status saving';
+  const payload = {
+    fte_count:   parseFloat(document.getElementById('cfg-fte-count').value)   || 0,
+    fte_cost:    parseFloat(document.getElementById('cfg-fte-cost').value)    || 0,
+    breach_cost: parseFloat(document.getElementById('cfg-breach-cost').value) || 0,
+  };
+  const res  = await fetch('/admin/tco/api/config', {
+    method: 'PUT', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (data.success) {
+    st.textContent = '✓ Saved'; st.className = 'defaults-status saved';
+    setTimeout(() => { st.textContent = ''; st.className = 'defaults-status'; }, 3000);
+    showToast('Defaults saved ✓');
+  } else {
+    st.textContent = 'Save failed'; st.className = 'defaults-status error';
+    showToast('Save failed', true);
+  }
 }
 
 function buildTabs() {
@@ -218,7 +283,7 @@ function buildPanels() {
           </div>
           <button class="btn btn-primary" style="font-size:12px;padding:6px 14px;" onclick="openAddModal('${cat}')">&#43; Add Entry</button>
         </div>
-        <div class="panel-body">
+        <div class="panel-body" style="padding:0;">
           <div class="tco-table-wrap">
             <table class="tco-tbl">
               <thead>
@@ -247,10 +312,7 @@ function renderRows(cat) {
   const emptyEl = document.getElementById('empty-' + cat);
   const entries = _data[cat] || [];
   tbody.innerHTML = '';
-  if (!entries.length) {
-    emptyEl.style.display = 'block';
-    return;
-  }
+  if (!entries.length) { emptyEl.style.display = 'block'; return; }
   emptyEl.style.display = 'none';
   entries.forEach(e => {
     const tr = document.createElement('tr');
@@ -268,13 +330,11 @@ function renderRows(cat) {
       <td><button class="row-del-btn" onclick="deleteEntry(${e.id},'${cat}')" title="Delete">&#10005;</button></td>`;
     tbody.appendChild(tr);
   });
-  // Update count badge
   const badge = document.getElementById('cnt-' + cat);
   if (badge) badge.textContent = entries.length;
 }
 
 function switchCat(cat) {
-  _currentCat = cat;
   document.querySelectorAll('.cat-tab').forEach(t => t.classList.toggle('active', t.getAttribute('data-cat') === cat));
   document.querySelectorAll('.cat-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + cat));
 }
@@ -284,11 +344,10 @@ async function patchField(id, field, value, cat) {
   if (entry) entry[field] = value;
   const res  = await fetch(`/admin/tco/api/entries/${id}`, {
     method: 'PUT', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ [field]: value })
+    body: JSON.stringify({ [field]: value }),
   });
   const data = await res.json();
   if (!data.success) { showToast('Save failed', true); return; }
-  // update local
   if (entry) Object.assign(entry, data.entry);
 }
 
@@ -314,33 +373,27 @@ async function saveEntry() {
   const size    = document.getElementById('modal-size').value;
   const sku     = document.getElementById('modal-sku').value.trim();
   const cost    = parseFloat(document.getElementById('modal-cost').value) || 0;
-
   if (!vendor || !sku) { showToast('Vendor and SKU Name are required', true); return; }
-
   if (entryId) {
-    // edit existing
     const res  = await fetch(`/admin/tco/api/entries/${entryId}`, {
       method: 'PUT', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ vendor, size, sku_name: sku, annual_cost: cost })
+      body: JSON.stringify({ vendor, size, sku_name: sku, annual_cost: cost }),
     });
     const data = await res.json();
     if (!data.success) { showToast('Save failed', true); return; }
     const idx = (_data[cat] || []).findIndex(e => e.id === parseInt(entryId));
     if (idx > -1) _data[cat][idx] = data.entry;
-    renderRows(cat);
-    showToast('Updated ✓');
+    renderRows(cat); showToast('Updated ✓');
   } else {
-    // create new
     const res  = await fetch('/admin/tco/api/entries', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ category: cat, vendor, size, sku_name: sku, annual_cost: cost })
+      body: JSON.stringify({ category: cat, vendor, size, sku_name: sku, annual_cost: cost }),
     });
     const data = await res.json();
     if (!data.success) { showToast(data.error || 'Create failed', true); return; }
     if (!_data[cat]) _data[cat] = [];
     _data[cat].push(data.entry);
-    renderRows(cat);
-    showToast('Entry created ✓');
+    renderRows(cat); showToast('Entry created ✓');
   }
   closeModal();
 }
@@ -351,8 +404,7 @@ async function deleteEntry(id, cat) {
   const data = await res.json();
   if (!data.success) { showToast('Delete failed', true); return; }
   _data[cat] = (_data[cat] || []).filter(e => e.id !== id);
-  renderRows(cat);
-  showToast('Deleted ✓');
+  renderRows(cat); showToast('Deleted ✓');
 }
 
 let _tt;

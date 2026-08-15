@@ -393,17 +393,15 @@ class PricingSKU(db.Model):
             'active':        self.active,
         }
 
-# ── NEW: TCO Entry ─────────────────────────────────────────────────────────────
-# Stores per-category vendor/size pricing for the TCO Analysis tab.
-# category values: fw_ns | sdwan | mpls | fw_ew | iot_ot | nac | l3sw | pam
+# ── TCO Entry ──────────────────────────────────────────────────────────────────
 class TCOEntry(db.Model):
     __tablename__ = 'tco_entries'
     id            = db.Column(db.Integer, primary_key=True)
-    category      = db.Column(db.String(30), nullable=False)   # e.g. 'fw_ns'
+    category      = db.Column(db.String(30), nullable=False)
     vendor        = db.Column(db.String(150), nullable=False)
-    size          = db.Column(db.String(20), nullable=False)   # Small/Medium/Large/XL
-    sku_name      = db.Column(db.String(255), nullable=False)  # display label in dropdown
-    annual_cost   = db.Column(db.Float, nullable=False, default=0)  # $ per site per year
+    size          = db.Column(db.String(20), nullable=False)
+    sku_name      = db.Column(db.String(255), nullable=False)
+    annual_cost   = db.Column(db.Float, nullable=False, default=0)
     display_order = db.Column(db.Integer, default=0)
     active        = db.Column(db.Boolean, default=True)
     created_at    = db.Column(db.DateTime, default=datetime.utcnow)
@@ -419,6 +417,27 @@ class TCOEntry(db.Model):
             'annual_cost':   self.annual_cost,
             'display_order': self.display_order,
             'active':        self.active,
+        }
+
+# ── TCO Config ─────────────────────────────────────────────────────────────────
+# Stores default values for the three TCO hero metrics shown on the user TCO tab.
+# fte_count    : default number of FTEs supporting legacy infra
+# fte_cost     : default annual fully-loaded cost per FTE ($)
+# breach_cost  : default avg cost of a data breach ($)  — IBM 2024 default
+class TCOConfig(db.Model):
+    __tablename__ = 'tco_config'
+    id           = db.Column(db.Integer, primary_key=True)
+    fte_count    = db.Column(db.Float,  default=6.0)
+    fte_cost     = db.Column(db.Float,  default=120000.0)
+    breach_cost  = db.Column(db.Float,  default=4450000.0)
+    updated_at   = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id':          self.id,
+            'fte_count':   self.fte_count,
+            'fte_cost':    self.fte_cost,
+            'breach_cost': self.breach_cost,
         }
 
 
@@ -520,7 +539,6 @@ def run_migration(db):
         with engine.connect() as c:
             c.execute(sa.text("""
                 INSERT INTO tco_entries (category, vendor, size, sku_name, annual_cost, display_order, active) VALUES
-                -- FW N/S
                 ('fw_ns','Palo Alto Networks','Small', 'PA-460 Small',          683,  1, true),
                 ('fw_ns','Palo Alto Networks','Medium','PA-1410 Medium',        1900, 2, true),
                 ('fw_ns','Palo Alto Networks','Large', 'PA-3420 Large',         8759, 3, true),
@@ -537,7 +555,6 @@ def run_migration(db):
                 ('fw_ns','Check Point','Medium','CP 6200 Medium',             1100, 14, true),
                 ('fw_ns','Check Point','Large', 'CP 16200 Large',             4200, 15, true),
                 ('fw_ns','Check Point','XL',    'CP 26000 XL',               14000, 16, true),
-                -- SD-WAN
                 ('sdwan','Fortinet Secure SD-WAN','Small', 'FortiGate SD-WAN Small',   220, 17, true),
                 ('sdwan','Fortinet Secure SD-WAN','Medium','FortiGate SD-WAN Medium',  780, 18, true),
                 ('sdwan','Fortinet Secure SD-WAN','Large', 'FortiGate SD-WAN Large',  2100, 19, true),
@@ -554,7 +571,6 @@ def run_migration(db):
                 ('sdwan','Palo Alto Prisma SD-WAN','Medium','Prisma SD-WAN 5200 Medium', 960, 30, true),
                 ('sdwan','Palo Alto Prisma SD-WAN','Large', 'Prisma SD-WAN 7200 Large', 2600, 31, true),
                 ('sdwan','Palo Alto Prisma SD-WAN','XL',    'Prisma SD-WAN 7200 XL',   6900, 32, true),
-                -- MPLS
                 ('mpls','AT&T','Small', 'AT&T AVPN Small',    9600,  33, true),
                 ('mpls','AT&T','Medium','AT&T AVPN Medium',   16200, 34, true),
                 ('mpls','AT&T','Large', 'AT&T AVPN Large',    21000, 35, true),
@@ -567,7 +583,6 @@ def run_migration(db):
                 ('mpls','Lumen','Medium','Lumen IP VPN Medium',  12000, 42, true),
                 ('mpls','Lumen','Large', 'Lumen IP VPN Large',   16800, 43, true),
                 ('mpls','Lumen','XL',    'Lumen IP VPN XL',     108000, 44, true),
-                -- FW E/W (Micro-Seg)
                 ('fw_ew','Illumio','Small', 'Illumio Core Small',      1800, 45, true),
                 ('fw_ew','Illumio','Medium','Illumio Core Medium',      7200, 46, true),
                 ('fw_ew','Illumio','Large', 'Illumio Core Large',      36000, 47, true),
@@ -580,7 +595,6 @@ def run_migration(db):
                 ('fw_ew','Broadcom vDefend','Medium','VMware NSX Medium',  11520, 54, true),
                 ('fw_ew','Broadcom vDefend','Large', 'VMware NSX Large',   96000, 55, true),
                 ('fw_ew','Broadcom vDefend','XL',    'VMware NSX XL',     384000, 56, true),
-                -- IoT/OT
                 ('iot_ot','Claroty xDome','Small', 'Claroty xDome Small',     1200, 57, true),
                 ('iot_ot','Claroty xDome','Medium','Claroty xDome Medium',    4800, 58, true),
                 ('iot_ot','Claroty xDome','Large', 'Claroty xDome Large',    24000, 59, true),
@@ -593,7 +607,6 @@ def run_migration(db):
                 ('iot_ot','Forescout','Medium','Forescout eyeInspect Medium',  8850, 66, true),
                 ('iot_ot','Forescout','Large', 'Forescout eyeInspect Large',  44250, 67, true),
                 ('iot_ot','Forescout','XL',    'Forescout eyeInspect XL',   209250, 68, true),
-                -- NAC
                 ('nac','Cisco ISE','Small', 'Cisco ISE Small',      5339, 69, true),
                 ('nac','Cisco ISE','Medium','Cisco ISE Medium',     12141, 70, true),
                 ('nac','Cisco ISE','Large', 'Cisco ISE Large',      31647, 71, true),
@@ -606,7 +619,6 @@ def run_migration(db):
                 ('nac','Fortinet FortiNAC','Medium','FortiNAC Medium',  5760, 78, true),
                 ('nac','Fortinet FortiNAC','Large', 'FortiNAC Large',  14400, 79, true),
                 ('nac','Fortinet FortiNAC','XL',    'FortiNAC XL',    28800, 80, true),
-                -- L3 Switching
                 ('l3sw','Cisco Catalyst 9000','Small', 'Catalyst 9200 Small',   851,  81, true),
                 ('l3sw','Cisco Catalyst 9000','Medium','Catalyst 9300 Medium',  2906, 82, true),
                 ('l3sw','Cisco Catalyst 9000','Large', 'Catalyst 9400 Large',  13428, 83, true),
@@ -619,7 +631,6 @@ def run_migration(db):
                 ('l3sw','HPE Aruba CX','Medium','Aruba CX 6300 Medium', 2400, 90, true),
                 ('l3sw','HPE Aruba CX','Large', 'Aruba CX 8360 Large', 10800, 91, true),
                 ('l3sw','HPE Aruba CX','XL',    'Aruba CX 10000 XL',   9600, 92, true),
-                -- PAM
                 ('pam','CyberArk Privilege Cloud','Small', 'CyberArk PAM Small',    13410, 93, true),
                 ('pam','CyberArk Privilege Cloud','Medium','CyberArk PAM Medium',   72000, 94, true),
                 ('pam','CyberArk Privilege Cloud','Large', 'CyberArk PAM Large',   210000, 95, true),
@@ -634,7 +645,29 @@ def run_migration(db):
                 ('pam','Delinea Secret Server','XL',    'Delinea SS XL',      360000, 104, true)
             """))
             c.commit()
-        print('[migration] Seeded TCO entries (104 rows across 8 categories)')
+        print('[migration] Seeded TCO entries (104 rows)')
+
+    # ── TCO Config ────────────────────────────────────────────────────────────
+    if 'tco_config' not in existing:
+        db.metadata.tables['tco_config'].create(engine)
+        print('[migration] Created table: tco_config')
+        # Seed defaults — borrow fte_count & fte_salary from BVAConfig if present
+        bva_fte_count = 6.0
+        bva_fte_cost  = 120000.0
+        try:
+            with engine.connect() as c:
+                row = c.execute(sa.text('SELECT fte_count, fte_salary FROM bva_config WHERE id=1')).fetchone()
+                if row:
+                    bva_fte_count = float(row[0] or 6.0)
+                    bva_fte_cost  = float(row[1] or 120000.0)
+        except Exception:
+            pass
+        with engine.connect() as c:
+            c.execute(sa.text(
+                'INSERT INTO tco_config (id, fte_count, fte_cost, breach_cost) VALUES (1, :fc, :fv, :bc)'
+            ), {'fc': bva_fte_count, 'fv': bva_fte_cost, 'bc': 4450000.0})
+            c.commit()
+        print('[migration] Seeded default TCOConfig row')
 
     with engine.connect() as conn:
         q_cols = [c['name'] for c in inspector.get_columns('questions')]

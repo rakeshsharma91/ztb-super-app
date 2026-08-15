@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, session, render_template, redirect, url_for
-from models import db, TCOEntry, UserResponse
+from models import db, TCOEntry, TCOConfig, UserResponse
 from functools import wraps
 import re
 
@@ -43,6 +43,14 @@ def _find_user_resp(customer_slug):
             return r
     return None
 
+def _get_or_create_tco_config():
+    cfg = TCOConfig.query.get(1)
+    if not cfg:
+        cfg = TCOConfig(id=1, fte_count=6.0, fte_cost=120000.0, breach_cost=4450000.0)
+        db.session.add(cfg)
+        db.session.commit()
+    return cfg
+
 # ── Admin page ────────────────────────────────────────────────────────────────
 
 @tco_bp.route('/', methods=['GET'])
@@ -51,7 +59,29 @@ def tco_page():
         return redirect(url_for('admin.login_page'))
     return render_template('tco.html')
 
-# ── Admin API: all entries (optionally filtered by category) ──────────────────
+# ── Admin API: TCO Config (defaults) ─────────────────────────────────────────
+
+@tco_bp.route('/api/config', methods=['GET'])
+@require_admin
+def get_config():
+    cfg = _get_or_create_tco_config()
+    return jsonify({'success': True, 'config': cfg.to_dict()})
+
+@tco_bp.route('/api/config', methods=['PUT'])
+@require_admin
+def update_config():
+    cfg  = _get_or_create_tco_config()
+    data = request.get_json()
+    if 'fte_count' in data:
+        cfg.fte_count   = float(data['fte_count']   or 0)
+    if 'fte_cost' in data:
+        cfg.fte_cost    = float(data['fte_cost']    or 0)
+    if 'breach_cost' in data:
+        cfg.breach_cost = float(data['breach_cost'] or 0)
+    db.session.commit()
+    return jsonify({'success': True, 'config': cfg.to_dict()})
+
+# ── Admin API: TCO Entries ────────────────────────────────────────────────────
 
 @tco_bp.route('/api/entries', methods=['GET'])
 @require_admin
@@ -61,7 +91,6 @@ def get_entries():
     if cat:
         q = q.filter_by(category=cat)
     entries = q.order_by(TCOEntry.category, TCOEntry.display_order, TCOEntry.id).all()
-    # Group by category
     grouped = {c: [] for c in TCO_CATEGORIES}
     for e in entries:
         if e.category in grouped:
@@ -131,28 +160,52 @@ def get_tco_config(customer_slug):
         if e.category in grouped:
             grouped[e.category].append(e.to_dict())
 
-    user_resp = _find_user_resp(customer_slug)
-    saved_rows = []
+    cfg = _get_or_create_tco_config()
+
+    user_resp    = _find_user_resp(customer_slug)
+    saved_rows   = []
     acv_override = None
+    # per-customer overrides for the three hero inputs
+    tco_fte_count   = None
+    tco_fte_cost    = None
+    tco_breach_cost = None
+
     if user_resp:
         raw = user_resp.raw_responses or {}
-        saved_rows   = raw.get('tco_rows', [])
-        acv_override = raw.get('tco_acv_override')
+        saved_rows      = raw.get('tco_rows',       [])
+        acv_override    = raw.get('tco_acv_override')
+        tco_fte_count   = raw.get('tco_fte_count')
+        tco_fte_cost    = raw.get('tco_fte_cost')
+        tco_breach_cost = raw.get('tco_breach_cost')
 
     return jsonify({
-        'success':      True,
-        'entries':      grouped,
-        'saved':        {'rows': saved_rows, 'acv_override': acv_override},
+        'success':         True,
+        'entries':         grouped,
         'category_labels': TCO_CATEGORY_LABELS,
+        'defaults': {
+            'fte_count':   cfg.fte_count,
+            'fte_cost':    cfg.fte_cost,
+            'breach_cost': cfg.breach_cost,
+        },
+        'saved': {
+            'rows':         saved_rows,
+            'acv_override': acv_override,
+            'fte_count':    tco_fte_count,
+            'fte_cost':     tco_fte_cost,
+            'breach_cost':  tco_breach_cost,
+        },
     })
 
-# ── User API: save TCO rows ───────────────────────────────────────────────────
+# ── User API: save TCO rows + hero metric overrides ───────────────────────────
 
 @tco_user_bp.route('/<customer_slug>/tco-save', methods=['PATCH'])
 def save_tco(customer_slug):
-    data      = request.get_json()
-    rows      = data.get('rows', [])
-    acv_override = data.get('acv_override')  # None means "use Pricing tab total"
+    data         = request.get_json()
+    rows         = data.get('rows', [])
+    acv_override = data.get('acv_override')
+    fte_count    = data.get('fte_count')
+    fte_cost     = data.get('fte_cost')
+    breach_cost  = data.get('breach_cost')
 
     user_resp = _find_user_resp(customer_slug)
     if not user_resp:
@@ -160,10 +213,21 @@ def save_tco(customer_slug):
 
     raw = dict(user_resp.raw_responses or {})
     raw['tco_rows'] = rows
+
     if acv_override is not None:
         raw['tco_acv_override'] = acv_override
     else:
         raw.pop('tco_acv_override', None)
+
+    # Always persist hero metric values (even if they equal the default)
+    # so we can restore them on reload
+    if fte_count is not None:
+        raw['tco_fte_count'] = fte_count
+    if fte_cost is not None:
+        raw['tco_fte_cost'] = fte_cost
+    if breach_cost is not None:
+        raw['tco_breach_cost'] = breach_cost
+
     user_resp.raw_responses = raw
     db.session.commit()
     return jsonify({'success': True})
