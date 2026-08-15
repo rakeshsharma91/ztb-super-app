@@ -239,6 +239,32 @@
     .t-select option { background: #0a2244; color: var(--white); }
     .t-remove-btn { background: transparent; border: none; color: #f87171; font-size: 1.1rem; cursor: pointer; padding: 2px 5px; border-radius: 5px; transition: background 0.15s; line-height: 1; }
     .t-remove-btn:hover { background: rgba(248,113,113,0.15); }
+    /* TCO Hero Metrics */
+    .tco-hero-panel { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.6rem; margin-bottom: 1.5rem; }
+    .tco-hero-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-bottom: 1.2rem; }
+    @media (max-width: 900px) { .tco-hero-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .tco-hero-grid { grid-template-columns: 1fr; } }
+    .tco-hero-card { background: rgba(0,0,0,0.2); border: 1px solid rgba(0,170,255,0.15); border-radius: 10px; padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .tco-hero-label { font-size: 0.82rem; font-weight: 700; color: var(--white); text-transform: uppercase; letter-spacing: 0.05em; }
+    .tco-hero-hint { font-size: 0.72rem; color: var(--text-muted); }
+    .tco-hero-input { background: transparent; border: 1px solid rgba(0,170,255,0.3); border-radius: 7px; color: var(--white); font-size: 1.1rem; font-weight: 600; padding: 0.6rem 0.8rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; text-align: right; }
+    .tco-hero-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,170,255,0.1); }
+    .tco-hero-input::placeholder { color: rgba(160,188,216,0.3); }
+    .tco-hero-footer { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .tco-hero-save-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.65rem 1.4rem; background: linear-gradient(135deg, #00d9ff, #0086cc); border: none; border-radius: 8px; color: var(--navy-dark); font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.15s; }
+    .tco-hero-save-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .tco-hero-status { font-size: 0.75rem; color: var(--text-muted); min-height: 18px; }
+    .tco-hero-status.saving { color: var(--accent); }
+    .tco-hero-status.saved { color: #00dc82; }
+    .tco-hero-status.error { color: #ff6b6b; }
+    /* TCO Chart */
+    .tco-chart-wrap { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .tco-chart-title { font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .tco-chart-sub { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .tco-chart-container { position: relative; height: 300px; margin-bottom: 1rem; }
+    .tco-chart-legend { display: flex; gap: 2rem; justify-content: center; font-size: 0.82rem; }
+    .tco-legend-item { display: flex; align-items: center; gap: 0.5rem; }
+    .tco-legend-box { width: 16px; height: 16px; border-radius: 3px; }
     /* TCO Savings */
     .tco-acv-row { display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; margin-bottom: 1.5rem; background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem 1.6rem; }
     .tco-acv-label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); white-space: nowrap; }
@@ -713,6 +739,54 @@
   <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.5rem;text-align:right;">← scroll to see all columns →</div>
   <button class="add-row-btn" onclick="addTCORow()" style="margin-top:0.25rem;">＋ Add Row</button>
 
+  <!-- Hero Metrics -->
+  <hr class="section-divider">
+  <div class="section-heading"><h2>📊 Legacy TCO Hero Metrics</h2></div>
+  <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1.2rem;">Set assumptions for FTE costs and breach risk in legacy infrastructure comparison.</p>
+  <div class="tco-hero-panel">
+    <div class="tco-hero-grid">
+      <div class="tco-hero-card">
+        <div class="tco-hero-label">👷 FTE Count</div>
+        <div class="tco-hero-hint">FTEs supporting legacy infrastructure</div>
+        <input class="tco-hero-input" type="number" id="tco-hero-fte-count" min="0" step="0.5" placeholder="6" oninput="updateTCOCalculations()">
+      </div>
+      <div class="tco-hero-card">
+        <div class="tco-hero-label">💵 Annual Cost per FTE</div>
+        <div class="tco-hero-hint">Fully-loaded cost including benefits</div>
+        <input class="tco-hero-input" type="number" id="tco-hero-fte-cost" min="0" step="1000" placeholder="120000" oninput="updateTCOCalculations()">
+      </div>
+      <div class="tco-hero-card">
+        <div class="tco-hero-label">💀 Cost of Data Breach</div>
+        <div class="tco-hero-hint">Annual breach cost (IBM benchmark)</div>
+        <input class="tco-hero-input" type="number" id="tco-hero-breach-cost" min="0" step="10000" placeholder="4450000" oninput="updateTCOCalculations()">
+      </div>
+    </div>
+    <div class="tco-hero-footer">
+      <button class="tco-hero-save-btn" onclick="saveTCOHeroMetrics()">💾 Save Metrics</button>
+      <span class="tco-hero-status" id="tco-hero-status"></span>
+    </div>
+  </div>
+
+  <!-- 3-Year Chart -->
+  <hr class="section-divider">
+  <div class="tco-chart-wrap">
+    <div class="tco-chart-title">📈 3-Year Projection Breakout</div>
+    <div class="tco-chart-sub">Legacy Infrastructure vs. Zscaler ACV</div>
+    <div class="tco-chart-container">
+      <canvas id="tco-chart"></canvas>
+    </div>
+    <div class="tco-chart-legend">
+      <div class="tco-legend-item">
+        <div class="tco-legend-box" style="background: #f87171;"></div>
+        <span>Legacy Annual Cost</span>
+      </div>
+      <div class="tco-legend-item">
+        <div class="tco-legend-box" style="background: #00d9ff;"></div>
+        <span>Zscaler ACV</span>
+      </div>
+    </div>
+  </div>
+
   <!-- ACV row -->
   <hr class="section-divider">
   <div class="section-heading"><h2>⚡ Zscaler ACV vs Legacy TCO</h2></div>
@@ -731,7 +805,7 @@
     <div class="tco-kpi" style="border-left-color:#f87171">
       <div class="tco-kpi-title">Legacy Annual Spend</div>
       <div class="tco-kpi-value" style="color:#f87171" id="tco-kpi-legacy">$0</div>
-      <div class="tco-kpi-sub">Sum of all TCO rows</div>
+      <div class="tco-kpi-sub">Hardware + FTE + Breach</div>
     </div>
     <div class="tco-kpi" style="border-left-color:#22c55e">
       <div class="tco-kpi-title">Annual Savings</div>
@@ -897,7 +971,7 @@ let _sdwan            = [];
 let _segmentation     = [];
 let _pricingSaveTimer = null;
 let _rowCounter       = 0;
-let _pricingGrandTotal = 0; // exposed for TCO tab
+let _pricingGrandTotal = 0;
 
 function fmtMoney(v) {
   if (!v || v === 0) return '—';
@@ -1036,16 +1110,14 @@ function updateTotals() {
   document.getElementById('grand-total-sub').textContent = totalSites + ' total site' + (totalSites !== 1 ? 's' : '') + ' configured';
   renderBOM();
   renderRampTable();
-  // Update TCO ACV if not overridden
   if (window._tcoLoaded && !_tcoACVOverridden) {
     _tcoACV = grandTotal;
     const acvInput = document.getElementById('tco-acv-input');
     if (acvInput) acvInput.value = grandTotal || '';
-    updateTCOSavings();
+    updateTCOCalculations();
   }
 }
 
-// ── BOM ENGINE ────────────────────────────────────────────────────────────────
 function computeBOM() {
   const appMap = {};
   _pricingRows.forEach(row => {
@@ -1176,18 +1248,29 @@ async function savePricing() {
 // ══════════════════════════════════════════════════════════════════════════════
 const TCO_CATS = ['fw_ns','sdwan','mpls','fw_ew','iot_ot','nac','l3sw','pam'];
 const TCO_LABELS = { fw_ns:'FW N/S', sdwan:'SD-WAN', mpls:'MPLS', fw_ew:'FW E/W', iot_ot:'IoT/OT', nac:'NAC', l3sw:'L3 Switch', pam:'PAM' };
-let _tcoEntries      = {};   // { category: [entry, ...] }
-let _tcoRows         = [];   // saved rows
-let _tcoRowCounter   = 0;
-let _tcoACV          = 0;    // from Pricing tab or override
-let _tcoACVOverridden = false;
-let _tcoSaveTimer    = null;
+let _tcoEntries         = {};
+let _tcoRows            = [];
+let _tcoRowCounter      = 0;
+let _tcoACV             = 0;
+let _tcoACVOverridden   = false;
+let _tcoSaveTimer       = null;
+let _tcoHeroFTECount    = 0;
+let _tcoHeroFTECost     = 0;
+let _tcoHeroBreachCost  = 0;
+let _tcoChartInstance   = null;
 
 async function initTCO() {
   const res  = await fetch('/user/' + CUSTOMER_SLUG + '/tco-config');
   const data = await res.json();
   if (!data.success) return;
   _tcoEntries = data.entries || {};
+
+  // Load defaults
+  if (data.defaults) {
+    _tcoHeroFTECount   = data.defaults.fte_count || 0;
+    _tcoHeroFTECost    = data.defaults.fte_cost || 0;
+    _tcoHeroBreachCost = data.defaults.breach_cost || 0;
+  }
 
   const saved = data.saved || {};
   if (saved.rows && saved.rows.length) {
@@ -1197,7 +1280,17 @@ async function initTCO() {
     _tcoRows = [newTCORow()];
   }
 
-  // ACV: use override if present, else use Pricing tab total
+  // Override hero metrics if saved
+  if (saved.fte_count !== undefined && saved.fte_count !== null) _tcoHeroFTECount = saved.fte_count;
+  if (saved.fte_cost !== undefined && saved.fte_cost !== null) _tcoHeroFTECost = saved.fte_cost;
+  if (saved.breach_cost !== undefined && saved.breach_cost !== null) _tcoHeroBreachCost = saved.breach_cost;
+
+  // Load hero metric inputs
+  document.getElementById('tco-hero-fte-count').value = _tcoHeroFTECount || '';
+  document.getElementById('tco-hero-fte-cost').value = _tcoHeroFTECost || '';
+  document.getElementById('tco-hero-breach-cost').value = _tcoHeroBreachCost || '';
+
+  // ACV
   if (saved.acv_override != null) {
     _tcoACV = saved.acv_override;
     _tcoACVOverridden = true;
@@ -1211,7 +1304,7 @@ async function initTCO() {
   }
 
   renderTCORows();
-  updateTCOSavings();
+  updateTCOCalculations();
 }
 
 function newTCORow() {
@@ -1222,11 +1315,11 @@ function newTCORow() {
 
 function addTCORow() {
   _tcoRows.push(newTCORow());
-  renderTCORows(); updateTCOSavings(); scheduleTCOSave();
+  renderTCORows(); updateTCOCalculations(); scheduleTCOSave();
 }
 function removeTCORow(id) {
   _tcoRows = _tcoRows.filter(r => r.id !== id);
-  renderTCORows(); updateTCOSavings(); scheduleTCOSave();
+  renderTCORows(); updateTCOCalculations(); scheduleTCOSave();
 }
 
 function buildTCOOptions(cat, selectedId) {
@@ -1288,11 +1381,10 @@ function updateTCOField(id, field, value) {
   if (tr) {
     const annual = tcoRowAnnual(row);
     const tds = tr.querySelectorAll('td');
-    // annual = tds[10], 3yr = tds[11]
     tds[10].textContent = fmtMoney(annual);
     tds[11].textContent = fmtMoney(annual * 3);
   }
-  updateTCOSavings(); scheduleTCOSave();
+  updateTCOCalculations(); scheduleTCOSave();
 }
 
 function renderTCOSummary() {
@@ -1319,7 +1411,6 @@ function renderTCOSummary() {
     tbody.appendChild(tr);
   });
 
-  // Total row
   const totTr = document.createElement('tr');
   totTr.innerHTML = `<td>TOTAL</td><td class="num">${totals.qty}</td>` +
     TCO_CATS.map(c => `<td class="num">${catTotals[c] ? fmtMoney(catTotals[c]) : '—'}</td>`).join('') +
@@ -1328,10 +1419,13 @@ function renderTCOSummary() {
 }
 
 function getTCOLegacyAnnual() {
-  return _tcoRows.reduce((sum, row) => sum + tcoRowAnnual(row), 0);
+  const hardware = _tcoRows.reduce((sum, row) => sum + tcoRowAnnual(row), 0);
+  const fteCosts = (_tcoHeroFTECount || 0) * (_tcoHeroFTECost || 0);
+  const breachCost = _tcoHeroBreachCost || 0;
+  return hardware + fteCosts + breachCost;
 }
 
-function updateTCOSavings() {
+function updateTCOCalculations() {
   const legacy = getTCOLegacyAnnual();
   const acv    = _tcoACV || 0;
   const annualSav = legacy - acv;
@@ -1346,6 +1440,78 @@ function updateTCOSavings() {
   document.getElementById('tco-kpi-payback').textContent    = payback !== null ? `Payback: ~${payback} months` : (acv > 0 ? 'No savings vs ACV' : 'Enter ACV above');
 
   renderTCOSummary();
+  updateTCOChart();
+}
+
+function updateTCOChart() {
+  const legacy = getTCOLegacyAnnual();
+  const acv = _tcoACV || 0;
+  
+  const canvas = document.getElementById('tco-chart');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  if (_tcoChartInstance) _tcoChartInstance.destroy();
+
+  _tcoChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Year 1', 'Year 2', 'Year 3'],
+      datasets: [
+        {
+          label: 'Legacy Annual Cost',
+          data: [legacy, legacy, legacy],
+          backgroundColor: '#f87171',
+          borderRadius: 6,
+          borderSkipped: false,
+        },
+        {
+          label: 'Zscaler ACV',
+          data: [acv, acv, acv],
+          backgroundColor: '#00d9ff',
+          borderRadius: 6,
+          borderSkipped: false,
+        }
+      ]
+    },
+    options: {
+      indexAxis: 'x',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: '#a0bcd8',
+            font: { size: 12 },
+            callback: function(v) {
+              if (v >= 1000000) return '$' + (v / 1000000).toFixed(1) + 'M';
+              if (v >= 1000) return '$' + (v / 1000).toFixed(0) + 'K';
+              return '$' + v;
+            }
+          },
+          grid: {
+            color: 'rgba(0,170,255,0.1)',
+            drawBorder: false,
+          }
+        },
+        x: {
+          ticks: {
+            color: '#a0bcd8',
+            font: { size: 12 }
+          },
+          grid: {
+            display: false,
+          }
+        }
+      }
+    }
+  });
 }
 
 function onACVInput() {
@@ -1353,7 +1519,7 @@ function onACVInput() {
   _tcoACV = val;
   _tcoACVOverridden = (val !== _pricingGrandTotal);
   document.getElementById('tco-acv-source').textContent = _tcoACVOverridden ? 'Manual override' : 'Auto-filled from Pricing tab';
-  updateTCOSavings();
+  updateTCOCalculations();
 }
 
 function resetACVtoPricing() {
@@ -1361,8 +1527,34 @@ function resetACVtoPricing() {
   _tcoACVOverridden = false;
   document.getElementById('tco-acv-input').value = _tcoACV || '';
   document.getElementById('tco-acv-source').textContent = 'Auto-filled from Pricing tab';
-  updateTCOSavings();
+  updateTCOCalculations();
   scheduleTCOSave();
+}
+
+function saveTCOHeroMetrics() {
+  const status = document.getElementById('tco-hero-status');
+  status.textContent = 'Saving…';
+  status.className = 'tco-hero-status saving';
+
+  const fteCount = parseFloat(document.getElementById('tco-hero-fte-count').value) || 0;
+  const fteCost = parseFloat(document.getElementById('tco-hero-fte-cost').value) || 0;
+  const breachCost = parseFloat(document.getElementById('tco-hero-breach-cost').value) || 0;
+
+  _tcoHeroFTECount = fteCount;
+  _tcoHeroFTECost = fteCost;
+  _tcoHeroBreachCost = breachCost;
+
+  updateTCOCalculations();
+  scheduleTCOSave();
+
+  setTimeout(() => {
+    status.textContent = '✓ Saved';
+    status.className = 'tco-hero-status saved';
+    setTimeout(() => {
+      status.textContent = '';
+      status.className = 'tco-hero-status';
+    }, 3000);
+  }, 600);
 }
 
 function scheduleTCOSave() {
@@ -1377,6 +1569,9 @@ async function saveTCO() {
     const payload = {
       rows: _tcoRows,
       acv_override: _tcoACVOverridden ? _tcoACV : null,
+      fte_count: _tcoHeroFTECount,
+      fte_cost: _tcoHeroFTECost,
+      breach_cost: _tcoHeroBreachCost,
     };
     const res  = await fetch('/user/' + CUSTOMER_SLUG + '/tco-save', {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
