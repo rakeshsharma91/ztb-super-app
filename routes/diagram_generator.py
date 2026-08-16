@@ -28,12 +28,8 @@ S_NGFW       = "rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#
 S_NAC        = "rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;"
 S_L3         = "rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;"
 S_L2         = "rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;"
-S_ZTB        = ("shape=image;html=1;verticalAlign=bottom;labelBackgroundColor=none;"
-               "fontStyle=1;fontSize=10;"
-               "image=data:image/svg+xml;base64," + ZTB_ICON_B64 + ";")
-S_ZTE        = ("shape=image;html=1;verticalAlign=bottom;labelBackgroundColor=none;"
-               "fontStyle=1;fontSize=10;"
-               "image=data:image/svg+xml;base64," + ZTE_ICON_B64 + ";")
+S_ZTB        = "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;arcSize=15;"
+S_ZTE        = "rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;arcSize=15;"
 S_MICROSEG   = "rounded=1;whiteSpace=wrap;html=1;fillColor=#0070c0;strokeColor=#005a9e;fontColor=#ffffff;"
 S_CONTAINER  = "swimlane;startSize=20;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=10;"
 S_DEVNODE    = "rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;"
@@ -325,11 +321,11 @@ def _build_future(p, answers):
 
     # ── ZTE (top right, fixed position) ──
     zte_id = cid
-    _vert(r, cid, 'Zero Trust Exchange&#xa;ZIA · ZPA · ZDX', S_ZTE, ZTE_X, ZTE_Y, W_ZTE, H_ZTE); cid += 1
+    _vert(r, cid, 'Zscaler Zero Trust Exchange&#xa;ZIA · ZPA · ZDX', S_ZTE, ZTE_X, ZTE_Y, W_ZTE, H_ZTE); cid += 1
 
     # ── ZTB Appliance ──
     ztb_id = cid
-    _vert(r, cid, 'ZTB Appliance', S_ZTB, 280, Y_SEC, W_ZTB, H_ZTB); cid += 1
+    _vert(r, cid, 'Zero Trust Branch Appliance', S_ZTB, 280, Y_SEC, W_ZTB, H_ZTB); cid += 1
 
     # ── L2 Switch ──
     l2_id = cid
