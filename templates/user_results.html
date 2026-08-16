@@ -135,7 +135,6 @@
     .ie-cancel-btn { background: transparent; color: var(--text-muted); border: 1px solid rgba(160,188,216,0.22); border-radius: 7px; padding: 7px 14px; font-size: 0.82rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; font-family: inherit; }
     .ie-cancel-btn:hover { color: var(--white); border-color: var(--text-muted); }
     .pov-body { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
-    /* ── Diagrams tab ── */
     .diag-body { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
     .diag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
     @media (max-width: 860px) { .diag-grid { grid-template-columns: 1fr; } }
@@ -154,7 +153,6 @@
     .diag-notice strong { color: var(--white); }
     .diag-reload-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.55rem 1.2rem; background: transparent; border: 1px dashed rgba(0,170,255,0.35); border-radius: 8px; color: var(--accent); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 0.5rem; }
     .diag-reload-btn:hover { background: rgba(0,170,255,0.08); }
-    /* ── Pricing ── */
     .pricing-body { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
     .phase-toggle { display: inline-flex; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 1.5rem; }
     .phase-btn { padding: 0.55rem 1.4rem; font-size: 0.82rem; font-weight: 700; cursor: pointer; border: none; background: transparent; color: var(--text-muted); transition: background 0.2s, color 0.2s; letter-spacing: 0.04em; }
@@ -986,10 +984,19 @@ const _diagXML = {};
 function _openInDiagramsNet(side) {
   var xml = _diagXML[side];
   if (!xml) return;
-  var b64 = btoa(encodeURIComponent(xml).replace(/%([0-9A-F]{2})/g, function(m, p1) {
-    return String.fromCharCode('0x' + p1);
-  }));
-  window.open('https://app.diagrams.net/#R' + encodeURIComponent(b64), '_blank');
+  // Use a hidden form POST to diagrams.net — works from HTTP pages
+  var form = document.createElement('form');
+  form.method = 'POST';
+  form.action = 'https://app.diagrams.net';
+  form.target = '_blank';
+  var input = document.createElement('input');
+  input.type = 'hidden';
+  input.name = 'xml';
+  input.value = xml;
+  form.appendChild(input);
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
 }
 
 function _showDiagError(side, msg) {
@@ -997,18 +1004,24 @@ function _showDiagError(side, msg) {
   wrap.innerHTML = '<div class="diag-error">&#9888; ' + msg + '<br><small>Check that assessment answers include scope, WAN links, and device types.</small></div>';
 }
 
-function _showDiagReady(side) {
+function _renderDiagIframe(side) {
   var loading = document.getElementById('diag-' + side + '-loading');
   if (loading) loading.style.display = 'none';
-  var wrap = document.getElementById('diag-' + side + '-wrap');
-  var label = side === 'current' ? 'Current State' : 'Future State';
-  wrap.innerHTML =
-    '<div style="height:480px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.2rem;background:rgba(0,0,0,0.15);border-radius:0 0 14px 14px;">' +
-    '<div style="font-size:3rem;">&#128196;</div>' +
-    '<div style="font-size:0.95rem;font-weight:700;color:#fff;">' + label + ' diagram ready</div>' +
-    '<div style="font-size:0.82rem;color:#a0bcd8;text-align:center;max-width:320px;line-height:1.6;">Click <strong style="color:#00aaff;">Open in diagrams.net</strong> above to view, edit, and export the full diagram with Zscaler icons.</div>' +
-    '<button onclick="_openInDiagramsNet(\'' + side + '\')" style="padding:0.65rem 1.6rem;background:linear-gradient(135deg,#0070c0,#00aaff);border:none;border-radius:9px;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;">&#8599; Open in diagrams.net</button>' +
-    '</div>';
+
+  var iframe = document.getElementById('diag-' + side + '-iframe');
+  if (!iframe) return;
+
+  // Use diagrams.net postMessage embed — sends XML directly, no outbound fetch needed
+  var embedUrl = 'https://viewer.diagrams.net/?embed=1&spin=1&proto=json&ui=min';
+  iframe.src = embedUrl;
+  iframe.style.display = 'block';
+
+  // Once iframe loads, push the XML via postMessage
+  iframe.onload = function() {
+    var xml = _diagXML[side];
+    if (!xml) return;
+    iframe.contentWindow.postMessage(JSON.stringify({ action: 'load', xml: xml }), '*');
+  };
 }
 
 async function loadDiagrams(force) {
@@ -1018,7 +1031,7 @@ async function loadDiagrams(force) {
     var loading = document.getElementById('diag-' + side + '-loading');
     var iframe  = document.getElementById('diag-' + side + '-iframe');
     if (loading) { loading.style.display = 'flex'; }
-    if (iframe)  { iframe.style.display = 'none'; }
+    if (iframe)  { iframe.style.display = 'none'; iframe.src = ''; }
   });
 
   try {
@@ -1035,7 +1048,7 @@ async function loadDiagrams(force) {
         openBtn.removeAttribute('href');
         openBtn.onclick = function(e) { e.preventDefault(); _openInDiagramsNet(side); };
       }
-      _showDiagReady(side);
+      _renderDiagIframe(side);
     });
 
     window._diagLoaded = true;
@@ -1204,7 +1217,7 @@ function removePricingRow(id) { _pricingRows = _pricingRows.filter(r => r.id !==
 
 function buildSelectOptions(list, selectedId, allowNone, noneLabel) {
   let html = '';
-  if (allowNone) html += `<option value="">${noneLabel || '— None —'}</option>`;
+  if (allowNone) html += `<option value="${noneLabel || '— None —'}</option>`;
   list.forEach(s => { html += `<option value="${s.id}" ${parseInt(selectedId) === s.id ? 'selected' : ''}>${s.sku_name}</option>`; });
   return html;
 }
