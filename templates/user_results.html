@@ -1007,21 +1007,34 @@ function _showDiagError(side, msg) {
 function _renderDiagIframe(side) {
   var loading = document.getElementById('diag-' + side + '-loading');
   if (loading) loading.style.display = 'none';
-
   var iframe = document.getElementById('diag-' + side + '-iframe');
-  if (!iframe) return;
+  if (iframe) iframe.style.display = 'none';
 
-  // Use diagrams.net postMessage embed — sends XML directly, no outbound fetch needed
-  var embedUrl = 'https://viewer.diagrams.net/?embed=1&spin=1&proto=json&ui=min';
-  iframe.src = embedUrl;
-  iframe.style.display = 'block';
+  var wrap = document.getElementById('diag-' + side + '-wrap');
+  if (!wrap) return;
 
-  // Once iframe loads, push the XML via postMessage
-  iframe.onload = function() {
-    var xml = _diagXML[side];
-    if (!xml) return;
-    iframe.contentWindow.postMessage(JSON.stringify({ action: 'load', xml: xml }), '*');
-  };
+  var label = side === 'current' ? 'Current State' : 'Future State';
+  var panel = document.createElement('div');
+  panel.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:480px;gap:1.25rem;background:rgba(0,0,0,0.15);border-top:1px solid rgba(0,170,255,0.1)';
+
+  var title = document.createElement('div');
+  title.style.cssText = 'font-size:0.95rem;font-weight:700;color:#fff';
+  title.textContent = label + ' diagram ready';
+
+  var hint = document.createElement('div');
+  hint.style.cssText = 'font-size:0.8rem;color:#a0bcd8;text-align:center;max-width:280px;line-height:1.6';
+  hint.textContent = 'Click Open in diagrams.net above to view, edit, and export.';
+
+  var btn = document.createElement('button');
+  btn.style.cssText = 'display:inline-flex;align-items:center;gap:8px;padding:0.75rem 2rem;background:linear-gradient(135deg,#0070c0,#00aaff);border:none;border-radius:10px;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(0,112,192,0.4)';
+  btn.textContent = 'Open in diagrams.net';
+  btn.onclick = function() { _openInDiagramsNet(side); };
+
+  panel.appendChild(title);
+  panel.appendChild(hint);
+  panel.appendChild(btn);
+  wrap.innerHTML = '';
+  wrap.appendChild(panel);
 }
 
 async function loadDiagrams(force) {
