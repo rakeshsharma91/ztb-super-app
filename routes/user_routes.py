@@ -5,6 +5,7 @@ from models import (db, UserResponse, Question, QuestionOption,
                     ValueProp, Asset, TestCase, POVPlanner, Roadblock,
                     ColumnDefinition, ResultSection, QuestionVisibilityRule)
 from routes.admin_sections_routes import evaluate_sections
+from routes.diagram_generator import generate_diagram_xml
 import io
 import re
 from openpyxl import Workbook
@@ -108,15 +109,10 @@ def _make_slug(name):
     return slug or 'unknown'
 
 def _get_visibility_rules():
-    """Return all visibility rules as a list of dicts for passing to templates."""
     rules = QuestionVisibilityRule.query.all()
     return [r.to_dict() for r in rules]
 
 def _inject_hidden_defaults(responses):
-    """
-    For every hidden question that has a default_option_id configured,
-    inject the default into responses if an answer is not already present.
-    """
     hidden_questions = Question.query.filter_by(hidden=True).all()
     for q in hidden_questions:
         if q.default_option_id and str(q.id) not in responses:
@@ -187,7 +183,6 @@ def _run_mapping(responses):
     return results_payload, keyword_answers
 
 def _build_question_list(questions_qs):
-    """Convert a SQLAlchemy query result into the list of dicts the template expects."""
     result = []
     for q in questions_qs:
         cat = QuestionCategory.query.get(q.category_id)
@@ -204,6 +199,16 @@ def _build_question_list(questions_qs):
             'options':            opts,
         })
     return result
+
+def _find_by_slug(customer_slug, status='completed'):
+    rows = (UserResponse.query
+            .filter_by(status=status)
+            .order_by(UserResponse.completed_at.desc())
+            .all())
+    for r in rows:
+        if _make_slug(r.customer_name) == customer_slug:
+            return r
+    return None
 
 
 # ── Fixed routes ──────────────────────────────────────────────────────────────
@@ -241,7 +246,6 @@ def start_assessment():
 
 @user_bp.route('/questions', methods=['GET'])
 def get_questions():
-    # Include ALL questions (hidden=True ones included so visibility engine can show them)
     all_questions = Question.query.order_by(Question.order).all()
     result = _build_question_list(all_questions)
     return render_template('user_assessment.html',
@@ -449,15 +453,7 @@ def bom():
 
 @user_bp.route('/<customer_slug>')
 def customer_results(customer_slug):
-    completed = (UserResponse.query
-                 .filter_by(status='completed')
-                 .order_by(UserResponse.completed_at.desc())
-                 .all())
-    user_resp = None
-    for r in completed:
-        if _make_slug(r.customer_name) == customer_slug:
-            user_resp = r
-            break
+    user_resp = _find_by_slug(customer_slug)
 
     if not user_resp:
         return render_template('user_results.html',
@@ -522,16 +518,7 @@ def customer_results(customer_slug):
 
 @user_bp.route('/<customer_slug>/edit')
 def edit_assessment(customer_slug):
-    completed = (UserResponse.query
-                 .filter_by(status='completed')
-                 .order_by(UserResponse.completed_at.desc())
-                 .all())
-    user_resp = None
-    for r in completed:
-        if _make_slug(r.customer_name) == customer_slug:
-            user_resp = r
-            break
-
+    user_resp = _find_by_slug(customer_slug)
     if not user_resp:
         return redirect(url_for('user.landing'))
 
@@ -561,14 +548,7 @@ def update_assessment(customer_slug):
     user_resp = UserResponse.query.get(edit_id) if edit_id else None
 
     if not user_resp:
-        completed = (UserResponse.query
-                     .filter_by(status='completed')
-                     .order_by(UserResponse.completed_at.desc())
-                     .all())
-        for r in completed:
-            if _make_slug(r.customer_name) == customer_slug:
-                user_resp = r
-                break
+        user_resp = _find_by_slug(customer_slug)
 
     if not user_resp:
         return jsonify({'error': 'Assessment not found'}), 404
@@ -591,16 +571,7 @@ def update_single_answer(customer_slug):
     data      = request.get_json()
     responses = data.get('responses', {})
 
-    completed = (UserResponse.query
-                 .filter_by(status='completed')
-                 .order_by(UserResponse.completed_at.desc())
-                 .all())
-    user_resp = None
-    for r in completed:
-        if _make_slug(r.customer_name) == customer_slug:
-            user_resp = r
-            break
-
+    user_resp = _find_by_slug(customer_slug)
     if not user_resp:
         return jsonify({'success': False, 'error': 'Assessment not found'}), 404
 
@@ -621,16 +592,7 @@ def update_notes(customer_slug):
     data       = request.get_json()
     notes_text = data.get('notes', '')
 
-    completed = (UserResponse.query
-                 .filter_by(status='completed')
-                 .order_by(UserResponse.completed_at.desc())
-                 .all())
-    user_resp = None
-    for r in completed:
-        if _make_slug(r.customer_name) == customer_slug:
-            user_resp = r
-            break
-
+    user_resp = _find_by_slug(customer_slug)
     if not user_resp:
         return jsonify({'error': 'Not found'}), 404
 
@@ -639,18 +601,39 @@ def update_notes(customer_slug):
     return jsonify({'success': True})
 
 
+@user_bp.route('/<customer_slug>/technical-notes', methods=['PATCH'])
+def update_technical_notes(customer_slug):
+    data  = request.get_json()
+    notes = data.get('technical_notes', '')
+
+    user_resp = _find_by_slug(customer_slug)
+    if not user_resp:
+        return jsonify({'error': 'Not found'}), 404
+
+    raw = dict(user_resp.raw_responses or {})
+    raw['technical_notes'] = notes
+    user_resp.raw_responses = raw
+    db.session.commit()
+    return jsonify({'success': True})
+
+
+@user_bp.route('/<customer_slug>/diagram-data', methods=['GET'])
+def diagram_data(customer_slug):
+    """Generate current + future state draw.io XML from the customer's answers."""
+    user_resp = _find_by_slug(customer_slug)
+    if not user_resp:
+        return jsonify({'success': False, 'error': 'Not found'}), 404
+
+    try:
+        diagrams = generate_diagram_xml(user_resp.answers or {})
+        return jsonify({'success': True, **diagrams})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @user_bp.route('/<customer_slug>/export')
 def customer_export(customer_slug):
-    completed = (UserResponse.query
-                 .filter_by(status='completed')
-                 .order_by(UserResponse.completed_at.desc())
-                 .all())
-    user_resp = None
-    for r in completed:
-        if _make_slug(r.customer_name) == customer_slug:
-            user_resp = r
-            break
-
+    user_resp = _find_by_slug(customer_slug)
     if not user_resp:
         return jsonify({'error': 'Not found'}), 404
 

@@ -134,8 +134,26 @@
     .ie-save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .ie-cancel-btn { background: transparent; color: var(--text-muted); border: 1px solid rgba(160,188,216,0.22); border-radius: 7px; padding: 7px 14px; font-size: 0.82rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; font-family: inherit; }
     .ie-cancel-btn:hover { color: var(--white); border-color: var(--text-muted); }
-    /* ── POV tab body ── */
     .pov-body { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+    /* ── Diagrams tab ── */
+    .diag-body { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+    .diag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 860px) { .diag-grid { grid-template-columns: 1fr; } }
+    .diag-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .diag-card-header { padding: 1rem 1.4rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .diag-card-title { font-size: 0.92rem; font-weight: 700; color: var(--white); }
+    .diag-card-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+    .diag-open-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.4rem 1rem; background: transparent; border: 1px solid rgba(0,170,255,0.4); border-radius: 7px; color: var(--accent); font-size: 0.75rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: background 0.2s, color 0.2s; white-space: nowrap; }
+    .diag-open-btn:hover { background: var(--accent); color: var(--navy-dark); }
+    .diag-viewer { width: 100%; height: 480px; border: none; background: #fff; display: block; }
+    .diag-loading { display: flex; align-items: center; justify-content: center; height: 480px; font-size: 0.85rem; color: var(--text-muted); flex-direction: column; gap: 0.75rem; }
+    .diag-spinner { width: 32px; height: 32px; border: 3px solid rgba(0,170,255,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .diag-error { display: flex; align-items: center; justify-content: center; height: 480px; font-size: 0.82rem; color: #f87171; flex-direction: column; gap: 0.5rem; text-align: center; padding: 1rem; }
+    .diag-notice { background: linear-gradient(145deg, #0a1e38, #071628); border: 1px solid rgba(0,170,255,0.15); border-left: 3px solid var(--accent); border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 0.82rem; color: var(--text-muted); line-height: 1.65; }
+    .diag-notice strong { color: var(--white); }
+    .diag-reload-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.55rem 1.2rem; background: transparent; border: 1px dashed rgba(0,170,255,0.35); border-radius: 8px; color: var(--accent); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 0.5rem; }
+    .diag-reload-btn:hover { background: rgba(0,170,255,0.08); }
     /* ── Pricing ── */
     .pricing-body { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
     .phase-toggle { display: inline-flex; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 1.5rem; }
@@ -185,7 +203,6 @@
     .add-row-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.6rem 1.2rem; background: transparent; border: 1px dashed rgba(0,170,255,0.4); border-radius: 9px; color: var(--accent); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.2s, border-color 0.2s; margin-bottom: 1rem; }
     .add-row-btn:hover { background: rgba(0,170,255,0.08); border-color: var(--accent); }
     .pricing-tbl-overflow { overflow-x: auto; }
-    /* ── BOM ── */
     .bom-wrap { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem; }
     .bom-section-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--accent); padding: 6px 14px 5px; background: rgba(0,170,255,0.07); border-bottom: 1px solid rgba(0,170,255,0.1); }
     .bom-tbl { width: 100%; border-collapse: collapse; min-width: 480px; }
@@ -205,7 +222,6 @@
     .bom-grand-label { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
     .bom-grand-sub   { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
     .bom-grand-value { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
-    /* ── PS Notice ── */
     .ps-notice { background: linear-gradient(145deg, #0a2218, #062015); border: 1px solid rgba(0,220,130,0.22); border-left: 4px solid #00dc82; border-radius: 14px; padding: 1.4rem 1.6rem; margin-bottom: 1.5rem; }
     .ps-notice-title { font-size: 0.92rem; font-weight: 700; color: #00dc82; margin-bottom: 0.75rem; }
     .ps-notice-lead  { font-size: 0.85rem; color: var(--white); line-height: 1.65; margin-bottom: 1rem; }
@@ -215,7 +231,6 @@
     .ps-attach-icon  { width: 26px; height: 26px; flex-shrink: 0; background: rgba(0,220,130,0.1); border: 1px solid rgba(0,220,130,0.22); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; margin-top: 1px; }
     .ps-attach-text  { font-size: 0.83rem; color: #a0c8b0; line-height: 1.6; }
     .ps-attach-text strong { color: var(--white); }
-    /* ── TCO ── */
     .tco-body { max-width: 1300px; margin: 0 auto; padding: 2rem 1.5rem 5rem; overflow: hidden; }
     .tco-save-ind { font-size: 0.75rem; text-align: right; margin-bottom: 0.75rem; min-height: 18px; color: var(--text-muted); }
     .tco-save-ind.saving { color: var(--accent); }
@@ -241,7 +256,6 @@
     .t-select option { background: #0a2244; color: var(--white); }
     .t-remove-btn { background: transparent; border: none; color: #f87171; font-size: 1.1rem; cursor: pointer; padding: 2px 5px; border-radius: 5px; transition: background 0.15s; line-height: 1; }
     .t-remove-btn:hover { background: rgba(248,113,113,0.15); }
-    /* TCO Hero Metrics */
     .tco-hero-panel { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.6rem; margin-bottom: 1.5rem; }
     .tco-hero-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-bottom: 1.2rem; }
     @media (max-width: 900px) { .tco-hero-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -259,7 +273,6 @@
     .tco-hero-status.saving { color: var(--accent); }
     .tco-hero-status.saved { color: #00dc82; }
     .tco-hero-status.error { color: #ff6b6b; }
-    /* TCO Chart */
     .tco-chart-wrap { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; }
     .tco-chart-title { font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
     .tco-chart-sub { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 1rem; }
@@ -267,7 +280,6 @@
     .tco-chart-legend { display: flex; gap: 2rem; justify-content: center; font-size: 0.82rem; }
     .tco-legend-item { display: flex; align-items: center; gap: 0.5rem; }
     .tco-legend-box { width: 16px; height: 16px; border-radius: 3px; }
-    /* TCO Savings */
     .tco-acv-row { display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; margin-bottom: 1.5rem; background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem 1.6rem; }
     .tco-acv-label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); white-space: nowrap; }
     .tco-acv-source { font-size: 0.75rem; color: var(--text-muted); }
@@ -304,7 +316,7 @@
     .footer-copy { font-size: 0.76rem; color: rgba(160,188,216,0.4); }
     @media (max-width: 600px) {
       .hero { padding: 2.5rem 1rem 2rem; }
-      .page-body, .pov-body { padding: 1.75rem 1rem 4rem; }
+      .page-body, .pov-body, .diag-body { padding: 1.75rem 1rem 4rem; }
       .navbar { padding: 0 1rem; }
       .download-section { flex-direction: column; align-items: flex-start; }
       .vp-grid { grid-template-columns: 1fr; }
@@ -374,10 +386,11 @@
 </div>
 
 <div class="page-tabs">
-  <div class="page-tab active" data-tab="results" onclick="switchTab('results')">📋 Opportunity Assessment</div>
-  <div class="page-tab"        data-tab="pov"     onclick="switchTab('pov')">🔧 POV &amp; Deployment</div>
-  <div class="page-tab"        data-tab="pricing" onclick="switchTab('pricing')">💰 Pricing</div>
-  <div class="page-tab"        data-tab="tco"     onclick="switchTab('tco')">📊 TCO Analysis</div>
+  <div class="page-tab active" data-tab="results"  onclick="switchTab('results')">📋 Opportunity Assessment</div>
+  <div class="page-tab"        data-tab="pov"      onclick="switchTab('pov')">🔧 POV &amp; Deployment</div>
+  <div class="page-tab"        data-tab="diagrams" onclick="switchTab('diagrams')">🏗 Diagrams</div>
+  <div class="page-tab"        data-tab="pricing"  onclick="switchTab('pricing')">💰 Pricing</div>
+  <div class="page-tab"        data-tab="tco"      onclick="switchTab('tco')">📊 TCO Analysis</div>
 </div>
 
 <!-- ══════════════════════ RESULTS TAB ══════════════════════ -->
@@ -599,6 +612,72 @@
 </div>
 </div><!-- /tab-pov -->
 
+<!-- ══════════════════════ DIAGRAMS TAB ══════════════════════ -->
+<div class="tab-panel" id="tab-diagrams">
+<div class="diag-body">
+
+  <div class="diag-notice">
+    <strong>How to use:</strong> Diagrams are generated from this customer's assessment answers — no manual input needed.
+    Click <strong>Open in diagrams.net</strong> on either diagram to edit, export as PNG, or drop into a slide deck.
+    Use <strong>Regenerate</strong> after editing answers to refresh both diagrams.
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+    <div class="section-heading" style="margin-bottom:0;">
+      <h2>Architecture Diagrams</h2>
+    </div>
+    <button class="diag-reload-btn" onclick="loadDiagrams(true)">↺ Regenerate</button>
+  </div>
+
+  <div class="diag-grid">
+
+    <!-- Current State -->
+    <div class="diag-card">
+      <div class="diag-card-header">
+        <div>
+          <div class="diag-card-title">🏢 Current State</div>
+          <div class="diag-card-sub">Existing branch infrastructure</div>
+        </div>
+        <a id="diag-open-current" class="diag-open-btn" href="#" target="_blank" rel="noopener">
+          ↗ Open in diagrams.net
+        </a>
+      </div>
+      <div id="diag-current-wrap">
+        <div class="diag-loading" id="diag-current-loading">
+          <div class="diag-spinner"></div>
+          <span>Generating diagram…</span>
+        </div>
+        <iframe id="diag-current-iframe" class="diag-viewer" style="display:none;"
+          sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+      </div>
+    </div>
+
+    <!-- Future State -->
+    <div class="diag-card">
+      <div class="diag-card-header">
+        <div>
+          <div class="diag-card-title">⚡ Future State — Zscaler ZTB</div>
+          <div class="diag-card-sub">After ZTB deployment</div>
+        </div>
+        <a id="diag-open-future" class="diag-open-btn" href="#" target="_blank" rel="noopener">
+          ↗ Open in diagrams.net
+        </a>
+      </div>
+      <div id="diag-future-wrap">
+        <div class="diag-loading" id="diag-future-loading">
+          <div class="diag-spinner"></div>
+          <span>Generating diagram…</span>
+        </div>
+        <iframe id="diag-future-iframe" class="diag-viewer" style="display:none;"
+          sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+      </div>
+    </div>
+
+  </div><!-- /diag-grid -->
+
+</div>
+</div><!-- /tab-diagrams -->
+
 <!-- ══════════════════════ PRICING TAB ══════════════════════ -->
 <div class="tab-panel" id="tab-pricing">
 <div class="pricing-body">
@@ -650,7 +729,6 @@
     <div class="grand-total-value" id="grand-total">$0</div>
   </div>
 
-  <!-- BOM -->
   <hr class="section-divider">
   <div class="section-heading"><h2>🧾 Bill of Materials</h2></div>
   <div class="section-heading" style="margin-bottom:0.6rem;margin-top:-0.5rem;">
@@ -673,7 +751,6 @@
     <div class="bom-grand-value" id="bom-grand-total">$0</div>
   </div>
 
-  <!-- PS Notice -->
   <div class="ps-notice">
     <div class="ps-notice-title">🛠 Professional Services</div>
     <div class="ps-notice-lead">Zscaler PS Credits auto calculate in SFDC based on quote, or leverage a ZTB service delivery authorized partner for deployment.</div>
@@ -696,7 +773,6 @@
 
   <hr class="section-divider">
 
-  <!-- Ramped Roll-Out -->
   <div class="section-heading"><h2>📅 Ramped Roll-Out</h2></div>
   <div class="ramp-card">
     <div class="ramp-card-header">
@@ -760,7 +836,6 @@
   <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.5rem;text-align:right;">← scroll to see all columns →</div>
   <button class="add-row-btn" onclick="addTCORow()" style="margin-top:0.25rem;">＋ Add Row</button>
 
-  <!-- Hero Metrics -->
   <hr class="section-divider">
   <div class="section-heading"><h2>📊 Legacy TCO Hero Metrics</h2></div>
   <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1.2rem;">Set assumptions for FTE costs and breach risk in legacy infrastructure comparison.</p>
@@ -788,7 +863,6 @@
     </div>
   </div>
 
-  <!-- ACV row -->
   <hr class="section-divider">
   <div class="section-heading"><h2>⚡ Zscaler ACV vs Legacy TCO</h2></div>
   <div class="tco-acv-row">
@@ -801,7 +875,6 @@
     <button onclick="resetACVtoPricing()" style="font-size:0.75rem;background:transparent;border:1px solid rgba(0,170,255,0.3);color:var(--accent);border-radius:6px;padding:6px 12px;cursor:pointer;">↺ Reset to Pricing Total</button>
   </div>
 
-  <!-- Savings KPIs -->
   <div class="tco-savings-grid" id="tco-savings-grid">
     <div class="tco-kpi" style="border-left-color:#f87171">
       <div class="tco-kpi-title">Legacy Annual Spend</div>
@@ -825,7 +898,6 @@
     </div>
   </div>
 
-  <!-- 3-Year Chart -->
   <hr class="section-divider">
   <div class="tco-chart-wrap">
     <div class="tco-chart-title">📈 3-Year Projection Breakout</div>
@@ -845,7 +917,6 @@
     </div>
   </div>
 
-  <!-- Per-row summary -->
   <hr class="section-divider">
   <div class="section-heading"><h2>📋 TCO Summary by Row</h2></div>
   <div class="tco-summary-tbl-wrap">
@@ -895,8 +966,9 @@ let openQid = null;
 function switchTab(name) {
   document.querySelectorAll('.page-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
-  if (name === 'tco'     && !window._tcoLoaded)     { initTCO();     window._tcoLoaded = true; }
-  if (name === 'pricing' && !window._pricingLoaded) { initPricing(); window._pricingLoaded = true; }
+  if (name === 'tco'      && !window._tcoLoaded)      { initTCO();      window._tcoLoaded = true; }
+  if (name === 'pricing'  && !window._pricingLoaded)  { initPricing();  window._pricingLoaded = true; }
+  if (name === 'diagrams' && !window._diagLoaded)     { loadDiagrams(); window._diagLoaded = true; }
 }
 
 let _toastTimer;
@@ -904,6 +976,60 @@ function showToast(msg, isError) {
   const t = document.getElementById('ie-toast');
   t.textContent = msg; t.className = isError ? 'show error' : 'show';
   clearTimeout(_toastTimer); _toastTimer = setTimeout(() => { t.className = ''; }, 3200);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DIAGRAMS ENGINE
+// ══════════════════════════════════════════════════════════════════════════════
+function _xmlToViewerUrl(xml) {
+  const encoded = encodeURIComponent(xml);
+  return 'https://viewer.diagrams.net/?lightbox=0&highlight=0&edit=_blank&xml=' + encoded;
+}
+
+function _showDiagError(side, msg) {
+  const wrap = document.getElementById('diag-' + side + '-wrap');
+  wrap.innerHTML = '<div class="diag-error">⚠ ' + msg + '<br><small>Check that assessment answers include scope, WAN links, and device types.</small></div>';
+}
+
+async function loadDiagrams(force) {
+  if (force) { window._diagLoaded = false; }
+
+  ['current','future'].forEach(side => {
+    const loading = document.getElementById('diag-' + side + '-loading');
+    const iframe  = document.getElementById('diag-' + side + '-iframe');
+    if (loading) { loading.style.display = 'flex'; }
+    if (iframe)  { iframe.style.display = 'none'; }
+  });
+
+  try {
+    const res  = await fetch('/user/' + CUSTOMER_SLUG + '/diagram-data');
+    const data = await res.json();
+    if (!data.success) { throw new Error(data.error || 'Server error'); }
+
+    ['current','future'].forEach(side => {
+      const xml     = side === 'current' ? data.current_xml : data.future_xml;
+      const viewUrl = _xmlToViewerUrl(xml);
+      const editUrl = 'https://app.diagrams.net/?xml=' + encodeURIComponent(xml);
+
+      const loading = document.getElementById('diag-' + side + '-loading');
+      const iframe  = document.getElementById('diag-' + side + '-iframe');
+      const openBtn = document.getElementById('diag-open-' + side);
+
+      if (openBtn) { openBtn.href = editUrl; }
+
+      iframe.onload = function() {
+        if (loading) loading.style.display = 'none';
+        iframe.style.display = 'block';
+      };
+      iframe.src = viewUrl;
+    });
+
+    window._diagLoaded = true;
+
+  } catch(e) {
+    _showDiagError('current', e.message);
+    _showDiagError('future',  e.message);
+  }
 }
 
 function normType(t) { return (t || '').toLowerCase().replace(/[^a-z]/g, ''); }
@@ -961,7 +1087,7 @@ function buildActions(panel, qid, getVal) {
   actions.appendChild(saveBtn); actions.appendChild(cancelBtn); panel.appendChild(actions);
 }
 
-// ── Opportunity Notes (auto-save) ─────────────────────────────────────────────
+// ── Opportunity Notes ─────────────────────────────────────────────────────────
 (function () {
   const textarea = document.getElementById('opportunityNotes');
   const status   = document.getElementById('notesStatus');
@@ -972,18 +1098,16 @@ function buildActions(panel, qid, getVal) {
   function saveNotes() {
     setStatus('saving', 'Saving…');
     fetch('/user/' + CUSTOMER_SLUG + '/notes', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notes: textarea.value }) })
-    .then(r => r.json())
-    .then(data => {
+    .then(r => r.json()).then(data => {
       if (data.success) { const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); setStatus('saved', '✓ Saved at ' + now); setTimeout(clearStatus, 4000); }
       else setStatus('error', 'Save failed — try again');
-    })
-    .catch(() => setStatus('error', 'Save failed — check connection'));
+    }).catch(() => setStatus('error', 'Save failed — check connection'));
   }
   textarea.addEventListener('blur', saveNotes);
   textarea.addEventListener('input', function () { clearTimeout(saveTimer); clearStatus(); saveTimer = setTimeout(saveNotes, 3000); });
 })();
 
-// ── Technical Notes (auto-save) ───────────────────────────────────────────────
+// ── Technical Notes ───────────────────────────────────────────────────────────
 (function () {
   const textarea = document.getElementById('technicalNotes');
   const status   = document.getElementById('techNotesStatus');
@@ -994,12 +1118,10 @@ function buildActions(panel, qid, getVal) {
   function saveTechNotes() {
     setStatus('saving', 'Saving…');
     fetch('/user/' + CUSTOMER_SLUG + '/technical-notes', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ technical_notes: textarea.value }) })
-    .then(r => r.json())
-    .then(data => {
+    .then(r => r.json()).then(data => {
       if (data.success) { const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); setStatus('saved', '✓ Saved at ' + now); setTimeout(clearStatus, 4000); }
       else setStatus('error', 'Save failed — try again');
-    })
-    .catch(() => setStatus('error', 'Save failed — check connection'));
+    }).catch(() => setStatus('error', 'Save failed — check connection'));
   }
   textarea.addEventListener('blur', saveTechNotes);
   textarea.addEventListener('input', function () { clearTimeout(saveTimer); clearStatus(); saveTimer = setTimeout(saveTechNotes, 3000); });
@@ -1062,30 +1184,19 @@ function setPhase(phase, doSave = true) {
   if (doSave) schedulePricingSave();
 }
 
-function addPricingRow() {
-  _pricingRows.push(newEmptyRow());
-  renderPricingRows(); updateTotals(); schedulePricingSave();
-}
-function removePricingRow(id) {
-  _pricingRows = _pricingRows.filter(r => r.id !== id);
-  renderPricingRows(); updateTotals(); schedulePricingSave();
-}
+function addPricingRow() { _pricingRows.push(newEmptyRow()); renderPricingRows(); updateTotals(); schedulePricingSave(); }
+function removePricingRow(id) { _pricingRows = _pricingRows.filter(r => r.id !== id); renderPricingRows(); updateTotals(); schedulePricingSave(); }
 
 function buildSelectOptions(list, selectedId, allowNone, noneLabel) {
   let html = '';
   if (allowNone) html += `<option value="">${noneLabel || '— None —'}</option>`;
-  list.forEach(s => {
-    html += `<option value="${s.id}" ${parseInt(selectedId) === s.id ? 'selected' : ''}>${s.sku_name}</option>`;
-  });
+  list.forEach(s => { html += `<option value="${s.id}" ${parseInt(selectedId) === s.id ? 'selected' : ''}>${s.sku_name}</option>`; });
   return html;
 }
 
 function renderPricingRows() {
   const tbody = document.getElementById('pricing-rows');
-  if (!_pricingRows.length) {
-    tbody.innerHTML = `<tr><td colspan="11" class="empty-state">No rows yet — click "+ Add Row" to start.</td></tr>`;
-    return;
-  }
+  if (!_pricingRows.length) { tbody.innerHTML = `<tr><td colspan="11" class="empty-state">No rows yet — click "+ Add Row" to start.</td></tr>`; return; }
   tbody.innerHTML = '';
   _pricingRows.forEach(row => {
     const tr = document.createElement('tr');
@@ -1308,43 +1419,32 @@ async function initTCO() {
   const data = await res.json();
   if (!data.success) return;
   _tcoEntries = data.entries || {};
-
   if (data.defaults) {
     _tcoHeroFTECount   = data.defaults.fte_count || 0;
     _tcoHeroFTECost    = data.defaults.fte_cost || 0;
     _tcoHeroBreachCost = data.defaults.breach_cost || 0;
   }
-
   const saved = data.saved || {};
   if (saved.rows && saved.rows.length) {
     _tcoRows = saved.rows.map(r => ({ ...r, id: r.id || (++_tcoRowCounter) }));
     _tcoRowCounter = Math.max(_tcoRowCounter, ..._tcoRows.map(r => r.id || 0));
-  } else {
-    _tcoRows = [newTCORow()];
-  }
-
+  } else { _tcoRows = [newTCORow()]; }
   if (saved.fte_count !== undefined && saved.fte_count !== null) _tcoHeroFTECount = saved.fte_count;
-  if (saved.fte_cost !== undefined && saved.fte_cost !== null) _tcoHeroFTECost = saved.fte_cost;
+  if (saved.fte_cost  !== undefined && saved.fte_cost  !== null) _tcoHeroFTECost  = saved.fte_cost;
   if (saved.breach_cost !== undefined && saved.breach_cost !== null) _tcoHeroBreachCost = saved.breach_cost;
-
-  document.getElementById('tco-hero-fte-count').value = _tcoHeroFTECount || '';
-  document.getElementById('tco-hero-fte-cost').value = _tcoHeroFTECost || '';
+  document.getElementById('tco-hero-fte-count').value   = _tcoHeroFTECount || '';
+  document.getElementById('tco-hero-fte-cost').value    = _tcoHeroFTECost  || '';
   document.getElementById('tco-hero-breach-cost').value = _tcoHeroBreachCost || '';
-
   if (saved.acv_override != null) {
-    _tcoACV = saved.acv_override;
-    _tcoACVOverridden = true;
+    _tcoACV = saved.acv_override; _tcoACVOverridden = true;
     document.getElementById('tco-acv-input').value = _tcoACV;
     document.getElementById('tco-acv-source').textContent = 'Manual override';
   } else {
-    _tcoACV = _pricingGrandTotal;
-    _tcoACVOverridden = false;
+    _tcoACV = _pricingGrandTotal; _tcoACVOverridden = false;
     document.getElementById('tco-acv-input').value = _tcoACV || '';
     document.getElementById('tco-acv-source').textContent = 'Auto-filled from Pricing tab';
   }
-
-  renderTCORows();
-  updateTCOCalculations();
+  renderTCORows(); updateTCOCalculations();
 }
 
 function newTCORow() {
@@ -1353,14 +1453,8 @@ function newTCORow() {
   return row;
 }
 
-function addTCORow() {
-  _tcoRows.push(newTCORow());
-  renderTCORows(); updateTCOCalculations(); scheduleTCOSave();
-}
-function removeTCORow(id) {
-  _tcoRows = _tcoRows.filter(r => r.id !== id);
-  renderTCORows(); updateTCOCalculations(); scheduleTCOSave();
-}
+function addTCORow() { _tcoRows.push(newTCORow()); renderTCORows(); updateTCOCalculations(); scheduleTCOSave(); }
+function removeTCORow(id) { _tcoRows = _tcoRows.filter(r => r.id !== id); renderTCORows(); updateTCOCalculations(); scheduleTCOSave(); }
 
 function buildTCOOptions(cat, selectedId) {
   let html = '<option value="">— None —</option>';
@@ -1385,11 +1479,7 @@ function tcoRowAnnual(row) {
 
 function renderTCORows() {
   const tbody = document.getElementById('tco-rows');
-  if (!_tcoRows.length) {
-    tbody.innerHTML = `<tr><td colspan="13" class="empty-state">No rows yet — click "+ Add Row" to start.</td></tr>`;
-    renderTCOSummary();
-    return;
-  }
+  if (!_tcoRows.length) { tbody.innerHTML = `<tr><td colspan="13" class="empty-state">No rows yet — click "+ Add Row" to start.</td></tr>`; renderTCOSummary(); return; }
   tbody.innerHTML = '';
   _tcoRows.forEach(row => {
     const tr = document.createElement('tr');
@@ -1405,8 +1495,7 @@ function renderTCORows() {
       html += `<td><select class="t-select" onchange="updateTCOField(${row.id},'${c}_id',this.value?parseInt(this.value):null)">
         ${buildTCOOptions(c, row[c+'_id'])}</select></td>`;
     });
-    html += `<td class="tco-annual">${fmtMoney(annual)}</td>
-      <td class="tco-3yr">${fmtMoney(yr3)}</td>
+    html += `<td class="tco-annual">${fmtMoney(annual)}</td><td class="tco-3yr">${fmtMoney(yr3)}</td>
       <td><button class="t-remove-btn" onclick="removeTCORow(${row.id})" title="Remove">✕</button></td>`;
     tr.innerHTML = html;
     tbody.appendChild(tr);
@@ -1433,16 +1522,10 @@ function renderTCOSummary() {
   let totals = { qty: 0, annual: 0 };
   const catTotals = {};
   TCO_CATS.forEach(c => { catTotals[c] = 0; });
-
   _tcoRows.forEach(row => {
-    const qty = row.qty || 0;
-    totals.qty += qty;
-    let rowAnnual = 0;
-    const catVals = {};
-    TCO_CATS.forEach(c => {
-      const v = tcoEntryPrice(c, row[c+'_id']) * qty;
-      catVals[c] = v; catTotals[c] += v; rowAnnual += v;
-    });
+    const qty = row.qty || 0; totals.qty += qty;
+    let rowAnnual = 0; const catVals = {};
+    TCO_CATS.forEach(c => { const v = tcoEntryPrice(c, row[c+'_id']) * qty; catVals[c] = v; catTotals[c] += v; rowAnnual += v; });
     totals.annual += rowAnnual;
     const tr = document.createElement('tr');
     tr.innerHTML = `<td>${escHtml(row.label||'—')}</td><td class="num">${qty}</td>` +
@@ -1450,7 +1533,6 @@ function renderTCOSummary() {
       `<td class="num s-annual">${fmtMoney(rowAnnual)}</td><td class="num s-3yr">${fmtMoney(rowAnnual*3)}</td>`;
     tbody.appendChild(tr);
   });
-
   const totTr = document.createElement('tr');
   totTr.innerHTML = `<td>TOTAL</td><td class="num">${totals.qty}</td>` +
     TCO_CATS.map(c => `<td class="num">${catTotals[c] ? fmtMoney(catTotals[c]) : '—'}</td>`).join('') +
@@ -1459,33 +1541,30 @@ function renderTCOSummary() {
 }
 
 function getTCOLegacyAnnual() {
-  const hardware = _tcoRows.reduce((sum, row) => sum + tcoRowAnnual(row), 0);
-  const fteCosts = (_tcoHeroFTECount || 0) * (_tcoHeroFTECost || 0);
+  const hardware   = _tcoRows.reduce((sum, row) => sum + tcoRowAnnual(row), 0);
+  const fteCosts   = (_tcoHeroFTECount || 0) * (_tcoHeroFTECost || 0);
   const breachCost = _tcoHeroBreachCost || 0;
   return hardware + fteCosts + breachCost;
 }
 
 function updateTCOCalculations() {
-  const legacy = getTCOLegacyAnnual();
-  const acv    = _tcoACV || 0;
+  const legacy    = getTCOLegacyAnnual();
+  const acv       = _tcoACV || 0;
   const annualSav = legacy - acv;
   const yr3Sav    = annualSav * 3;
   const roi       = legacy > 0 ? Math.round(annualSav / legacy * 100) : 0;
   const payback   = annualSav > 0 ? Math.round((acv / annualSav) * 12) : null;
-
   document.getElementById('tco-kpi-legacy').textContent     = fmtMoney(legacy) || '$0';
   document.getElementById('tco-kpi-annual-sav').textContent = annualSav >= 0 ? fmtMoney(annualSav) : '-' + fmtMoney(-annualSav);
   document.getElementById('tco-kpi-3yr-sav').textContent    = yr3Sav >= 0 ? fmtMoney(yr3Sav) : '-' + fmtMoney(-yr3Sav);
   document.getElementById('tco-kpi-roi').textContent        = legacy > 0 ? roi + '%' : '—';
   document.getElementById('tco-kpi-payback').textContent    = payback !== null ? `Payback: ~${payback} months` : (acv > 0 ? 'No savings vs ACV' : 'Enter ACV above');
-
-  renderTCOSummary();
-  updateTCOChart();
+  renderTCOSummary(); updateTCOChart();
 }
 
 function updateTCOChart() {
   const legacy = getTCOLegacyAnnual();
-  const acv = _tcoACV || 0;
+  const acv    = _tcoACV || 0;
   const canvas = document.getElementById('tco-chart');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -1503,8 +1582,7 @@ function updateTCOChart() {
       responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        y: {
-          beginAtZero: true,
+        y: { beginAtZero: true,
           ticks: { color: '#a0bcd8', font: { size: 12 },
             callback: function(v) {
               if (v >= 1000000) return '$' + (v/1000000).toFixed(1) + 'M';
@@ -1529,12 +1607,10 @@ function onACVInput() {
 }
 
 function resetACVtoPricing() {
-  _tcoACV = _pricingGrandTotal;
-  _tcoACVOverridden = false;
+  _tcoACV = _pricingGrandTotal; _tcoACVOverridden = false;
   document.getElementById('tco-acv-input').value = _tcoACV || '';
   document.getElementById('tco-acv-source').textContent = 'Auto-filled from Pricing tab';
-  updateTCOCalculations();
-  scheduleTCOSave();
+  updateTCOCalculations(); scheduleTCOSave();
 }
 
 function saveTCOHeroMetrics() {
@@ -1543,8 +1619,7 @@ function saveTCOHeroMetrics() {
   _tcoHeroFTECount   = parseFloat(document.getElementById('tco-hero-fte-count').value)  || 0;
   _tcoHeroFTECost    = parseFloat(document.getElementById('tco-hero-fte-cost').value)   || 0;
   _tcoHeroBreachCost = parseFloat(document.getElementById('tco-hero-breach-cost').value)|| 0;
-  updateTCOCalculations();
-  scheduleTCOSave();
+  updateTCOCalculations(); scheduleTCOSave();
   setTimeout(() => {
     status.textContent = '✓ Saved'; status.className = 'tco-hero-status saved';
     setTimeout(() => { status.textContent = ''; status.className = 'tco-hero-status'; }, 3000);
