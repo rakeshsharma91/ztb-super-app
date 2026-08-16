@@ -648,7 +648,7 @@
           <span>Generating diagram…</span>
         </div>
         <iframe id="diag-current-iframe" class="diag-viewer" style="display:none;"
-          sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
       </div>
     </div>
 
@@ -669,7 +669,7 @@
           <span>Generating diagram…</span>
         </div>
         <iframe id="diag-future-iframe" class="diag-viewer" style="display:none;"
-          sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
       </div>
     </div>
 
@@ -981,47 +981,61 @@ function showToast(msg, isError) {
 // ══════════════════════════════════════════════════════════════════════════════
 // DIAGRAMS ENGINE
 // ══════════════════════════════════════════════════════════════════════════════
-function _xmlToViewerUrl(xml) {
-  const encoded = encodeURIComponent(xml);
-  return 'https://viewer.diagrams.net/?lightbox=0&highlight=0&edit=_blank&xml=' + encoded;
+const _diagXML = {};
+
+function _openInDiagramsNet(side) {
+  var xml = _diagXML[side];
+  if (!xml) return;
+  var b64 = btoa(encodeURIComponent(xml).replace(/%([0-9A-F]{2})/g, function(m, p1) {
+    return String.fromCharCode('0x' + p1);
+  }));
+  window.open('https://app.diagrams.net/#R' + encodeURIComponent(b64), '_blank');
 }
 
 function _showDiagError(side, msg) {
-  const wrap = document.getElementById('diag-' + side + '-wrap');
-  wrap.innerHTML = '<div class="diag-error">⚠ ' + msg + '<br><small>Check that assessment answers include scope, WAN links, and device types.</small></div>';
+  var wrap = document.getElementById('diag-' + side + '-wrap');
+  wrap.innerHTML = '<div class="diag-error">&#9888; ' + msg + '<br><small>Check that assessment answers include scope, WAN links, and device types.</small></div>';
+}
+
+function _showDiagReady(side) {
+  var loading = document.getElementById('diag-' + side + '-loading');
+  if (loading) loading.style.display = 'none';
+  var wrap = document.getElementById('diag-' + side + '-wrap');
+  var label = side === 'current' ? 'Current State' : 'Future State';
+  wrap.innerHTML =
+    '<div style="height:480px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.2rem;background:rgba(0,0,0,0.15);border-radius:0 0 14px 14px;">' +
+    '<div style="font-size:3rem;">&#128196;</div>' +
+    '<div style="font-size:0.95rem;font-weight:700;color:#fff;">' + label + ' diagram ready</div>' +
+    '<div style="font-size:0.82rem;color:#a0bcd8;text-align:center;max-width:320px;line-height:1.6;">Click <strong style="color:#00aaff;">Open in diagrams.net</strong> above to view, edit, and export the full diagram with Zscaler icons.</div>' +
+    '<button onclick="_openInDiagramsNet(\'' + side + '\')" style="padding:0.65rem 1.6rem;background:linear-gradient(135deg,#0070c0,#00aaff);border:none;border-radius:9px;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;">&#8599; Open in diagrams.net</button>' +
+    '</div>';
 }
 
 async function loadDiagrams(force) {
   if (force) { window._diagLoaded = false; }
 
-  ['current','future'].forEach(side => {
-    const loading = document.getElementById('diag-' + side + '-loading');
-    const iframe  = document.getElementById('diag-' + side + '-iframe');
+  ['current','future'].forEach(function(side) {
+    var loading = document.getElementById('diag-' + side + '-loading');
+    var iframe  = document.getElementById('diag-' + side + '-iframe');
     if (loading) { loading.style.display = 'flex'; }
     if (iframe)  { iframe.style.display = 'none'; }
   });
 
   try {
-    const res  = await fetch('/user/' + CUSTOMER_SLUG + '/diagram-data');
-    const data = await res.json();
+    var res  = await fetch('/user/' + CUSTOMER_SLUG + '/diagram-data');
+    var data = await res.json();
     if (!data.success) { throw new Error(data.error || 'Server error'); }
 
-    ['current','future'].forEach(side => {
-      const xml     = side === 'current' ? data.current_xml : data.future_xml;
-      const viewUrl = _xmlToViewerUrl(xml);
-      const editUrl = 'https://app.diagrams.net/?xml=' + encodeURIComponent(xml);
+    _diagXML['current'] = data.current_xml;
+    _diagXML['future']  = data.future_xml;
 
-      const loading = document.getElementById('diag-' + side + '-loading');
-      const iframe  = document.getElementById('diag-' + side + '-iframe');
-      const openBtn = document.getElementById('diag-open-' + side);
-
-      if (openBtn) { openBtn.href = editUrl; }
-
-      iframe.onload = function() {
-        if (loading) loading.style.display = 'none';
-        iframe.style.display = 'block';
-      };
-      iframe.src = viewUrl;
+    ['current','future'].forEach(function(side) {
+      var openBtn = document.getElementById('diag-open-' + side);
+      if (openBtn) {
+        openBtn.removeAttribute('href');
+        openBtn.onclick = function(e) { e.preventDefault(); _openInDiagramsNet(side); };
+      }
+      _showDiagReady(side);
     });
 
     window._diagLoaded = true;
@@ -1031,6 +1045,7 @@ async function loadDiagrams(force) {
     _showDiagError('future',  e.message);
   }
 }
+
 
 function normType(t) { return (t || '').toLowerCase().replace(/[^a-z]/g, ''); }
 function toggleEditor(qid) { if (openQid === qid) { closeEditor(qid); return; } if (openQid !== null) closeEditor(openQid); openEditor(qid); }

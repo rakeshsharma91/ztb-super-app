@@ -451,6 +451,10 @@ def bom():
 
 # ── Variable routes — MUST stay last ─────────────────────────────────────────
 
+
+
+
+
 @user_bp.route('/<customer_slug>')
 def customer_results(customer_slug):
     user_resp = _find_by_slug(customer_slug)
@@ -630,6 +634,20 @@ def diagram_data(customer_slug):
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+
+
+@user_bp.route('/<customer_slug>/diagram-xml/<side>')
+def diagram_xml(customer_slug, side):
+    from flask import Response
+    user_resp = _find_by_slug(customer_slug)
+    if not user_resp:
+        return "Not found", 404
+    diagrams = generate_diagram_xml(user_resp.answers or {})
+    xml = diagrams.get('current_xml' if side == 'current' else 'future_xml', '')
+    return Response(xml, mimetype='text/xml', headers={
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'no-cache'
+    })
 
 @user_bp.route('/<customer_slug>/export')
 def customer_export(customer_slug):
