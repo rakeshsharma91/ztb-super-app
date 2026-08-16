@@ -615,9 +615,11 @@
 <div class="diag-body">
 
   <div class="diag-notice">
-    <strong>How to use:</strong> Diagrams are generated from this customer's assessment answers — no manual input needed.
-    Click <strong>Open in diagrams.net</strong> on either diagram to edit, export as PNG, or drop into a slide deck.
-    Use <strong>Regenerate</strong> after editing answers to refresh both diagrams.
+    <strong>How to use:</strong> Diagrams are generated from your assessment answers.
+    Click <strong>📋 Copy XML</strong> on either diagram, then open
+    <a href="https://app.diagrams.net" target="_blank" style="color:var(--accent);">app.diagrams.net</a>,
+    go to <strong>Extras → Edit Diagram</strong>, paste the XML and click OK.
+    Use <strong>Regenerate</strong> after editing answers to refresh.
   </div>
 
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
@@ -636,9 +638,9 @@
           <div class="diag-card-title">🏢 Current State</div>
           <div class="diag-card-sub">Existing branch infrastructure</div>
         </div>
-        <a id="diag-open-current" class="diag-open-btn" href="#" target="_blank" rel="noopener">
-          ↗ Open in diagrams.net
-        </a>
+        <button id="diag-copy-current" class="diag-open-btn" onclick="_copyDiagXML('current')">
+          📋 Copy XML
+        </button>
       </div>
       <div id="diag-current-wrap">
         <div class="diag-loading" id="diag-current-loading">
@@ -657,9 +659,9 @@
           <div class="diag-card-title">⚡ Future State — Zscaler ZTB</div>
           <div class="diag-card-sub">After ZTB deployment</div>
         </div>
-        <a id="diag-open-future" class="diag-open-btn" href="#" target="_blank" rel="noopener">
-          ↗ Open in diagrams.net
-        </a>
+        <button id="diag-copy-future" class="diag-open-btn" onclick="_copyDiagXML('future')">
+          📋 Copy XML
+        </button>
       </div>
       <div id="diag-future-wrap">
         <div class="diag-loading" id="diag-future-loading">
@@ -981,22 +983,24 @@ function showToast(msg, isError) {
 // ══════════════════════════════════════════════════════════════════════════════
 const _diagXML = {};
 
-function _openInDiagramsNet(side) {
+function _copyDiagXML(side) {
   var xml = _diagXML[side];
-  if (!xml) return;
-  // Use a hidden form POST to diagrams.net — works from HTTP pages
-  var form = document.createElement('form');
-  form.method = 'POST';
-  form.action = 'https://app.diagrams.net';
-  form.target = '_blank';
-  var input = document.createElement('input');
-  input.type = 'hidden';
-  input.name = 'xml';
-  input.value = xml;
-  form.appendChild(input);
-  document.body.appendChild(form);
-  form.submit();
-  document.body.removeChild(form);
+  if (!xml) { alert('Diagram not loaded yet — please wait for generation to complete.'); return; }
+  var btn = document.getElementById('diag-copy-' + side);
+  function onCopied() {
+    if (btn) { btn.textContent = '✓ Copied!'; setTimeout(function(){ btn.textContent = '📋 Copy XML'; }, 2500); }
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(xml).then(onCopied).catch(function() { fallbackCopy(xml, onCopied); });
+  } else { fallbackCopy(xml, onCopied); }
+}
+
+function fallbackCopy(text, cb) {
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try { document.execCommand('copy'); cb(); } catch(e) { alert('Copy failed — please copy manually from the XML below.'); }
+  document.body.removeChild(ta);
 }
 
 function _showDiagError(side, msg) {
@@ -1004,68 +1008,41 @@ function _showDiagError(side, msg) {
   wrap.innerHTML = '<div class="diag-error">&#9888; ' + msg + '<br><small>Check that assessment answers include scope, WAN links, and device types.</small></div>';
 }
 
-function _renderDiagIframe(side) {
+function _renderDiagPanel(side) {
   var loading = document.getElementById('diag-' + side + '-loading');
   if (loading) loading.style.display = 'none';
   var iframe = document.getElementById('diag-' + side + '-iframe');
   if (iframe) iframe.style.display = 'none';
-
   var wrap = document.getElementById('diag-' + side + '-wrap');
   if (!wrap) return;
-
   var label = side === 'current' ? 'Current State' : 'Future State';
   var panel = document.createElement('div');
-  panel.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:480px;gap:1.25rem;background:rgba(0,0,0,0.15);border-top:1px solid rgba(0,170,255,0.1)';
-
-  var title = document.createElement('div');
-  title.style.cssText = 'font-size:0.95rem;font-weight:700;color:#fff';
-  title.textContent = label + ' diagram ready';
-
-  var hint = document.createElement('div');
-  hint.style.cssText = 'font-size:0.8rem;color:#a0bcd8;text-align:center;max-width:280px;line-height:1.6';
-  hint.textContent = 'Click Open in diagrams.net above to view, edit, and export.';
-
-  var btn = document.createElement('button');
-  btn.style.cssText = 'display:inline-flex;align-items:center;gap:8px;padding:0.75rem 2rem;background:linear-gradient(135deg,#0070c0,#00aaff);border:none;border-radius:10px;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(0,112,192,0.4)';
-  btn.textContent = 'Open in diagrams.net';
-  btn.onclick = function() { _openInDiagramsNet(side); };
-
-  panel.appendChild(title);
-  panel.appendChild(hint);
-  panel.appendChild(btn);
+  panel.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:480px;gap:1.2rem;background:rgba(0,0,0,0.15);border-top:1px solid rgba(0,170,255,0.1);padding:2rem;text-align:center;';
+  panel.innerHTML = '<div style="font-size:2rem;">📊</div>'
+    + '<div style="font-size:0.95rem;font-weight:700;color:#fff;">' + label + ' diagram ready</div>'
+    + '<div style="font-size:0.82rem;color:#a0bcd8;max-width:340px;line-height:1.8;">'
+    + '<strong style="color:#fff;">Step 1:</strong> Click the <strong style="color:#00aaff;">📋 Copy XML</strong> button in the card header above<br>'
+    + '<strong style="color:#fff;">Step 2:</strong> Open <a href="https://app.diagrams.net" target="_blank" style="color:#00aaff;">app.diagrams.net</a> → new blank diagram<br>'
+    + '<strong style="color:#fff;">Step 3:</strong> Click <strong style="color:#fff;">Extras → Edit Diagram</strong>, paste &amp; click OK'
+    + '</div>';
   wrap.innerHTML = '';
   wrap.appendChild(panel);
 }
 
 async function loadDiagrams(force) {
   if (force) { window._diagLoaded = false; }
-
   ['current','future'].forEach(function(side) {
-    var loading = document.getElementById('diag-' + side + '-loading');
-    var iframe  = document.getElementById('diag-' + side + '-iframe');
-    if (loading) { loading.style.display = 'flex'; }
-    if (iframe)  { iframe.style.display = 'none'; iframe.src = ''; }
+    var wrap = document.getElementById('diag-' + side + '-wrap');
+    if (wrap) wrap.innerHTML = '<div class="diag-loading" style="display:flex;"><div class="diag-spinner"></div><span>Generating diagram…</span></div>';
   });
-
   try {
     var res  = await fetch('/user/' + CUSTOMER_SLUG + '/diagram-data');
     var data = await res.json();
     if (!data.success) { throw new Error(data.error || 'Server error'); }
-
     _diagXML['current'] = data.current_xml;
     _diagXML['future']  = data.future_xml;
-
-    ['current','future'].forEach(function(side) {
-      var openBtn = document.getElementById('diag-open-' + side);
-      if (openBtn) {
-        openBtn.removeAttribute('href');
-        openBtn.onclick = function(e) { e.preventDefault(); _openInDiagramsNet(side); };
-      }
-      _renderDiagIframe(side);
-    });
-
+    ['current','future'].forEach(function(side) { _renderDiagPanel(side); });
     window._diagLoaded = true;
-
   } catch(e) {
     _showDiagError('current', e.message);
     _showDiagError('future',  e.message);
