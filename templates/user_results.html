@@ -24,13 +24,20 @@
     .nav-back:hover { color: var(--accent); }
     .hero { background: linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 60%, #004d99 100%); padding: 3.5rem 2rem 3rem; position: relative; overflow: hidden; }
     .hero::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(0,170,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,170,255,0.04) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; }
-    .hero-inner { position: relative; z-index: 2; max-width: 900px; margin: 0 auto; }
+    .hero-inner { position: relative; z-index: 2; max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
+    .hero-left { flex: 1; min-width: 0; }
     .hero-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
     .hero h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 0.75rem; }
     .hero-meta { display: flex; flex-wrap: wrap; gap: 1.2rem; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
     .hero-meta span { display: flex; align-items: center; gap: 5px; }
     .hero-meta a { color: var(--accent); text-decoration: none; word-break: break-all; }
     .hero-meta a:hover { text-decoration: underline; }
+    .hero-kpis { display: flex; gap: 1rem; flex-shrink: 0; }
+    .hero-kpi { background: rgba(0,0,0,0.25); border: 1px solid rgba(0,170,255,0.2); border-radius: 14px; padding: 1rem 1.4rem; min-width: 130px; text-align: center; backdrop-filter: blur(8px); }
+    .hero-kpi-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.4rem; }
+    .hero-kpi-value { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+    .hero-kpi-sub { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.3rem; }
+    @media (max-width: 700px) { .hero-kpis { display: none; } }
     .page-tabs { display: flex; gap: 0; padding: 0 2rem; background: rgba(0,22,44,0.7); border-bottom: 1px solid var(--border); overflow-x: auto; }
     .page-tab { padding: 0.85rem 1.4rem; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.2s, border-color 0.2s; user-select: none; }
     .page-tab:hover { color: var(--white); }
@@ -369,16 +376,30 @@
 
 <div class="hero">
   <div class="hero-inner">
-    <div class="hero-eyebrow">ZTB Opportunity Package</div>
-    <h1>{{ user_resp.customer_name }}</h1>
-    <div class="hero-meta">
-      <span>👤 {{ user_resp.se_name }}</span>
-      {% if user_resp.opportunity_url %}
-      <span>🔗 <a href="{{ user_resp.opportunity_url }}" target="_blank" rel="noopener">{{ user_resp.opportunity_url }}</a></span>
-      {% endif %}
-      {% if user_resp.completed_at %}
-      <span>📅 Completed {{ user_resp.completed_at.strftime('%b %d, %Y') }}</span>
-      {% endif %}
+    <div class="hero-left">
+      <div class="hero-eyebrow">ZTB Opportunity Package</div>
+      <h1>{{ user_resp.customer_name }}</h1>
+      <div class="hero-meta">
+        <span>👤 {{ user_resp.se_name }}</span>
+        {% if user_resp.opportunity_url %}
+        <span>🔗 <a href="{{ user_resp.opportunity_url }}" target="_blank" rel="noopener">{{ user_resp.opportunity_url }}</a></span>
+        {% endif %}
+        {% if user_resp.completed_at %}
+        <span>📅 Completed {{ user_resp.completed_at.strftime('%b %d, %Y') }}</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="hero-kpis">
+      <div class="hero-kpi">
+        <div class="hero-kpi-label">💰 Grand Total</div>
+        <div class="hero-kpi-value" id="hero-grand-total" style="color:var(--accent);">—</div>
+        <div class="hero-kpi-sub">Annual ACV</div>
+      </div>
+      <div class="hero-kpi">
+        <div class="hero-kpi-label">📈 ROI</div>
+        <div class="hero-kpi-value" id="hero-roi" style="color:#f59e0b;">—</div>
+        <div class="hero-kpi-sub">vs Legacy TCO</div>
+      </div>
     </div>
   </div>
 </div>
@@ -971,6 +992,18 @@ function switchTab(name) {
   if (name === 'diagrams' && !window._diagLoaded)     { loadDiagrams(); window._diagLoaded = true; }
 }
 
+// ── Hero KPI updaters ─────────────────────────────────────────────────────────
+function updateHeroGrandTotal(val) {
+  const el = document.getElementById('hero-grand-total');
+  if (!el) return;
+  el.textContent = val && val > 0 ? '$' + Number(val).toLocaleString('en-US', {maximumFractionDigits:0}) : '—';
+}
+function updateHeroROI(roiText) {
+  const el = document.getElementById('hero-roi');
+  if (!el) return;
+  el.textContent = roiText || '—';
+}
+
 let _toastTimer;
 function showToast(msg, isError) {
   const t = document.getElementById('ie-toast');
@@ -1283,6 +1316,7 @@ function updateTotals() {
   document.getElementById('grand-total-sub').textContent = totalSites + ' total site' + (totalSites !== 1 ? 's' : '') + ' configured';
   renderBOM();
   renderRampTable();
+  updateHeroGrandTotal(grandTotal);
   if (window._tcoLoaded && !_tcoACVOverridden) {
     _tcoACV = grandTotal;
     const acvInput = document.getElementById('tco-acv-input');
@@ -1572,11 +1606,13 @@ function updateTCOCalculations() {
   const yr3Sav    = annualSav * 3;
   const roi       = legacy > 0 ? Math.round(annualSav / legacy * 100) : 0;
   const payback   = annualSav > 0 ? Math.round((acv / annualSav) * 12) : null;
+  const roiText   = legacy > 0 ? roi + '%' : '—';
   document.getElementById('tco-kpi-legacy').textContent     = fmtMoney(legacy) || '$0';
   document.getElementById('tco-kpi-annual-sav').textContent = annualSav >= 0 ? fmtMoney(annualSav) : '-' + fmtMoney(-annualSav);
   document.getElementById('tco-kpi-3yr-sav').textContent    = yr3Sav >= 0 ? fmtMoney(yr3Sav) : '-' + fmtMoney(-yr3Sav);
-  document.getElementById('tco-kpi-roi').textContent        = legacy > 0 ? roi + '%' : '—';
+  document.getElementById('tco-kpi-roi').textContent        = roiText;
   document.getElementById('tco-kpi-payback').textContent    = payback !== null ? `Payback: ~${payback} months` : (acv > 0 ? 'No savings vs ACV' : 'Enter ACV above');
+  updateHeroROI(roiText);
   renderTCOSummary(); updateTCOChart();
 }
 
