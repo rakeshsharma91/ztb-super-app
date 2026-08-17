@@ -1704,7 +1704,10 @@ async function saveTCO() {
 }
 
 // ── Eager init on page load ───────────────────────────────────────────────────
-initPricing().then(() => { window._pricingLoaded = true; });
+initPricing().then(() => {
+  window._pricingLoaded = true;
+  initTCO().then(() => { window._tcoLoaded = true; });
+});
 </script>
 
 </body>
