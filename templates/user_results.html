@@ -1702,6 +1702,9 @@ async function saveTCO() {
     } else { ind.textContent = 'Save failed'; ind.className = 'tco-save-ind'; }
   } catch(e) { ind.textContent = 'Save failed'; ind.className = 'tco-save-ind'; }
 }
+
+// ── Eager init on page load ───────────────────────────────────────────────────
+initPricing().then(() => { window._pricingLoaded = true; });
 </script>
 
 </body>
