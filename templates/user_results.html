@@ -44,14 +44,18 @@
     .page-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
-    .page-body { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+    .page-body { max-width: 1280px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+    /* ── Results two-column layout ── */
+    .results-layout { display: grid; grid-template-columns: 1fr 300px; gap: 2rem; align-items: start; }
+    .results-main { min-width: 0; }
+    .results-sidebar { position: sticky; top: 74px; display: flex; flex-direction: column; gap: 0.75rem; }
+    .sidebar-heading { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text-muted); margin-bottom: 0.25rem; }
+    @media (max-width: 1000px) { .results-layout { grid-template-columns: 1fr; } .results-sidebar { position: static; } }
+    /* ── end results layout ── */
     .section-heading { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.25rem; }
     .section-heading h2 { font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
     .section-badge { background: rgba(0,170,255,0.12); border: 1px solid rgba(0,170,255,0.28); border-radius: 20px; padding: 1px 10px; font-size: 0.7rem; font-weight: 700; color: var(--accent); }
     .section-divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
-    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    @media (max-width: 900px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 560px) { .summary-grid { grid-template-columns: 1fr; } }
     .summary-tile { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 12px; padding: 1rem 1.2rem 1.1rem; display: flex; flex-direction: column; gap: 0.55rem; transition: box-shadow 0.2s, border-top-color 0.2s; }
     .summary-tile:hover { box-shadow: 0 4px 20px rgba(0,170,255,0.12); }
     .summary-tile-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; }
@@ -415,169 +419,173 @@
 <!-- ══════════════════════ RESULTS TAB ══════════════════════ -->
 <div class="tab-panel active" id="tab-results">
 <div class="page-body">
+  <div class="results-layout">
 
-  {% if tile_outcomes %}
-  <div class="section-heading">
-    <h2>Assessment Summary</h2>
-    <span class="section-badge">{{ tile_outcomes | length }}</span>
-  </div>
-  <div class="summary-grid">
-    {% for sec in tile_outcomes %}
-      {% set c = sec.color if sec.color else '#00aaff' %}
-      <div class="summary-tile" style="border-top-color: {{ c }};">
-        <div class="summary-tile-top">
-          <span class="summary-tile-name">{{ sec.name }}</span>
-          <span class="summary-tile-badge" style="background: {{ c }};">{{ sec.outcome }}</span>
+    <!-- ── LEFT: Value Drivers + everything else ── -->
+    <div class="results-main">
+
+      {% if driver_outcomes %}
+      <div class="section-heading">
+        <h2>Value Drivers</h2>
+        <span class="section-badge">{{ driver_outcomes | length }}</span>
+      </div>
+      <div class="vd-wrapper">
+        <table class="vd-table">
+          <thead>
+            <tr>
+              <th>Drivers</th>
+              <th>Current State</th>
+              <th>Future State</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for drv in driver_outcomes %}
+            <tr>
+              <td class="vd-driver">{{ drv.label }}</td>
+              <td class="vd-current">
+                {% for line in drv.current_state_lines %}
+                  <span class="vd-line">{{ line }}</span>
+                {% endfor %}
+              </td>
+              <td class="vd-future">
+                {% for line in drv.future_state_lines %}
+                  <span class="vd-line">{{ line }}</span>
+                {% endfor %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <hr class="section-divider">
+      {% endif %}
+
+      <div class="section-heading">
+        <h2>Value Propositions</h2>
+        <span class="section-badge">{{ value_props | length }}</span>
+      </div>
+      {% if value_props %}
+      <div class="vp-grid">
+        {% for vp in value_props %}
+        <div class="vp-card">
+          <div class="vp-card-title">{{ vp.get('Value Proposition Name') or vp.get('title') or vp.get('name') or ('Value Prop #' ~ vp.get('id','')) }}</div>
+          {% set desc = vp.get('Description') or vp.get('description') %}
+          {% if desc %}<div class="vp-card-desc">{{ desc }}</div>{% endif %}
+          {% set biz = vp.get('Business Value') or vp.get('business_value') %}
+          {% if biz %}<span class="vp-card-biz">{{ biz }}</span>{% endif %}
         </div>
-        {% if sec.banner %}
-        <div class="summary-tile-text" style="border-left-color: {{ c }}; background: {{ c }}18;">{{ sec.banner }}</div>
-        {% endif %}
-      </div>
-    {% endfor %}
-  </div>
-  <hr class="section-divider">
-  {% endif %}
-
-  {% if driver_outcomes %}
-  <div class="section-heading">
-    <h2>Value Drivers</h2>
-    <span class="section-badge">{{ driver_outcomes | length }}</span>
-  </div>
-  <div class="vd-wrapper">
-    <table class="vd-table">
-      <thead>
-        <tr>
-          <th>Drivers</th>
-          <th>Current State</th>
-          <th>Future State</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for drv in driver_outcomes %}
-        <tr>
-          <td class="vd-driver">{{ drv.label }}</td>
-          <td class="vd-current">
-            {% for line in drv.current_state_lines %}
-              <span class="vd-line">{{ line }}</span>
-            {% endfor %}
-          </td>
-          <td class="vd-future">
-            {% for line in drv.future_state_lines %}
-              <span class="vd-line">{{ line }}</span>
-            {% endfor %}
-          </td>
-        </tr>
         {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  <hr class="section-divider">
-  {% endif %}
-
-  <div class="section-heading">
-    <h2>Value Propositions</h2>
-    <span class="section-badge">{{ value_props | length }}</span>
-  </div>
-  {% if value_props %}
-  <div class="vp-grid">
-    {% for vp in value_props %}
-    <div class="vp-card">
-      <div class="vp-card-title">{{ vp.get('Value Proposition Name') or vp.get('title') or vp.get('name') or ('Value Prop #' ~ vp.get('id','')) }}</div>
-      {% set desc = vp.get('Description') or vp.get('description') %}
-      {% if desc %}<div class="vp-card-desc">{{ desc }}</div>{% endif %}
-      {% set biz = vp.get('Business Value') or vp.get('business_value') %}
-      {% if biz %}<span class="vp-card-biz">{{ biz }}</span>{% endif %}
-    </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="empty-state">No value propositions tagged for this assessment.</div>
-  {% endif %}
-
-  <hr class="section-divider">
-
-  <div class="section-heading">
-    <h2>Documents</h2>
-    <span class="section-badge">{{ documents | length }}</span>
-  </div>
-  {% if documents %}
-  <div class="assets-list">
-    {% for asset in documents %}
-    {% set title = asset.get('asset_name') or asset.get('title') or ('Asset #' ~ asset.get('id','')) %}
-    {% set atype = asset.get('asset_type') or '' %}
-    {% set url   = asset.get('url') or asset.get('link') or '' %}
-    {% set desc  = asset.get('description') or asset.get('Description') or '' %}
-    <div class="asset-row">
-      <div class="asset-icon">📄</div>
-      <div class="asset-info">
-        <div class="asset-title">{{ title }}</div>
-        {% if atype %}<div class="asset-type">{{ atype }}</div>{% endif %}
-        {% if desc %}<div class="asset-desc">{{ desc }}</div>{% endif %}
       </div>
-      {% if url %}<a class="asset-link" href="{{ url }}" target="_blank" rel="noopener">Open →</a>{% endif %}
-    </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="empty-state">No documents tagged for this assessment.</div>
-  {% endif %}
+      {% else %}
+      <div class="empty-state">No value propositions tagged for this assessment.</div>
+      {% endif %}
 
-  <hr class="section-divider">
+      <hr class="section-divider">
 
-  <div class="section-heading"><h2>Opportunity Notes</h2></div>
-  <div class="notes-card">
-    <textarea class="notes-textarea" id="opportunityNotes"
-      placeholder="Add notes about this opportunity — next steps, key contacts, blockers, context for the team…"
-    >{{ user_resp.notes or '' }}</textarea>
-    <div class="notes-footer">
-      <span class="notes-status" id="notesStatus"></span>
-      <span class="notes-hint">Auto-saves when you click away</span>
-    </div>
-  </div>
+      <div class="section-heading">
+        <h2>Documents</h2>
+        <span class="section-badge">{{ documents | length }}</span>
+      </div>
+      {% if documents %}
+      <div class="assets-list">
+        {% for asset in documents %}
+        {% set title = asset.get('asset_name') or asset.get('title') or ('Asset #' ~ asset.get('id','')) %}
+        {% set atype = asset.get('asset_type') or '' %}
+        {% set url   = asset.get('url') or asset.get('link') or '' %}
+        {% set desc  = asset.get('description') or asset.get('Description') or '' %}
+        <div class="asset-row">
+          <div class="asset-icon">📄</div>
+          <div class="asset-info">
+            <div class="asset-title">{{ title }}</div>
+            {% if atype %}<div class="asset-type">{{ atype }}</div>{% endif %}
+            {% if desc %}<div class="asset-desc">{{ desc }}</div>{% endif %}
+          </div>
+          {% if url %}<a class="asset-link" href="{{ url }}" target="_blank" rel="noopener">Open →</a>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">No documents tagged for this assessment.</div>
+      {% endif %}
 
-  <hr class="section-divider">
+      <hr class="section-divider">
 
-  <div class="section-heading">
-    <h2>Assessment Responses</h2>
-    <span class="section-badge">{{ qa_pairs | length }}</span>
-  </div>
-  {% if qa_pairs %}
-  <div class="qa-wrapper">
-    <table class="qa-table">
-      <thead>
-        <tr>
-          <th style="width:48%">Question</th>
-          <th style="width:42%">Answer</th>
-          <th style="width:10%"></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% set ns = namespace(last_cat='') %}
-        {% for item in qa_pairs %}
-          {% if item.category and item.category != ns.last_cat %}
-          <tr class="qa-category-row"><td colspan="3">{{ item.category }}</td></tr>
-          {% set ns.last_cat = item.category %}
+      <div class="section-heading"><h2>Opportunity Notes</h2></div>
+      <div class="notes-card">
+        <textarea class="notes-textarea" id="opportunityNotes"
+          placeholder="Add notes about this opportunity — next steps, key contacts, blockers, context for the team…"
+        >{{ user_resp.notes or '' }}</textarea>
+        <div class="notes-footer">
+          <span class="notes-status" id="notesStatus"></span>
+          <span class="notes-hint">Auto-saves when you click away</span>
+        </div>
+      </div>
+
+      <hr class="section-divider">
+
+      <div class="section-heading">
+        <h2>Assessment Responses</h2>
+        <span class="section-badge">{{ qa_pairs | length }}</span>
+      </div>
+      {% if qa_pairs %}
+      <div class="qa-wrapper">
+        <table class="qa-table">
+          <thead>
+            <tr>
+              <th style="width:48%">Question</th>
+              <th style="width:42%">Answer</th>
+              <th style="width:10%"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% set ns = namespace(last_cat='') %}
+            {% for item in qa_pairs %}
+              {% if item.category and item.category != ns.last_cat %}
+              <tr class="qa-category-row"><td colspan="3">{{ item.category }}</td></tr>
+              {% set ns.last_cat = item.category %}
+              {% endif %}
+              <tr class="qa-data-row" id="qa-row-{{ item.question_id }}">
+                <td class="col-question">{{ item.question }}</td>
+                <td class="col-answer" id="qa-answer-{{ item.question_id }}">{{ item.answer }}</td>
+                <td class="col-action">
+                  <button class="btn-inline-edit" onclick="toggleEditor({{ item.question_id }})">✏ Edit</button>
+                </td>
+              </tr>
+              <tr class="ie-row" id="ie-row-{{ item.question_id }}" style="display:none;">
+                <td colspan="3">
+                  <div class="ie-panel" id="ie-panel-{{ item.question_id }}"></div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">No responses recorded.</div>
+      {% endif %}
+
+    </div><!-- /results-main -->
+
+    <!-- ── RIGHT: Assessment Summary tiles stacked ── -->
+    <div class="results-sidebar">
+      {% if tile_outcomes %}
+      <div class="sidebar-heading">Assessment Summary</div>
+      {% for sec in tile_outcomes %}
+        {% set c = sec.color if sec.color else '#00aaff' %}
+        <div class="summary-tile" style="border-top-color: {{ c }};">
+          <div class="summary-tile-top">
+            <span class="summary-tile-name">{{ sec.name }}</span>
+            <span class="summary-tile-badge" style="background: {{ c }};">{{ sec.outcome }}</span>
+          </div>
+          {% if sec.banner %}
+          <div class="summary-tile-text" style="border-left-color: {{ c }}; background: {{ c }}18;">{{ sec.banner }}</div>
           {% endif %}
-          <tr class="qa-data-row" id="qa-row-{{ item.question_id }}">
-            <td class="col-question">{{ item.question }}</td>
-            <td class="col-answer" id="qa-answer-{{ item.question_id }}">{{ item.answer }}</td>
-            <td class="col-action">
-              <button class="btn-inline-edit" onclick="toggleEditor({{ item.question_id }})">✏ Edit</button>
-            </td>
-          </tr>
-          <tr class="ie-row" id="ie-row-{{ item.question_id }}" style="display:none;">
-            <td colspan="3">
-              <div class="ie-panel" id="ie-panel-{{ item.question_id }}"></div>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% else %}
-  <div class="empty-state">No responses recorded.</div>
-  {% endif %}
+        </div>
+      {% endfor %}
+      {% endif %}
+    </div><!-- /results-sidebar -->
 
+  </div><!-- /results-layout -->
 </div>
 </div><!-- /tab-results -->
 
@@ -651,50 +659,33 @@
   </div>
 
   <div class="diag-grid">
-
-    <!-- Current State -->
     <div class="diag-card">
       <div class="diag-card-header">
         <div>
           <div class="diag-card-title">🏢 Current State</div>
           <div class="diag-card-sub">Existing branch infrastructure</div>
         </div>
-        <button id="diag-copy-current" class="diag-open-btn" onclick="_copyDiagXML('current')">
-          📋 Copy XML
-        </button>
+        <button id="diag-copy-current" class="diag-open-btn" onclick="_copyDiagXML('current')">📋 Copy XML</button>
       </div>
       <div id="diag-current-wrap">
-        <div class="diag-loading" id="diag-current-loading">
-          <div class="diag-spinner"></div>
-          <span>Generating diagram…</span>
-        </div>
-        <iframe id="diag-current-iframe" class="diag-viewer" style="display:none;"
-          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
+        <div class="diag-loading" id="diag-current-loading"><div class="diag-spinner"></div><span>Generating diagram…</span></div>
+        <iframe id="diag-current-iframe" class="diag-viewer" style="display:none;" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
       </div>
     </div>
-
-    <!-- Future State -->
     <div class="diag-card">
       <div class="diag-card-header">
         <div>
           <div class="diag-card-title">⚡ Future State — Zscaler ZTB</div>
           <div class="diag-card-sub">After ZTB deployment</div>
         </div>
-        <button id="diag-copy-future" class="diag-open-btn" onclick="_copyDiagXML('future')">
-          📋 Copy XML
-        </button>
+        <button id="diag-copy-future" class="diag-open-btn" onclick="_copyDiagXML('future')">📋 Copy XML</button>
       </div>
       <div id="diag-future-wrap">
-        <div class="diag-loading" id="diag-future-loading">
-          <div class="diag-spinner"></div>
-          <span>Generating diagram…</span>
-        </div>
-        <iframe id="diag-future-iframe" class="diag-viewer" style="display:none;"
-          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
+        <div class="diag-loading" id="diag-future-loading"><div class="diag-spinner"></div><span>Generating diagram…</span></div>
+        <iframe id="diag-future-iframe" class="diag-viewer" style="display:none;" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
       </div>
     </div>
-
-  </div><!-- /diag-grid -->
+  </div>
 
 </div>
 </div><!-- /tab-diagrams -->
@@ -752,18 +743,10 @@
 
   <hr class="section-divider">
   <div class="section-heading"><h2>🧾 Bill of Materials</h2></div>
-  <div class="section-heading" style="margin-bottom:0.6rem;margin-top:-0.5rem;">
-    <h2 style="font-size:0.82rem;">🖥 Appliances</h2>
-  </div>
-  <div class="bom-wrap" id="bom-appliances-wrap">
-    <div class="empty-state">Configure site rows above to generate BOM.</div>
-  </div>
-  <div class="section-heading" style="margin-bottom:0.6rem;">
-    <h2 style="font-size:0.82rem;">📦 Software Licenses</h2>
-  </div>
-  <div class="bom-wrap" id="bom-licenses-wrap">
-    <div class="empty-state">Configure site rows above to generate BOM.</div>
-  </div>
+  <div class="section-heading" style="margin-bottom:0.6rem;margin-top:-0.5rem;"><h2 style="font-size:0.82rem;">🖥 Appliances</h2></div>
+  <div class="bom-wrap" id="bom-appliances-wrap"><div class="empty-state">Configure site rows above to generate BOM.</div></div>
+  <div class="section-heading" style="margin-bottom:0.6rem;"><h2 style="font-size:0.82rem;">📦 Software Licenses</h2></div>
+  <div class="bom-wrap" id="bom-licenses-wrap"><div class="empty-state">Configure site rows above to generate BOM.</div></div>
   <div class="bom-grand-card">
     <div>
       <div class="bom-grand-label">BOM Total</div>
@@ -777,18 +760,9 @@
     <div class="ps-notice-lead">Zscaler PS Credits auto calculate in SFDC based on quote, or leverage a ZTB service delivery authorized partner for deployment.</div>
     <div class="ps-notice-sub">How PS Auto Attach Works</div>
     <div class="ps-attach-list">
-      <div class="ps-attach-item">
-        <div class="ps-attach-icon">💰</div>
-        <div class="ps-attach-text"><strong>ACV-Based:</strong> Credits are attached based on the Annual Contract Value of the quote.</div>
-      </div>
-      <div class="ps-attach-item">
-        <div class="ps-attach-icon">📦</div>
-        <div class="ps-attach-text"><strong>Product/Hardware-Based:</strong> Credits are attached based on specific SKUs or hardware included in the quote.</div>
-      </div>
-      <div class="ps-attach-item">
-        <div class="ps-attach-icon">⚙️</div>
-        <div class="ps-attach-text">The system calculates how many credits are needed for the customer to be successful, and attaches them automatically when a quote is created.</div>
-      </div>
+      <div class="ps-attach-item"><div class="ps-attach-icon">💰</div><div class="ps-attach-text"><strong>ACV-Based:</strong> Credits are attached based on the Annual Contract Value of the quote.</div></div>
+      <div class="ps-attach-item"><div class="ps-attach-icon">📦</div><div class="ps-attach-text"><strong>Product/Hardware-Based:</strong> Credits are attached based on specific SKUs or hardware included in the quote.</div></div>
+      <div class="ps-attach-item"><div class="ps-attach-icon">⚙️</div><div class="ps-attach-text">The system calculates how many credits are needed for the customer to be successful, and attaches them automatically when a quote is created.</div></div>
     </div>
   </div>
 
@@ -803,10 +777,7 @@
     <div style="overflow-x:auto;">
       <table class="ramp-tbl" id="ramp-tbl">
         <thead>
-          <tr>
-            <th>Site Label</th><th>Sites</th><th>Site Total</th>
-            <th>Year 1 (25%)</th><th>Year 2 (50%)</th><th>Year 3 (75%)</th><th>Year 4 (100%)</th>
-          </tr>
+          <tr><th>Site Label</th><th>Sites</th><th>Site Total</th><th>Year 1 (25%)</th><th>Year 2 (50%)</th><th>Year 3 (75%)</th><th>Year 4 (100%)</th></tr>
         </thead>
         <tbody id="ramp-rows">
           <tr><td colspan="7" class="empty-state" style="color:var(--text-muted);">Add rows above to see ramp projection.</td></tr>
@@ -891,8 +862,7 @@
       <div class="tco-acv-label">Zscaler ACV (Annual)</div>
       <div class="tco-acv-source" id="tco-acv-source">Auto-filled from Pricing tab</div>
     </div>
-    <input class="tco-acv-input" id="tco-acv-input" type="number" min="0" placeholder="0"
-      oninput="onACVInput()" onblur="scheduleTCOSave()">
+    <input class="tco-acv-input" id="tco-acv-input" type="number" min="0" placeholder="0" oninput="onACVInput()" onblur="scheduleTCOSave()">
     <button onclick="resetACVtoPricing()" style="font-size:0.75rem;background:transparent;border:1px solid rgba(0,170,255,0.3);color:var(--accent);border-radius:6px;padding:6px 12px;cursor:pointer;">↺ Reset to Pricing Total</button>
   </div>
 
@@ -923,18 +893,10 @@
   <div class="tco-chart-wrap">
     <div class="tco-chart-title">📈 3-Year Projection Breakout</div>
     <div class="tco-chart-sub">Legacy Infrastructure vs. Zscaler ACV</div>
-    <div class="tco-chart-container">
-      <canvas id="tco-chart"></canvas>
-    </div>
+    <div class="tco-chart-container"><canvas id="tco-chart"></canvas></div>
     <div class="tco-chart-legend">
-      <div class="tco-legend-item">
-        <div class="tco-legend-box" style="background: #f87171;"></div>
-        <span>Legacy Annual Cost</span>
-      </div>
-      <div class="tco-legend-item">
-        <div class="tco-legend-box" style="background: #00d9ff;"></div>
-        <span>Zscaler ACV</span>
-      </div>
+      <div class="tco-legend-item"><div class="tco-legend-box" style="background: #f87171;"></div><span>Legacy Annual Cost</span></div>
+      <div class="tco-legend-item"><div class="tco-legend-box" style="background: #00d9ff;"></div><span>Zscaler ACV</span></div>
     </div>
   </div>
 
@@ -944,18 +906,11 @@
     <table class="tco-summary-tbl">
       <thead>
         <tr>
-          <th>Label</th>
-          <th class="num"># Sites</th>
-          <th class="num">FW N/S</th>
-          <th class="num">SD-WAN</th>
-          <th class="num">MPLS</th>
-          <th class="num">FW E/W</th>
-          <th class="num">IoT/OT</th>
-          <th class="num">NAC</th>
-          <th class="num">L3 Switch</th>
-          <th class="num">PAM</th>
-          <th class="num s-annual">Annual</th>
-          <th class="num s-3yr">3-Year</th>
+          <th>Label</th><th class="num"># Sites</th>
+          <th class="num">FW N/S</th><th class="num">SD-WAN</th><th class="num">MPLS</th>
+          <th class="num">FW E/W</th><th class="num">IoT/OT</th><th class="num">NAC</th>
+          <th class="num">L3 Switch</th><th class="num">PAM</th>
+          <th class="num s-annual">Annual</th><th class="num s-3yr">3-Year</th>
         </tr>
       </thead>
       <tbody id="tco-summary-tbody"></tbody>
@@ -968,10 +923,7 @@
 {% endif %}
 
 <footer class="footer">
-  <div class="footer-logo">
-    <div class="footer-z">Z</div>
-    <span>ZTB Super App</span>
-  </div>
+  <div class="footer-logo"><div class="footer-z">Z</div><span>ZTB Super App</span></div>
   <span class="footer-sep">&bull;</span>
   <span class="footer-copy">&copy; 2025 Zscaler, Inc. &mdash; Internal Sales Engineering Tool</span>
 </footer>
@@ -1081,7 +1033,6 @@ async function loadDiagrams(force) {
     _showDiagError('future',  e.message);
   }
 }
-
 
 function normType(t) { return (t || '').toLowerCase().replace(/[^a-z]/g, ''); }
 function toggleEditor(qid) { if (openQid === qid) { closeEditor(qid); return; } if (openQid !== null) closeEditor(openQid); openEditor(qid); }
