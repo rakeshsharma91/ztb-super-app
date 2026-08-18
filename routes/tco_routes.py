@@ -162,21 +162,22 @@ def get_tco_config(customer_slug):
 
     cfg = _get_or_create_tco_config()
 
-    user_resp    = _find_user_resp(customer_slug)
-    saved_rows   = []
-    acv_override = None
-    # per-customer overrides for the three hero inputs
+    user_resp       = _find_user_resp(customer_slug)
+    saved_rows      = []
+    acv_override    = None
     tco_fte_count   = None
     tco_fte_cost    = None
     tco_breach_cost = None
+    site_profile    = []
 
     if user_resp:
-        raw = user_resp.raw_responses or {}
+        raw             = user_resp.raw_responses or {}
         saved_rows      = raw.get('tco_rows',       [])
         acv_override    = raw.get('tco_acv_override')
         tco_fte_count   = raw.get('tco_fte_count')
         tco_fte_cost    = raw.get('tco_fte_cost')
         tco_breach_cost = raw.get('tco_breach_cost')
+        site_profile    = raw.get('site_profile',   [])
 
     return jsonify({
         'success':         True,
@@ -194,6 +195,7 @@ def get_tco_config(customer_slug):
             'fte_cost':     tco_fte_cost,
             'breach_cost':  tco_breach_cost,
         },
+        'site_profile': site_profile,   # site profile rows from assessment step
     })
 
 # ── User API: save TCO rows + hero metric overrides ───────────────────────────
@@ -219,8 +221,6 @@ def save_tco(customer_slug):
     else:
         raw.pop('tco_acv_override', None)
 
-    # Always persist hero metric values (even if they equal the default)
-    # so we can restore them on reload
     if fte_count is not None:
         raw['tco_fte_count'] = fte_count
     if fte_cost is not None:

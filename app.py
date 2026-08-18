@@ -26,6 +26,7 @@ def create_app():
     from routes.admin_sections_routes import sections_bp
     from routes.tco_routes import tco_bp, tco_user_bp
     from routes.pricing_routes import pricing_bp, pricing_user_bp
+    from routes.site_profile_routes import site_profile_bp
 
     app.register_blueprint(admin_bp)
     app.register_blueprint(admin_questions_bp)
@@ -42,6 +43,7 @@ def create_app():
     app.register_blueprint(tco_user_bp)
     app.register_blueprint(pricing_bp)
     app.register_blueprint(pricing_user_bp)
+    app.register_blueprint(site_profile_bp)
 
     return app
 

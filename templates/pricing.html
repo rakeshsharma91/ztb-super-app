@@ -30,7 +30,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .page-header p  { font-size: 13px; color: #666; margin-top: 3px; }
 
 /* TOOLBAR */
-.toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
 .btn { padding: 7px 16px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600; border: none; transition: opacity 0.2s, transform 0.1s; display: inline-flex; align-items: center; gap: 6px; }
 .btn:hover { opacity: 0.88; }
 .btn:active { transform: scale(0.97); }
@@ -71,14 +70,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .ha-badge { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; background: #fef3c7; color: #92400e; margin-left: 4px; }
 .inactive-row td { opacity: 0.45; }
 
-/* SKU name inline edit */
 .sku-name-wrap { display: flex; align-items: center; gap: 6px; }
 .sku-code-tag  { font-size: 11px; color: #888; font-family: monospace; }
-
-/* Action cell */
 .action-cell { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
-
-/* HA sync indicator */
 .ha-sync-note { font-size: 11px; color: #888; font-style: italic; }
 
 /* MODAL */
@@ -99,6 +93,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .ha-info-box { background: #fef3c7; border: 1px solid #fbbf24; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #92400e; display: none; }
 .ha-info-box.show { display: block; }
 
+/* GUIDANCE SECTION */
+.guidance-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); padding: 24px 28px; margin-top: 32px; }
+.guidance-card h2 { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.guidance-card p  { font-size: 13px; color: #666; margin-bottom: 16px; }
+.guidance-textarea { width: 100%; min-height: 120px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; font-family: inherit; color: var(--text); resize: vertical; transition: border-color 0.15s; line-height: 1.6; }
+.guidance-textarea:focus { outline: none; border-color: var(--accent); }
+.guidance-footer { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.guidance-status { font-size: 12px; color: #666; }
+.guidance-status.saved  { color: var(--success); font-weight: 600; }
+.guidance-status.saving { color: var(--blue); }
+.guidance-status.error  { color: var(--danger); }
+
 /* TOAST */
 #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
 .toast { padding: 11px 18px; border-radius: 6px; color: #fff; font-size: 13px; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.2); animation: toastIn 0.25s ease; }
@@ -108,7 +114,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 @keyframes toastIn  { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
 
-/* Empty state */
 .empty-state { text-align: center; padding: 40px 20px; color: #888; font-size: 14px; }
 </style>
 </head>
@@ -164,6 +169,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       </tbody>
     </table>
   </div>
+
+  <!-- ── Site Profile Guidance ─────────────────────────────────────────── -->
+  <div class="guidance-card">
+    <h2>🏢 Site Profile Builder — Guidance Text</h2>
+    <p>This text appears at the top of the Site Profile Builder step in the SE assessment flow. Use it to explain what the site profile is and how to fill it in.</p>
+    <textarea
+      class="guidance-textarea"
+      id="guidanceTextarea"
+      placeholder="Loading…"
+    ></textarea>
+    <div class="guidance-footer">
+      <button class="btn btn-primary" onclick="saveGuidance()">&#128190; Save Guidance</button>
+      <span class="guidance-status" id="guidanceStatus"></span>
+    </div>
+  </div>
 </main>
 
 <!-- ── ADD / EDIT MODAL ─────────────────────────────────────────────────── -->
@@ -209,7 +229,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         </div>
       </div>
 
-      <!-- HA options — only shown for appliance category -->
       <div id="ha-section" style="display:none;">
         <div class="form-row" style="margin-bottom:8px;">
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
@@ -447,7 +466,6 @@ function populateParentSelect(selectedId) {
     if (s.id === selectedId) o.selected = true;
     sel.appendChild(o);
   });
-
   sel.onchange = () => {
     const parentId = parseInt(sel.value);
     if (!parentId) return;
@@ -458,7 +476,6 @@ function populateParentSelect(selectedId) {
     document.getElementById('m-budgetary').value  = fmtEdit(parent.budgetary * 2);
     document.getElementById('m-standard').value   = fmtEdit(parent.standard * 2);
     document.getElementById('m-aggressive').value = fmtEdit(parent.aggressive * 2);
-    // Also inherit size
     if (parent.size) document.getElementById('m-size').value = parent.size;
   };
 }
@@ -484,7 +501,7 @@ function resetModal() {
 function openAddModal() {
   _editingId = null;
   resetModal();
-  document.getElementById('modal-title').textContent   = 'Add SKU';
+  document.getElementById('modal-title').textContent    = 'Add SKU';
   document.getElementById('modal-save-btn').textContent = '＋ Add SKU';
   document.getElementById('sku-modal').classList.add('open');
 }
@@ -526,8 +543,8 @@ function closeModal() {
 
 // ── Save SKU ──────────────────────────────────────────────────────────────────
 async function saveSKU() {
-  const btn = document.getElementById('modal-save-btn');
-  const isHa       = document.getElementById('m-is-ha').checked;
+  const btn    = document.getElementById('modal-save-btn');
+  const isHa   = document.getElementById('m-is-ha').checked;
   const haParentId = isHa ? (parseInt(document.getElementById('m-ha-parent').value) || null) : null;
 
   const payload = {
@@ -579,8 +596,50 @@ document.getElementById('sku-modal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
 
+// ── Site Profile Guidance ─────────────────────────────────────────────────────
+async function loadGuidance() {
+  try {
+    const res  = await apiFetch('/admin/pricing/api/guidance');
+    if (!res || !res.ok) return;
+    const data = await res.json();
+    document.getElementById('guidanceTextarea').value = data.value || '';
+  } catch(e) {
+    // silently ignore — textarea stays empty
+  }
+}
+
+async function saveGuidance() {
+  const btn    = document.querySelector('.guidance-footer .btn-primary');
+  const status = document.getElementById('guidanceStatus');
+  const value  = document.getElementById('guidanceTextarea').value.trim();
+
+  btn.disabled = true; btn.textContent = 'Saving…';
+  status.className = 'guidance-status saving';
+  status.textContent = 'Saving…';
+
+  const res = await apiFetch('/admin/pricing/api/guidance', {
+    method:  'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ value })
+  });
+
+  btn.disabled = false; btn.textContent = '💾 Save Guidance';
+
+  if (res && res.ok) {
+    status.className   = 'guidance-status saved';
+    status.textContent = '✓ Saved';
+    showToast('Guidance text saved ✓');
+    setTimeout(() => { status.textContent = ''; }, 4000);
+  } else {
+    status.className   = 'guidance-status error';
+    status.textContent = '✗ Save failed';
+    showToast('Save failed', 'error');
+  }
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 loadSKUs();
+loadGuidance();
 </script>
 </body>
 </html>

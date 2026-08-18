@@ -92,7 +92,6 @@ def update_sku(sku_id):
     if 'display_order' in data: sku.display_order = int(data['display_order'] or 0)
     if 'active'        in data: sku.active        = bool(data['active'])
 
-    # If this is a No-HA appliance and auto_ha is requested, update the linked HA child
     if data.get('sync_ha') and not sku.is_ha:
         ha_child = PricingSKU.query.filter_by(ha_parent_id=sku.id, is_ha=True).first()
         if ha_child:
@@ -146,10 +145,9 @@ def _slug_to_response(customer_slug):
     return resp
 
 
-# ── GET pricing config (SKUs + saved rows for this customer) ─────────────────
+# ── GET pricing config (SKUs + saved rows + site_profile for this customer) ───
 @pricing_user_bp.route('/user/<customer_slug>/pricing-config', methods=['GET'])
 def pricing_config(customer_slug):
-    # All active SKUs grouped by category
     skus = PricingSKU.query.filter_by(active=True).order_by(
         PricingSKU.display_order, PricingSKU.id
     ).all()
@@ -158,18 +156,22 @@ def pricing_config(customer_slug):
     sdwan        = [s.to_dict() for s in skus if s.category == 'sdwan']
     segmentation = [s.to_dict() for s in skus if s.category == 'segmentation']
 
-    # Saved pricing data for this customer
-    saved = {}
+    saved         = {}
+    site_profile  = []
     resp = _slug_to_response(customer_slug)
-    if resp and resp.pricing_data:
-        saved = resp.pricing_data
+    if resp:
+        if resp.pricing_data:
+            saved = resp.pricing_data
+        if resp.raw_responses:
+            site_profile = resp.raw_responses.get('site_profile', [])
 
     return jsonify({
         'success':      True,
         'appliances':   appliances,
         'sdwan':        sdwan,
         'segmentation': segmentation,
-        'saved':        saved,   # { phase, rows: [...] }
+        'saved':        saved,          # { phase, rows: [...] } — manually saved pricing rows
+        'site_profile': site_profile,   # site profile rows from assessment step
     })
 
 
@@ -185,5 +187,45 @@ def pricing_save(customer_slug):
         'phase': data.get('phase', 'standard'),
         'rows':  data.get('rows', []),
     }
+    db.session.commit()
+    return jsonify({'success': True})
+
+
+# ── Admin API: Site Profile Guidance text ─────────────────────────────────────
+from models import AdminConfig
+
+@pricing_bp.route('/admin/pricing/api/guidance', methods=['GET'])
+def get_guidance():
+    redir = admin_required()
+    if redir:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+
+    row = AdminConfig.query.filter_by(key='site_profile_guidance').first()
+    return jsonify({
+        'success': True,
+        'value': row.value if row else (
+            "Define your customer's site profile below. Each row represents a site tier "
+            "(e.g. Small Branch, Factory, Data Centre). The size you select drives automatic "
+            "SKU selection in the Pricing and TCO tabs. Check SD-WAN Required if the site "
+            "needs an SD-WAN license, Segmentation Required if micro-segmentation is needed, "
+            "and HA Required to select the dual-appliance SKU."
+        )
+    })
+
+@pricing_bp.route('/admin/pricing/api/guidance', methods=['PUT'])
+def save_guidance():
+    redir = admin_required()
+    if redir:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+
+    data  = request.get_json() or {}
+    value = (data.get('value') or '').strip()
+
+    row = AdminConfig.query.filter_by(key='site_profile_guidance').first()
+    if row:
+        row.value = value
+    else:
+        row = AdminConfig(key='site_profile_guidance', value=value)
+        db.session.add(row)
     db.session.commit()
     return jsonify({'success': True})

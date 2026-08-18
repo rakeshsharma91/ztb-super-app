@@ -6,20 +6,19 @@
 <title>{% if edit_mode %}Edit Assessment — {{ customer_slug }}{% else %}ZTB Assessment{% endif %}</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 40px 20px; }
-  .edit-banner {
-    width: 100%; max-width: 700px;
-    background: #003366; color: #fff;
-    border-radius: 10px; padding: 12px 20px;
-    margin-bottom: 18px;
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    font-size: 14px; font-weight: 600;
-  }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 40px 20px 80px; }
+
+  /* ── Edit banner ── */
+  .edit-banner { width: 100%; max-width: 960px; background: #003366; color: #fff; border-radius: 10px; padding: 12px 20px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; font-weight: 600; }
   .edit-banner a { color: #7dd3fc; text-decoration: none; font-size: 13px; white-space: nowrap; }
   .edit-banner a:hover { text-decoration: underline; }
-  .progress-bar-wrap { width: 100%; max-width: 700px; background: #dde3ea; border-radius: 8px; height: 8px; margin-bottom: 24px; }
+
+  /* ── Progress ── */
+  .progress-bar-wrap { width: 100%; max-width: 960px; background: #dde3ea; border-radius: 8px; height: 8px; margin-bottom: 24px; }
   .progress-bar-fill { height: 8px; background: #003366; border-radius: 8px; transition: width 0.3s ease; }
-  .progress-label { width: 100%; max-width: 700px; font-size: 13px; color: #666; margin-bottom: 8px; display: flex; justify-content: space-between; }
+  .progress-label { width: 100%; max-width: 960px; font-size: 13px; color: #666; margin-bottom: 8px; display: flex; justify-content: space-between; }
+
+  /* ── Question card ── */
   .card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 40px; width: 100%; max-width: 700px; }
   .category-tag { display: inline-block; background: #e8f0fe; color: #003366; font-size: 12px; font-weight: 600; border-radius: 20px; padding: 4px 14px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
   .question-text { font-size: 20px; font-weight: 600; color: #1a1a2e; line-height: 1.5; margin-bottom: 28px; }
@@ -31,7 +30,7 @@
   textarea { width: 100%; border: 2px solid #dde3ea; border-radius: 10px; padding: 14px 18px; font-size: 15px; font-family: inherit; color: #333; resize: vertical; min-height: 120px; outline: none; transition: border 0.2s; }
   textarea:focus { border-color: #003366; }
   .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; gap: 10px; }
-  .btn { padding: 12px 28px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn { padding: 12px 28px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 7px; }
   .btn-back { background: #f0f4f8; color: #555; }
   .btn-back:hover { background: #dde3ea; }
   .btn-next { background: #003366; color: #fff; }
@@ -43,34 +42,91 @@
   .btn-save { background: #fff; color: #0070c0; border: 2px solid #0070c0; padding: 10px 20px; }
   .btn-save:hover { background: #e8f4ff; }
   .btn-save:disabled { opacity: 0.55; cursor: not-allowed; }
-  .save-toast {
-    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
-    background: #003366; color: #fff; padding: 12px 28px;
-    border-radius: 10px; font-size: 14px; font-weight: 600;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.18);
-    opacity: 0; transition: opacity 0.3s;
-    pointer-events: none; white-space: nowrap; z-index: 999;
-  }
+
+  /* ── Site Profile card ── */
+  #siteProfileCard { display: none; width: 100%; max-width: 960px; }
+  .sp-header { background: #fff; border-radius: 16px 16px 0 0; box-shadow: 0 2px 12px rgba(0,0,0,0.07); padding: 28px 32px 20px; border-bottom: 1px solid #e8edf2; }
+  .sp-title { font-size: 22px; font-weight: 700; color: #003366; display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .sp-subtitle { font-size: 13px; color: #666; }
+
+  /* Guidance box */
+  .sp-guidance { background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 14px 18px; font-size: 13px; color: #1e3a5f; line-height: 1.7; margin: 16px 0 0; }
+  .sp-guidance strong { color: #003366; }
+
+  /* Table */
+  .sp-body { background: #fff; border-radius: 0 0 16px 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 24px 32px 32px; overflow-x: auto; }
+  .sp-table { width: 100%; border-collapse: collapse; min-width: 1100px; }
+  .sp-table thead tr { background: #003366; }
+  .sp-table th { padding: 10px 12px; color: #fff; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; text-align: left; }
+  .sp-table td { padding: 8px 10px; border-bottom: 1px solid #f0f2f5; vertical-align: middle; }
+  .sp-table tr:last-child td { border-bottom: none; }
+  .sp-table tr:hover td { background: #f8fbff; }
+
+  /* Inputs inside table */
+  .sp-input { width: 100%; padding: 6px 9px; border: 1px solid #dde3ea; border-radius: 6px; font-size: 13px; font-family: inherit; color: #333; background: #fff; transition: border-color 0.15s; }
+  .sp-input:focus { outline: none; border-color: #0070c0; }
+  .sp-input[type="number"] { width: 72px; text-align: center; }
+  .sp-select { width: 100%; padding: 6px 9px; border: 1px solid #dde3ea; border-radius: 6px; font-size: 12px; font-family: inherit; color: #333; background: #fff; cursor: pointer; }
+  .sp-select:focus { outline: none; border-color: #0070c0; }
+
+  /* Checkboxes */
+  .sp-checks { display: flex; flex-direction: column; gap: 5px; }
+  .sp-check-label { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #444; cursor: pointer; white-space: nowrap; }
+  .sp-check-label input { width: 14px; height: 14px; cursor: pointer; accent-color: #003366; }
+
+  /* Size badge inside select */
+  .size-opt-Small  { color: #0369a1; }
+  .size-opt-Medium { color: #854d0e; }
+  .size-opt-Large  { color: #166534; }
+  .size-opt-XL     { color: #9d174d; }
+
+  /* Delete row button */
+  .sp-del-btn { background: transparent; border: none; color: #dc3545; font-size: 16px; cursor: pointer; padding: 3px 7px; opacity: 0.6; transition: opacity 0.15s; line-height: 1; }
+  .sp-del-btn:hover { opacity: 1; }
+
+  /* Add row / nav row */
+  .sp-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; flex-wrap: wrap; gap: 12px; }
+  .sp-add-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 20px; background: #0070c0; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+  .sp-add-btn:hover { background: #005ea2; }
+  .sp-empty-msg { text-align: center; padding: 32px 16px; color: #888; font-size: 14px; display: none; }
+  .sp-empty-msg.show { display: block; }
+
+  /* Toast */
+  .save-toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: #003366; color: #fff; padding: 12px 28px; border-radius: 10px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 18px rgba(0,0,0,0.18); opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; z-index: 999; }
   .save-toast.show { opacity: 1; }
+
+  /* Step pill nav at top */
+  .step-tabs { width: 100%; max-width: 960px; display: flex; gap: 0; margin-bottom: 20px; background: #fff; border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,0.07); overflow: hidden; }
+  .step-tab { flex: 1; padding: 11px 8px; text-align: center; font-size: 13px; font-weight: 600; color: #666; cursor: default; border-right: 1px solid #e8edf2; transition: background 0.2s, color 0.2s; }
+  .step-tab:last-child { border-right: none; }
+  .step-tab.active { background: #003366; color: #fff; }
+  .step-tab.done   { background: #e8f4ff; color: #0070c0; }
 </style>
 </head>
 <body>
 
 {% if edit_mode %}
-<div class="edit-banner">
+<div class="edit-banner" style="max-width:960px;">
   <span>✏️ Editing answers for <strong>{{ customer_slug }}</strong></span>
   <a href="/user/{{ customer_slug }}">← Cancel, back to results</a>
 </div>
 {% endif %}
 
-<div class="progress-label">
+<!-- Step tabs -->
+<div class="step-tabs" id="stepTabs">
+  <div class="step-tab active" id="stab-questions">📋 Assessment</div>
+  <div class="step-tab"        id="stab-siteprofile">🏢 Site Profile</div>
+</div>
+
+<div class="progress-label" id="progressLabelWrap">
   <span id="categoryLabel"></span>
   <span id="counterLabel"></span>
 </div>
-<div class="progress-bar-wrap">
+<div class="progress-bar-wrap" id="progressBarWrap">
   <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
 </div>
 
+<!-- ── Question card ── -->
 <div class="card" id="questionCard">
   <div class="category-tag" id="catTag"></div>
   <div class="question-text" id="qText"></div>
@@ -85,31 +141,66 @@
   </div>
 </div>
 
+<!-- ── Site Profile Builder card ── -->
+<div id="siteProfileCard">
+  <div class="sp-header">
+    <div class="sp-title">🏢 Site Profile Builder</div>
+    <div class="sp-subtitle">Define your customer's network site tiers. This drives automatic SKU selection in Pricing &amp; TCO.</div>
+    <div class="sp-guidance" id="spGuidance">Loading guidance…</div>
+  </div>
+  <div class="sp-body">
+    <div class="sp-empty-msg" id="spEmptyMsg">No sites added yet. Click "+ Add Site" to define your first site tier.</div>
+    <div style="overflow-x:auto;">
+      <table class="sp-table" id="spTable">
+        <thead>
+          <tr>
+            <th style="width:130px;">Site Label</th>
+            <th style="width:60px;"># Sites</th>
+            <th style="width:90px;">Size</th>
+            <th style="width:120px;">WAN Type</th>
+            <th style="width:130px;">🔥 FW N/S</th>
+            <th style="width:130px;">🌐 SD-WAN</th>
+            <th style="width:120px;">📡 MPLS</th>
+            <th style="width:130px;">🔒 FW E/W</th>
+            <th style="width:120px;">🤖 IoT/OT</th>
+            <th style="width:110px;">🛡 NAC</th>
+            <th style="width:120px;">🔀 L3 Switch</th>
+            <th style="width:110px;">🔑 PAM</th>
+            <th style="width:110px;">Options</th>
+            <th style="width:36px;"></th>
+          </tr>
+        </thead>
+        <tbody id="spTbody"></tbody>
+      </table>
+    </div>
+    <div class="sp-footer">
+      <button class="sp-add-btn" onclick="spAddRow()">＋ Add Site</button>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button class="btn btn-back" onclick="showQuestions()">← Back to Questions</button>
+        <button class="btn btn-submit" id="spSubmitBtn" onclick="spSubmitAll()">✓ Save Profile &amp; Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="save-toast" id="saveToast"></div>
 
 <script>
-// ── Data from server ──────────────────────────────────────────────────────────
+// ── Server data ───────────────────────────────────────────────────────────────
 const ALL_QUESTIONS    = {{ questions | tojson }};
 const savedResponses   = {{ saved_responses | tojson }};
 const resumeIndex      = {{ resume_index }};
 const EDIT_MODE        = {{ 'true' if edit_mode else 'false' }};
 const CUSTOMER_SLUG    = {{ customer_slug | tojson }};
 const VISIBILITY_RULES = {{ visibility_rules | tojson }};
-// VISIBILITY_RULES is an array of {id, parent_question_id, option_id, child_question_id}
 
-// ── State ─────────────────────────────────────────────────────────────────────
+// ── Assessment state ──────────────────────────────────────────────────────────
 const responses = {};
 Object.keys(savedResponses).forEach(function(k) {
   responses[parseInt(k)] = savedResponses[k];
 });
 
-// Build the visible questions list based on current responses + visibility rules.
-// A question is visible if:
-//   (a) it is not hidden (hidden=false), OR
-//   (b) it IS hidden but at least one visibility rule says it should be shown
-//       given the current responses.
 function computeVisibleQuestions() {
-  // Collect all option IDs currently selected across all responses
   const selectedOptionIds = new Set();
   Object.values(responses).forEach(function(val) {
     if (Array.isArray(val)) {
@@ -118,39 +209,42 @@ function computeVisibleQuestions() {
       selectedOptionIds.add(parseInt(val));
     }
   });
-
-  // Build set of child_question_ids that are unlocked by current selections
   const unlockedChildIds = new Set();
   VISIBILITY_RULES.forEach(function(rule) {
     if (selectedOptionIds.has(rule.option_id)) {
       unlockedChildIds.add(rule.child_question_id);
     }
   });
-
   return ALL_QUESTIONS.filter(function(q) {
-    if (!q.hidden) return true;           // normal question — always show
-    return unlockedChildIds.has(q.question_id); // hidden — show only if unlocked
+    if (!q.hidden) return true;
+    return unlockedChildIds.has(q.question_id);
   });
 }
 
-// questions is the currently visible list; current is an index into it.
 let questions = computeVisibleQuestions();
 let current   = 0;
-
-// On resume, find the position in the visible list that matches resumeIndex
-// (resumeIndex is the stored question index, not necessarily visible index)
 if (resumeIndex > 0) {
-  // Try to place cursor at same visible-list position
   current = Math.min(resumeIndex, Math.max(0, questions.length - 1));
 }
-
 let draftResponseId = null;
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Site Profile state ────────────────────────────────────────────────────────
+let _spVendors  = {};   // { fw_ns: ['Palo Alto', ...], sdwan: [...], ... }
+let _spRows     = [];   // saved rows from server
+let _spGuidance = '';
+
+const SP_CATS = ['fw_ns','sdwan','mpls','fw_ew','iot_ot','nac','l3sw','pam'];
+const SP_CAT_LABELS = {
+  fw_ns:'FW N/S', sdwan:'SD-WAN', mpls:'MPLS', fw_ew:'FW E/W',
+  iot_ot:'IoT/OT', nac:'NAC', l3sw:'L3 Switch', pam:'PAM'
+};
+const WAN_TYPES = ['Internet Only', 'Internet + MPLS', 'MPLS Only', 'Internet + SD-WAN', 'Internet + MPLS + SD-WAN'];
+const SIZES     = ['Small','Medium','Large','XL'];
+
+// ── Utility ───────────────────────────────────────────────────────────────────
 function normalise(t) {
   return (t || '').toLowerCase().replace(/[^a-z]/g, '');
 }
-
 function showToast(msg, isError) {
   const toast = document.getElementById('saveToast');
   toast.textContent = msg;
@@ -158,32 +252,257 @@ function showToast(msg, isError) {
   toast.classList.add('show');
   setTimeout(function() { toast.classList.remove('show'); }, 3000);
 }
-
-// After any answer change: recompute visible questions and re-render.
-// If a previously-visible question is no longer visible, clear its response
-// so the default fires correctly on submit.
 function onAnswerChanged() {
-  const oldQ     = questions[current];
-  const newList  = computeVisibleQuestions();
-
-  // Find which question IDs disappeared from the visible list
-  const newIds = new Set(newList.map(function(q) { return q.question_id; }));
+  const oldQ    = questions[current];
+  const newList = computeVisibleQuestions();
+  const newIds  = new Set(newList.map(function(q) { return q.question_id; }));
   questions.forEach(function(q) {
     if (!newIds.has(q.question_id) && q.hidden) {
-      // Question just got hidden again — clear its answer so default kicks in
       delete responses[q.question_id];
     }
   });
-
   questions = newList;
-
-  // Keep cursor on the same question if still visible; otherwise stay at same index
   const newIdx = questions.findIndex(function(q) { return q.question_id === oldQ.question_id; });
   if (newIdx !== -1) { current = newIdx; }
   else { current = Math.min(current, questions.length - 1); }
 }
 
-// ── Rendering ─────────────────────────────────────────────────────────────────
+// ── Step tab helpers ──────────────────────────────────────────────────────────
+function setStepTab(step) {
+  document.getElementById('stab-questions').className   = 'step-tab' + (step === 'questions'   ? ' active' : ' done');
+  document.getElementById('stab-siteprofile').className = 'step-tab' + (step === 'siteprofile' ? ' active' : '');
+}
+function showQuestions() {
+  document.getElementById('questionCard').style.display    = 'block';
+  document.getElementById('siteProfileCard').style.display = 'none';
+  document.getElementById('progressBarWrap').style.display = 'block';
+  document.getElementById('progressLabelWrap').style.display = 'flex';
+  setStepTab('questions');
+  render();
+}
+function showSiteProfile() {
+  document.getElementById('questionCard').style.display    = 'none';
+  document.getElementById('siteProfileCard').style.display = 'block';
+  document.getElementById('progressBarWrap').style.display = 'none';
+  document.getElementById('progressLabelWrap').style.display = 'none';
+  setStepTab('siteprofile');
+  loadSiteProfileConfig();
+}
+
+// ── Site Profile — load config from API ──────────────────────────────────────
+function loadSiteProfileConfig() {
+  const slug = CUSTOMER_SLUG || '';
+  const url  = '/api/site-profile-config' + (slug ? '?slug=' + slug : '');
+  fetch(url)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.success) return;
+      _spVendors  = data.vendors          || {};
+      _spGuidance = data.guidance         || '';
+      if (data.saved && data.saved.length > 0) {
+        _spRows = data.saved;
+      }
+      document.getElementById('spGuidance').textContent = _spGuidance;
+      spRenderTable();
+    })
+    .catch(function() {
+      document.getElementById('spGuidance').textContent = 'Could not load site profile config.';
+    });
+}
+
+// ── Site Profile — row management ─────────────────────────────────────────────
+function spAddRow() {
+  _spRows.push({
+    label: '', num_sites: 1, size: 'Small', wan_type: 'Internet Only',
+    fw_ns_vendor: '', sdwan_vendor: '', mpls_vendor: '', fw_ew_vendor: '',
+    iot_ot_vendor: '', nac_vendor: '', l3sw_vendor: '', pam_vendor: '',
+    sdwan_required: false, segmentation_required: false, ha_required: false
+  });
+  spRenderTable();
+  // Focus the last label input
+  setTimeout(function() {
+    const inputs = document.querySelectorAll('.sp-label-input');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 50);
+}
+
+function spDeleteRow(idx) {
+  _spRows.splice(idx, 1);
+  spRenderTable();
+}
+
+function spSetField(idx, field, value) {
+  _spRows[idx][field] = value;
+}
+
+function spRenderTable() {
+  const tbody   = document.getElementById('spTbody');
+  const emptyEl = document.getElementById('spEmptyMsg');
+  tbody.innerHTML = '';
+
+  if (!_spRows.length) {
+    emptyEl.classList.add('show');
+    return;
+  }
+  emptyEl.classList.remove('show');
+
+  _spRows.forEach(function(row, idx) {
+    const tr = document.createElement('tr');
+
+    // ── Site Label ──
+    const tdLabel = document.createElement('td');
+    const inpLabel = document.createElement('input');
+    inpLabel.type = 'text'; inpLabel.className = 'sp-input sp-label-input';
+    inpLabel.placeholder = 'e.g. Factory';
+    inpLabel.value = row.label || '';
+    inpLabel.oninput = function() { spSetField(idx, 'label', this.value); };
+    tdLabel.appendChild(inpLabel);
+    tr.appendChild(tdLabel);
+
+    // ── # Sites ──
+    const tdNum = document.createElement('td');
+    const inpNum = document.createElement('input');
+    inpNum.type = 'number'; inpNum.className = 'sp-input';
+    inpNum.min = '1'; inpNum.value = row.num_sites || 1;
+    inpNum.oninput = function() { spSetField(idx, 'num_sites', parseInt(this.value) || 1); };
+    tdNum.appendChild(inpNum);
+    tr.appendChild(tdNum);
+
+    // ── Size ──
+    const tdSize = document.createElement('td');
+    const selSize = document.createElement('select');
+    selSize.className = 'sp-select';
+    SIZES.forEach(function(s) {
+      const o = document.createElement('option');
+      o.value = s; o.textContent = s;
+      if (row.size === s) o.selected = true;
+      selSize.appendChild(o);
+    });
+    selSize.onchange = function() { spSetField(idx, 'size', this.value); };
+    tdSize.appendChild(selSize);
+    tr.appendChild(tdSize);
+
+    // ── WAN Type ──
+    const tdWan = document.createElement('td');
+    const selWan = document.createElement('select');
+    selWan.className = 'sp-select';
+    WAN_TYPES.forEach(function(w) {
+      const o = document.createElement('option');
+      o.value = w; o.textContent = w;
+      if (row.wan_type === w) o.selected = true;
+      selWan.appendChild(o);
+    });
+    selWan.onchange = function() { spSetField(idx, 'wan_type', this.value); };
+    tdWan.appendChild(selWan);
+    tr.appendChild(tdWan);
+
+    // ── Vendor dropdowns for each TCO category ──
+    const vendorFields = {
+      fw_ns: 'fw_ns_vendor', sdwan: 'sdwan_vendor', mpls: 'mpls_vendor',
+      fw_ew: 'fw_ew_vendor', iot_ot: 'iot_ot_vendor', nac: 'nac_vendor',
+      l3sw: 'l3sw_vendor', pam: 'pam_vendor'
+    };
+    SP_CATS.forEach(function(cat) {
+      const field   = vendorFields[cat];
+      const vendors = _spVendors[cat] || [];
+      const td  = document.createElement('td');
+      const sel = document.createElement('select');
+      sel.className = 'sp-select';
+      const none = document.createElement('option');
+      none.value = ''; none.textContent = '— None —';
+      sel.appendChild(none);
+      vendors.forEach(function(v) {
+        const o = document.createElement('option');
+        o.value = v; o.textContent = v;
+        if (row[field] === v) o.selected = true;
+        sel.appendChild(o);
+      });
+      sel.onchange = function() { spSetField(idx, field, this.value); };
+      td.appendChild(sel);
+      tr.appendChild(td);
+    });
+
+    // ── Options (checkboxes) ──
+    const tdOpts = document.createElement('td');
+    const checks = document.createElement('div');
+    checks.className = 'sp-checks';
+
+    [
+      ['sdwan_required',        '🌐 SD-WAN Lic.'],
+      ['segmentation_required', '🔒 Segmentation'],
+      ['ha_required',           '⚡ HA'],
+    ].forEach(function(pair) {
+      const field = pair[0], label = pair[1];
+      const lbl = document.createElement('label');
+      lbl.className = 'sp-check-label';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.checked = !!row[field];
+      cb.onchange = function() { spSetField(idx, field, this.checked); };
+      lbl.appendChild(cb);
+      lbl.appendChild(document.createTextNode(label));
+      checks.appendChild(lbl);
+    });
+    tdOpts.appendChild(checks);
+    tr.appendChild(tdOpts);
+
+    // ── Delete ──
+    const tdDel = document.createElement('td');
+    const delBtn = document.createElement('button');
+    delBtn.className = 'sp-del-btn'; delBtn.textContent = '✕';
+    delBtn.title = 'Remove this site';
+    delBtn.onclick = function() { spDeleteRow(idx); };
+    tdDel.appendChild(delBtn);
+    tr.appendChild(tdDel);
+
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Site Profile — collect current values from DOM before save ────────────────
+// (values are written live via oninput/onchange, _spRows is always current)
+function spCollectRows() { return _spRows; }
+
+// ── Site Profile — submit assessment + save site profile ─────────────────────
+function spSubmitAll() {
+  const btn = document.getElementById('spSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  const rows = spCollectRows();
+
+  // 1. Submit assessment
+  const submitUrl = EDIT_MODE ? '/user/' + CUSTOMER_SLUG + '/update' : '/user/submit';
+  const submitMethod = 'POST';
+
+  fetch(submitUrl, {
+    method: submitMethod,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ responses: responses })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.success) throw new Error('Assessment submit failed');
+    const slug = data.customer_slug || CUSTOMER_SLUG;
+
+    // 2. Save site profile
+    return fetch('/user/' + slug + '/site-profile-save', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rows: rows })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function() {
+      document.getElementById('progressFill').style.width = '100%';
+      window.location.href = '/user/' + slug;
+    });
+  })
+  .catch(function(err) {
+    showToast('Submission failed. Please try again.', true);
+    btn.disabled = false;
+    btn.textContent = '✓ Save Profile & Submit';
+  });
+}
+
+// ── Assessment rendering ──────────────────────────────────────────────────────
 function render() {
   const q     = questions[current];
   const total = questions.length;
@@ -266,10 +585,12 @@ function render() {
 
   document.getElementById('backBtn').style.visibility = current === 0 ? 'hidden' : 'visible';
 
+  // On LAST question — "Next" goes to Site Profile instead of submitting
   if (current === total - 1) {
-    nextBtn.textContent = EDIT_MODE ? 'Save Changes ✓' : 'Submit ✓';
-    nextBtn.className   = 'btn btn-submit';
-    nextBtn.onclick     = EDIT_MODE ? submitEdit : submitAll;
+    nextBtn.textContent = EDIT_MODE ? 'Site Profile →' : 'Site Profile →';
+    nextBtn.className   = 'btn btn-next';
+    nextBtn.onclick     = function() { showSiteProfile(); };
+    if (q.info_only) nextBtn.disabled = false;
   } else {
     nextBtn.textContent = 'Next →';
     nextBtn.className   = 'btn btn-next';
@@ -286,11 +607,10 @@ function goBack() {
   if (current > 0) { current--; render(); }
 }
 
-// ── Save / Submit ─────────────────────────────────────────────────────────────
+// ── Save for later ────────────────────────────────────────────────────────────
 function saveForLater() {
   const saveBtn = document.getElementById('saveBtn');
-  saveBtn.disabled = true;
-  saveBtn.textContent = 'Saving…';
+  saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
   fetch('/user/save', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -307,65 +627,11 @@ function saveForLater() {
   })
   .catch(function() { showToast('Network error — save failed.', true); })
   .finally(function() {
-    saveBtn.disabled = false;
-    saveBtn.textContent = '💾 Save for Later';
+    saveBtn.disabled = false; saveBtn.textContent = '💾 Save for Later';
   });
 }
 
-function submitAll() {
-  const nextBtn = document.getElementById('nextBtn');
-  nextBtn.disabled = true;
-  nextBtn.textContent = 'Submitting…';
-  fetch('/user/submit', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ responses: responses })
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    if (data.success) {
-      document.getElementById('progressFill').style.width = '100%';
-      window.location.href = '/user/' + data.customer_slug;
-    } else {
-      alert('Submission failed. Please try again.');
-      nextBtn.disabled = false;
-      nextBtn.textContent = 'Submit ✓';
-    }
-  })
-  .catch(function() {
-    alert('Submission failed. Please try again.');
-    nextBtn.disabled = false;
-    nextBtn.textContent = 'Submit ✓';
-  });
-}
-
-function submitEdit() {
-  const nextBtn = document.getElementById('nextBtn');
-  nextBtn.disabled = true;
-  nextBtn.textContent = 'Saving…';
-  fetch('/user/' + CUSTOMER_SLUG + '/update', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ responses: responses })
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    if (data.success) {
-      document.getElementById('progressFill').style.width = '100%';
-      window.location.href = '/user/' + data.customer_slug;
-    } else {
-      alert('Update failed. Please try again.');
-      nextBtn.disabled = false;
-      nextBtn.textContent = 'Save Changes ✓';
-    }
-  })
-  .catch(function() {
-    alert('Update failed. Please try again.');
-    nextBtn.disabled = false;
-    nextBtn.textContent = 'Save Changes ✓';
-  });
-}
-
+// ── Init ──────────────────────────────────────────────────────────────────────
 render();
 </script>
 </body>
