@@ -695,6 +695,48 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
   .pricing-body { padding: 1.5rem 1rem 4rem; }
   .tco-body { padding: 1.5rem 1rem 4rem; }
 }
+
+/* ── Site Profile section (results page) ── */
+.sp-res-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem; }
+.sp-res-edit-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.42rem 1.1rem; background: transparent; border: 1px solid rgba(0,170,255,0.4); border-radius: 7px; color: var(--accent); font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: background 0.2s, color 0.2s; }
+.sp-res-edit-btn:hover { background: var(--accent); color: var(--navy-dark); }
+.sp-res-cards { display: flex; flex-direction: column; gap: 1rem; }
+.sp-res-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.sp-res-card-header { background: #003366; padding: 12px 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.sp-res-card-num { background: rgba(255,255,255,0.18); color: #fff; font-size: 11px; font-weight: 700; border-radius: 20px; padding: 2px 10px; white-space: nowrap; }
+.sp-res-card-label { font-size: 15px; font-weight: 700; color: #fff; flex: 1; }
+.sp-res-card-sites { background: rgba(0,170,255,0.25); color: #7dd3fc; font-size: 12px; font-weight: 700; border-radius: 20px; padding: 2px 10px; white-space: nowrap; }
+.sp-res-card-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 12px; }
+.sp-res-row { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.sp-res-field { display: flex; flex-direction: column; gap: 3px; min-width: 110px; }
+.sp-res-field-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+.sp-res-field-value { font-size: 13px; color: var(--white); font-weight: 500; }
+.sp-res-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.sp-res-pill { font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 20px; border: 1px solid; }
+.sp-res-pill.on  { background: #003366; color: #7dd3fc; border-color: rgba(0,170,255,0.4); }
+.sp-res-pill.off { background: rgba(255,255,255,0.04); color: rgba(160,188,216,0.4); border-color: rgba(160,188,216,0.12); text-decoration: line-through; }
+.sp-res-vendors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+@media (max-width: 700px) { .sp-res-vendors { grid-template-columns: repeat(2, 1fr); } }
+.sp-res-vendor-field { display: flex; flex-direction: column; gap: 3px; }
+.sp-res-vendor-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+.sp-res-vendor-value { font-size: 12px; color: var(--white); }
+.sp-res-vendor-value.none { color: rgba(160,188,216,0.3); font-style: italic; }
+.sp-res-divider { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent); padding-bottom: 4px; border-bottom: 1px solid rgba(0,170,255,0.15); }
+/* inline editor overlay inside results page */
+#sp-inline-editor { display: none; background: linear-gradient(145deg, #071a30, #050e1e); border: 1px solid rgba(0,170,255,0.3); border-radius: 14px; padding: 0 0 1.5rem; margin-top: 1rem; overflow: hidden; }
+#sp-inline-editor .sp-ie-header { background: #001e3c; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0,170,255,0.15); }
+#sp-inline-editor .sp-ie-title { font-size: 14px; font-weight: 700; color: var(--accent); }
+#sp-inline-editor .sp-ie-close { background: transparent; border: 1px solid rgba(0,170,255,0.3); color: var(--text-muted); border-radius: 6px; padding: 4px 12px; font-size: 12px; cursor: pointer; }
+#sp-inline-editor .sp-ie-close:hover { color: var(--white); border-color: var(--text-muted); }
+#sp-inline-editor .sp-ie-body { padding: 18px 20px 0; }
+#sp-inline-editor .sp-ie-footer { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 0; flex-wrap: wrap; gap: 10px; }
+/* reuse sp-site-card styles from assessment inside the editor */
+#sp-inline-editor .sp-site-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(0,170,255,0.18); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+#sp-inline-editor .sp-card-header { background: #00265a; padding: 12px 16px; }
+#sp-inline-editor .sp-card-body { padding: 16px 18px 18px; background: rgba(0,0,0,0.15); }
+#sp-inline-editor .sp-select-styled { background: #071a30; color: var(--white); border-color: rgba(0,170,255,0.25); }
+#sp-inline-editor .sp-select-styled:focus { border-color: var(--accent); background: #0a2244; }
+#sp-inline-editor .sp-field label { color: var(--text-muted); }
 </style>
 </head>
 <body>
@@ -923,6 +965,43 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
         {% else %}
         <div class="empty-state">No responses recorded.</div>
         {% endif %}
+
+        <hr class="section-divider">
+
+        <!-- ── Site Profile section ── -->
+        <div class="sp-res-header">
+          <div class="section-heading" style="margin-bottom:0;">
+            <h2>Site Profile</h2>
+            <span class="section-badge" id="sp-res-badge">0</span>
+          </div>
+          <button class="sp-res-edit-btn" id="sp-edit-btn" onclick="toggleSiteProfileEditor()">✏ Edit Site Profile</button>
+        </div>
+        <div id="sp-res-cards-wrap">
+          <div class="empty-state" id="sp-res-empty" style="display:none;">No site profile defined yet. Click Edit Site Profile to add sites.</div>
+          <div class="sp-res-cards" id="sp-res-cards"></div>
+        </div>
+
+        <!-- Inline Site Profile Editor -->
+        <div id="sp-inline-editor">
+          <div class="sp-ie-header">
+            <span class="sp-ie-title">🏢 Edit Site Profile</span>
+            <button class="sp-ie-close" onclick="closeSiteProfileEditor()">✕ Close</button>
+          </div>
+          <div class="sp-ie-body">
+            <div id="sp-ie-cards-container"></div>
+            <div class="sp-empty-msg" id="sp-ie-empty" style="display:none;border-color:rgba(0,170,255,0.15);background:transparent;color:var(--text-muted);">
+              <div class="sp-empty-icon">🏢</div>No sites yet. Click + Add Site below.
+            </div>
+          </div>
+          <div class="sp-ie-footer">
+            <button class="sp-add-btn" onclick="spIEAddRow()">＋ Add Site</button>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <button class="btn-inline-edit" onclick="closeSiteProfileEditor()" style="padding:7px 16px;">Cancel</button>
+              <button class="ie-save-btn" id="sp-ie-save-btn" onclick="saveSiteProfile()" style="padding:8px 22px;">✓ Save Site Profile</button>
+            </div>
+          </div>
+        </div>
+
 
       </div><!-- /results-main -->
 
@@ -2171,6 +2250,339 @@ async function saveTCO() {
     } else { ind.textContent = 'Save failed'; ind.className = 'tco-save-ind'; }
   } catch(e) { ind.textContent = 'Save failed'; ind.className = 'tco-save-ind'; }
 }
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SITE PROFILE — Results page display + inline editor
+// ══════════════════════════════════════════════════════════════════════════════
+const SP_CATS_R = ['fw_ns','sdwan','mpls','fw_ew','iot_ot','nac','l3sw','pam'];
+const SP_CAT_LABELS_R = { fw_ns:'🔥 FW N/S', sdwan:'🌐 SD-WAN', mpls:'📡 MPLS', fw_ew:'🔒 FW E/W', iot_ot:'🤖 IoT/OT', nac:'🛡 NAC', l3sw:'🔀 L3 Switch', pam:'🔑 PAM' };
+const SP_VENDOR_FIELDS_R = { fw_ns:'fw_ns_vendor', sdwan:'sdwan_vendor', mpls:'mpls_vendor', fw_ew:'fw_ew_vendor', iot_ot:'iot_ot_vendor', nac:'nac_vendor', l3sw:'l3sw_vendor', pam:'pam_vendor' };
+const WAN_TYPES_R = ['Internet Only','Internet + MPLS','MPLS Only','Internet + SD-WAN','Internet + MPLS + SD-WAN'];
+const SIZES_R = ['Small','Medium','Large','XL'];
+
+let _spResRows    = [];
+let _spResVendors = {};
+let _spIERows     = [];
+let _spIECounter  = 0;
+let _spEditorOpen = false;
+
+// ── Load and render read-only view ────────────────────────────────────────────
+async function loadSiteProfile() {
+  try {
+    const res  = await fetch('/api/site-profile-config?slug=' + CUSTOMER_SLUG);
+    const data = await res.json();
+    if (!data.success) return;
+    _spResVendors = data.vendors || {};
+    _spResRows    = data.saved   || [];
+    renderSiteProfileReadOnly();
+  } catch(e) { console.error('Site profile load failed', e); }
+}
+
+function renderSiteProfileReadOnly() {
+  const container = document.getElementById('sp-res-cards');
+  const emptyEl   = document.getElementById('sp-res-empty');
+  const badge     = document.getElementById('sp-res-badge');
+  if (badge) badge.textContent = _spResRows.length;
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (!_spResRows.length) {
+    if (emptyEl) emptyEl.style.display = 'block';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  _spResRows.forEach(function(row, idx) {
+    // ── Card wrapper ──────────────────────────────────────────────────────────
+    const card = document.createElement('div');
+    card.style.cssText = 'background:linear-gradient(145deg,#0d2d52,#0a2244);border:1px solid rgba(0,170,255,0.25);border-radius:14px;overflow:hidden;margin-bottom:14px;';
+
+    // ── Header bar ────────────────────────────────────────────────────────────
+    const hdr = document.createElement('div');
+    hdr.style.cssText = 'background:#003366;padding:12px 18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
+
+    const numPill = document.createElement('span');
+    numPill.style.cssText = 'background:rgba(255,255,255,0.18);color:#fff;font-size:11px;font-weight:700;border-radius:20px;padding:2px 10px;white-space:nowrap;';
+    numPill.textContent = 'Site ' + (idx + 1);
+
+    const labelSpan = document.createElement('span');
+    labelSpan.style.cssText = 'font-size:15px;font-weight:700;color:#fff;flex:1;';
+    labelSpan.textContent = row.label || '(unlabelled)';
+
+    const sitesPill = document.createElement('span');
+    sitesPill.style.cssText = 'background:rgba(0,170,255,0.2);color:#7dd3fc;font-size:12px;font-weight:700;border-radius:20px;padding:2px 10px;white-space:nowrap;';
+    sitesPill.textContent = (row.num_sites || 1) + ' site' + ((row.num_sites || 1) !== 1 ? 's' : '');
+
+    hdr.appendChild(numPill);
+    hdr.appendChild(labelSpan);
+    hdr.appendChild(sitesPill);
+    card.appendChild(hdr);
+
+    // ── Body ──────────────────────────────────────────────────────────────────
+    const body = document.createElement('div');
+    body.style.cssText = 'padding:16px 20px;display:flex;flex-direction:column;gap:14px;';
+
+    // Row 1: Size + WAN Type
+    const r1 = document.createElement('div');
+    r1.style.cssText = 'display:grid;grid-template-columns:1fr 2fr;gap:16px;';
+    r1.innerHTML =
+      '<div style="display:flex;flex-direction:column;gap:4px;">' +
+        '<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#a0bcd8;">Size</span>' +
+        '<span style="font-size:14px;font-weight:600;color:#fff;">' + escHtml(row.size || '—') + '</span>' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:4px;">' +
+        '<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#a0bcd8;">WAN Type</span>' +
+        '<span style="font-size:14px;font-weight:600;color:#fff;">' + escHtml(row.wan_type || '—') + '</span>' +
+      '</div>';
+    body.appendChild(r1);
+
+    // Row 2: Licensing toggle pills
+    const licDiv = document.createElement('div');
+    licDiv.style.cssText = 'display:flex;flex-direction:column;gap:7px;';
+    const licLabel = document.createElement('span');
+    licLabel.style.cssText = 'font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#a0bcd8;';
+    licLabel.textContent = 'Licensing & Options';
+    licDiv.appendChild(licLabel);
+    const pillRow = document.createElement('div');
+    pillRow.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;';
+    [['sdwan_required','🌐 SD-WAN License'],['segmentation_required','🔒 Segmentation'],['ha_required','⚡ HA']].forEach(function(p) {
+      const on = !!row[p[0]];
+      const pill = document.createElement('span');
+      if (on) {
+        pill.style.cssText = 'font-size:12px;font-weight:600;padding:4px 13px;border-radius:20px;background:#003366;color:#7dd3fc;border:1px solid rgba(0,170,255,0.4);';
+      } else {
+        pill.style.cssText = 'font-size:12px;font-weight:600;padding:4px 13px;border-radius:20px;background:rgba(255,255,255,0.04);color:rgba(160,188,216,0.35);border:1px solid rgba(160,188,216,0.1);text-decoration:line-through;';
+      }
+      pill.textContent = p[1];
+      pillRow.appendChild(pill);
+    });
+    licDiv.appendChild(pillRow);
+    body.appendChild(licDiv);
+
+    // Row 3+4: Vendor grid
+    const vDiv = document.createElement('div');
+    vDiv.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
+    const vLabel2 = document.createElement('span');
+    vLabel2.style.cssText = 'font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#a0bcd8;border-bottom:1px solid rgba(0,170,255,0.15);padding-bottom:5px;';
+    vLabel2.textContent = 'Legacy Vendors (TCO)';
+    vDiv.appendChild(vLabel2);
+
+    const vGrid = document.createElement('div');
+    vGrid.style.cssText = 'display:grid;grid-template-columns:repeat(4,1fr);gap:10px;';
+    SP_CATS_R.forEach(function(cat) {
+      const field = SP_VENDOR_FIELDS_R[cat];
+      const val   = row[field] || '';
+      const vf = document.createElement('div');
+      vf.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
+      vf.innerHTML =
+        '<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#a0bcd8;">' + SP_CAT_LABELS_R[cat] + '</span>' +
+        '<span style="font-size:12px;color:' + (val ? '#fff' : 'rgba(160,188,216,0.3)') + ';font-style:' + (val ? 'normal' : 'italic') + ';">' + escHtml(val || '— None —') + '</span>';
+      vGrid.appendChild(vf);
+    });
+    vDiv.appendChild(vGrid);
+    body.appendChild(vDiv);
+
+    card.appendChild(body);
+    container.appendChild(card);
+  });
+}
+
+
+// ── Inline editor ─────────────────────────────────────────────────────────────
+function toggleSiteProfileEditor() {
+  if (_spEditorOpen) { closeSiteProfileEditor(); } else { openSiteProfileEditor(); }
+}
+
+function openSiteProfileEditor() {
+  _spEditorOpen = true;
+  // Deep-copy current rows into editor state
+  _spIERows = _spResRows.map(function(r) { return Object.assign({}, r); });
+  _spIECounter = _spIERows.length;
+  document.getElementById('sp-edit-btn').textContent = '✕ Cancel';
+  document.getElementById('sp-inline-editor').style.display = 'block';
+  spIERenderCards();
+  document.getElementById('sp-inline-editor').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeSiteProfileEditor() {
+  _spEditorOpen = false;
+  document.getElementById('sp-edit-btn').textContent = '✏ Edit Site Profile';
+  document.getElementById('sp-inline-editor').style.display = 'none';
+  _spIERows = [];
+}
+
+function spIEAddRow() {
+  _spIERows.push({
+    label: '', num_sites: 1, size: 'Small', wan_type: 'Internet Only',
+    fw_ns_vendor:'', sdwan_vendor:'', mpls_vendor:'', fw_ew_vendor:'',
+    iot_ot_vendor:'', nac_vendor:'', l3sw_vendor:'', pam_vendor:'',
+    sdwan_required: false, segmentation_required: false, ha_required: false
+  });
+  spIERenderCards();
+  setTimeout(function() {
+    var inputs = document.querySelectorAll('#sp-ie-cards-container .sp-card-label-input');
+    if (inputs.length) inputs[inputs.length-1].focus();
+  }, 50);
+}
+
+function spIEDeleteRow(idx) { _spIERows.splice(idx, 1); spIERenderCards(); }
+function spIESetField(idx, field, value) { _spIERows[idx][field] = value; }
+
+function spIERenderCards() {
+  const container = document.getElementById('sp-ie-cards-container');
+  const emptyEl   = document.getElementById('sp-ie-empty');
+  container.innerHTML = '';
+
+  if (!_spIERows.length) {
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  _spIERows.forEach(function(row, idx) {
+    const card = document.createElement('div');
+    card.className = 'sp-site-card';
+
+    // Header
+    const header = document.createElement('div');
+    header.className = 'sp-card-header';
+    const left = document.createElement('div');
+    left.className = 'sp-card-header-left';
+
+    const numBadge = document.createElement('span');
+    numBadge.className = 'sp-card-num';
+    numBadge.textContent = 'Site ' + (idx+1);
+    left.appendChild(numBadge);
+
+    const labelInp = document.createElement('input');
+    labelInp.type = 'text'; labelInp.className = 'sp-card-label-input';
+    labelInp.placeholder = 'e.g. Factory, HQ, Branch';
+    labelInp.value = row.label || '';
+    labelInp.oninput = function() { spIESetField(idx, 'label', this.value); };
+    left.appendChild(labelInp);
+
+    const metaWrap = document.createElement('div');
+    metaWrap.className = 'sp-card-meta';
+    const metaLbl = document.createElement('label');
+    metaLbl.textContent = '# Sites:';
+    const numInp = document.createElement('input');
+    numInp.type = 'number'; numInp.className = 'sp-card-num-input';
+    numInp.min = '1'; numInp.value = row.num_sites || 1;
+    numInp.oninput = function() { spIESetField(idx, 'num_sites', parseInt(this.value)||1); };
+    metaWrap.appendChild(metaLbl);
+    metaWrap.appendChild(numInp);
+    left.appendChild(metaWrap);
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'sp-card-del-btn';
+    delBtn.textContent = '✕ Remove';
+    delBtn.onclick = function() { spIEDeleteRow(idx); };
+
+    header.appendChild(left);
+    header.appendChild(delBtn);
+    card.appendChild(header);
+
+    // Body
+    const body = document.createElement('div');
+    body.className = 'sp-card-body';
+
+    // Size + WAN
+    const row1 = document.createElement('div');
+    row1.className = 'sp-row-2col';
+    row1.appendChild(spIEMakeSelect('Size',     SIZES_R,     row.size,     function(v){ spIESetField(idx,'size',v); }));
+    row1.appendChild(spIEMakeSelect('WAN Type', WAN_TYPES_R, row.wan_type, function(v){ spIESetField(idx,'wan_type',v); }));
+    body.appendChild(row1);
+
+    // Toggle pills
+    const tSection = document.createElement('div');
+    const tLabel   = document.createElement('div');
+    tLabel.className = 'sp-section-label'; tLabel.textContent = 'Licensing & Options';
+    tSection.appendChild(tLabel);
+    const tWrap = document.createElement('div');
+    tWrap.className = 'sp-toggles';
+    [['sdwan_required','🌐 SD-WAN License'],['segmentation_required','🔒 Segmentation'],['ha_required','⚡ HA']].forEach(function(pair) {
+      const field = pair[0], labelText = pair[1];
+      const lbl = document.createElement('label');
+      lbl.className = 'sp-toggle-label' + (row[field] ? ' checked' : '');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.checked = !!row[field];
+      cb.onchange = function() { spIESetField(idx, field, this.checked); lbl.className = 'sp-toggle-label' + (this.checked ? ' checked' : ''); };
+      const dot = document.createElement('span'); dot.className = 'sp-toggle-dot';
+      lbl.appendChild(cb); lbl.appendChild(dot); lbl.appendChild(document.createTextNode(labelText));
+      tWrap.appendChild(lbl);
+    });
+    tSection.appendChild(tWrap);
+    body.appendChild(tSection);
+
+    // Vendor dropdowns
+    const vSection = document.createElement('div');
+    const vLabel = document.createElement('div');
+    vLabel.className = 'sp-section-label'; vLabel.textContent = 'Legacy Vendor Selection (for TCO)';
+    vSection.appendChild(vLabel);
+    const vGrid1 = document.createElement('div'); vGrid1.className = 'sp-row-4col';
+    const vGrid2 = document.createElement('div'); vGrid2.className = 'sp-row-4col';
+    SP_CATS_R.forEach(function(cat, ci) {
+      const field   = SP_VENDOR_FIELDS_R[cat];
+      const vendors = _spResVendors[cat] || [];
+      const opts    = [''].concat(vendors);
+      const labels  = ['— None —'].concat(vendors);
+      const fld = spIEMakeSelectFull(SP_CAT_LABELS_R[cat], opts, labels, row[field]||'', function(v){ spIESetField(idx, field, v); });
+      if (ci < 4) vGrid1.appendChild(fld); else vGrid2.appendChild(fld);
+    });
+    vSection.appendChild(vGrid1);
+    const sp = document.createElement('div'); sp.style.height = '12px';
+    vSection.appendChild(sp);
+    vSection.appendChild(vGrid2);
+    body.appendChild(vSection);
+
+    card.appendChild(body);
+    container.appendChild(card);
+  });
+}
+
+function spIEMakeSelect(labelText, options, currentVal, onChange) {
+  return spIEMakeSelectFull(labelText, options, options, currentVal, onChange);
+}
+function spIEMakeSelectFull(labelText, values, labels, currentVal, onChange) {
+  const wrap = document.createElement('div'); wrap.className = 'sp-field';
+  const lbl = document.createElement('label'); lbl.textContent = labelText;
+  const sel = document.createElement('select'); sel.className = 'sp-select-styled';
+  values.forEach(function(v, i) {
+    const o = document.createElement('option');
+    o.value = v; o.textContent = labels[i];
+    if (v === currentVal) o.selected = true;
+    sel.appendChild(o);
+  });
+  sel.onchange = function() { onChange(this.value); };
+  wrap.appendChild(lbl); wrap.appendChild(sel);
+  return wrap;
+}
+
+async function saveSiteProfile() {
+  const btn = document.getElementById('sp-ie-save-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res  = await fetch('/user/' + CUSTOMER_SLUG + '/site-profile-save', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rows: _spIERows })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error('Save failed');
+    // Update local state and re-render read-only view
+    _spResRows = _spIERows.map(function(r) { return Object.assign({}, r); });
+    renderSiteProfileReadOnly();
+    closeSiteProfileEditor();
+    showToast('✓ Site profile saved');
+  } catch(e) {
+    showToast('Save failed: ' + e.message, true);
+    btn.disabled = false; btn.textContent = '✓ Save Site Profile';
+  }
+}
+
+// Load on page init
+loadSiteProfile();
+
 
 // ── Eager init on page load ───────────────────────────────────────────────────
 initPricing().then(() => {
