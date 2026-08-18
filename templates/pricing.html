@@ -24,7 +24,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 #navbar .nav-btn.active { background: rgba(255,255,255,0.2); border-color: #fff; }
 
 /* MAIN */
-#main { margin-top: 56px; padding: 28px 28px 60px; max-width: 1300px; margin-left: auto; margin-right: auto; }
+#main { margin-top: 56px; padding: 28px 28px 60px; max-width: 1400px; margin-left: auto; margin-right: auto; }
 .page-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
 .page-header h1 { font-size: 22px; color: var(--navy); font-weight: 700; }
 .page-header p  { font-size: 13px; color: #666; margin-top: 3px; }
@@ -48,7 +48,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 /* TABLE */
 .table-wrapper { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow-x: auto; }
-.pricing-table { width: 100%; border-collapse: collapse; min-width: 900px; }
+.pricing-table { width: 100%; border-collapse: collapse; min-width: 980px; }
 .pricing-table thead tr { background: var(--navy); }
 .pricing-table th { padding: 11px 14px; color: #fff; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; text-align: left; white-space: nowrap; }
 .pricing-table th.num { text-align: right; }
@@ -57,16 +57,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .pricing-table tr:hover td { background: #f8fbff; }
 .pricing-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
 
-/* Editable cells */
-.editable { cursor: text; border-radius: 4px; transition: background 0.15s, outline 0.15s; min-width: 60px; display: inline-block; padding: 3px 6px; }
-.editable:focus { outline: 2px solid var(--accent); background: #fff; border-radius: 4px; }
-.editable[data-type="number"] { text-align: right; }
-
 /* Badges */
 .cat-badge { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
 .cat-badge.appliance    { background: #dbeafe; color: #1d4ed8; }
 .cat-badge.sdwan        { background: #d1fae5; color: #065f46; }
 .cat-badge.segmentation { background: #ede9fe; color: #5b21b6; }
+.size-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+.size-badge.Small  { background: #e0f2fe; color: #0369a1; }
+.size-badge.Medium { background: #fef9c3; color: #854d0e; }
+.size-badge.Large  { background: #dcfce7; color: #166534; }
+.size-badge.XL     { background: #fce7f3; color: #9d174d; }
+.size-badge.none   { background: #f1f5f9; color: #94a3b8; }
 .ha-badge { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; background: #fef3c7; color: #92400e; margin-left: 4px; }
 .inactive-row td { opacity: 0.45; }
 
@@ -83,7 +84,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 /* MODAL */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 2000; display: none; align-items: center; justify-content: center; }
 .modal-overlay.open { display: flex; }
-.modal { background: #fff; border-radius: 10px; width: 520px; max-width: 95vw; box-shadow: 0 8px 40px rgba(0,0,0,0.25); overflow: hidden; }
+.modal { background: #fff; border-radius: 10px; width: 540px; max-width: 95vw; box-shadow: 0 8px 40px rgba(0,0,0,0.25); overflow: hidden; }
 .modal-header { background: var(--navy); color: #fff; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
 .modal-header h3 { font-size: 15px; font-weight: 700; }
 .modal-close { background: transparent; border: none; color: #fff; font-size: 20px; cursor: pointer; line-height: 1; padding: 0 4px; }
@@ -118,7 +119,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <span class="subtitle">Pricing Grid</span>
   <div class="nav-right">
     <a class="nav-btn" href="/admin/dashboard">&#8592; Admin Dashboard</a>
-    <a class="nav-btn" href="/admin/bva/">&#128200; BVA Config</a>
     <a class="nav-btn" href="/user" target="_blank">&#128100; User View</a>
     <a class="nav-btn" href="/admin/logout">Logout</a>
   </div>
@@ -146,20 +146,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <table class="pricing-table" id="pricing-table">
       <thead>
         <tr>
-          <th style="width:22%">SKU Name</th>
+          <th style="width:20%">SKU Name</th>
           <th style="width:10%">Category</th>
+          <th style="width:7%">Size</th>
           <th class="num" style="width:8%">COGS</th>
-          <th class="num" style="width:9%">List Price</th>
-          <th class="num" style="width:9%">Budgetary</th>
-          <th class="num" style="width:9%">Standard</th>
-          <th class="num" style="width:9%">Aggressive</th>
-          <th style="width:6%">HA</th>
+          <th class="num" style="width:8%">List Price</th>
+          <th class="num" style="width:8%">Budgetary</th>
+          <th class="num" style="width:8%">Standard</th>
+          <th class="num" style="width:8%">Aggressive</th>
+          <th style="width:5%">HA</th>
           <th style="width:6%">Active</th>
           <th style="width:12%">Actions</th>
         </tr>
       </thead>
       <tbody id="sku-tbody">
-        <tr><td colspan="10" class="empty-state">Loading SKUs…</td></tr>
+        <tr><td colspan="11" class="empty-state">Loading SKUs…</td></tr>
       </tbody>
     </table>
   </div>
@@ -183,13 +184,23 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
           <input type="text" id="m-sku-name" placeholder="e.g. ZTB-400 (No HA)">
         </div>
       </div>
-      <div class="form-grid-2">
+      <div class="form-grid-3">
         <div class="form-row">
           <label>Category</label>
           <select id="m-category" onchange="onCategoryChange()">
             <option value="appliance">Appliance</option>
             <option value="sdwan">SD-WAN</option>
             <option value="segmentation">Segmentation</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Size</label>
+          <select id="m-size">
+            <option value="">— None —</option>
+            <option value="Small">Small</option>
+            <option value="Medium">Medium</option>
+            <option value="Large">Large</option>
+            <option value="XL">XL</option>
           </select>
         </div>
         <div class="form-row">
@@ -269,6 +280,11 @@ function fmt(val) {
 }
 function fmtEdit(val) { return Number(val || 0); }
 
+function sizeBadge(size) {
+  if (!size) return '<span class="size-badge none">—</span>';
+  return `<span class="size-badge ${size}">${size}</span>`;
+}
+
 function showToast(msg, type = 'success') {
   const c = document.getElementById('toast-container');
   const t = document.createElement('div');
@@ -312,7 +328,7 @@ function renderTable() {
   }
 
   if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="10" class="empty-state">No SKUs found for this filter.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11" class="empty-state">No SKUs found for this filter.</td></tr>`;
     return;
   }
 
@@ -324,7 +340,6 @@ function renderTable() {
 
     const catLabel = { appliance: 'Appliance', sdwan: 'SD-WAN', segmentation: 'Segmentation' }[sku.category] || sku.category;
 
-    // Find parent name if HA
     let parentNote = '';
     if (sku.is_ha && sku.ha_parent_id) {
       const parent = _skus.find(s => s.id === sku.ha_parent_id);
@@ -340,6 +355,7 @@ function renderTable() {
         <div class="sku-code-tag">${escHtml(sku.sku_code)} ${parentNote}</div>
       </td>
       <td><span class="cat-badge ${sku.category}">${catLabel}</span></td>
+      <td>${sizeBadge(sku.size)}</td>
       <td class="num">${fmt(sku.cogs)}</td>
       <td class="num">${fmt(sku.list_price)}</td>
       <td class="num" style="color:#f59e0b;font-weight:600;">${fmt(sku.budgetary)}</td>
@@ -421,11 +437,10 @@ function populateParentSelect(selectedId) {
   sel.innerHTML = '<option value="">— Select parent No-HA SKU —</option>';
   _skus.filter(s => s.category === 'appliance' && !s.is_ha && s.active).forEach(s => {
     const o = document.createElement('option');
-    o.value = s.id; o.textContent = s.sku_name;
+    o.value = s.id; o.textContent = s.sku_name + (s.size ? ` (${s.size})` : '');
     if (s.id === selectedId) o.selected = true;
     sel.appendChild(o);
   });
-  // Add inactive No-HA too
   _skus.filter(s => s.category === 'appliance' && !s.is_ha && !s.active).forEach(s => {
     const o = document.createElement('option');
     o.value = s.id; o.textContent = s.sku_name + ' (inactive)';
@@ -433,7 +448,6 @@ function populateParentSelect(selectedId) {
     sel.appendChild(o);
   });
 
-  // Auto-fill prices when parent is selected
   sel.onchange = () => {
     const parentId = parseInt(sel.value);
     if (!parentId) return;
@@ -444,21 +458,24 @@ function populateParentSelect(selectedId) {
     document.getElementById('m-budgetary').value  = fmtEdit(parent.budgetary * 2);
     document.getElementById('m-standard').value   = fmtEdit(parent.standard * 2);
     document.getElementById('m-aggressive').value = fmtEdit(parent.aggressive * 2);
+    // Also inherit size
+    if (parent.size) document.getElementById('m-size').value = parent.size;
   };
 }
 
 function resetModal() {
-  document.getElementById('m-sku-code').value     = '';
-  document.getElementById('m-sku-name').value     = '';
-  document.getElementById('m-category').value     = 'appliance';
+  document.getElementById('m-sku-code').value      = '';
+  document.getElementById('m-sku-name').value      = '';
+  document.getElementById('m-category').value      = 'appliance';
+  document.getElementById('m-size').value          = '';
   document.getElementById('m-display-order').value = '99';
-  document.getElementById('m-is-ha').checked      = false;
-  document.getElementById('m-cogs').value         = '0';
-  document.getElementById('m-list-price').value   = '0';
-  document.getElementById('m-budgetary').value    = '0';
-  document.getElementById('m-standard').value     = '0';
-  document.getElementById('m-aggressive').value   = '0';
-  document.getElementById('m-active').checked     = true;
+  document.getElementById('m-is-ha').checked       = false;
+  document.getElementById('m-cogs').value          = '0';
+  document.getElementById('m-list-price').value    = '0';
+  document.getElementById('m-budgetary').value     = '0';
+  document.getElementById('m-standard').value      = '0';
+  document.getElementById('m-aggressive').value    = '0';
+  document.getElementById('m-active').checked      = true;
   document.getElementById('ha-section').style.display    = 'block';
   document.getElementById('ha-parent-row').style.display = 'none';
   document.getElementById('ha-info-box').classList.remove('show');
@@ -467,7 +484,7 @@ function resetModal() {
 function openAddModal() {
   _editingId = null;
   resetModal();
-  document.getElementById('modal-title').textContent = 'Add SKU';
+  document.getElementById('modal-title').textContent   = 'Add SKU';
   document.getElementById('modal-save-btn').textContent = '＋ Add SKU';
   document.getElementById('sku-modal').classList.add('open');
 }
@@ -480,6 +497,7 @@ function openEditModal(id) {
   document.getElementById('m-sku-code').value      = sku.sku_code;
   document.getElementById('m-sku-name').value      = sku.sku_name;
   document.getElementById('m-category').value      = sku.category;
+  document.getElementById('m-size').value          = sku.size || '';
   document.getElementById('m-display-order').value = sku.display_order;
   document.getElementById('m-is-ha').checked       = sku.is_ha;
   document.getElementById('m-cogs').value          = fmtEdit(sku.cogs);
@@ -516,6 +534,7 @@ async function saveSKU() {
     sku_code:      document.getElementById('m-sku-code').value.trim(),
     sku_name:      document.getElementById('m-sku-name').value.trim(),
     category:      document.getElementById('m-category').value,
+    size:          document.getElementById('m-size').value || null,
     display_order: parseInt(document.getElementById('m-display-order').value) || 99,
     is_ha:         isHa,
     ha_parent_id:  haParentId,

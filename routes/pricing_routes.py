@@ -5,6 +5,7 @@ import re
 pricing_bp      = Blueprint('pricing', __name__)
 pricing_user_bp = Blueprint('pricing_user', __name__)
 
+VALID_SIZES = ('Small', 'Medium', 'Large', 'XL')
 
 # ── Auth helper ───────────────────────────────────────────────────────────────
 def admin_required():
@@ -44,10 +45,12 @@ def create_sku():
         return jsonify({'success': False, 'error': 'Unauthorized'}), 401
 
     data = request.get_json() or {}
+    raw_size = data.get('size') or None
     sku = PricingSKU(
         sku_code      = data.get('sku_code', '').strip(),
         sku_name      = data.get('sku_name', '').strip(),
         category      = data.get('category', 'appliance'),
+        size          = raw_size if raw_size in VALID_SIZES else None,
         cogs          = float(data.get('cogs', 0) or 0),
         list_price    = float(data.get('list_price', 0) or 0),
         budgetary     = float(data.get('budgetary', 0) or 0),
@@ -76,6 +79,9 @@ def update_sku(sku_id):
     if 'sku_code'      in data: sku.sku_code      = data['sku_code'].strip()
     if 'sku_name'      in data: sku.sku_name      = data['sku_name'].strip()
     if 'category'      in data: sku.category      = data['category']
+    if 'size'          in data:
+        raw_size = data['size'] or None
+        sku.size = raw_size if raw_size in VALID_SIZES else None
     if 'cogs'          in data: sku.cogs          = float(data['cogs'] or 0)
     if 'list_price'    in data: sku.list_price    = float(data['list_price'] or 0)
     if 'budgetary'     in data: sku.budgetary     = float(data['budgetary'] or 0)

@@ -363,6 +363,7 @@ class PricingSKU(db.Model):
     sku_code      = db.Column(db.String(100), nullable=False)
     sku_name      = db.Column(db.String(255), nullable=False)
     category      = db.Column(db.String(50), nullable=False)
+    size          = db.Column(db.String(20), nullable=True)   # Small | Medium | Large | XL | None
     cogs          = db.Column(db.Float, default=0)
     list_price    = db.Column(db.Float, default=0)
     budgetary     = db.Column(db.Float, default=0)
@@ -384,6 +385,7 @@ class PricingSKU(db.Model):
             'sku_code':      self.sku_code,
             'sku_name':      self.sku_name,
             'category':      self.category,
+            'size':          self.size,
             'cogs':          self.cogs,
             'list_price':    self.list_price,
             'budgetary':     self.budgetary,
@@ -500,24 +502,24 @@ def run_migration(db):
         with engine.connect() as c:
             c.execute(sa.text("""
                 INSERT INTO pricing_skus
-                    (sku_code, sku_name, category, cogs, list_price, budgetary, standard, aggressive, is_ha, ha_parent_id, display_order, active)
+                    (sku_code, sku_name, category, size, cogs, list_price, budgetary, standard, aggressive, is_ha, ha_parent_id, display_order, active)
                 VALUES
-                ('ZTB-400',        'ZTB-400 (No HA)',        'appliance',   914,   1200,   600,   450,   383,  false, NULL, 1,  true),
-                ('ZTB-600',        'ZTB-600 (No HA)',        'appliance',   760,   1800,   900,   675,   574,  false, NULL, 2,  true),
-                ('ZTB-800',        'ZTB-800 (No HA)',        'appliance',  2100,   3600,  1800,  1350,  1148,  false, NULL, 3,  true),
-                ('ZTB-8010',       'ZTB-8010 (No HA)',       'appliance',  6134,  18000,  9000,  6750,  5738,  false, NULL, 4,  true),
-                ('ZTB-400-HA',     'ZTB-400 (Include HA)',   'appliance',  1828,   2400,  1200,   900,   766,  true,  NULL, 5,  true),
-                ('ZTB-600-HA',     'ZTB-600 (Include HA)',   'appliance',  1520,   3600,  1800,  1350,  1148,  true,  NULL, 6,  true),
-                ('ZTB-800-HA',     'ZTB-800 (Include HA)',   'appliance',  4200,   7200,  3600,  2700,  2296,  true,  NULL, 7,  true),
-                ('ZTB-8010-HA',    'ZTB-8010 (Include HA)',  'appliance', 12268,  36000, 18000, 13500, 11476,  true,  NULL, 8,  true),
-                ('ZTB-SDWAN-SMALL','ZTB-SDWAN-SMALL',        'sdwan',         0,   2400,  1000,   750,   500,  false, NULL, 9,  true),
-                ('ZTB-SDWAN-MED',  'ZTB-SDWAN-MED',          'sdwan',         0,   4800,  2000,  1500,  1000,  false, NULL, 10, true),
-                ('ZTB-SDWAN-LARGE','ZTB-SDWAN-LARGE',         'sdwan',         0,  12000,  5000,  3750,  2500,  false, NULL, 11, true),
-                ('ZTB-SDWAN-XL',   'ZTB-SDWAN-XL',           'sdwan',         0,  30000, 12500,  9375,  6250,  false, NULL, 12, true),
-                ('ZTB-SG-SMALL',   'ZTB-SG-SMALL',           'segmentation',  0,   4800,  2000,  1500,  1000,  false, NULL, 13, true),
-                ('ZTB-SG-MED',     'ZTB-SG-MED',             'segmentation',  0,  18000,  7500,  5625,  3750,  false, NULL, 14, true),
-                ('ZTB-SG-LARGE',   'ZTB-SG-LARGE',           'segmentation',  0,  48000, 20000, 15000, 10000,  false, NULL, 15, true),
-                ('ZTB-SG-XL',      'ZTB-SG-XL',              'segmentation',  0, 120000, 50000, 37500, 25000,  false, NULL, 16, true)
+                ('ZTB-400',        'ZTB-400 (No HA)',        'appliance',    'Small',  914,   1200,   600,   450,   383,  false, NULL, 1,  true),
+                ('ZTB-600',        'ZTB-600 (No HA)',        'appliance',    'Medium', 760,   1800,   900,   675,   574,  false, NULL, 2,  true),
+                ('ZTB-800',        'ZTB-800 (No HA)',        'appliance',    'Large',  2100,  3600,  1800,  1350,  1148,  false, NULL, 3,  true),
+                ('ZTB-8010',       'ZTB-8010 (No HA)',       'appliance',    'XL',     6134, 18000,  9000,  6750,  5738,  false, NULL, 4,  true),
+                ('ZTB-400-HA',     'ZTB-400 (Include HA)',   'appliance',    'Small',  1828,  2400,  1200,   900,   766,  true,  NULL, 5,  true),
+                ('ZTB-600-HA',     'ZTB-600 (Include HA)',   'appliance',    'Medium', 1520,  3600,  1800,  1350,  1148,  true,  NULL, 6,  true),
+                ('ZTB-800-HA',     'ZTB-800 (Include HA)',   'appliance',    'Large',  4200,  7200,  3600,  2700,  2296,  true,  NULL, 7,  true),
+                ('ZTB-8010-HA',    'ZTB-8010 (Include HA)',  'appliance',    'XL',    12268, 36000, 18000, 13500, 11476,  true,  NULL, 8,  true),
+                ('ZTB-SDWAN-SMALL','ZTB-SDWAN-SMALL',        'sdwan',        'Small',     0,  2400,  1000,   750,   500,  false, NULL, 9,  true),
+                ('ZTB-SDWAN-MED',  'ZTB-SDWAN-MED',          'sdwan',        'Medium',    0,  4800,  2000,  1500,  1000,  false, NULL, 10, true),
+                ('ZTB-SDWAN-LARGE','ZTB-SDWAN-LARGE',        'sdwan',        'Large',     0, 12000,  5000,  3750,  2500,  false, NULL, 11, true),
+                ('ZTB-SDWAN-XL',   'ZTB-SDWAN-XL',           'sdwan',        'XL',        0, 30000, 12500,  9375,  6250,  false, NULL, 12, true),
+                ('ZTB-SG-SMALL',   'ZTB-SG-SMALL',           'segmentation', 'Small',     0,  4800,  2000,  1500,  1000,  false, NULL, 13, true),
+                ('ZTB-SG-MED',     'ZTB-SG-MED',             'segmentation', 'Medium',    0, 18000,  7500,  5625,  3750,  false, NULL, 14, true),
+                ('ZTB-SG-LARGE',   'ZTB-SG-LARGE',           'segmentation', 'Large',     0, 48000, 20000, 15000, 10000,  false, NULL, 15, true),
+                ('ZTB-SG-XL',      'ZTB-SG-XL',              'segmentation', 'XL',        0,120000, 50000, 37500, 25000,  false, NULL, 16, true)
             """))
             c.commit()
             c.execute(sa.text("""
@@ -728,6 +730,24 @@ def run_migration(db):
                     'ALTER TABLE result_sections ADD COLUMN format VARCHAR(50)'
                 ))
                 print('[migration] Added column result_sections.format')
+
+        # ── pricing_skus.size (new column for existing DBs) ───────────────
+        if 'pricing_skus' in existing:
+            ps_cols = [c['name'] for c in inspector.get_columns('pricing_skus')]
+            if 'size' not in ps_cols:
+                conn.execute(sa.text(
+                    'ALTER TABLE pricing_skus ADD COLUMN size VARCHAR(20)'
+                ))
+                conn.execute(sa.text("""
+                    UPDATE pricing_skus SET size = CASE
+                        WHEN sku_code LIKE '%SMALL%' OR sku_code LIKE '%-400%' THEN 'Small'
+                        WHEN sku_code LIKE '%MED%'   OR sku_code LIKE '%-600%' THEN 'Medium'
+                        WHEN sku_code LIKE '%LARGE%' OR sku_code LIKE '%-800%' THEN 'Large'
+                        WHEN sku_code LIKE '%XL%'    OR sku_code LIKE '%-8010%' THEN 'XL'
+                        ELSE NULL
+                    END
+                """))
+                print('[migration] Added column pricing_skus.size (back-filled)')
 
         conn.execute(sa.text(
             "UPDATE user_responses SET status = 'completed' WHERE completed_at IS NOT NULL AND status = 'in_progress'"
