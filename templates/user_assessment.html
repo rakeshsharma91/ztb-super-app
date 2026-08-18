@@ -43,53 +43,66 @@
   .btn-save:hover { background: #e8f4ff; }
   .btn-save:disabled { opacity: 0.55; cursor: not-allowed; }
 
-  /* ── Site Profile card ── */
+  /* ── Site Profile outer wrapper ── */
   #siteProfileCard { display: none; width: 100%; max-width: 960px; }
-  .sp-header { background: #fff; border-radius: 16px 16px 0 0; box-shadow: 0 2px 12px rgba(0,0,0,0.07); padding: 28px 32px 20px; border-bottom: 1px solid #e8edf2; }
+  .sp-header { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); padding: 28px 32px 24px; margin-bottom: 20px; }
   .sp-title { font-size: 22px; font-weight: 700; color: #003366; display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-  .sp-subtitle { font-size: 13px; color: #666; }
-
-  /* Guidance box */
-  .sp-guidance { background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 14px 18px; font-size: 13px; color: #1e3a5f; line-height: 1.7; margin: 16px 0 0; }
+  .sp-subtitle { font-size: 13px; color: #666; margin-bottom: 16px; }
+  .sp-guidance { background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 14px 18px; font-size: 13px; color: #1e3a5f; line-height: 1.7; }
   .sp-guidance strong { color: #003366; }
 
-  /* Table */
-  .sp-body { background: #fff; border-radius: 0 0 16px 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 24px 32px 32px; overflow-x: auto; }
-  .sp-table { width: 100%; border-collapse: collapse; min-width: 1100px; }
-  .sp-table thead tr { background: #003366; }
-  .sp-table th { padding: 10px 12px; color: #fff; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; text-align: left; }
-  .sp-table td { padding: 8px 10px; border-bottom: 1px solid #f0f2f5; vertical-align: middle; }
-  .sp-table tr:last-child td { border-bottom: none; }
-  .sp-table tr:hover td { background: #f8fbff; }
+  /* ── Site card ── */
+  .sp-site-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 14px rgba(0,0,0,0.07); margin-bottom: 16px; overflow: hidden; border: 1px solid #e4eaf2; }
 
-  /* Inputs inside table */
-  .sp-input { width: 100%; padding: 6px 9px; border: 1px solid #dde3ea; border-radius: 6px; font-size: 13px; font-family: inherit; color: #333; background: #fff; transition: border-color 0.15s; }
-  .sp-input:focus { outline: none; border-color: #0070c0; }
-  .sp-input[type="number"] { width: 72px; text-align: center; }
-  .sp-select { width: 100%; padding: 6px 9px; border: 1px solid #dde3ea; border-radius: 6px; font-size: 12px; font-family: inherit; color: #333; background: #fff; cursor: pointer; }
-  .sp-select:focus { outline: none; border-color: #0070c0; }
+  /* Card header bar */
+  .sp-card-header { background: #003366; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .sp-card-header-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
+  .sp-card-num { background: rgba(255,255,255,0.18); color: #fff; font-size: 11px; font-weight: 700; border-radius: 20px; padding: 2px 10px; white-space: nowrap; }
+  .sp-card-label-input { background: transparent; border: none; border-bottom: 2px solid rgba(255,255,255,0.35); color: #fff; font-size: 16px; font-weight: 700; font-family: inherit; padding: 2px 4px; min-width: 140px; max-width: 280px; outline: none; transition: border-color 0.15s; }
+  .sp-card-label-input::placeholder { color: rgba(255,255,255,0.5); font-weight: 400; }
+  .sp-card-label-input:focus { border-bottom-color: #7dd3fc; }
+  .sp-card-meta { display: flex; align-items: center; gap: 8px; }
+  .sp-card-meta label { color: rgba(255,255,255,0.75); font-size: 12px; white-space: nowrap; }
+  .sp-card-num-input { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; color: #fff; font-size: 14px; font-weight: 700; font-family: inherit; padding: 4px 8px; width: 64px; text-align: center; outline: none; }
+  .sp-card-num-input:focus { background: rgba(255,255,255,0.25); border-color: #7dd3fc; }
+  .sp-card-del-btn { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: #fff; border-radius: 6px; padding: 5px 10px; font-size: 13px; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+  .sp-card-del-btn:hover { background: rgba(220,53,69,0.7); border-color: transparent; }
 
-  /* Checkboxes */
-  .sp-checks { display: flex; flex-direction: column; gap: 5px; }
-  .sp-check-label { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #444; cursor: pointer; white-space: nowrap; }
-  .sp-check-label input { width: 14px; height: 14px; cursor: pointer; accent-color: #003366; }
+  /* Card body */
+  .sp-card-body { padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 18px; }
 
-  /* Size badge inside select */
-  .size-opt-Small  { color: #0369a1; }
-  .size-opt-Medium { color: #854d0e; }
-  .size-opt-Large  { color: #166534; }
-  .size-opt-XL     { color: #9d174d; }
+  /* Grid layouts */
+  .sp-row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .sp-row-3col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .sp-row-4col { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px; }
 
-  /* Delete row button */
-  .sp-del-btn { background: transparent; border: none; color: #dc3545; font-size: 16px; cursor: pointer; padding: 3px 7px; opacity: 0.6; transition: opacity 0.15s; line-height: 1; }
-  .sp-del-btn:hover { opacity: 1; }
+  /* Field group */
+  .sp-field { display: flex; flex-direction: column; gap: 5px; }
+  .sp-field label { font-size: 11px; font-weight: 700; color: #6b7a8d; text-transform: uppercase; letter-spacing: 0.05em; }
+  .sp-select-styled { width: 100%; padding: 9px 12px; border: 1.5px solid #dde3ea; border-radius: 8px; font-size: 13px; font-family: inherit; color: #333; background: #f8fafc; cursor: pointer; transition: border-color 0.15s, background 0.15s; appearance: auto; }
+  .sp-select-styled:focus { outline: none; border-color: #0070c0; background: #fff; }
+  .sp-select-styled:hover { border-color: #a0aec0; }
 
-  /* Add row / nav row */
-  .sp-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; flex-wrap: wrap; gap: 12px; }
-  .sp-add-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 20px; background: #0070c0; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-  .sp-add-btn:hover { background: #005ea2; }
-  .sp-empty-msg { text-align: center; padding: 32px 16px; color: #888; font-size: 14px; display: none; }
+  /* Toggle pill checkboxes */
+  .sp-toggles { display: flex; gap: 10px; flex-wrap: wrap; }
+  .sp-toggle-label { display: flex; align-items: center; gap: 7px; padding: 7px 14px; border: 1.5px solid #dde3ea; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 600; color: #555; background: #f8fafc; transition: all 0.15s; user-select: none; }
+  .sp-toggle-label:hover { border-color: #003366; color: #003366; background: #e8f0fe; }
+  .sp-toggle-label input { display: none; }
+  .sp-toggle-label.checked { background: #003366; color: #fff; border-color: #003366; }
+  .sp-toggle-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; opacity: 0.6; }
+
+  /* Section divider label */
+  .sp-section-label { font-size: 11px; font-weight: 700; color: #003366; text-transform: uppercase; letter-spacing: 0.08em; padding-bottom: 6px; border-bottom: 2px solid #e8edf5; margin-bottom: 2px; }
+
+  /* Empty state */
+  .sp-empty-msg { text-align: center; padding: 48px 16px; color: #888; font-size: 14px; background: #fff; border-radius: 14px; border: 2px dashed #dde3ea; display: none; }
   .sp-empty-msg.show { display: block; }
+  .sp-empty-icon { font-size: 36px; margin-bottom: 10px; }
+
+  /* Footer */
+  .sp-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; flex-wrap: wrap; gap: 12px; }
+  .sp-add-btn { display: inline-flex; align-items: center; gap: 7px; padding: 10px 22px; background: #0070c0; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+  .sp-add-btn:hover { background: #005ea2; }
 
   /* Toast */
   .save-toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: #003366; color: #fff; padding: 12px 28px; border-radius: 10px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 18px rgba(0,0,0,0.18); opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; z-index: 999; }
@@ -141,46 +154,34 @@
   </div>
 </div>
 
-<!-- ── Site Profile Builder card ── -->
+<!-- ── Site Profile Builder ── -->
 <div id="siteProfileCard">
+
+  <!-- Header -->
   <div class="sp-header">
     <div class="sp-title">🏢 Site Profile Builder</div>
-    <div class="sp-subtitle">Define your customer's network site tiers. This drives automatic SKU selection in Pricing &amp; TCO.</div>
+    <div class="sp-subtitle">Define your customer's network site tiers. Each card drives automatic SKU selection in Pricing &amp; TCO.</div>
     <div class="sp-guidance" id="spGuidance">Loading guidance…</div>
   </div>
-  <div class="sp-body">
-    <div class="sp-empty-msg" id="spEmptyMsg">No sites added yet. Click "+ Add Site" to define your first site tier.</div>
-    <div style="overflow-x:auto;">
-      <table class="sp-table" id="spTable">
-        <thead>
-          <tr>
-            <th style="width:130px;">Site Label</th>
-            <th style="width:60px;"># Sites</th>
-            <th style="width:90px;">Size</th>
-            <th style="width:120px;">WAN Type</th>
-            <th style="width:130px;">🔥 FW N/S</th>
-            <th style="width:130px;">🌐 SD-WAN</th>
-            <th style="width:120px;">📡 MPLS</th>
-            <th style="width:130px;">🔒 FW E/W</th>
-            <th style="width:120px;">🤖 IoT/OT</th>
-            <th style="width:110px;">🛡 NAC</th>
-            <th style="width:120px;">🔀 L3 Switch</th>
-            <th style="width:110px;">🔑 PAM</th>
-            <th style="width:110px;">Options</th>
-            <th style="width:36px;"></th>
-          </tr>
-        </thead>
-        <tbody id="spTbody"></tbody>
-      </table>
-    </div>
-    <div class="sp-footer">
-      <button class="sp-add-btn" onclick="spAddRow()">＋ Add Site</button>
-      <div style="display:flex;gap:10px;align-items:center;">
-        <button class="btn btn-back" onclick="showQuestions()">← Back to Questions</button>
-        <button class="btn btn-submit" id="spSubmitBtn" onclick="spSubmitAll()">✓ Save Profile &amp; Submit</button>
-      </div>
+
+  <!-- Site cards container -->
+  <div id="spCardsContainer"></div>
+
+  <!-- Empty state -->
+  <div class="sp-empty-msg" id="spEmptyMsg">
+    <div class="sp-empty-icon">🏢</div>
+    No sites added yet.<br>Click <strong>+ Add Site</strong> below to define your first site tier.
+  </div>
+
+  <!-- Footer nav -->
+  <div class="sp-footer">
+    <button class="sp-add-btn" onclick="spAddRow()">＋ Add Site</button>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button class="btn btn-back" onclick="showQuestions()">← Back to Questions</button>
+      <button class="btn btn-submit" id="spSubmitBtn" onclick="spSubmitAll()">✓ Save Profile &amp; Submit</button>
     </div>
   </div>
+
 </div>
 
 <div class="save-toast" id="saveToast"></div>
@@ -229,16 +230,20 @@ if (resumeIndex > 0) {
 let draftResponseId = null;
 
 // ── Site Profile state ────────────────────────────────────────────────────────
-let _spVendors  = {};   // { fw_ns: ['Palo Alto', ...], sdwan: [...], ... }
-let _spRows     = [];   // saved rows from server
+let _spVendors  = {};
+let _spRows     = [];
 let _spGuidance = '';
 
 const SP_CATS = ['fw_ns','sdwan','mpls','fw_ew','iot_ot','nac','l3sw','pam'];
 const SP_CAT_LABELS = {
-  fw_ns:'FW N/S', sdwan:'SD-WAN', mpls:'MPLS', fw_ew:'FW E/W',
-  iot_ot:'IoT/OT', nac:'NAC', l3sw:'L3 Switch', pam:'PAM'
+  fw_ns:'🔥 FW N/S', sdwan:'🌐 SD-WAN', mpls:'📡 MPLS', fw_ew:'🔒 FW E/W',
+  iot_ot:'🤖 IoT/OT', nac:'🛡 NAC', l3sw:'🔀 L3 Switch', pam:'🔑 PAM'
 };
-const WAN_TYPES = ['Internet Only', 'Internet + MPLS', 'MPLS Only', 'Internet + SD-WAN', 'Internet + MPLS + SD-WAN'];
+const SP_VENDOR_FIELDS = {
+  fw_ns:'fw_ns_vendor', sdwan:'sdwan_vendor', mpls:'mpls_vendor', fw_ew:'fw_ew_vendor',
+  iot_ot:'iot_ot_vendor', nac:'nac_vendor', l3sw:'l3sw_vendor', pam:'pam_vendor'
+};
+const WAN_TYPES = ['Internet Only','Internet + MPLS','MPLS Only','Internet + SD-WAN','Internet + MPLS + SD-WAN'];
 const SIZES     = ['Small','Medium','Large','XL'];
 
 // ── Utility ───────────────────────────────────────────────────────────────────
@@ -297,20 +302,20 @@ function loadSiteProfileConfig() {
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (!data.success) return;
-      _spVendors  = data.vendors          || {};
-      _spGuidance = data.guidance         || '';
+      _spVendors  = data.vendors  || {};
+      _spGuidance = data.guidance || '';
       if (data.saved && data.saved.length > 0) {
         _spRows = data.saved;
       }
       document.getElementById('spGuidance').textContent = _spGuidance;
-      spRenderTable();
+      spRenderCards();
     })
     .catch(function() {
       document.getElementById('spGuidance').textContent = 'Could not load site profile config.';
     });
 }
 
-// ── Site Profile — row management ─────────────────────────────────────────────
+// ── Site Profile — add / delete rows ─────────────────────────────────────────
 function spAddRow() {
   _spRows.push({
     label: '', num_sites: 1, size: 'Small', wan_type: 'Internet Only',
@@ -318,27 +323,27 @@ function spAddRow() {
     iot_ot_vendor: '', nac_vendor: '', l3sw_vendor: '', pam_vendor: '',
     sdwan_required: false, segmentation_required: false, ha_required: false
   });
-  spRenderTable();
-  // Focus the last label input
+  spRenderCards();
   setTimeout(function() {
-    const inputs = document.querySelectorAll('.sp-label-input');
+    const inputs = document.querySelectorAll('.sp-card-label-input');
     if (inputs.length) inputs[inputs.length - 1].focus();
   }, 50);
 }
 
 function spDeleteRow(idx) {
   _spRows.splice(idx, 1);
-  spRenderTable();
+  spRenderCards();
 }
 
 function spSetField(idx, field, value) {
   _spRows[idx][field] = value;
 }
 
-function spRenderTable() {
-  const tbody   = document.getElementById('spTbody');
-  const emptyEl = document.getElementById('spEmptyMsg');
-  tbody.innerHTML = '';
+// ── Site Profile — render cards ───────────────────────────────────────────────
+function spRenderCards() {
+  const container = document.getElementById('spCardsContainer');
+  const emptyEl   = document.getElementById('spEmptyMsg');
+  container.innerHTML = '';
 
   if (!_spRows.length) {
     emptyEl.classList.add('show');
@@ -347,119 +352,154 @@ function spRenderTable() {
   emptyEl.classList.remove('show');
 
   _spRows.forEach(function(row, idx) {
-    const tr = document.createElement('tr');
+    const card = document.createElement('div');
+    card.className = 'sp-site-card';
 
-    // ── Site Label ──
-    const tdLabel = document.createElement('td');
-    const inpLabel = document.createElement('input');
-    inpLabel.type = 'text'; inpLabel.className = 'sp-input sp-label-input';
-    inpLabel.placeholder = 'e.g. Factory';
-    inpLabel.value = row.label || '';
-    inpLabel.oninput = function() { spSetField(idx, 'label', this.value); };
-    tdLabel.appendChild(inpLabel);
-    tr.appendChild(tdLabel);
+    // ── Card header ──────────────────────────────────────────────────────────
+    const header = document.createElement('div');
+    header.className = 'sp-card-header';
 
-    // ── # Sites ──
-    const tdNum = document.createElement('td');
-    const inpNum = document.createElement('input');
-    inpNum.type = 'number'; inpNum.className = 'sp-input';
-    inpNum.min = '1'; inpNum.value = row.num_sites || 1;
-    inpNum.oninput = function() { spSetField(idx, 'num_sites', parseInt(this.value) || 1); };
-    tdNum.appendChild(inpNum);
-    tr.appendChild(tdNum);
+    const left = document.createElement('div');
+    left.className = 'sp-card-header-left';
 
-    // ── Size ──
-    const tdSize = document.createElement('td');
-    const selSize = document.createElement('select');
-    selSize.className = 'sp-select';
-    SIZES.forEach(function(s) {
-      const o = document.createElement('option');
-      o.value = s; o.textContent = s;
-      if (row.size === s) o.selected = true;
-      selSize.appendChild(o);
-    });
-    selSize.onchange = function() { spSetField(idx, 'size', this.value); };
-    tdSize.appendChild(selSize);
-    tr.appendChild(tdSize);
+    const numBadge = document.createElement('span');
+    numBadge.className = 'sp-card-num';
+    numBadge.textContent = 'Site ' + (idx + 1);
+    left.appendChild(numBadge);
 
-    // ── WAN Type ──
-    const tdWan = document.createElement('td');
-    const selWan = document.createElement('select');
-    selWan.className = 'sp-select';
-    WAN_TYPES.forEach(function(w) {
-      const o = document.createElement('option');
-      o.value = w; o.textContent = w;
-      if (row.wan_type === w) o.selected = true;
-      selWan.appendChild(o);
-    });
-    selWan.onchange = function() { spSetField(idx, 'wan_type', this.value); };
-    tdWan.appendChild(selWan);
-    tr.appendChild(tdWan);
+    const labelInp = document.createElement('input');
+    labelInp.type = 'text';
+    labelInp.className = 'sp-card-label-input';
+    labelInp.placeholder = 'e.g. Factory, HQ, Branch';
+    labelInp.value = row.label || '';
+    labelInp.oninput = function() { spSetField(idx, 'label', this.value); };
+    left.appendChild(labelInp);
 
-    // ── Vendor dropdowns for each TCO category ──
-    const vendorFields = {
-      fw_ns: 'fw_ns_vendor', sdwan: 'sdwan_vendor', mpls: 'mpls_vendor',
-      fw_ew: 'fw_ew_vendor', iot_ot: 'iot_ot_vendor', nac: 'nac_vendor',
-      l3sw: 'l3sw_vendor', pam: 'pam_vendor'
-    };
-    SP_CATS.forEach(function(cat) {
-      const field   = vendorFields[cat];
-      const vendors = _spVendors[cat] || [];
-      const td  = document.createElement('td');
-      const sel = document.createElement('select');
-      sel.className = 'sp-select';
-      const none = document.createElement('option');
-      none.value = ''; none.textContent = '— None —';
-      sel.appendChild(none);
-      vendors.forEach(function(v) {
-        const o = document.createElement('option');
-        o.value = v; o.textContent = v;
-        if (row[field] === v) o.selected = true;
-        sel.appendChild(o);
-      });
-      sel.onchange = function() { spSetField(idx, field, this.value); };
-      td.appendChild(sel);
-      tr.appendChild(td);
-    });
+    const metaWrap = document.createElement('div');
+    metaWrap.className = 'sp-card-meta';
+    const metaLbl = document.createElement('label');
+    metaLbl.textContent = '# Sites:';
+    const numInp = document.createElement('input');
+    numInp.type = 'number'; numInp.className = 'sp-card-num-input';
+    numInp.min = '1'; numInp.value = row.num_sites || 1;
+    numInp.oninput = function() { spSetField(idx, 'num_sites', parseInt(this.value) || 1); };
+    metaWrap.appendChild(metaLbl);
+    metaWrap.appendChild(numInp);
+    left.appendChild(metaWrap);
 
-    // ── Options (checkboxes) ──
-    const tdOpts = document.createElement('td');
-    const checks = document.createElement('div');
-    checks.className = 'sp-checks';
+    const delBtn = document.createElement('button');
+    delBtn.className = 'sp-card-del-btn';
+    delBtn.textContent = '✕ Remove';
+    delBtn.onclick = function() { spDeleteRow(idx); };
 
+    header.appendChild(left);
+    header.appendChild(delBtn);
+    card.appendChild(header);
+
+    // ── Card body ─────────────────────────────────────────────────────────────
+    const body = document.createElement('div');
+    body.className = 'sp-card-body';
+
+    // Row 1: Size + WAN Type
+    const row1 = document.createElement('div');
+    row1.className = 'sp-row-2col';
+    row1.appendChild(spMakeSelectField('Size', SIZES, row.size, function(v) { spSetField(idx, 'size', v); }));
+    row1.appendChild(spMakeSelectField('WAN Type', WAN_TYPES, row.wan_type, function(v) { spSetField(idx, 'wan_type', v); }));
+    body.appendChild(row1);
+
+    // Row 2: Toggle pills
+    const toggleSection = document.createElement('div');
+    const toggleSectionLabel = document.createElement('div');
+    toggleSectionLabel.className = 'sp-section-label';
+    toggleSectionLabel.textContent = 'Licensing & Options';
+    toggleSection.appendChild(toggleSectionLabel);
+
+    const togglesWrap = document.createElement('div');
+    togglesWrap.className = 'sp-toggles';
     [
-      ['sdwan_required',        '🌐 SD-WAN Lic.'],
+      ['sdwan_required',        '🌐 SD-WAN License'],
       ['segmentation_required', '🔒 Segmentation'],
       ['ha_required',           '⚡ HA'],
     ].forEach(function(pair) {
-      const field = pair[0], label = pair[1];
+      const field = pair[0], labelText = pair[1];
       const lbl = document.createElement('label');
-      lbl.className = 'sp-check-label';
+      lbl.className = 'sp-toggle-label' + (row[field] ? ' checked' : '');
       const cb = document.createElement('input');
       cb.type = 'checkbox'; cb.checked = !!row[field];
-      cb.onchange = function() { spSetField(idx, field, this.checked); };
+      cb.onchange = function() {
+        spSetField(idx, field, this.checked);
+        lbl.className = 'sp-toggle-label' + (this.checked ? ' checked' : '');
+      };
+      const dot = document.createElement('span');
+      dot.className = 'sp-toggle-dot';
       lbl.appendChild(cb);
-      lbl.appendChild(document.createTextNode(label));
-      checks.appendChild(lbl);
+      lbl.appendChild(dot);
+      lbl.appendChild(document.createTextNode(labelText));
+      togglesWrap.appendChild(lbl);
     });
-    tdOpts.appendChild(checks);
-    tr.appendChild(tdOpts);
+    toggleSection.appendChild(togglesWrap);
+    body.appendChild(toggleSection);
 
-    // ── Delete ──
-    const tdDel = document.createElement('td');
-    const delBtn = document.createElement('button');
-    delBtn.className = 'sp-del-btn'; delBtn.textContent = '✕';
-    delBtn.title = 'Remove this site';
-    delBtn.onclick = function() { spDeleteRow(idx); };
-    tdDel.appendChild(delBtn);
-    tr.appendChild(tdDel);
+    // Row 3+4: Vendor dropdowns — 4 per row
+    const vendorSection = document.createElement('div');
+    const vendorSectionLabel = document.createElement('div');
+    vendorSectionLabel.className = 'sp-section-label';
+    vendorSectionLabel.textContent = 'Legacy Vendor Selection (for TCO)';
+    vendorSection.appendChild(vendorSectionLabel);
 
-    tbody.appendChild(tr);
+    const vendorGrid1 = document.createElement('div');
+    vendorGrid1.className = 'sp-row-4col';
+    const vendorGrid2 = document.createElement('div');
+    vendorGrid2.className = 'sp-row-4col';
+
+    SP_CATS.forEach(function(cat, ci) {
+      const field   = SP_VENDOR_FIELDS[cat];
+      const vendors = _spVendors[cat] || [];
+      const options = [''].concat(vendors);
+      const optionLabels = ['— None —'].concat(vendors);
+      const fld = spMakeSelectFieldFull(SP_CAT_LABELS[cat], options, optionLabels, row[field] || '', function(v) { spSetField(idx, field, v); });
+      if (ci < 4) vendorGrid1.appendChild(fld);
+      else        vendorGrid2.appendChild(fld);
+    });
+
+    vendorSection.appendChild(vendorGrid1);
+    const spacer = document.createElement('div');
+    spacer.style.height = '12px';
+    vendorSection.appendChild(spacer);
+    vendorSection.appendChild(vendorGrid2);
+    body.appendChild(vendorSection);
+
+    card.appendChild(body);
+    container.appendChild(card);
   });
 }
 
-// ── Site Profile — collect current values from DOM before save ────────────────
-// (values are written live via oninput/onchange, _spRows is always current)
+// ── Helper: build a labelled select field (values = labels) ──────────────────
+function spMakeSelectField(labelText, options, currentVal, onChange) {
+  return spMakeSelectFieldFull(labelText, options, options, currentVal, onChange);
+}
+
+// ── Helper: build a labelled select field (separate values + labels) ─────────
+function spMakeSelectFieldFull(labelText, values, labels, currentVal, onChange) {
+  const wrap = document.createElement('div');
+  wrap.className = 'sp-field';
+  const lbl = document.createElement('label');
+  lbl.textContent = labelText;
+  const sel = document.createElement('select');
+  sel.className = 'sp-select-styled';
+  values.forEach(function(v, i) {
+    const o = document.createElement('option');
+    o.value = v; o.textContent = labels[i];
+    if (v === currentVal) o.selected = true;
+    sel.appendChild(o);
+  });
+  sel.onchange = function() { onChange(this.value); };
+  wrap.appendChild(lbl);
+  wrap.appendChild(sel);
+  return wrap;
+}
+
+// ── Site Profile — collect rows ───────────────────────────────────────────────
 function spCollectRows() { return _spRows; }
 
 // ── Site Profile — submit assessment + save site profile ─────────────────────
@@ -468,13 +508,10 @@ function spSubmitAll() {
   btn.disabled = true; btn.textContent = 'Saving…';
 
   const rows = spCollectRows();
-
-  // 1. Submit assessment
   const submitUrl = EDIT_MODE ? '/user/' + CUSTOMER_SLUG + '/update' : '/user/submit';
-  const submitMethod = 'POST';
 
   fetch(submitUrl, {
-    method: submitMethod,
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ responses: responses })
   })
@@ -482,8 +519,6 @@ function spSubmitAll() {
   .then(function(data) {
     if (!data.success) throw new Error('Assessment submit failed');
     const slug = data.customer_slug || CUSTOMER_SLUG;
-
-    // 2. Save site profile
     return fetch('/user/' + slug + '/site-profile-save', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -495,7 +530,7 @@ function spSubmitAll() {
       window.location.href = '/user/' + slug;
     });
   })
-  .catch(function(err) {
+  .catch(function() {
     showToast('Submission failed. Please try again.', true);
     btn.disabled = false;
     btn.textContent = '✓ Save Profile & Submit';
@@ -526,7 +561,7 @@ function render() {
   else if (type === 'text' || type === 'textbox') hint.textContent = 'Type your answer below';
   else hint.textContent = '';
 
-  const area    = document.getElementById('optionsArea');
+  const area = document.getElementById('optionsArea');
   area.innerHTML = '';
 
   const nextBtn = document.getElementById('nextBtn');
@@ -560,9 +595,9 @@ function render() {
       btn.textContent = opt.label;
       btn.onclick = function() {
         const arr = responses[q.question_id];
-        const idx = arr.indexOf(opt.id);
-        if (idx > -1) { arr.splice(idx, 1); btn.classList.remove('selected'); }
-        else           { arr.push(opt.id);  btn.classList.add('selected'); }
+        const i = arr.indexOf(opt.id);
+        if (i > -1) { arr.splice(i, 1); btn.classList.remove('selected'); }
+        else         { arr.push(opt.id);  btn.classList.add('selected'); }
         nextBtn.disabled = arr.length === 0;
         onAnswerChanged();
         render();
@@ -585,9 +620,8 @@ function render() {
 
   document.getElementById('backBtn').style.visibility = current === 0 ? 'hidden' : 'visible';
 
-  // On LAST question — "Next" goes to Site Profile instead of submitting
   if (current === total - 1) {
-    nextBtn.textContent = EDIT_MODE ? 'Site Profile →' : 'Site Profile →';
+    nextBtn.textContent = 'Site Profile →';
     nextBtn.className   = 'btn btn-next';
     nextBtn.onclick     = function() { showSiteProfile(); };
     if (q.info_only) nextBtn.disabled = false;
