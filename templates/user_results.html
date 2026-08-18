@@ -45,7 +45,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 .page-body { max-width: 1280px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
-/* ── Results two-column layout ── */
 .results-layout { display: grid; grid-template-columns: 1fr 300px; gap: 2rem; align-items: start; }
 .results-main { min-width: 0; }
 .results-sidebar { position: sticky; top: 74px; display: flex; flex-direction: column; gap: 0.75rem; }
@@ -268,7 +267,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
 .t-select option { background: #0a2244; color: var(--white); }
 .t-remove-btn { background: transparent; border: none; color: #f87171; font-size: 1.1rem; cursor: pointer; padding: 2px 5px; border-radius: 5px; transition: background 0.15s; line-height: 1; }
 .t-remove-btn:hover { background: rgba(248,113,113,0.15); }
-/* TCO Hero Metrics */
 .tco-hero-panel { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.6rem; margin-bottom: 1.5rem; }
 .tco-hero-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-bottom: 1.2rem; }
 @media (max-width: 900px) { .tco-hero-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -286,7 +284,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
 .tco-hero-status.saving { color: var(--accent); }
 .tco-hero-status.saved { color: #00dc82; }
 .tco-hero-status.error { color: #ff6b6b; }
-/* TCO Chart */
 .tco-chart-wrap { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; }
 .tco-chart-title { font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
 .tco-chart-sub { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 1rem; }
@@ -294,362 +291,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
 .tco-chart-legend { display: flex; gap: 2rem; justify-content: center; font-size: 0.82rem; }
 .tco-legend-item { display: flex; align-items: center; gap: 0.5rem; }
 .tco-legend-box { width: 16px; height: 16px; border-radius: 3px; }
-/* TCO Savings */
-.tco-acv-row { display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; margin-bottom: 1.5rem; background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem 1.6rem; }
-.tco-acv-label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); white-space: nowrap; }
-.tco-acv-source { font-size: 0.75rem; color: var(--text-muted); }
-.tco-acv-input { background: rgba(0,0,0,0.3); border: 1px solid rgba(0,170,255,0.35); border-radius: 8px; color: var(--white); font-size: 1.2rem; font-weight: 700; padding: 0.5rem 1rem; width: 200px; outline: none; transition: border-color 0.2s; text-align: right; }
-.tco-acv-input:focus { border-color: var(--accent); }
-.tco-savings-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.5rem; }
-@media (max-width: 900px) { .tco-savings-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 560px) { .tco-savings-grid { grid-template-columns: 1fr; } }
-.tco-kpi { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.4rem; border-left: 3px solid var(--accent); }
-.tco-kpi-title { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.5rem; }
-.tco-kpi-value { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.2rem; }
-.tco-kpi-sub { font-size: 0.72rem; color: var(--text-muted); }
-.tco-summary-tbl-wrap { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
-.tco-summary-tbl { width: 100%; border-collapse: collapse; }
-.tco-summary-tbl th { padding: 10px 14px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); text-align: left; background: rgba(0,51,102,0.8); border-bottom: 1px solid var(--border); }
-.tco-summary-tbl th.num { text-align: right; }
-.tco-summary-tbl td { padding: 10px 14px; font-size: 0.84rem; border-bottom: 1px solid rgba(0,170,255,0.06); vertical-align: middle; }
-.tco-summary-tbl tr:last-child td { border-bottom: none; font-weight: 700; background: rgba(0,170,255,0.05); }
-.tco-summary-tbl td.num { text-align: right; font-variant-numeric: tabular-nums; }
-.tco-summary-tbl td.s-annual { font-weight: 700; color: var(--accent); text-align: right; }
-.tco-summary-tbl td.s-3yr { font-weight: 700; color: #22c55e; text-align: right; }
-#ie-toast { position: fixed; bottom: 24px; right: 24px; background: #00875a; color: #fff; padding: 11px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.35); z-index: 9999; opacity: 0; transform: translateY(10px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
-#ie-toast.show { opacity: 1; transform: translateY(0); }
-#ie-toast.error { background: #b91c1c; }
-.empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 0.88rem; }
-.not-found { text-align: center; padding: 6rem 2rem; }
-.not-found h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.75rem; }
-.not-found p { color: var(--text-muted); margin-bottom: 1.5rem; }
-.not-found a { color: var(--accent); text-decoration: none; font-weight: 600; }
-.footer { border-top: 1px solid var(--border); padding: 1.6rem 2rem; text-align: center; background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.55rem; }
-.footer-logo { display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
-.footer-z { width: 20px; height: 20px; background: linear-gradient(135deg, var(--blue), var(--accent)); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; color: var(--white); }
-.footer-sep { color: rgba(160,188,216,0.25); margin: 0 0.15rem; }
-.footer-copy { font-size: 0.76rem; color: rgba(160,188,216,0.4); }
-@media (max-width: 600px) {
-  .hero { padding: 2.5rem 1rem 2rem; }
-  .page-body, .pov-body, .diag-body { padding: 1.75rem 1rem 4rem; }
-  .navbar { padding: 0 1rem; }
-  .download-section { flex-direction: column; align-items: flex-start; }
-  .vp-grid { grid-template-columns: Let me read through the conversation history to find all the changes that were requested for `user_results.html`.Good, I can see the last requested changes. Now let me scan through the conversation history to find all the changes discussed, and also find the current `user_results.html` file.Let me search through more relevant sections of the conversation history to find the specific changes to `user_results.html`:Now let me read the key sections around the actual changes discussed:I now have a clear picture of the conversation. The latest version of `user_results.html` was pasted at line 12585, and the changes requested at the end were the **3 JS edits** to wire `site_profile` into Pricing and TCO auto-population. Let me read the rest of the latest pasted HTML and the specific JS changes, then build the complete file.I now have everything I need. The latest `user_results.html` is the one pasted at line 12585, and I need to apply the 3 JS edits. Let me now build the complete file with all changes applied.Now I have everything. Here's a summary of the **3 changes** before I give you the full file:
-
----
-
-## Changes Summary
-
-1. **Edit 1** — Add two mapper helper functions before `initPricing()`:
-   - `buildPricingRowsFromSiteProfile(siteProfile)` — maps site profile tiers → pricing rows (appliance, SD-WAN, seg SKUs by size + ha_required)
-   - `buildTCORowsFromSiteProfile(siteProfile)` — maps site profile tiers → TCO rows (vendor entries by category + size)
-
-2. **Edit 2** — Update `initPricing()` to add a middle branch: if no manually saved rows exist but `data.site_profile` is present, auto-populate rows from site profile instead of defaulting to one empty row.
-
-3. **Edit 3** — Update `initTCO()` same way: add middle branch for `data.site_profile` between "use saved rows" and "use blank row".
-
----
-
-Here's the full `user_results.html` with all three edits applied:
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>{% if not not_found %}{{ user_resp.customer_name }} — ZTB Assessment Results{% else %}Not Found — ZTB Super App{% endif %}</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<style>
-:root {
-  --navy-dark: #002244; --navy: #003366; --blue: #0070c0; --accent: #00aaff;
-  --white: #ffffff; --card-bg: #0a2a50; --text-muted: #a0bcd8;
-  --border: rgba(0,170,255,0.25); --shadow: 0 8px 40px rgba(0,0,0,0.55);
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; background: var(--navy-dark); color: var(--white); min-height: 100vh; }
-.navbar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; gap: 0.75rem; padding: 0 2rem; height: 58px; background: rgba(0,22,44,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
-.nav-logo { width: 34px; height: 34px; background: linear-gradient(135deg, var(--blue), var(--accent)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 800; color: var(--white); box-shadow: 0 0 10px rgba(0,170,255,0.35); flex-shrink: 0; text-decoration: none; }
-.nav-brand { font-size: 1rem; font-weight: 700; color: var(--white); }
-.nav-spacer { flex: 1; }
-.nav-edit { font-size: 0.82rem; font-weight: 600; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 5px; border: 1px solid rgba(0,170,255,0.4); border-radius: 7px; padding: 0.38rem 0.9rem; transition: background 0.2s, color 0.2s; }
-.nav-edit:hover { background: var(--accent); color: var(--navy-dark); }
-.nav-back { font-size: 0.82rem; color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 5px; transition: color 0.2s; margin-left: 0.5rem; }
-.nav-back:hover { color: var(--accent); }
-.hero { background: linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 60%, #004d99 100%); padding: 3.5rem 2rem 3rem; position: relative; overflow: hidden; }
-.hero::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(0,170,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,170,255,0.04) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; }
-.hero-inner { position: relative; z-index: 2; max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
-.hero-left { flex: 1; min-width: 0; }
-.hero-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
-.hero h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 0.75rem; }
-.hero-meta { display: flex; flex-wrap: wrap; gap: 1.2rem; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
-.hero-meta span { display: flex; align-items: center; gap: 5px; }
-.hero-meta a { color: var(--accent); text-decoration: none; word-break: break-all; }
-.hero-meta a:hover { text-decoration: underline; }
-.hero-kpis { display: flex; gap: 1rem; flex-shrink: 0; }
-.hero-kpi { background: rgba(0,0,0,0.25); border: 1px solid rgba(0,170,255,0.2); border-radius: 14px; padding: 1rem 1.4rem; min-width: 130px; text-align: center; backdrop-filter: blur(8px); }
-.hero-kpi-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.4rem; }
-.hero-kpi-value { font-size: 1.5rem; font-weight: 800; line-height: 1; }
-.hero-kpi-sub { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.3rem; }
-@media (max-width: 700px) { .hero-kpis { display: none; } }
-.page-tabs { display: flex; gap: 0; padding: 0 2rem; background: rgba(0,22,44,0.7); border-bottom: 1px solid var(--border); overflow-x: auto; }
-.page-tab { padding: 0.85rem 1.4rem; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.2s, border-color 0.2s; user-select: none; }
-.page-tab:hover { color: var(--white); }
-.page-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-.page-body { max-width: 1280px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
-/* ── Results two-column layout ── */
-.results-layout { display: grid; grid-template-columns: 1fr 300px; gap: 2rem; align-items: start; }
-.results-main { min-width: 0; }
-.results-sidebar { position: sticky; top: 74px; display: flex; flex-direction: column; gap: 0.75rem; }
-.sidebar-heading { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text-muted); margin-bottom: 0.25rem; }
-@media (max-width: 1000px) { .results-layout { grid-template-columns: 1fr; } .results-sidebar { position: static; } }
-.section-heading { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.25rem; }
-.section-heading h2 { font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
-.section-badge { background: rgba(0,170,255,0.12); border: 1px solid rgba(0,170,255,0.28); border-radius: 20px; padding: 1px 10px; font-size: 0.7rem; font-weight: 700; color: var(--accent); }
-.section-divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
-.summary-tile { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 12px; padding: 1rem 1.2rem 1.1rem; display: flex; flex-direction: column; gap: 0.55rem; transition: box-shadow 0.2s, border-top-color 0.2s; }
-.summary-tile:hover { box-shadow: 0 4px 20px rgba(0,170,255,0.12); }
-.summary-tile-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; }
-.summary-tile-name { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; line-height: 1.3; flex: 1; }
-.summary-tile-badge { font-size: 0.75rem; font-weight: 800; padding: 3px 11px; border-radius: 20px; white-space: nowrap; color: #fff; flex-shrink: 0; }
-.summary-tile-text { font-size: 0.8rem; line-height: 1.6; color: var(--white); padding: 0.5rem 0.75rem; border-radius: 7px; border-left: 3px solid; background: rgba(255,255,255,0.04); }
-.vd-wrapper { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
-.vd-table { width: 100%; border-collapse: collapse; }
-.vd-table th { text-align: left; padding: 11px 16px; background: rgba(0,51,102,0.7); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent); border-bottom: 1px solid var(--border); }
-.vd-table th:first-child { width: 18%; }
-.vd-table th:nth-child(2) { width: 41%; }
-.vd-table th:nth-child(3) { width: 41%; }
-.vd-table td { padding: 14px 16px; font-size: 0.85rem; border-bottom: 1px solid rgba(0,170,255,0.08); vertical-align: top; line-height: 1.65; }
-.vd-table tr:last-child td { border-bottom: none; }
-.vd-table tr:hover td { background: rgba(0,170,255,0.04); }
-.vd-table td.vd-driver { font-weight: 700; color: var(--accent); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
-.vd-table td.vd-current { color: #f87171; }
-.vd-table td.vd-future { color: #4ade80; }
-.vd-line { display: block; padding: 2px 0; }
-.vd-line + .vd-line { margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06); }
-.vp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
-.vp-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 14px; padding: 1.25rem 1.4rem; transition: border-color 0.2s, box-shadow 0.2s; }
-.vp-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.1); }
-.vp-card-title { font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 0.45rem; line-height: 1.35; }
-.vp-card-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; }
-.vp-card-biz { margin-top: 0.65rem; display: inline-block; background: rgba(0,170,255,0.1); border: 1px solid rgba(0,170,255,0.22); border-radius: 20px; padding: 2px 10px; font-size: 0.7rem; font-weight: 600; color: var(--accent); }
-.assets-list { display: flex; flex-direction: column; gap: 0.7rem; }
-.asset-row { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: flex-start; gap: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
-.asset-row:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.1); }
-.asset-icon { width: 38px; height: 38px; flex-shrink: 0; background: rgba(0,170,255,0.1); border: 1px solid rgba(0,170,255,0.2); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
-.asset-info { flex: 1; min-width: 0; }
-.asset-title { font-size: 0.92rem; font-weight: 700; color: var(--white); }
-.asset-type { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
-.asset-desc { font-size: 0.81rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.5; }
-.asset-link { flex-shrink: 0; padding: 0.45rem 1rem; background: transparent; border: 1px solid var(--accent); border-radius: 7px; color: var(--accent); font-size: 0.78rem; font-weight: 600; text-decoration: none; transition: background 0.2s, color 0.2s; white-space: nowrap; align-self: center; }
-.asset-link:hover { background: var(--accent); color: var(--white); }
-.guidelines-list { display: flex; flex-direction: column; gap: 1rem; }
-.guideline-card { background: linear-gradient(145deg, #0a2a1a, #072018); border: 1px solid rgba(0,220,130,0.2); border-left: 3px solid #00dc82; border-radius: 12px; padding: 1.25rem 1.4rem; transition: border-color 0.2s, box-shadow 0.2s; }
-.guideline-card:hover { border-color: rgba(0,220,130,0.45); box-shadow: 0 4px 20px rgba(0,220,130,0.08); }
-.guideline-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
-.guideline-title { font-size: 0.95rem; font-weight: 700; color: var(--white); display: flex; align-items: center; gap: 0.5rem; }
-.guideline-title::before { content: '📋'; font-size: 0.9rem; }
-.guideline-link { flex-shrink: 0; padding: 0.35rem 0.85rem; background: transparent; border: 1px solid rgba(0,220,130,0.4); border-radius: 7px; color: #00dc82; font-size: 0.75rem; font-weight: 600; text-decoration: none; transition: background 0.2s, color 0.2s; white-space: nowrap; }
-.guideline-link:hover { background: #00dc82; color: #072018; }
-.guideline-body { font-size: 0.85rem; color: #a0c8b0; line-height: 1.7; white-space: pre-wrap; }
-.download-section { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem 2rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
-.download-text { flex: 1; min-width: 200px; }
-.download-text h3 { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 0.3rem; }
-.download-text p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
-.download-btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.78rem 1.6rem; background: linear-gradient(135deg, var(--blue), var(--accent)); border: none; border-radius: 10px; color: var(--white); font-size: 0.92rem; font-weight: 700; cursor: pointer; text-decoration: none; box-shadow: 0 4px 18px rgba(0,112,192,0.4); transition: opacity 0.2s, transform 0.15s; white-space: nowrap; }
-.download-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-.notes-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem 1.6rem; }
-.notes-textarea { width: 100%; min-height: 130px; background: rgba(0,0,0,0.25); border: 1px solid rgba(0,170,255,0.2); border-radius: 9px; color: var(--white); font-size: 0.88rem; font-family: inherit; line-height: 1.6; padding: 0.85rem 1rem; resize: vertical; transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
-.notes-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,170,255,0.1); }
-.notes-textarea::placeholder { color: rgba(160,188,216,0.4); }
-.notes-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 0.65rem; min-height: 22px; }
-.notes-status { font-size: 0.75rem; color: var(--text-muted); transition: opacity 0.3s; opacity: 0; }
-.notes-status.visible { opacity: 1; }
-.notes-status.saved { color: #00dc82; }
-.notes-status.saving { color: var(--accent); }
-.notes-status.error { color: #ff6b6b; }
-.notes-hint { font-size: 0.72rem; color: rgba(160,188,216,0.35); }
-.qa-wrapper { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
-.qa-table { width: 100%; border-collapse: collapse; }
-.qa-table th { text-align: left; padding: 10px 14px; background: rgba(0,51,102,0.6); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); border-bottom: 1px solid var(--border); }
-.qa-table td { padding: 11px 14px; font-size: 0.87rem; border-bottom: 1px solid rgba(0,170,255,0.08); vertical-align: middle; line-height: 1.5; }
-.qa-table tr:last-child td { border-bottom: none; }
-.qa-table tr:hover td { background: rgba(0,170,255,0.04); }
-.qa-table td.col-question { color: var(--text-muted); width: 48%; vertical-align: middle; }
-.qa-table td.col-answer { color: var(--white); font-weight: 500; width: 42%; vertical-align: middle; }
-.qa-table td.col-action { width: 10%; text-align: right; vertical-align: middle; white-space: nowrap; }
-.qa-category-row td { padding: 6px 14px 4px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); background: rgba(0,170,255,0.05); border-bottom: none; }
-.btn-inline-edit { background: transparent; border: 1px solid rgba(0,170,255,0.3); color: var(--accent); font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 6px; cursor: pointer; transition: background 0.15s, color 0.15s; white-space: nowrap; }
-.btn-inline-edit:hover { background: var(--accent); color: var(--navy-dark); }
-.ie-row td { padding: 0 !important; border-bottom: 1px solid rgba(0,170,255,0.12) !important; }
-.ie-panel { padding: 12px 16px 16px; background: rgba(0,20,50,0.7); border-top: 1px solid rgba(0,170,255,0.15); }
-.ie-options { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
-.ie-option-btn { background: rgba(255,255,255,0.04); border: 1px solid rgba(0,170,255,0.22); border-radius: 8px; padding: 8px 14px; font-size: 0.84rem; color: var(--white); cursor: pointer; text-align: left; transition: border-color 0.15s, background 0.15s; font-family: inherit; }
-.ie-option-btn:hover { border-color: var(--accent); background: rgba(0,170,255,0.08); }
-.ie-option-btn.ie-sel { border-color: var(--accent); background: rgba(0,170,255,0.18); font-weight: 600; }
-.ie-text-input { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(0,170,255,0.3); border-radius: 8px; padding: 9px 14px; font-size: 0.87rem; color: var(--white); font-family: inherit; outline: none; margin-bottom: 12px; transition: border-color 0.2s; }
-.ie-text-input:focus { border-color: var(--accent); }
-.ie-hint { font-size: 0.74rem; color: var(--text-muted); display: block; margin-bottom: 10px; }
-.ie-actions { display: flex; gap: 8px; align-items: center; }
-.ie-save-btn { background: var(--accent); color: var(--navy-dark); border: none; border-radius: 7px; padding: 7px 20px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
-.ie-save-btn:hover { opacity: 0.88; }
-.ie-save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.ie-cancel-btn { background: transparent; color: var(--text-muted); border: 1px solid rgba(160,188,216,0.22); border-radius: 7px; padding: 7px 14px; font-size: 0.82rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; font-family: inherit; }
-.ie-cancel-btn:hover { color: var(--white); border-color: var(--text-muted); }
-.pov-body { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
-.diag-body { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
-.diag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-@media (max-width: 860px) { .diag-grid { grid-template-columns: 1fr; } }
-.diag-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
-.diag-card-header { padding: 1rem 1.4rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-.diag-card-title { font-size: 0.92rem; font-weight: 700; color: var(--white); }
-.diag-card-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
-.diag-open-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.4rem 1rem; background: transparent; border: 1px solid rgba(0,170,255,0.4); border-radius: 7px; color: var(--accent); font-size: 0.75rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: background 0.2s, color 0.2s; white-space: nowrap; }
-.diag-open-btn:hover { background: var(--accent); color: var(--navy-dark); }
-.diag-viewer { width: 100%; height: 480px; border: none; background: #fff; display: block; }
-.diag-loading { display: flex; align-items: center; justify-content: center; height: 480px; font-size: 0.85rem; color: var(--text-muted); flex-direction: column; gap: 0.75rem; }
-.diag-spinner { width: 32px; height: 32px; border: 3px solid rgba(0,170,255,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.diag-error { display: flex; align-items: center; justify-content: center; height: 480px; font-size: 0.82rem; color: #f87171; flex-direction: column; gap: 0.5rem; text-align: center; padding: 1rem; }
-.diag-notice { background: linear-gradient(145deg, #0a1e38, #071628); border: 1px solid rgba(0,170,255,0.15); border-left: 3px solid var(--accent); border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 0.82rem; color: var(--text-muted); line-height: 1.65; }
-.diag-notice strong { color: var(--white); }
-.diag-reload-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.55rem 1.2rem; background: transparent; border: 1px dashed rgba(0,170,255,0.35); border-radius: 8px; color: var(--accent); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 0.5rem; }
-.diag-reload-btn:hover { background: rgba(0,170,255,0.08); }
-/* ── Pricing ── */
-.pricing-body { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
-.phase-toggle { display: inline-flex; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 1.5rem; }
-.phase-btn { padding: 0.55rem 1.4rem; font-size: 0.82rem; font-weight: 700; cursor: pointer; border: none; background: transparent; color: var(--text-muted); transition: background 0.2s, color 0.2s; letter-spacing: 0.04em; }
-.phase-btn:hover { color: var(--white); }
-.phase-btn.active { background: var(--accent); color: var(--navy-dark); }
-.phase-btn.budgetary.active { background: #f59e0b; color: #1a1a00; }
-.phase-btn.standard.active { background: #3b82f6; color: #fff; }
-.phase-btn.aggressive.active { background: #10b981; color: #fff; }
-.pricing-table-wrap { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem; }
-.pricing-tbl { width: 100%; border-collapse: collapse; min-width: 800px; }
-.pricing-tbl thead tr { background: rgba(0,51,102,0.8); }
-.pricing-tbl th { padding: 11px 12px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border); }
-.pricing-tbl th.num { text-align: right; }
-.pricing-tbl td { padding: 10px 12px; font-size: 0.84rem; border-bottom: 1px solid rgba(0,170,255,0.06); vertical-align: middle; }
-.pricing-tbl tr:last-child td { border-bottom: none; }
-.pricing-tbl tr:hover td { background: rgba(0,170,255,0.04); }
-.pricing-tbl td.num { text-align: right; font-variant-numeric: tabular-nums; }
-.pricing-tbl td.total-col { font-weight: 700; color: var(--accent); text-align: right; }
-.p-label-input { background: transparent; border: 1px solid rgba(0,170,255,0.2); border-radius: 6px; color: var(--white); font-size: 0.82rem; padding: 5px 8px; width: 90px; outline: none; transition: border-color 0.2s; }
-.p-label-input:focus { border-color: var(--accent); }
-.p-qty-input { background: transparent; border: 1px solid rgba(0,170,255,0.2); border-radius: 6px; color: var(--white); font-size: 0.82rem; padding: 5px 8px; width: 70px; text-align: right; outline: none; transition: border-color 0.2s; }
-.p-qty-input:focus { border-color: var(--accent); }
-.p-select { background: #0a2244; border: 1px solid rgba(0,170,255,0.2); border-radius: 6px; color: var(--white); font-size: 0.8rem; padding: 5px 8px; width: 100%; outline: none; cursor: pointer; transition: border-color 0.2s; }
-.p-select:focus { border-color: var(--accent); }
-.p-select option { background: #0a2244; color: var(--white); }
-.p-remove-btn { background: transparent; border: none; color: #f87171; font-size: 1.1rem; cursor: pointer; padding: 3px 6px; border-radius: 5px; transition: background 0.15s; line-height: 1; }
-.p-remove-btn:hover { background: rgba(248,113,113,0.15); }
-.grand-total-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid rgba(0,170,255,0.4); border-radius: 14px; padding: 1.4rem 1.8rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
-.grand-total-label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
-.grand-total-value { font-size: 2rem; font-weight: 800; color: var(--accent); }
-.grand-total-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
-.ramp-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
-.ramp-card-header { padding: 1rem 1.4rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-.ramp-card-title { font-size: 0.9rem; font-weight: 700; color: var(--white); }
-.ramp-card-sub { font-size: 0.75rem; color: var(--text-muted); }
-.ramp-tbl { width: 100%; border-collapse: collapse; min-width: 500px; }
-.ramp-tbl th { padding: 10px 14px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); text-align: right; background: rgba(0,51,102,0.4); border-bottom: 1px solid var(--border); }
-.ramp-tbl th:first-child { text-align: left; }
-.ramp-tbl td { padding: 10px 14px; font-size: 0.83rem; border-bottom: 1px solid rgba(0,170,255,0.06); text-align: right; }
-.ramp-tbl td:first-child { text-align: left; color: var(--text-muted); font-weight: 600; }
-.ramp-tbl tr:last-child td { border-bottom: none; font-weight: 700; color: var(--accent); background: rgba(0,170,255,0.05); }
-.ramp-tbl tr:last-child td:first-child { color: var(--accent); }
-.pricing-save-ind { font-size: 0.75rem; text-align: right; margin-bottom: 0.75rem; min-height: 18px; color: var(--text-muted); }
-.pricing-save-ind.saving { color: var(--accent); }
-.pricing-save-ind.saved { color: #00dc82; }
-.add-row-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.6rem 1.2rem; background: transparent; border: 1px dashed rgba(0,170,255,0.4); border-radius: 9px; color: var(--accent); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.2s, border-color 0.2s; margin-bottom: 1rem; }
-.add-row-btn:hover { background: rgba(0,170,255,0.08); border-color: var(--accent); }
-.pricing-tbl-overflow { overflow-x: auto; }
-/* ── BOM ── */
-.bom-wrap { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem; }
-.bom-section-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--accent); padding: 6px 14px 5px; background: rgba(0,170,255,0.07); border-bottom: 1px solid rgba(0,170,255,0.1); }
-.bom-tbl { width: 100%; border-collapse: collapse; min-width: 480px; }
-.bom-tbl th { padding: 10px 14px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); text-align: left; background: rgba(0,51,102,0.8); border-bottom: 1px solid var(--border); }
-.bom-tbl th.num { text-align: right; }
-.bom-tbl td { padding: 10px 14px; font-size: 0.84rem; border-bottom: 1px solid rgba(0,170,255,0.06); vertical-align: middle; }
-.bom-tbl tr:last-child td { border-bottom: none; }
-.bom-tbl tr:hover td { background: rgba(0,170,255,0.03); }
-.bom-tbl td.num { text-align: right; font-variant-numeric: tabular-nums; }
-.bom-tbl td.bom-sku { font-family: 'SF Mono','Fira Mono',monospace; font-size: 0.78rem; color: var(--accent); }
-.bom-tbl td.bom-name { color: var(--white); }
-.bom-tbl td.bom-qty { font-weight: 700; color: var(--white); text-align: right; }
-.bom-tbl td.bom-unit { color: var(--text-muted); text-align: right; }
-.bom-tbl td.bom-ext { font-weight: 700; color: var(--accent); text-align: right; }
-.bom-subtotal-row td { font-weight: 700; color: var(--accent); background: rgba(0,170,255,0.06); border-top: 1px solid rgba(0,170,255,0.18); }
-.bom-grand-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid rgba(0,170,255,0.4); border-radius: 14px; padding: 1.2rem 1.8rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
-.bom-grand-label { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
-.bom-grand-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
-.bom-grand-value { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
-/* ── PS Notice ── */
-.ps-notice { background: linear-gradient(145deg, #0a2218, #062015); border: 1px solid rgba(0,220,130,0.22); border-left: 4px solid #00dc82; border-radius: 14px; padding: 1.4rem 1.6rem; margin-bottom: 1.5rem; }
-.ps-notice-title { font-size: 0.92rem; font-weight: 700; color: #00dc82; margin-bottom: 0.75rem; }
-.ps-notice-lead { font-size: 0.85rem; color: var(--white); line-height: 1.65; margin-bottom: 1rem; }
-.ps-notice-sub { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #00dc82; margin-bottom: 0.65rem; }
-.ps-attach-list { display: flex; flex-direction: column; gap: 0.65rem; }
-.ps-attach-item { display: flex; gap: 0.75rem; align-items: flex-start; }
-.ps-attach-icon { width: 26px; height: 26px; flex-shrink: 0; background: rgba(0,220,130,0.1); border: 1px solid rgba(0,220,130,0.22); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; margin-top: 1px; }
-.ps-attach-text { font-size: 0.83rem; color: #a0c8b0; line-height: 1.6; }
-.ps-attach-text strong { color: var(--white); }
-/* ── TCO ── */
-.tco-body { max-width: 1300px; margin: 0 auto; padding: 2rem 1.5rem 5rem; overflow: hidden; }
-.tco-save-ind { font-size: 0.75rem; text-align: right; margin-bottom: 0.75rem; min-height: 18px; color: var(--text-muted); }
-.tco-save-ind.saving { color: var(--accent); }
-.tco-save-ind.saved { color: #00dc82; }
-.tco-tbl-outer { overflow-x: scroll; margin-bottom: 1rem; -webkit-overflow-scrolling: touch; border: 1px solid rgba(0,170,255,0.15); border-radius: 14px; }
-.tco-tbl-wrap { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: visible; }
-.tco-main-tbl { width: 100%; border-collapse: collapse; min-width: 980px; }
-.tco-main-tbl thead tr { background: rgba(0,51,102,0.8); }
-.tco-main-tbl th { padding: 10px 8px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border); }
-.tco-main-tbl th.num { text-align: right; }
-.tco-main-tbl td { padding: 8px 8px; font-size: 0.82rem; border-bottom: 1px solid rgba(0,170,255,0.06); vertical-align: middle; }
-.tco-main-tbl tr:last-child td { border-bottom: none; }
-.tco-main-tbl tr:hover td { background: rgba(0,170,255,0.04); }
-.tco-main-tbl td.num { text-align: right; font-variant-numeric: tabular-nums; }
-.tco-main-tbl td.tco-annual { font-weight: 700; color: var(--accent); text-align: right; }
-.tco-main-tbl td.tco-3yr { font-weight: 700; color: #22c55e; text-align: right; }
-.t-label-input { background: transparent; border: 1px solid rgba(0,170,255,0.2); border-radius: 6px; color: var(--white); font-size: 0.82rem; padding: 4px 7px; width: 100px; outline: none; transition: border-color 0.2s; }
-.t-label-input:focus { border-color: var(--accent); }
-.t-qty-input { background: transparent; border: 1px solid rgba(0,170,255,0.2); border-radius: 6px; color: var(--white); font-size: 0.82rem; padding: 4px 7px; width: 60px; text-align: right; outline: none; transition: border-color 0.2s; }
-.t-qty-input:focus { border-color: var(--accent); }
-.t-select { background: #0a2244; border: 1px solid rgba(0,170,255,0.2); border-radius: 6px; color: var(--white); font-size: 0.75rem; padding: 4px 6px; width: 100%; min-width: 95px; outline: none; cursor: pointer; transition: border-color 0.2s; }
-.t-select:focus { border-color: var(--accent); }
-.t-select option { background: #0a2244; color: var(--white); }
-.t-remove-btn { background: transparent; border: none; color: #f87171; font-size: 1.1rem; cursor: pointer; padding: 2px 5px; border-radius: 5px; transition: background 0.15s; line-height: 1; }
-.t-remove-btn:hover { background: rgba(248,113,113,0.15); }
-/* TCO Hero Metrics */
-.tco-hero-panel { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.6rem; margin-bottom: 1.5rem; }
-.tco-hero-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-bottom: 1.2rem; }
-@media (max-width: 900px) { .tco-hero-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 560px) { .tco-hero-grid { grid-template-columns: 1fr; } }
-.tco-hero-card { background: rgba(0,0,0,0.2); border: 1px solid rgba(0,170,255,0.15); border-radius: 10px; padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: 0.5rem; }
-.tco-hero-label { font-size: 0.82rem; font-weight: 700; color: var(--white); text-transform: uppercase; letter-spacing: 0.05em; }
-.tco-hero-hint { font-size: 0.72rem; color: var(--text-muted); }
-.tco-hero-input { background: transparent; border: 1px solid rgba(0,170,255,0.3); border-radius: 7px; color: var(--white); font-size: 1.1rem; font-weight: 600; padding: 0.6rem 0.8rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; text-align: right; }
-.tco-hero-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,170,255,0.1); }
-.tco-hero-input::placeholder { color: rgba(160,188,216,0.3); }
-.tco-hero-footer { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.tco-hero-save-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.65rem 1.4rem; background: linear-gradient(135deg, #00d9ff, #0086cc); border: none; border-radius: 8px; color: var(--navy-dark); font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.15s; }
-.tco-hero-save-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-.tco-hero-status { font-size: 0.75rem; color: var(--text-muted); min-height: 18px; }
-.tco-hero-status.saving { color: var(--accent); }
-.tco-hero-status.saved { color: #00dc82; }
-.tco-hero-status.error { color: #ff6b6b; }
-/* TCO Chart */
-.tco-chart-wrap { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; }
-.tco-chart-title { font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
-.tco-chart-sub { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 1rem; }
-.tco-chart-container { position: relative; height: 300px; margin-bottom: 1rem; }
-.tco-chart-legend { display: flex; gap: 2rem; justify-content: center; font-size: 0.82rem; }
-.tco-legend-item { display: flex; align-items: center; gap: 0.5rem; }
-.tco-legend-box { width: 16px; height: 16px; border-radius: 3px; }
-/* TCO Savings */
 .tco-acv-row { display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; margin-bottom: 1.5rem; background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem 1.6rem; }
 .tco-acv-label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); white-space: nowrap; }
 .tco-acv-source { font-size: 0.75rem; color: var(--text-muted); }
@@ -696,47 +337,77 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
   .tco-body { padding: 1.5rem 1rem 4rem; }
 }
 
-/* ── Site Profile section (results page) ── */
+/* ══════════════════════════════════════════════════════════════════
+   SITE PROFILE — read-only display cards
+   ══════════════════════════════════════════════════════════════════ */
 .sp-res-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem; }
 .sp-res-edit-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.42rem 1.1rem; background: transparent; border: 1px solid rgba(0,170,255,0.4); border-radius: 7px; color: var(--accent); font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: background 0.2s, color 0.2s; }
 .sp-res-edit-btn:hover { background: var(--accent); color: var(--navy-dark); }
-.sp-res-cards { display: flex; flex-direction: column; gap: 1rem; }
-.sp-res-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
-.sp-res-card-header { background: #003366; padding: 12px 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.sp-res-card-num { background: rgba(255,255,255,0.18); color: #fff; font-size: 11px; font-weight: 700; border-radius: 20px; padding: 2px 10px; white-space: nowrap; }
-.sp-res-card-label { font-size: 15px; font-weight: 700; color: #fff; flex: 1; }
-.sp-res-card-sites { background: rgba(0,170,255,0.25); color: #7dd3fc; font-size: 12px; font-weight: 700; border-radius: 20px; padding: 2px 10px; white-space: nowrap; }
-.sp-res-card-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 12px; }
-.sp-res-row { display: flex; gap: 1.5rem; flex-wrap: wrap; }
-.sp-res-field { display: flex; flex-direction: column; gap: 3px; min-width: 110px; }
-.sp-res-field-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
-.sp-res-field-value { font-size: 13px; color: var(--white); font-weight: 500; }
-.sp-res-pills { display: flex; gap: 6px; flex-wrap: wrap; }
-.sp-res-pill { font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 20px; border: 1px solid; }
-.sp-res-pill.on  { background: #003366; color: #7dd3fc; border-color: rgba(0,170,255,0.4); }
-.sp-res-pill.off { background: rgba(255,255,255,0.04); color: rgba(160,188,216,0.4); border-color: rgba(160,188,216,0.12); text-decoration: line-through; }
-.sp-res-vendors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-@media (max-width: 700px) { .sp-res-vendors { grid-template-columns: repeat(2, 1fr); } }
-.sp-res-vendor-field { display: flex; flex-direction: column; gap: 3px; }
-.sp-res-vendor-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
-.sp-res-vendor-value { font-size: 12px; color: var(--white); }
-.sp-res-vendor-value.none { color: rgba(160,188,216,0.3); font-style: italic; }
-.sp-res-divider { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent); padding-bottom: 4px; border-bottom: 1px solid rgba(0,170,255,0.15); }
-/* inline editor overlay inside results page */
-#sp-inline-editor { display: none; background: linear-gradient(145deg, #071a30, #050e1e); border: 1px solid rgba(0,170,255,0.3); border-radius: 14px; padding: 0 0 1.5rem; margin-top: 1rem; overflow: hidden; }
-#sp-inline-editor .sp-ie-header { background: #001e3c; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0,170,255,0.15); }
-#sp-inline-editor .sp-ie-title { font-size: 14px; font-weight: 700; color: var(--accent); }
-#sp-inline-editor .sp-ie-close { background: transparent; border: 1px solid rgba(0,170,255,0.3); color: var(--text-muted); border-radius: 6px; padding: 4px 12px; font-size: 12px; cursor: pointer; }
-#sp-inline-editor .sp-ie-close:hover { color: var(--white); border-color: var(--text-muted); }
-#sp-inline-editor .sp-ie-body { padding: 18px 20px 0; }
-#sp-inline-editor .sp-ie-footer { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 0; flex-wrap: wrap; gap: 10px; }
-/* reuse sp-site-card styles from assessment inside the editor */
-#sp-inline-editor .sp-site-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(0,170,255,0.18); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
-#sp-inline-editor .sp-card-header { background: #00265a; padding: 12px 16px; }
-#sp-inline-editor .sp-card-body { padding: 16px 18px 18px; background: rgba(0,0,0,0.15); }
-#sp-inline-editor .sp-select-styled { background: #071a30; color: var(--white); border-color: rgba(0,170,255,0.25); }
-#sp-inline-editor .sp-select-styled:focus { border-color: var(--accent); background: #0a2244; }
-#sp-inline-editor .sp-field label { color: var(--text-muted); }
+
+/* ══════════════════════════════════════════════════════════════════
+   SITE PROFILE — inline editor (sp-site-card system)
+   All classes below are used by spIERenderCards() JS
+   ══════════════════════════════════════════════════════════════════ */
+/* Outer editor container */
+#sp-inline-editor { display: none; border: 1px solid rgba(0,170,255,0.3); border-radius: 14px; margin-top: 1rem; overflow: hidden; background: #020f1f; }
+.sp-ie-header { background: #001832; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0,170,255,0.15); }
+.sp-ie-title { font-size: 14px; font-weight: 700; color: var(--accent); }
+.sp-ie-close { background: transparent; border: 1px solid rgba(0,170,255,0.3); color: var(--text-muted); border-radius: 6px; padding: 4px 12px; font-size: 12px; cursor: pointer; font-family: inherit; }
+.sp-ie-close:hover { color: var(--white); border-color: var(--text-muted); }
+.sp-ie-body { padding: 16px 20px 0; }
+.sp-ie-footer { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 20px; flex-wrap: wrap; gap: 10px; }
+
+/* Individual site card inside editor */
+.sp-site-card { background: linear-gradient(145deg, #0a1f3a, #071628); border: 1px solid rgba(0,170,255,0.2); border-radius: 12px; margin-bottom: 14px; overflow: hidden; }
+
+/* Card header (navy bar with label input + site count + delete) */
+.sp-card-header { background: #003366; padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.sp-card-header-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
+.sp-card-num { background: rgba(255,255,255,0.18); color: #fff; font-size: 11px; font-weight: 700; border-radius: 20px; padding: 2px 10px; white-space: nowrap; flex-shrink: 0; }
+.sp-card-label-input { background: transparent; border: none; border-bottom: 2px solid rgba(255,255,255,0.35); color: #fff; font-size: 15px; font-weight: 700; font-family: inherit; padding: 2px 4px; min-width: 140px; max-width: 260px; outline: none; transition: border-color 0.15s; }
+.sp-card-label-input::placeholder { color: rgba(255,255,255,0.45); font-weight: 400; }
+.sp-card-label-input:focus { border-bottom-color: #7dd3fc; }
+.sp-card-meta { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+.sp-card-meta label { color: rgba(255,255,255,0.7); font-size: 12px; white-space: nowrap; }
+.sp-card-num-input { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); border-radius: 6px; color: #fff; font-size: 14px; font-weight: 700; font-family: inherit; padding: 4px 8px; width: 62px; text-align: center; outline: none; }
+.sp-card-num-input:focus { background: rgba(255,255,255,0.22); border-color: #7dd3fc; }
+.sp-card-del-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.22); color: #fff; border-radius: 6px; padding: 5px 11px; font-size: 12px; font-family: inherit; cursor: pointer; transition: background 0.15s; white-space: nowrap; flex-shrink: 0; }
+.sp-card-del-btn:hover { background: rgba(220,53,69,0.65); border-color: transparent; }
+
+/* Card body */
+.sp-card-body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 16px; background: rgba(0,0,0,0.2); }
+
+/* Grid layouts used inside card body */
+.sp-row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.sp-row-4col { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+@media (max-width: 700px) { .sp-row-2col { grid-template-columns: 1fr; } .sp-row-4col { grid-template-columns: 1fr 1fr; } }
+
+/* Label + select field group */
+.sp-field { display: flex; flex-direction: column; gap: 5px; }
+.sp-field label { font-size: 11px; font-weight: 700; color: #7a9bbf; text-transform: uppercase; letter-spacing: 0.05em; }
+.sp-select-styled { width: 100%; padding: 8px 10px; border: 1.5px solid rgba(0,170,255,0.22); border-radius: 7px; font-size: 13px; font-family: inherit; color: var(--white); background: rgba(0,0,0,0.3); cursor: pointer; transition: border-color 0.15s; outline: none; }
+.sp-select-styled:focus { border-color: var(--accent); background: rgba(0,0,0,0.45); }
+.sp-select-styled:hover { border-color: rgba(0,170,255,0.45); }
+.sp-select-styled option { background: #071628; color: var(--white); }
+
+/* Section divider label inside card body */
+.sp-section-label { font-size: 11px; font-weight: 700; color: #7dd3fc; text-transform: uppercase; letter-spacing: 0.08em; padding-bottom: 5px; border-bottom: 1px solid rgba(0,170,255,0.2); margin-bottom: 4px; }
+
+/* Toggle pill checkboxes */
+.sp-toggles { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 4px; }
+.sp-toggle-label { display: flex; align-items: center; gap: 7px; padding: 6px 13px; border: 1.5px solid rgba(0,170,255,0.25); border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 600; color: #7a9bbf; background: rgba(0,0,0,0.2); transition: all 0.15s; user-select: none; font-family: inherit; }
+.sp-toggle-label:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,170,255,0.08); }
+.sp-toggle-label input { display: none; }
+.sp-toggle-label.checked { background: #003366; color: #7dd3fc; border-color: rgba(0,170,255,0.5); }
+.sp-toggle-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: 0.7; flex-shrink: 0; }
+
+/* Add site button */
+.sp-add-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 20px; background: #0070c0; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; font-family: inherit; }
+.sp-add-btn:hover { background: #005ea2; }
+
+/* Empty state inside editor */
+.sp-empty-msg { text-align: center; padding: 36px 16px; color: var(--text-muted); font-size: 14px; }
+.sp-empty-icon { font-size: 32px; margin-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -823,7 +494,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
   <div class="page-body">
     <div class="results-layout">
 
-      <!-- ── LEFT: Value Drivers + everything else ── -->
       <div class="results-main">
 
         {% if driver_outcomes %}
@@ -834,26 +504,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
         <div class="vd-wrapper">
           <table class="vd-table">
             <thead>
-              <tr>
-                <th>Drivers</th>
-                <th>Current State</th>
-                <th>Future State</th>
-              </tr>
+              <tr><th>Drivers</th><th>Current State</th><th>Future State</th></tr>
             </thead>
             <tbody>
               {% for drv in driver_outcomes %}
               <tr>
                 <td class="vd-driver">{{ drv.label }}</td>
-                <td class="vd-current">
-                  {% for line in drv.current_state_lines %}
-                    <span class="vd-line">{{ line }}</span>
-                  {% endfor %}
-                </td>
-                <td class="vd-future">
-                  {% for line in drv.future_state_lines %}
-                    <span class="vd-line">{{ line }}</span>
-                  {% endfor %}
-                </td>
+                <td class="vd-current">{% for line in drv.current_state_lines %}<span class="vd-line">{{ line }}</span>{% endfor %}</td>
+                <td class="vd-future">{% for line in drv.future_state_lines %}<span class="vd-line">{{ line }}</span>{% endfor %}</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -976,10 +634,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
           </div>
           <button class="sp-res-edit-btn" id="sp-edit-btn" onclick="toggleSiteProfileEditor()">✏ Edit Site Profile</button>
         </div>
-        <div id="sp-res-cards-wrap">
-          <div class="empty-state" id="sp-res-empty" style="display:none;">No site profile defined yet. Click Edit Site Profile to add sites.</div>
-          <div class="sp-res-cards" id="sp-res-cards"></div>
-        </div>
+        <div id="sp-res-cards"></div>
+        <div class="empty-state" id="sp-res-empty" style="display:none;">No site profile defined yet. Click Edit Site Profile to add sites.</div>
 
         <!-- Inline Site Profile Editor -->
         <div id="sp-inline-editor">
@@ -989,7 +645,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
           </div>
           <div class="sp-ie-body">
             <div id="sp-ie-cards-container"></div>
-            <div class="sp-empty-msg" id="sp-ie-empty" style="display:none;border-color:rgba(0,170,255,0.15);background:transparent;color:var(--text-muted);">
+            <div class="sp-empty-msg" id="sp-ie-empty" style="display:none;">
               <div class="sp-empty-icon">🏢</div>No sites yet. Click + Add Site below.
             </div>
           </div>
@@ -1002,10 +658,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
           </div>
         </div>
 
-
       </div><!-- /results-main -->
 
-      <!-- ── RIGHT: Assessment Summary tiles stacked ── -->
+      <!-- ── RIGHT: Assessment Summary tiles ── -->
       <div class="results-sidebar">
         {% if tile_outcomes %}
         <div class="sidebar-heading">Assessment Summary</div>
@@ -1022,7 +677,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
           </div>
         {% endfor %}
         {% endif %}
-      </div><!-- /results-sidebar -->
+      </div>
 
     </div><!-- /results-layout -->
   </div>
@@ -1052,7 +707,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
     </div>
     <hr class="section-divider">
     {% endif %}
-
     <div class="download-section">
       <div class="download-text">
         <h3>📋 POV Planner &amp; Test Cases</h3>
@@ -1060,9 +714,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
       </div>
       <a class="download-btn" href="/user/{{ customer_slug }}/export">⬇ Download Excel</a>
     </div>
-
     <hr class="section-divider">
-
     <div class="section-heading"><h2>Technical Notes</h2></div>
     <div class="notes-card">
       <textarea class="notes-textarea" id="technicalNotes"
@@ -1074,7 +726,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
       </div>
     </div>
   </div>
-</div><!-- /tab-pov -->
+</div>
 
 <!-- ══════════════════════ DIAGRAMS TAB ══════════════════════ -->
 <div class="tab-panel" id="tab-diagrams">
@@ -1083,18 +735,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
       <strong>How to use:</strong> Diagrams are generated from your assessment answers. Click <strong>📋 Copy XML</strong> on either diagram, then open <a href="https://app.diagrams.net" target="_blank" style="color:var(--accent);">app.diagrams.net</a>, go to <strong>Extras → Edit Diagram</strong>, paste the XML and click OK. Use <strong>Regenerate</strong> after editing answers to refresh.
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
-      <div class="section-heading" style="margin-bottom:0;">
-        <h2>Architecture Diagrams</h2>
-      </div>
+      <div class="section-heading" style="margin-bottom:0;"><h2>Architecture Diagrams</h2></div>
       <button class="diag-reload-btn" onclick="loadDiagrams(true)">↺ Regenerate</button>
     </div>
     <div class="diag-grid">
       <div class="diag-card">
         <div class="diag-card-header">
-          <div>
-            <div class="diag-card-title">🏢 Current State</div>
-            <div class="diag-card-sub">Existing branch infrastructure</div>
-          </div>
+          <div><div class="diag-card-title">🏢 Current State</div><div class="diag-card-sub">Existing branch infrastructure</div></div>
           <button id="diag-copy-current" class="diag-open-btn" onclick="_copyDiagXML('current')">📋 Copy XML</button>
         </div>
         <div id="diag-current-wrap">
@@ -1104,10 +751,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
       </div>
       <div class="diag-card">
         <div class="diag-card-header">
-          <div>
-            <div class="diag-card-title">⚡ Future State — Zscaler ZTB</div>
-            <div class="diag-card-sub">After ZTB deployment</div>
-          </div>
+          <div><div class="diag-card-title">⚡ Future State — Zscaler ZTB</div><div class="diag-card-sub">After ZTB deployment</div></div>
           <button id="diag-copy-future" class="diag-open-btn" onclick="_copyDiagXML('future')">📋 Copy XML</button>
         </div>
         <div id="diag-future-wrap">
@@ -1117,7 +761,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
       </div>
     </div>
   </div>
-</div><!-- /tab-diagrams -->
+</div>
 
 <!-- ══════════════════════ PRICING TAB ══════════════════════ -->
 <div class="tab-panel" id="tab-pricing">
@@ -1149,9 +793,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
               <th style="width:4%"></th>
             </tr>
           </thead>
-          <tbody id="pricing-rows">
-            <tr><td colspan="11" class="empty-state">Loading…</td></tr>
-          </tbody>
+          <tbody id="pricing-rows"><tr><td colspan="11" class="empty-state">Loading…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -1163,50 +805,27 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
       </div>
       <div class="grand-total-value" id="grand-total">$0</div>
     </div>
-    <!-- BOM -->
     <hr class="section-divider">
     <div class="section-heading"><h2>🧾 Bill of Materials</h2></div>
-    <div class="section-heading" style="margin-bottom:0.6rem;margin-top:-0.5rem;">
-      <h2 style="font-size:0.82rem;">🖥 Appliances</h2>
-    </div>
-    <div class="bom-wrap" id="bom-appliances-wrap">
-      <div class="empty-state">Configure site rows above to generate BOM.</div>
-    </div>
-    <div class="section-heading" style="margin-bottom:0.6rem;">
-      <h2 style="font-size:0.82rem;">📦 Software Licenses</h2>
-    </div>
-    <div class="bom-wrap" id="bom-licenses-wrap">
-      <div class="empty-state">Configure site rows above to generate BOM.</div>
-    </div>
+    <div class="section-heading" style="margin-bottom:0.6rem;margin-top:-0.5rem;"><h2 style="font-size:0.82rem;">🖥 Appliances</h2></div>
+    <div class="bom-wrap" id="bom-appliances-wrap"><div class="empty-state">Configure site rows above to generate BOM.</div></div>
+    <div class="section-heading" style="margin-bottom:0.6rem;"><h2 style="font-size:0.82rem;">📦 Software Licenses</h2></div>
+    <div class="bom-wrap" id="bom-licenses-wrap"><div class="empty-state">Configure site rows above to generate BOM.</div></div>
     <div class="bom-grand-card">
-      <div>
-        <div class="bom-grand-label">BOM Total</div>
-        <div class="bom-grand-sub" id="bom-grand-sub">—</div>
-      </div>
+      <div><div class="bom-grand-label">BOM Total</div><div class="bom-grand-sub" id="bom-grand-sub">—</div></div>
       <div class="bom-grand-value" id="bom-grand-total">$0</div>
     </div>
-    <!-- PS Notice -->
     <div class="ps-notice">
       <div class="ps-notice-title">🛠 Professional Services</div>
       <div class="ps-notice-lead">Zscaler PS Credits auto calculate in SFDC based on quote, or leverage a ZTB service delivery authorized partner for deployment.</div>
       <div class="ps-notice-sub">How PS Auto Attach Works</div>
       <div class="ps-attach-list">
-        <div class="ps-attach-item">
-          <div class="ps-attach-icon">💰</div>
-          <div class="ps-attach-text"><strong>ACV-Based:</strong> Credits are attached based on the Annual Contract Value of the quote.</div>
-        </div>
-        <div class="ps-attach-item">
-          <div class="ps-attach-icon">📦</div>
-          <div class="ps-attach-text"><strong>Product/Hardware-Based:</strong> Credits are attached based on specific SKUs or hardware included in the quote.</div>
-        </div>
-        <div class="ps-attach-item">
-          <div class="ps-attach-icon">⚙️</div>
-          <div class="ps-attach-text">The system calculates how many credits are needed for the customer to be successful, and attaches them automatically when a quote is created.</div>
-        </div>
+        <div class="ps-attach-item"><div class="ps-attach-icon">💰</div><div class="ps-attach-text"><strong>ACV-Based:</strong> Credits are attached based on the Annual Contract Value of the quote.</div></div>
+        <div class="ps-attach-item"><div class="ps-attach-icon">📦</div><div class="ps-attach-text"><strong>Product/Hardware-Based:</strong> Credits are attached based on specific SKUs or hardware included in the quote.</div></div>
+        <div class="ps-attach-item"><div class="ps-attach-icon">⚙️</div><div class="ps-attach-text">The system calculates how many credits are needed for the customer to be successful, and attaches them automatically when a quote is created.</div></div>
       </div>
     </div>
     <hr class="section-divider">
-    <!-- Ramped Roll-Out -->
     <div class="section-heading"><h2>📅 Ramped Roll-Out</h2></div>
     <div class="ramp-card">
       <div class="ramp-card-header">
@@ -1215,20 +834,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
       </div>
       <div style="overflow-x:auto;">
         <table class="ramp-tbl" id="ramp-tbl">
-          <thead>
-            <tr>
-              <th>Site Label</th><th>Sites</th><th>Site Total</th>
-              <th>Year 1 (25%)</th><th>Year 2 (50%)</th><th>Year 3 (75%)</th><th>Year 4 (100%)</th>
-            </tr>
-          </thead>
-          <tbody id="ramp-rows">
-            <tr><td colspan="7" class="empty-state" style="color:var(--text-muted);">Add rows above to see ramp projection.</td></tr>
-          </tbody>
+          <thead><tr><th>Site Label</th><th>Sites</th><th>Site Total</th><th>Year 1 (25%)</th><th>Year 2 (50%)</th><th>Year 3 (75%)</th><th>Year 4 (100%)</th></tr></thead>
+          <tbody id="ramp-rows"><tr><td colspan="7" class="empty-state" style="color:var(--text-muted);">Add rows above to see ramp projection.</td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
-</div><!-- /tab-pricing -->
+</div>
 
 <!-- ══════════════════════ TCO TAB ══════════════════════ -->
 <div class="tab-panel" id="tab-tco">
@@ -1256,15 +868,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
               <th style="width:30px"></th>
             </tr>
           </thead>
-          <tbody id="tco-rows">
-            <tr><td colspan="13" class="empty-state">Loading…</td></tr>
-          </tbody>
+          <tbody id="tco-rows"><tr><td colspan="13" class="empty-state">Loading…</td></tr></tbody>
         </table>
       </div>
     </div>
     <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.5rem;text-align:right;">← scroll to see all columns →</div>
     <button class="add-row-btn" onclick="addTCORow()" style="margin-top:0.25rem;">＋ Add Row</button>
-    <!-- Hero Metrics -->
     <hr class="section-divider">
     <div class="section-heading"><h2>📊 Legacy TCO Hero Metrics</h2></div>
     <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1.2rem;">Set assumptions for FTE costs and breach risk in legacy infrastructure comparison.</p>
@@ -1291,7 +900,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
         <span class="tco-hero-status" id="tco-hero-status"></span>
       </div>
     </div>
-    <!-- 3-Year Chart -->
     <hr class="section-divider">
     <div class="section-heading"><h2>⚡ Zscaler ACV vs Legacy TCO</h2></div>
     <div class="tco-acv-row">
@@ -1302,28 +910,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
       <input class="tco-acv-input" id="tco-acv-input" type="number" min="0" placeholder="0" oninput="onACVInput()" onblur="scheduleTCOSave()">
       <button onclick="resetACVtoPricing()" style="font-size:0.75rem;background:transparent;border:1px solid rgba(0,170,255,0.3);color:var(--accent);border-radius:6px;padding:6px 12px;cursor:pointer;">↺ Reset to Pricing Total</button>
     </div>
-    <!-- Savings KPIs -->
     <div class="tco-savings-grid" id="tco-savings-grid">
-      <div class="tco-kpi" style="border-left-color:#f87171">
-        <div class="tco-kpi-title">Legacy Annual Spend</div>
-        <div class="tco-kpi-value" style="color:#f87171" id="tco-kpi-legacy">$0</div>
-        <div class="tco-kpi-sub">Hardware + FTE + Breach</div>
-      </div>
-      <div class="tco-kpi" style="border-left-color:#22c55e">
-        <div class="tco-kpi-title">Annual Savings</div>
-        <div class="tco-kpi-value" style="color:#22c55e" id="tco-kpi-annual-sav">$0</div>
-        <div class="tco-kpi-sub">Legacy − Zscaler ACV</div>
-      </div>
-      <div class="tco-kpi" style="border-left-color:#22c55e">
-        <div class="tco-kpi-title">3-Year Savings</div>
-        <div class="tco-kpi-value" style="color:#22c55e" id="tco-kpi-3yr-sav">$0</div>
-        <div class="tco-kpi-sub">3× Annual Savings</div>
-      </div>
-      <div class="tco-kpi" style="border-left-color:#f59e0b">
-        <div class="tco-kpi-title">ROI %</div>
-        <div class="tco-kpi-value" style="color:#f59e0b" id="tco-kpi-roi">—</div>
-        <div class="tco-kpi-sub" id="tco-kpi-payback">—</div>
-      </div>
+      <div class="tco-kpi" style="border-left-color:#f87171"><div class="tco-kpi-title">Legacy Annual Spend</div><div class="tco-kpi-value" style="color:#f87171" id="tco-kpi-legacy">$0</div><div class="tco-kpi-sub">Hardware + FTE + Breach</div></div>
+      <div class="tco-kpi" style="border-left-color:#22c55e"><div class="tco-kpi-title">Annual Savings</div><div class="tco-kpi-value" style="color:#22c55e" id="tco-kpi-annual-sav">$0</div><div class="tco-kpi-sub">Legacy − Zscaler ACV</div></div>
+      <div class="tco-kpi" style="border-left-color:#22c55e"><div class="tco-kpi-title">3-Year Savings</div><div class="tco-kpi-value" style="color:#22c55e" id="tco-kpi-3yr-sav">$0</div><div class="tco-kpi-sub">3× Annual Savings</div></div>
+      <div class="tco-kpi" style="border-left-color:#f59e0b"><div class="tco-kpi-title">ROI %</div><div class="tco-kpi-value" style="color:#f59e0b" id="tco-kpi-roi">—</div><div class="tco-kpi-sub" id="tco-kpi-payback">—</div></div>
     </div>
     <hr class="section-divider">
     <div class="tco-chart-wrap">
@@ -1331,44 +922,32 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
       <div class="tco-chart-sub">Legacy Infrastructure vs. Zscaler ACV</div>
       <div class="tco-chart-container"><canvas id="tco-chart"></canvas></div>
       <div class="tco-chart-legend">
-        <div class="tco-legend-item"><div class="tco-legend-box" style="background: #f87171;"></div><span>Legacy Annual Cost</span></div>
-        <div class="tco-legend-item"><div class="tco-legend-box" style="background: #00d9ff;"></div><span>Zscaler ACV</span></div>
+        <div class="tco-legend-item"><div class="tco-legend-box" style="background:#f87171;"></div><span>Legacy Annual Cost</span></div>
+        <div class="tco-legend-item"><div class="tco-legend-box" style="background:#00d9ff;"></div><span>Zscaler ACV</span></div>
       </div>
     </div>
-    <!-- Per-row summary -->
     <hr class="section-divider">
     <div class="section-heading"><h2>📋 TCO Summary by Row</h2></div>
     <div class="tco-summary-tbl-wrap">
       <table class="tco-summary-tbl">
         <thead>
           <tr>
-            <th>Label</th>
-            <th class="num"># Sites</th>
-            <th class="num">FW N/S</th>
-            <th class="num">SD-WAN</th>
-            <th class="num">MPLS</th>
-            <th class="num">FW E/W</th>
-            <th class="num">IoT/OT</th>
-            <th class="num">NAC</th>
-            <th class="num">L3 Switch</th>
-            <th class="num">PAM</th>
-            <th class="num s-annual">Annual</th>
-            <th class="num s-3yr">3-Year</th>
+            <th>Label</th><th class="num"># Sites</th>
+            <th class="num">FW N/S</th><th class="num">SD-WAN</th><th class="num">MPLS</th><th class="num">FW E/W</th>
+            <th class="num">IoT/OT</th><th class="num">NAC</th><th class="num">L3 Switch</th><th class="num">PAM</th>
+            <th class="num s-annual">Annual</th><th class="num s-3yr">3-Year</th>
           </tr>
         </thead>
         <tbody id="tco-summary-tbody"></tbody>
       </table>
     </div>
   </div>
-</div><!-- /tab-tco -->
+</div>
 
 {% endif %}
 
 <footer class="footer">
-  <div class="footer-logo">
-    <div class="footer-z">Z</div>
-    <span>ZTB Super App</span>
-  </div>
+  <div class="footer-logo"><div class="footer-z">Z</div><span>ZTB Super App</span></div>
   <span class="footer-sep">&bull;</span>
   <span class="footer-copy">&copy; 2025 Zscaler, Inc. &mdash; Internal Sales Engineering Tool</span>
 </footer>
@@ -1389,7 +968,6 @@ function switchTab(name) {
   if (name === 'diagrams' && !window._diagLoaded) { loadDiagrams(); window._diagLoaded = true; }
 }
 
-// ── Hero KPI updaters ───────────────────────────────────────────────────────
 function updateHeroGrandTotal(val) {
   const el = document.getElementById('hero-grand-total');
   if (!el) return;
@@ -1417,16 +995,13 @@ const _diagXML = {};
 
 function _copyDiagXML(side) {
   var xml = _diagXML[side];
-  if (!xml) { alert('Diagram not loaded yet — please wait for generation to complete.'); return; }
+  if (!xml) { alert('Diagram not loaded yet.'); return; }
   var btn = document.getElementById('diag-copy-' + side);
-  function onCopied() {
-    if (btn) { btn.textContent = '✓ Copied!'; setTimeout(function(){ btn.textContent = '📋 Copy XML'; }, 2500); }
-  }
+  function onCopied() { if (btn) { btn.textContent = '✓ Copied!'; setTimeout(function(){ btn.textContent = '📋 Copy XML'; }, 2500); } }
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(xml).then(onCopied).catch(function() { fallbackCopy(xml, onCopied); });
   } else { fallbackCopy(xml, onCopied); }
 }
-
 function fallbackCopy(text, cb) {
   var ta = document.createElement('textarea');
   ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;';
@@ -1434,17 +1009,13 @@ function fallbackCopy(text, cb) {
   try { document.execCommand('copy'); cb(); } catch(e) { alert('Copy failed — please copy manually.'); }
   document.body.removeChild(ta);
 }
-
 function _showDiagError(side, msg) {
   var wrap = document.getElementById('diag-' + side + '-wrap');
   wrap.innerHTML = '<div class="diag-error">&#9888; ' + msg + '<br><small>Check that assessment answers include scope, WAN links, and device types.</small></div>';
 }
-
 function _renderDiagPanel(side) {
   var loading = document.getElementById('diag-' + side + '-loading');
   if (loading) loading.style.display = 'none';
-  var iframe = document.getElementById('diag-' + side + '-iframe');
-  if (iframe) iframe.style.display = 'none';
   var wrap = document.getElementById('diag-' + side + '-wrap');
   if (!wrap) return;
   var label = side === 'current' ? 'Current State' : 'Future State';
@@ -1453,14 +1024,13 @@ function _renderDiagPanel(side) {
   panel.innerHTML = '<div style="font-size:2rem;">📊</div>'
     + '<div style="font-size:0.95rem;font-weight:700;color:#fff;">' + label + ' diagram ready</div>'
     + '<div style="font-size:0.82rem;color:#a0bcd8;max-width:340px;line-height:1.8;">'
-    + '<strong style="color:#fff;">Step 1:</strong> Click the <strong style="color:#00aaff;">📋 Copy XML</strong> button in the card header above<br>'
+    + '<strong style="color:#fff;">Step 1:</strong> Click the <strong style="color:#00aaff;">📋 Copy XML</strong> button above<br>'
     + '<strong style="color:#fff;">Step 2:</strong> Open <a href="https://app.diagrams.net" target="_blank" style="color:#00aaff;">app.diagrams.net</a> → new blank diagram<br>'
-    + '<strong style="color:#fff;">Step 3:</strong> Click <strong style="color:#fff;">Extras → Edit Diagram</strong>, paste &amp; click OK'
+    + '<strong style="color:#fff;">Step 3:</strong> Extras → Edit Diagram, paste &amp; click OK'
     + '</div>';
   wrap.innerHTML = '';
   wrap.appendChild(panel);
 }
-
 async function loadDiagrams(force) {
   if (force) { window._diagLoaded = false; }
   ['current','future'].forEach(function(side) {
@@ -1546,7 +1116,6 @@ function openEditor(qid) {
   document.getElementById('ie-row-' + qid).style.display = '';
   openQid = qid;
 }
-
 function buildActions(panel, qid, getVal) {
   const actions = document.createElement('div'); actions.className = 'ie-actions';
   const saveBtn = document.createElement('button'); saveBtn.className = 'ie-save-btn'; saveBtn.textContent = '✓ Save & Refresh';
@@ -1573,7 +1142,7 @@ function buildActions(panel, qid, getVal) {
   actions.appendChild(saveBtn); actions.appendChild(cancelBtn); panel.appendChild(actions);
 }
 
-// ── Opportunity Notes (auto-save) ────────────────────────────────────────────
+// ── Notes auto-save ──────────────────────────────────────────────────────────
 (function () {
   const textarea = document.getElementById('opportunityNotes');
   const status = document.getElementById('notesStatus');
@@ -1587,18 +1156,14 @@ function buildActions(panel, qid, getVal) {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ notes: textarea.value })
     }).then(r => r.json()).then(data => {
-      if (data.success) {
-        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        setStatus('saved', '✓ Saved at ' + now);
-        setTimeout(clearStatus, 4000);
-      } else setStatus('error', 'Save failed — try again');
+      if (data.success) { const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); setStatus('saved', '✓ Saved at ' + now); setTimeout(clearStatus, 4000); }
+      else setStatus('error', 'Save failed — try again');
     }).catch(() => setStatus('error', 'Save failed — check connection'));
   }
   textarea.addEventListener('blur', saveNotes);
   textarea.addEventListener('input', function () { clearTimeout(saveTimer); clearStatus(); saveTimer = setTimeout(saveNotes, 3000); });
 })();
 
-// ── Technical Notes (auto-save) ──────────────────────────────────────────────
 (function () {
   const textarea = document.getElementById('technicalNotes');
   const status = document.getElementById('techNotesStatus');
@@ -1612,11 +1177,8 @@ function buildActions(panel, qid, getVal) {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ technical_notes: textarea.value })
     }).then(r => r.json()).then(data => {
-      if (data.success) {
-        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        setStatus('saved', '✓ Saved at ' + now);
-        setTimeout(clearStatus, 4000);
-      } else setStatus('error', 'Save failed — try again');
+      if (data.success) { const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); setStatus('saved', '✓ Saved at ' + now); setTimeout(clearStatus, 4000); }
+      else setStatus('error', 'Save failed — try again');
     }).catch(() => setStatus('error', 'Save failed — check connection'));
   }
   textarea.addEventListener('blur', saveTechNotes);
@@ -1645,8 +1207,10 @@ function skuPrice(skuList, id, phase) {
   if (!sku) return 0;
   return sku[phase] || 0;
 }
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
-// ── Site Profile → Pricing mapper ────────────────────────────────────────────
 function buildPricingRowsFromSiteProfile(siteProfile) {
   return siteProfile.map(function(sp) {
     const size = sp.size || 'Small';
@@ -1654,26 +1218,18 @@ function buildPricingRowsFromSiteProfile(siteProfile) {
     const appliance = _appliances.find(s => s.size === size && s.is_ha === ha)
                    || _appliances.find(s => s.size === size && !s.is_ha)
                    || null;
-    const sdwanSku = sp.sdwan_required
-      ? (_sdwan.find(s => s.size === size) || null) : null;
-    const segSku = sp.segmentation_required
-      ? (_segmentation.find(s => s.size === size) || null) : null;
-    return {
-      id:           ++_rowCounter,
-      label:        sp.label || size,
-      qty:          sp.num_sites || 1,
-      appliance_id: appliance ? appliance.id : null,
-      sdwan_id:     sdwanSku  ? sdwanSku.id  : null,
-      seg_id:       segSku    ? segSku.id    : null,
-    };
+    const sdwanSku = sp.sdwan_required ? (_sdwan.find(s => s.size === size) || null) : null;
+    const segSku   = sp.segmentation_required ? (_segmentation.find(s => s.size === size) || null) : null;
+    return { id: ++_rowCounter, label: sp.label || size, qty: sp.num_sites || 1,
+             appliance_id: appliance ? appliance.id : null,
+             sdwan_id: sdwanSku ? sdwanSku.id : null,
+             seg_id:   segSku   ? segSku.id   : null };
   });
 }
 
-// ── Site Profile → TCO mapper ─────────────────────────────────────────────────
 const _SP_VENDOR_FIELDS = {
-  fw_ns:'fw_ns_vendor', sdwan:'sdwan_vendor', mpls:'mpls_vendor',
-  fw_ew:'fw_ew_vendor', iot_ot:'iot_ot_vendor', nac:'nac_vendor',
-  l3sw:'l3sw_vendor',   pam:'pam_vendor',
+  fw_ns:'fw_ns_vendor', sdwan:'sdwan_vendor', mpls:'mpls_vendor', fw_ew:'fw_ew_vendor',
+  iot_ot:'iot_ot_vendor', nac:'nac_vendor', l3sw:'l3sw_vendor', pam:'pam_vendor',
 };
 function buildTCORowsFromSiteProfile(siteProfile) {
   return siteProfile.map(function(sp) {
@@ -1699,18 +1255,14 @@ async function initPricing() {
   _sdwan        = data.sdwan        || [];
   _segmentation = data.segmentation || [];
   if (data.saved && data.saved.phase) _pricingPhase = data.saved.phase;
-
   if (data.saved && data.saved.rows && data.saved.rows.length) {
-    // Manually saved rows take priority
     _pricingRows = data.saved.rows.map(r => ({ ...r, id: r.id || (++_rowCounter) }));
     _rowCounter  = Math.max(_rowCounter, ..._pricingRows.map(r => r.id || 0));
   } else if (data.site_profile && data.site_profile.length) {
-    // Auto-populate from site profile
     _pricingRows = buildPricingRowsFromSiteProfile(data.site_profile);
   } else {
     _pricingRows = [newEmptyRow()];
   }
-
   setPhase(_pricingPhase, false);
   renderPricingRows();
   updateTotals();
@@ -1720,48 +1272,32 @@ async function initPricing() {
 function newEmptyRow() {
   return { id: ++_rowCounter, label: 'Small', qty: 0, appliance_id: null, sdwan_id: null, seg_id: null };
 }
-
 function setPhase(phase, doSave = true) {
   _pricingPhase = phase;
-  document.querySelectorAll('.phase-btn').forEach(b => {
-    b.classList.toggle('active', b.classList.contains(phase));
-  });
-  renderPricingRows();
-  updateTotals();
+  document.querySelectorAll('.phase-btn').forEach(b => { b.classList.toggle('active', b.classList.contains(phase)); });
+  renderPricingRows(); updateTotals();
   if (doSave) schedulePricingSave();
 }
-
-function addPricingRow() {
-  _pricingRows.push(newEmptyRow());
-  renderPricingRows(); updateTotals(); schedulePricingSave();
-}
-function removePricingRow(id) {
-  _pricingRows = _pricingRows.filter(r => r.id !== id);
-  renderPricingRows(); updateTotals(); schedulePricingSave();
-}
+function addPricingRow() { _pricingRows.push(newEmptyRow()); renderPricingRows(); updateTotals(); schedulePricingSave(); }
+function removePricingRow(id) { _pricingRows = _pricingRows.filter(r => r.id !== id); renderPricingRows(); updateTotals(); schedulePricingSave(); }
 
 function buildSelectOptions(list, selectedId, allowNone, noneLabel) {
   let html = '';
   if (allowNone) html += `<option value="">${noneLabel || '— None —'}</option>`;
-  list.forEach(s => {
-    html += `<option value="${s.id}" ${parseInt(selectedId) === s.id ? 'selected' : ''}>${s.sku_name}</option>`;
-  });
+  list.forEach(s => { html += `<option value="${s.id}" ${parseInt(selectedId) === s.id ? 'selected' : ''}>${s.sku_name}</option>`; });
   return html;
 }
 
 function renderPricingRows() {
   const tbody = document.getElementById('pricing-rows');
-  if (!_pricingRows.length) {
-    tbody.innerHTML = `<tr><td colspan="11" class="empty-state">No rows yet — click "+ Add Row" to start.</td></tr>`;
-    return;
-  }
+  if (!_pricingRows.length) { tbody.innerHTML = `<tr><td colspan="11" class="empty-state">No rows yet — click "+ Add Row" to start.</td></tr>`; return; }
   tbody.innerHTML = '';
   _pricingRows.forEach(row => {
     const tr = document.createElement('tr');
     tr.setAttribute('data-row-id', row.id);
-    const appPrice   = skuPrice(_appliances,   row.appliance_id, _pricingPhase);
-    const sdwanPrice = skuPrice(_sdwan,         row.sdwan_id,    _pricingPhase);
-    const segPrice   = skuPrice(_segmentation,  row.seg_id,      _pricingPhase);
+    const appPrice   = skuPrice(_appliances,  row.appliance_id, _pricingPhase);
+    const sdwanPrice = skuPrice(_sdwan,        row.sdwan_id,    _pricingPhase);
+    const segPrice   = skuPrice(_segmentation, row.seg_id,      _pricingPhase);
     const siteTotal  = appPrice + sdwanPrice + segPrice;
     const lineTotal  = (row.qty || 0) * siteTotal;
     tr.innerHTML = `
@@ -1784,10 +1320,6 @@ function renderPricingRows() {
       <td><button class="p-remove-btn" onclick="removePricingRow(${row.id})" title="Remove">✕</button></td>`;
     tbody.appendChild(tr);
   });
-}
-
-function escHtml(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function updateRowField(id, field, value) {
@@ -1821,10 +1353,8 @@ function updateTotals() {
     totalSites += (row.qty || 0);
   });
   _pricingGrandTotal = grandTotal;
-  document.getElementById('grand-total').textContent = grandTotal
-    ? ('$' + grandTotal.toLocaleString('en-US',{maximumFractionDigits:0})) : '$0';
-  document.getElementById('grand-total-sub').textContent =
-    totalSites + ' total site' + (totalSites !== 1 ? 's' : '') + ' configured';
+  document.getElementById('grand-total').textContent = grandTotal ? ('$' + grandTotal.toLocaleString('en-US',{maximumFractionDigits:0})) : '$0';
+  document.getElementById('grand-total-sub').textContent = totalSites + ' total site' + (totalSites !== 1 ? 's' : '') + ' configured';
   renderBOM(); renderRampTable();
   updateHeroGrandTotal(grandTotal);
   if (window._tcoLoaded && !_tcoACVOverridden) {
@@ -1861,10 +1391,7 @@ function computeBOM() {
       if (!row[idField] || !row.qty) return;
       const sku = list.find(s => s.id === parseInt(row[idField]));
       if (!sku) return;
-      if (!licMap[sku.sku_code]) licMap[sku.sku_code] = {
-        sku_code: sku.sku_code, sku_name: sku.sku_name,
-        unit_price: sku[_pricingPhase] || 0, qty: 0, category: sku.category || 'License'
-      };
+      if (!licMap[sku.sku_code]) licMap[sku.sku_code] = { sku_code: sku.sku_code, sku_name: sku.sku_name, unit_price: sku[_pricingPhase] || 0, qty: 0, category: sku.category || 'License' };
       licMap[sku.sku_code].qty += row.qty;
     });
   }
@@ -1907,21 +1434,14 @@ function renderBOM() {
     licWrap.innerHTML = `<div style="overflow-x:auto;"><table class="bom-tbl"><thead><tr><th style="width:18%">SKU Code</th><th style="width:40%">Description</th><th class="num" style="width:14%">Site Licenses</th><th class="num" style="width:14%">Unit Price</th><th class="num" style="width:14%">Extended</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }
   const totalSites = _pricingRows.reduce((s, r) => s + (r.qty || 0), 0);
-  document.getElementById('bom-grand-total').textContent = grandTotal
-    ? ('$' + grandTotal.toLocaleString('en-US',{maximumFractionDigits:0})) : '$0';
-  document.getElementById('bom-grand-sub').textContent =
-    totalAppUnits + ' appliance unit' + (totalAppUnits!==1?'s':'') + ' · ' +
-    totalLicUnits + ' license' + (totalLicUnits!==1?'s':'') + ' · ' +
-    totalSites + ' site' + (totalSites!==1?'s':'');
+  document.getElementById('bom-grand-total').textContent = grandTotal ? ('$' + grandTotal.toLocaleString('en-US',{maximumFractionDigits:0})) : '$0';
+  document.getElementById('bom-grand-sub').textContent = totalAppUnits + ' appliance unit' + (totalAppUnits!==1?'s':'') + ' · ' + totalLicUnits + ' license' + (totalLicUnits!==1?'s':'') + ' · ' + totalSites + ' site' + (totalSites!==1?'s':'');
 }
 
 function renderRampTable() {
   const tbody = document.getElementById('ramp-rows');
   const activeRows = _pricingRows.filter(r => r.qty > 0);
-  if (!activeRows.length) {
-    tbody.innerHTML = `<tr><td colspan="7" class="empty-state" style="color:var(--text-muted);">Add rows with qty > 0 to see ramp projection.</td></tr>`;
-    return;
-  }
+  if (!activeRows.length) { tbody.innerHTML = `<tr><td colspan="7" class="empty-state" style="color:var(--text-muted);">Add rows with qty > 0 to see ramp projection.</td></tr>`; return; }
   tbody.innerHTML = '';
   let totY1=0,totY2=0,totY3=0,totY4=0,totSites=0;
   activeRows.forEach(row => {
@@ -1930,8 +1450,7 @@ function renderRampTable() {
     const segPrice   = skuPrice(_segmentation, row.seg_id,      _pricingPhase);
     const siteTotal  = appPrice + sdwanPrice + segPrice;
     const qty = row.qty || 0;
-    const y1=Math.round(qty*0.25)*siteTotal, y2=Math.round(qty*0.50)*siteTotal,
-          y3=Math.round(qty*0.75)*siteTotal, y4=qty*siteTotal;
+    const y1=Math.round(qty*0.25)*siteTotal, y2=Math.round(qty*0.50)*siteTotal, y3=Math.round(qty*0.75)*siteTotal, y4=qty*siteTotal;
     totY1+=y1; totY2+=y2; totY3+=y3; totY4+=y4; totSites+=qty;
     const tr = document.createElement('tr');
     tr.innerHTML = `<td>${escHtml(row.label||'Row')}</td><td>${qty}</td><td>${fmtMoney(siteTotal)}</td>
@@ -1952,7 +1471,6 @@ function schedulePricingSave() {
   clearTimeout(_pricingSaveTimer);
   _pricingSaveTimer = setTimeout(savePricing, 1200);
 }
-
 async function savePricing() {
   const ind = document.getElementById('pricing-save-ind');
   try {
@@ -1961,11 +1479,8 @@ async function savePricing() {
       body: JSON.stringify({ phase: _pricingPhase, rows: _pricingRows })
     });
     const data = await res.json();
-    if (data.success) {
-      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      ind.textContent = '✓ Saved at ' + now; ind.className = 'pricing-save-ind saved';
-      setTimeout(() => { ind.textContent = ''; ind.className = 'pricing-save-ind'; }, 4000);
-    } else { ind.textContent = 'Save failed'; ind.className = 'pricing-save-ind'; }
+    if (data.success) { const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); ind.textContent = '✓ Saved at ' + now; ind.className = 'pricing-save-ind saved'; setTimeout(() => { ind.textContent = ''; ind.className = 'pricing-save-ind'; }, 4000); }
+    else { ind.textContent = 'Save failed'; ind.className = 'pricing-save-ind'; }
   } catch(e) { ind.textContent = 'Save failed'; ind.className = 'pricing-save-ind'; }
 }
 
@@ -1996,32 +1511,23 @@ async function initTCO() {
   const data = await res.json();
   if (!data.success) return;
   _tcoEntries = data.entries || {};
-  if (data.defaults) {
-    _tcoHeroFTECount  = data.defaults.fte_count   || 0;
-    _tcoHeroFTECost   = data.defaults.fte_cost     || 0;
-    _tcoHeroBreachCost= data.defaults.breach_cost  || 0;
-  }
+  if (data.defaults) { _tcoHeroFTECount = data.defaults.fte_count || 0; _tcoHeroFTECost = data.defaults.fte_cost || 0; _tcoHeroBreachCost = data.defaults.breach_cost || 0; }
   const saved = data.saved || {};
-
   if (saved.rows && saved.rows.length) {
-    // Manually saved rows take priority
     _tcoRows = saved.rows.map(r => ({ ...r, id: r.id || (++_tcoRowCounter) }));
     _tcoRowCounter = Math.max(_tcoRowCounter, ..._tcoRows.map(r => r.id || 0));
   } else if (data.site_profile && data.site_profile.length) {
-    // Auto-populate from site profile
     _tcoRows = buildTCORowsFromSiteProfile(data.site_profile);
     _tcoRowCounter = Math.max(_tcoRowCounter, ..._tcoRows.map(r => r.id || 0));
   } else {
     _tcoRows = [newTCORow()];
   }
-
   if (saved.fte_count   !== undefined && saved.fte_count   !== null) _tcoHeroFTECount   = saved.fte_count;
   if (saved.fte_cost    !== undefined && saved.fte_cost    !== null) _tcoHeroFTECost    = saved.fte_cost;
   if (saved.breach_cost !== undefined && saved.breach_cost !== null) _tcoHeroBreachCost = saved.breach_cost;
   document.getElementById('tco-hero-fte-count').value   = _tcoHeroFTECount   || '';
   document.getElementById('tco-hero-fte-cost').value    = _tcoHeroFTECost    || '';
   document.getElementById('tco-hero-breach-cost').value = _tcoHeroBreachCost || '';
-
   if (saved.acv_override != null) {
     _tcoACV = saved.acv_override; _tcoACVOverridden = true;
     document.getElementById('tco-acv-input').value = _tcoACV;
@@ -2040,55 +1546,39 @@ function newTCORow() {
   TCO_CATS.forEach(c => { row[c + '_id'] = null; });
   return row;
 }
-
 function addTCORow() { _tcoRows.push(newTCORow()); renderTCORows(); updateTCOCalculations(); scheduleTCOSave(); }
 function removeTCORow(id) { _tcoRows = _tcoRows.filter(r => r.id !== id); renderTCORows(); updateTCOCalculations(); scheduleTCOSave(); }
 
 function buildTCOOptions(cat, selectedId) {
   let html = '<option value="">— None —</option>';
   const entries = _tcoEntries[cat] || [];
-  entries.forEach(e => {
-    const label = `${e.vendor} · ${e.size} — $${Number(e.annual_cost).toLocaleString('en-US',{maximumFractionDigits:0})}/yr`;
-    html += `<option value="${e.id}" ${parseInt(selectedId) === e.id ? 'selected' : ''}>${label}</option>`;
-  });
+  entries.forEach(e => { const label = `${e.vendor} · ${e.size} — $${Number(e.annual_cost).toLocaleString('en-US',{maximumFractionDigits:0})}/yr`; html += `<option value="${e.id}" ${parseInt(selectedId) === e.id ? 'selected' : ''}>${label}</option>`; });
   return html;
 }
-
 function tcoEntryPrice(cat, entryId) {
   if (!entryId) return 0;
   const entries = _tcoEntries[cat] || [];
   const e = entries.find(x => x.id === parseInt(entryId));
   return e ? (e.annual_cost || 0) : 0;
 }
-
-function tcoRowAnnual(row) {
-  return TCO_CATS.reduce((sum, c) => sum + tcoEntryPrice(c, row[c + '_id']) * (row.qty || 0), 0);
-}
+function tcoRowAnnual(row) { return TCO_CATS.reduce((sum, c) => sum + tcoEntryPrice(c, row[c + '_id']) * (row.qty || 0), 0); }
 
 function renderTCORows() {
   const tbody = document.getElementById('tco-rows');
-  if (!_tcoRows.length) {
-    tbody.innerHTML = `<tr><td colspan="13" class="empty-state">No rows yet — click "+ Add Row" to start.</td></tr>`;
-    renderTCOSummary(); return;
-  }
+  if (!_tcoRows.length) { tbody.innerHTML = `<tr><td colspan="13" class="empty-state">No rows yet — click "+ Add Row" to start.</td></tr>`; renderTCOSummary(); return; }
   tbody.innerHTML = '';
   _tcoRows.forEach(row => {
     const tr = document.createElement('tr');
     tr.setAttribute('data-tco-row-id', row.id);
     const annual = tcoRowAnnual(row);
-    const yr3 = annual * 3;
     let html = `
       <td><input class="t-label-input" type="text" value="${escHtml(row.label||'')}"
         onchange="updateTCOField(${row.id},'label',this.value)" oninput="updateTCOField(${row.id},'label',this.value)"></td>
       <td class="num"><input class="t-qty-input" type="number" min="0" value="${row.qty||1}"
         onchange="updateTCOField(${row.id},'qty',parseInt(this.value)||0)"
         oninput="updateTCOField(${row.id},'qty',parseInt(this.value)||0)"></td>`;
-    TCO_CATS.forEach(c => {
-      html += `<td><select class="t-select" onchange="updateTCOField(${row.id},'${c}_id',this.value?parseInt(this.value):null)">
-        ${buildTCOOptions(c, row[c+'_id'])}</select></td>`;
-    });
-    html += `<td class="tco-annual">${fmtMoney(annual)}</td><td class="tco-3yr">${fmtMoney(yr3)}</td>
-      <td><button class="t-remove-btn" onclick="removeTCORow(${row.id})" title="Remove">✕</button></td>`;
+    TCO_CATS.forEach(c => { html += `<td><select class="t-select" onchange="updateTCOField(${row.id},'${c}_id',this.value?parseInt(this.value):null)">${buildTCOOptions(c, row[c+'_id'])}</select></td>`; });
+    html += `<td class="tco-annual">${fmtMoney(annual)}</td><td class="tco-3yr">${fmtMoney(annual*3)}</td><td><button class="t-remove-btn" onclick="removeTCORow(${row.id})" title="Remove">✕</button></td>`;
     tr.innerHTML = html;
     tbody.appendChild(tr);
   });
@@ -2100,12 +1590,7 @@ function updateTCOField(id, field, value) {
   if (!row) return;
   row[field] = value;
   const tr = document.querySelector(`tr[data-tco-row-id="${id}"]`);
-  if (tr) {
-    const annual = tcoRowAnnual(row);
-    const tds = tr.querySelectorAll('td');
-    tds[10].textContent = fmtMoney(annual);
-    tds[11].textContent = fmtMoney(annual * 3);
-  }
+  if (tr) { const annual = tcoRowAnnual(row); const tds = tr.querySelectorAll('td'); tds[10].textContent = fmtMoney(annual); tds[11].textContent = fmtMoney(annual * 3); }
   updateTCOCalculations(); scheduleTCOSave();
 }
 
@@ -2113,31 +1598,23 @@ function renderTCOSummary() {
   const tbody = document.getElementById('tco-summary-tbody');
   tbody.innerHTML = '';
   let totals = { qty: 0, annual: 0 };
-  const catTotals = {};
-  TCO_CATS.forEach(c => { catTotals[c] = 0; });
+  const catTotals = {}; TCO_CATS.forEach(c => { catTotals[c] = 0; });
   _tcoRows.forEach(row => {
     const qty = row.qty || 0; totals.qty += qty;
     let rowAnnual = 0; const catVals = {};
     TCO_CATS.forEach(c => { const v = tcoEntryPrice(c, row[c+'_id']) * qty; catVals[c] = v; catTotals[c] += v; rowAnnual += v; });
     totals.annual += rowAnnual;
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${escHtml(row.label||'—')}</td><td class="num">${qty}</td>`
-      + TCO_CATS.map(c => `<td class="num">${catVals[c] ? fmtMoney(catVals[c]) : '—'}</td>`).join('')
-      + `<td class="num s-annual">${fmtMoney(rowAnnual)}</td><td class="num s-3yr">${fmtMoney(rowAnnual*3)}</td>`;
+    tr.innerHTML = `<td>${escHtml(row.label||'—')}</td><td class="num">${qty}</td>` + TCO_CATS.map(c => `<td class="num">${catVals[c] ? fmtMoney(catVals[c]) : '—'}</td>`).join('') + `<td class="num s-annual">${fmtMoney(rowAnnual)}</td><td class="num s-3yr">${fmtMoney(rowAnnual*3)}</td>`;
     tbody.appendChild(tr);
   });
   const totTr = document.createElement('tr');
-  totTr.innerHTML = `<td>TOTAL</td><td class="num">${totals.qty}</td>`
-    + TCO_CATS.map(c => `<td class="num">${catTotals[c] ? fmtMoney(catTotals[c]) : '—'}</td>`).join('')
-    + `<td class="num s-annual">${fmtMoney(totals.annual)}</td><td class="num s-3yr">${fmtMoney(totals.annual*3)}</td>`;
+  totTr.innerHTML = `<td>TOTAL</td><td class="num">${totals.qty}</td>` + TCO_CATS.map(c => `<td class="num">${catTotals[c] ? fmtMoney(catTotals[c]) : '—'}</td>`).join('') + `<td class="num s-annual">${fmtMoney(totals.annual)}</td><td class="num s-3yr">${fmtMoney(totals.annual*3)}</td>`;
   tbody.appendChild(totTr);
 }
 
 function getTCOLegacyAnnual() {
-  const hardware   = _tcoRows.reduce((sum, row) => sum + tcoRowAnnual(row), 0);
-  const fteCosts   = (_tcoHeroFTECount || 0) * (_tcoHeroFTECost || 0);
-  const breachCost = _tcoHeroBreachCost || 0;
-  return hardware + fteCosts + breachCost;
+  return _tcoRows.reduce((sum, row) => sum + tcoRowAnnual(row), 0) + (_tcoHeroFTECount||0)*(_tcoHeroFTECost||0) + (_tcoHeroBreachCost||0);
 }
 
 function updateTCOCalculations() {
@@ -2152,8 +1629,7 @@ function updateTCOCalculations() {
   document.getElementById('tco-kpi-annual-sav').textContent = annualSav >= 0 ? fmtMoney(annualSav) : '-' + fmtMoney(-annualSav);
   document.getElementById('tco-kpi-3yr-sav').textContent    = yr3Sav >= 0 ? fmtMoney(yr3Sav) : '-' + fmtMoney(-yr3Sav);
   document.getElementById('tco-kpi-roi').textContent        = roiText;
-  document.getElementById('tco-kpi-payback').textContent    = payback !== null
-    ? `Payback: ~${payback} months` : (acv > 0 ? 'No savings vs ACV' : 'Enter ACV above');
+  document.getElementById('tco-kpi-payback').textContent    = payback !== null ? `Payback: ~${payback} months` : (acv > 0 ? 'No savings vs ACV' : 'Enter ACV above');
   updateHeroROI(roiText);
   renderTCOSummary();
   updateTCOChart();
@@ -2179,15 +1655,7 @@ function updateTCOChart() {
       responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { color: '#a0bcd8', font: { size: 12 }, callback: function(v) {
-            if (v >= 1000000) return '$' + (v/1000000).toFixed(1) + 'M';
-            if (v >= 1000) return '$' + (v/1000).toFixed(0) + 'K';
-            return '$' + v;
-          }},
-          grid: { color: 'rgba(0,170,255,0.1)', drawBorder: false }
-        },
+        y: { beginAtZero: true, ticks: { color: '#a0bcd8', font: { size: 12 }, callback: function(v) { if (v >= 1000000) return '$' + (v/1000000).toFixed(1) + 'M'; if (v >= 1000) return '$' + (v/1000).toFixed(0) + 'K'; return '$' + v; }}, grid: { color: 'rgba(0,170,255,0.1)', drawBorder: false } },
         x: { ticks: { color: '#a0bcd8', font: { size: 12 } }, grid: { display: false } }
       }
     }
@@ -2201,14 +1669,12 @@ function onACVInput() {
   document.getElementById('tco-acv-source').textContent = _tcoACVOverridden ? 'Manual override' : 'Auto-filled from Pricing tab';
   updateTCOCalculations();
 }
-
 function resetACVtoPricing() {
   _tcoACV = _pricingGrandTotal; _tcoACVOverridden = false;
   document.getElementById('tco-acv-input').value = _tcoACV || '';
   document.getElementById('tco-acv-source').textContent = 'Auto-filled from Pricing tab';
   updateTCOCalculations(); scheduleTCOSave();
 }
-
 function saveTCOHeroMetrics() {
   const status = document.getElementById('tco-hero-status');
   status.textContent = 'Saving…'; status.className = 'tco-hero-status saving';
@@ -2216,41 +1682,26 @@ function saveTCOHeroMetrics() {
   _tcoHeroFTECost    = parseFloat(document.getElementById('tco-hero-fte-cost').value)    || 0;
   _tcoHeroBreachCost = parseFloat(document.getElementById('tco-hero-breach-cost').value) || 0;
   updateTCOCalculations(); scheduleTCOSave();
-  setTimeout(() => {
-    status.textContent = '✓ Saved'; status.className = 'tco-hero-status saved';
-    setTimeout(() => { status.textContent = ''; status.className = 'tco-hero-status'; }, 3000);
-  }, 600);
+  setTimeout(() => { status.textContent = '✓ Saved'; status.className = 'tco-hero-status saved'; setTimeout(() => { status.textContent = ''; status.className = 'tco-hero-status'; }, 3000); }, 600);
 }
-
 function scheduleTCOSave() {
   const ind = document.getElementById('tco-save-ind');
   ind.textContent = 'Saving…'; ind.className = 'tco-save-ind saving';
   clearTimeout(_tcoSaveTimer);
   _tcoSaveTimer = setTimeout(saveTCO, 1200);
 }
-
 async function saveTCO() {
   const ind = document.getElementById('tco-save-ind');
   try {
     const res = await fetch('/user/' + CUSTOMER_SLUG + '/tco-save', {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        rows: _tcoRows,
-        acv_override: _tcoACVOverridden ? _tcoACV : null,
-        fte_count:    _tcoHeroFTECount,
-        fte_cost:     _tcoHeroFTECost,
-        breach_cost:  _tcoHeroBreachCost
-      })
+      body: JSON.stringify({ rows: _tcoRows, acv_override: _tcoACVOverridden ? _tcoACV : null, fte_count: _tcoHeroFTECount, fte_cost: _tcoHeroFTECost, breach_cost: _tcoHeroBreachCost })
     });
     const data = await res.json();
-    if (data.success) {
-      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      ind.textContent = '✓ Saved at ' + now; ind.className = 'tco-save-ind saved';
-      setTimeout(() => { ind.textContent = ''; ind.className = 'tco-save-ind'; }, 4000);
-    } else { ind.textContent = 'Save failed'; ind.className = 'tco-save-ind'; }
+    if (data.success) { const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); ind.textContent = '✓ Saved at ' + now; ind.className = 'tco-save-ind saved'; setTimeout(() => { ind.textContent = ''; ind.className = 'tco-save-ind'; }, 4000); }
+    else { ind.textContent = 'Save failed'; ind.className = 'tco-save-ind'; }
   } catch(e) { ind.textContent = 'Save failed'; ind.className = 'tco-save-ind'; }
 }
-
 
 // ══════════════════════════════════════════════════════════════════════════════
 // SITE PROFILE — Results page display + inline editor
@@ -2264,10 +1715,8 @@ const SIZES_R = ['Small','Medium','Large','XL'];
 let _spResRows    = [];
 let _spResVendors = {};
 let _spIERows     = [];
-let _spIECounter  = 0;
 let _spEditorOpen = false;
 
-// ── Load and render read-only view ────────────────────────────────────────────
 async function loadSiteProfile() {
   try {
     const res  = await fetch('/api/site-profile-config?slug=' + CUSTOMER_SLUG);
@@ -2286,146 +1735,106 @@ function renderSiteProfileReadOnly() {
   if (badge) badge.textContent = _spResRows.length;
   if (!container) return;
   container.innerHTML = '';
-
-  if (!_spResRows.length) {
-    if (emptyEl) emptyEl.style.display = 'block';
-    return;
-  }
+  if (!_spResRows.length) { if (emptyEl) emptyEl.style.display = 'block'; return; }
   if (emptyEl) emptyEl.style.display = 'none';
 
   _spResRows.forEach(function(row, idx) {
-    // ── Card wrapper ──────────────────────────────────────────────────────────
     const card = document.createElement('div');
     card.style.cssText = 'background:linear-gradient(145deg,#0d2d52,#0a2244);border:1px solid rgba(0,170,255,0.25);border-radius:14px;overflow:hidden;margin-bottom:14px;';
 
-    // ── Header bar ────────────────────────────────────────────────────────────
     const hdr = document.createElement('div');
     hdr.style.cssText = 'background:#003366;padding:12px 18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
-
     const numPill = document.createElement('span');
     numPill.style.cssText = 'background:rgba(255,255,255,0.18);color:#fff;font-size:11px;font-weight:700;border-radius:20px;padding:2px 10px;white-space:nowrap;';
     numPill.textContent = 'Site ' + (idx + 1);
-
     const labelSpan = document.createElement('span');
     labelSpan.style.cssText = 'font-size:15px;font-weight:700;color:#fff;flex:1;';
     labelSpan.textContent = row.label || '(unlabelled)';
-
     const sitesPill = document.createElement('span');
     sitesPill.style.cssText = 'background:rgba(0,170,255,0.2);color:#7dd3fc;font-size:12px;font-weight:700;border-radius:20px;padding:2px 10px;white-space:nowrap;';
     sitesPill.textContent = (row.num_sites || 1) + ' site' + ((row.num_sites || 1) !== 1 ? 's' : '');
-
-    hdr.appendChild(numPill);
-    hdr.appendChild(labelSpan);
-    hdr.appendChild(sitesPill);
+    hdr.appendChild(numPill); hdr.appendChild(labelSpan); hdr.appendChild(sitesPill);
     card.appendChild(hdr);
 
-    // ── Body ──────────────────────────────────────────────────────────────────
     const body = document.createElement('div');
     body.style.cssText = 'padding:16px 20px;display:flex;flex-direction:column;gap:14px;';
 
-    // Row 1: Size + WAN Type
+    // Size + WAN
     const r1 = document.createElement('div');
     r1.style.cssText = 'display:grid;grid-template-columns:1fr 2fr;gap:16px;';
     r1.innerHTML =
-      '<div style="display:flex;flex-direction:column;gap:4px;">' +
-        '<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#a0bcd8;">Size</span>' +
-        '<span style="font-size:14px;font-weight:600;color:#fff;">' + escHtml(row.size || '—') + '</span>' +
-      '</div>' +
-      '<div style="display:flex;flex-direction:column;gap:4px;">' +
-        '<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#a0bcd8;">WAN Type</span>' +
-        '<span style="font-size:14px;font-weight:600;color:#fff;">' + escHtml(row.wan_type || '—') + '</span>' +
-      '</div>';
+      '<div style="display:flex;flex-direction:column;gap:4px;"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#a0bcd8;">Size</span><span style="font-size:14px;font-weight:600;color:#fff;">' + escHtml(row.size || '—') + '</span></div>' +
+      '<div style="display:flex;flex-direction:column;gap:4px;"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#a0bcd8;">WAN Type</span><span style="font-size:14px;font-weight:600;color:#fff;">' + escHtml(row.wan_type || '—') + '</span></div>';
     body.appendChild(r1);
 
-    // Row 2: Licensing toggle pills
+    // Licensing pills
     const licDiv = document.createElement('div');
     licDiv.style.cssText = 'display:flex;flex-direction:column;gap:7px;';
-    const licLabel = document.createElement('span');
-    licLabel.style.cssText = 'font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#a0bcd8;';
-    licLabel.textContent = 'Licensing & Options';
-    licDiv.appendChild(licLabel);
+    const licLbl = document.createElement('span');
+    licLbl.style.cssText = 'font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#a0bcd8;';
+    licLbl.textContent = 'Licensing & Options';
+    licDiv.appendChild(licLbl);
     const pillRow = document.createElement('div');
     pillRow.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;';
     [['sdwan_required','🌐 SD-WAN License'],['segmentation_required','🔒 Segmentation'],['ha_required','⚡ HA']].forEach(function(p) {
       const on = !!row[p[0]];
       const pill = document.createElement('span');
-      if (on) {
-        pill.style.cssText = 'font-size:12px;font-weight:600;padding:4px 13px;border-radius:20px;background:#003366;color:#7dd3fc;border:1px solid rgba(0,170,255,0.4);';
-      } else {
-        pill.style.cssText = 'font-size:12px;font-weight:600;padding:4px 13px;border-radius:20px;background:rgba(255,255,255,0.04);color:rgba(160,188,216,0.35);border:1px solid rgba(160,188,216,0.1);text-decoration:line-through;';
-      }
+      pill.style.cssText = on
+        ? 'font-size:12px;font-weight:600;padding:4px 13px;border-radius:20px;background:#003366;color:#7dd3fc;border:1px solid rgba(0,170,255,0.4);'
+        : 'font-size:12px;font-weight:600;padding:4px 13px;border-radius:20px;background:rgba(255,255,255,0.04);color:rgba(160,188,216,0.35);border:1px solid rgba(160,188,216,0.1);text-decoration:line-through;';
       pill.textContent = p[1];
       pillRow.appendChild(pill);
     });
     licDiv.appendChild(pillRow);
     body.appendChild(licDiv);
 
-    // Row 3+4: Vendor grid
+    // Vendors
     const vDiv = document.createElement('div');
     vDiv.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
-    const vLabel2 = document.createElement('span');
-    vLabel2.style.cssText = 'font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#a0bcd8;border-bottom:1px solid rgba(0,170,255,0.15);padding-bottom:5px;';
-    vLabel2.textContent = 'Legacy Vendors (TCO)';
-    vDiv.appendChild(vLabel2);
-
+    const vLbl = document.createElement('span');
+    vLbl.style.cssText = 'font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#a0bcd8;border-bottom:1px solid rgba(0,170,255,0.15);padding-bottom:5px;';
+    vLbl.textContent = 'Legacy Vendors (TCO)';
+    vDiv.appendChild(vLbl);
     const vGrid = document.createElement('div');
     vGrid.style.cssText = 'display:grid;grid-template-columns:repeat(4,1fr);gap:10px;';
     SP_CATS_R.forEach(function(cat) {
-      const field = SP_VENDOR_FIELDS_R[cat];
-      const val   = row[field] || '';
+      const val = row[SP_VENDOR_FIELDS_R[cat]] || '';
       const vf = document.createElement('div');
       vf.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
-      vf.innerHTML =
-        '<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#a0bcd8;">' + SP_CAT_LABELS_R[cat] + '</span>' +
+      vf.innerHTML = '<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#a0bcd8;">' + SP_CAT_LABELS_R[cat] + '</span>' +
         '<span style="font-size:12px;color:' + (val ? '#fff' : 'rgba(160,188,216,0.3)') + ';font-style:' + (val ? 'normal' : 'italic') + ';">' + escHtml(val || '— None —') + '</span>';
       vGrid.appendChild(vf);
     });
     vDiv.appendChild(vGrid);
     body.appendChild(vDiv);
-
     card.appendChild(body);
     container.appendChild(card);
   });
 }
 
-
 // ── Inline editor ─────────────────────────────────────────────────────────────
 function toggleSiteProfileEditor() {
   if (_spEditorOpen) { closeSiteProfileEditor(); } else { openSiteProfileEditor(); }
 }
-
 function openSiteProfileEditor() {
   _spEditorOpen = true;
-  // Deep-copy current rows into editor state
   _spIERows = _spResRows.map(function(r) { return Object.assign({}, r); });
-  _spIECounter = _spIERows.length;
   document.getElementById('sp-edit-btn').textContent = '✕ Cancel';
   document.getElementById('sp-inline-editor').style.display = 'block';
   spIERenderCards();
   document.getElementById('sp-inline-editor').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
-
 function closeSiteProfileEditor() {
   _spEditorOpen = false;
   document.getElementById('sp-edit-btn').textContent = '✏ Edit Site Profile';
   document.getElementById('sp-inline-editor').style.display = 'none';
   _spIERows = [];
 }
-
 function spIEAddRow() {
-  _spIERows.push({
-    label: '', num_sites: 1, size: 'Small', wan_type: 'Internet Only',
-    fw_ns_vendor:'', sdwan_vendor:'', mpls_vendor:'', fw_ew_vendor:'',
-    iot_ot_vendor:'', nac_vendor:'', l3sw_vendor:'', pam_vendor:'',
-    sdwan_required: false, segmentation_required: false, ha_required: false
-  });
+  _spIERows.push({ label:'', num_sites:1, size:'Small', wan_type:'Internet Only', fw_ns_vendor:'', sdwan_vendor:'', mpls_vendor:'', fw_ew_vendor:'', iot_ot_vendor:'', nac_vendor:'', l3sw_vendor:'', pam_vendor:'', sdwan_required:false, segmentation_required:false, ha_required:false });
   spIERenderCards();
-  setTimeout(function() {
-    var inputs = document.querySelectorAll('#sp-ie-cards-container .sp-card-label-input');
-    if (inputs.length) inputs[inputs.length-1].focus();
-  }, 50);
+  setTimeout(function() { var inputs = document.querySelectorAll('#sp-ie-cards-container .sp-card-label-input'); if (inputs.length) inputs[inputs.length-1].focus(); }, 50);
 }
-
 function spIEDeleteRow(idx) { _spIERows.splice(idx, 1); spIERenderCards(); }
 function spIESetField(idx, field, value) { _spIERows[idx][field] = value; }
 
@@ -2433,108 +1842,77 @@ function spIERenderCards() {
   const container = document.getElementById('sp-ie-cards-container');
   const emptyEl   = document.getElementById('sp-ie-empty');
   container.innerHTML = '';
-
   if (!_spIERows.length) {
-    emptyEl.style.display = 'block';
+    if (emptyEl) emptyEl.style.display = 'block';
     return;
   }
-  emptyEl.style.display = 'none';
+  if (emptyEl) emptyEl.style.display = 'none';
 
   _spIERows.forEach(function(row, idx) {
     const card = document.createElement('div');
     card.className = 'sp-site-card';
 
     // Header
-    const header = document.createElement('div');
-    header.className = 'sp-card-header';
-    const left = document.createElement('div');
-    left.className = 'sp-card-header-left';
-
-    const numBadge = document.createElement('span');
-    numBadge.className = 'sp-card-num';
-    numBadge.textContent = 'Site ' + (idx+1);
+    const header = document.createElement('div'); header.className = 'sp-card-header';
+    const left = document.createElement('div'); left.className = 'sp-card-header-left';
+    const numBadge = document.createElement('span'); numBadge.className = 'sp-card-num'; numBadge.textContent = 'Site ' + (idx+1);
     left.appendChild(numBadge);
-
     const labelInp = document.createElement('input');
     labelInp.type = 'text'; labelInp.className = 'sp-card-label-input';
-    labelInp.placeholder = 'e.g. Factory, HQ, Branch';
-    labelInp.value = row.label || '';
+    labelInp.placeholder = 'e.g. Factory, HQ, Branch'; labelInp.value = row.label || '';
     labelInp.oninput = function() { spIESetField(idx, 'label', this.value); };
     left.appendChild(labelInp);
-
-    const metaWrap = document.createElement('div');
-    metaWrap.className = 'sp-card-meta';
-    const metaLbl = document.createElement('label');
-    metaLbl.textContent = '# Sites:';
+    const metaWrap = document.createElement('div'); metaWrap.className = 'sp-card-meta';
+    const metaLbl = document.createElement('label'); metaLbl.textContent = '# Sites:';
     const numInp = document.createElement('input');
-    numInp.type = 'number'; numInp.className = 'sp-card-num-input';
-    numInp.min = '1'; numInp.value = row.num_sites || 1;
+    numInp.type = 'number'; numInp.className = 'sp-card-num-input'; numInp.min = '1'; numInp.value = row.num_sites || 1;
     numInp.oninput = function() { spIESetField(idx, 'num_sites', parseInt(this.value)||1); };
-    metaWrap.appendChild(metaLbl);
-    metaWrap.appendChild(numInp);
-    left.appendChild(metaWrap);
-
-    const delBtn = document.createElement('button');
-    delBtn.className = 'sp-card-del-btn';
-    delBtn.textContent = '✕ Remove';
+    metaWrap.appendChild(metaLbl); metaWrap.appendChild(numInp); left.appendChild(metaWrap);
+    const delBtn = document.createElement('button'); delBtn.className = 'sp-card-del-btn'; delBtn.textContent = '✕ Remove';
     delBtn.onclick = function() { spIEDeleteRow(idx); };
-
-    header.appendChild(left);
-    header.appendChild(delBtn);
-    card.appendChild(header);
+    header.appendChild(left); header.appendChild(delBtn); card.appendChild(header);
 
     // Body
-    const body = document.createElement('div');
-    body.className = 'sp-card-body';
+    const body = document.createElement('div'); body.className = 'sp-card-body';
 
     // Size + WAN
-    const row1 = document.createElement('div');
-    row1.className = 'sp-row-2col';
-    row1.appendChild(spIEMakeSelect('Size',     SIZES_R,     row.size,     function(v){ spIESetField(idx,'size',v); }));
+    const row1 = document.createElement('div'); row1.className = 'sp-row-2col';
+    row1.appendChild(spIEMakeSelect('Size', SIZES_R, row.size, function(v){ spIESetField(idx,'size',v); }));
     row1.appendChild(spIEMakeSelect('WAN Type', WAN_TYPES_R, row.wan_type, function(v){ spIESetField(idx,'wan_type',v); }));
     body.appendChild(row1);
 
-    // Toggle pills
-    const tSection = document.createElement('div');
-    const tLabel   = document.createElement('div');
-    tLabel.className = 'sp-section-label'; tLabel.textContent = 'Licensing & Options';
-    tSection.appendChild(tLabel);
-    const tWrap = document.createElement('div');
-    tWrap.className = 'sp-toggles';
+    // Toggles
+    const tSec = document.createElement('div');
+    const tLbl = document.createElement('div'); tLbl.className = 'sp-section-label'; tLbl.textContent = 'Licensing & Options';
+    tSec.appendChild(tLbl);
+    const tWrap = document.createElement('div'); tWrap.className = 'sp-toggles';
     [['sdwan_required','🌐 SD-WAN License'],['segmentation_required','🔒 Segmentation'],['ha_required','⚡ HA']].forEach(function(pair) {
       const field = pair[0], labelText = pair[1];
       const lbl = document.createElement('label');
       lbl.className = 'sp-toggle-label' + (row[field] ? ' checked' : '');
-      const cb = document.createElement('input');
-      cb.type = 'checkbox'; cb.checked = !!row[field];
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!row[field];
       cb.onchange = function() { spIESetField(idx, field, this.checked); lbl.className = 'sp-toggle-label' + (this.checked ? ' checked' : ''); };
       const dot = document.createElement('span'); dot.className = 'sp-toggle-dot';
       lbl.appendChild(cb); lbl.appendChild(dot); lbl.appendChild(document.createTextNode(labelText));
       tWrap.appendChild(lbl);
     });
-    tSection.appendChild(tWrap);
-    body.appendChild(tSection);
+    tSec.appendChild(tWrap); body.appendChild(tSec);
 
-    // Vendor dropdowns
-    const vSection = document.createElement('div');
-    const vLabel = document.createElement('div');
-    vLabel.className = 'sp-section-label'; vLabel.textContent = 'Legacy Vendor Selection (for TCO)';
-    vSection.appendChild(vLabel);
-    const vGrid1 = document.createElement('div'); vGrid1.className = 'sp-row-4col';
-    const vGrid2 = document.createElement('div'); vGrid2.className = 'sp-row-4col';
+    // Vendors
+    const vSec = document.createElement('div');
+    const vLbl = document.createElement('div'); vLbl.className = 'sp-section-label'; vLbl.textContent = 'Legacy Vendor Selection (for TCO)';
+    vSec.appendChild(vLbl);
+    const vG1 = document.createElement('div'); vG1.className = 'sp-row-4col';
+    const vG2 = document.createElement('div'); vG2.className = 'sp-row-4col';
     SP_CATS_R.forEach(function(cat, ci) {
       const field   = SP_VENDOR_FIELDS_R[cat];
       const vendors = _spResVendors[cat] || [];
-      const opts    = [''].concat(vendors);
-      const labels  = ['— None —'].concat(vendors);
-      const fld = spIEMakeSelectFull(SP_CAT_LABELS_R[cat], opts, labels, row[field]||'', function(v){ spIESetField(idx, field, v); });
-      if (ci < 4) vGrid1.appendChild(fld); else vGrid2.appendChild(fld);
+      const fld = spIEMakeSelectFull(SP_CAT_LABELS_R[cat], [''].concat(vendors), ['— None —'].concat(vendors), row[field]||'', function(v){ spIESetField(idx, field, v); });
+      if (ci < 4) vG1.appendChild(fld); else vG2.appendChild(fld);
     });
-    vSection.appendChild(vGrid1);
-    const sp = document.createElement('div'); sp.style.height = '12px';
-    vSection.appendChild(sp);
-    vSection.appendChild(vGrid2);
-    body.appendChild(vSection);
+    vSec.appendChild(vG1);
+    const sp = document.createElement('div'); sp.style.height = '10px'; vSec.appendChild(sp);
+    vSec.appendChild(vG2); body.appendChild(vSec);
 
     card.appendChild(body);
     container.appendChild(card);
@@ -2549,8 +1927,7 @@ function spIEMakeSelectFull(labelText, values, labels, currentVal, onChange) {
   const lbl = document.createElement('label'); lbl.textContent = labelText;
   const sel = document.createElement('select'); sel.className = 'sp-select-styled';
   values.forEach(function(v, i) {
-    const o = document.createElement('option');
-    o.value = v; o.textContent = labels[i];
+    const o = document.createElement('option'); o.value = v; o.textContent = labels[i];
     if (v === currentVal) o.selected = true;
     sel.appendChild(o);
   });
@@ -2569,20 +1946,31 @@ async function saveSiteProfile() {
     });
     const data = await res.json();
     if (!data.success) throw new Error('Save failed');
-    // Update local state and re-render read-only view
     _spResRows = _spIERows.map(function(r) { return Object.assign({}, r); });
     renderSiteProfileReadOnly();
     closeSiteProfileEditor();
     showToast('✓ Site profile saved');
+    // Rebuild Pricing rows from new site profile (only if no manually-overridden rows)
+    if (_spResRows.length) {
+      _rowCounter = 0;
+      _pricingRows = buildPricingRowsFromSiteProfile(_spResRows);
+      renderPricingRows();
+      updateTotals();
+    }
+    // Rebuild TCO rows from new site profile (only if no manually-overridden rows)
+    if (_spResRows.length) {
+      _tcoRowCounter = 0;
+      _tcoRows = buildTCORowsFromSiteProfile(_spResRows);
+      renderTCORows();
+      updateTCOCalculations();
+    }
   } catch(e) {
     showToast('Save failed: ' + e.message, true);
     btn.disabled = false; btn.textContent = '✓ Save Site Profile';
   }
 }
 
-// Load on page init
 loadSiteProfile();
-
 
 // ── Eager init on page load ───────────────────────────────────────────────────
 initPricing().then(() => {
