@@ -2221,7 +2221,9 @@ function renderPricingExecSummary() {
     const appPrice    = skuPrice(_appliances,  row.appliance_id, _pricingPhase);
     const sdwanPrice  = skuPrice(_sdwan,        row.sdwan_id,    _pricingPhase);
     const segPrice    = skuPrice(_segmentation, row.seg_id,      _pricingPhase);
-    const costPerSite = appPrice + sdwanPrice + segPrice;
+    const rawPerSite  = appPrice + sdwanPrice + segPrice;
+    const smMult      = 1 + (_supportPct / 100) + (_marginPct / 100);
+    const costPerSite = rawPerSite * smMult;
     const lineTotal   = row.qty * costPerSite;
     grandTotal += lineTotal;
     if (row.sdwan_id) hasSDWAN = true;

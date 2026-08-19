@@ -113,6 +113,16 @@ def export_pptx(customer_slug):
             return f'${int(round(v/1000))}K'
         return f'${int(round(v)):,}'
 
+    def _fmt_exact(v):
+        try:
+            v = float(v)
+        except (TypeError, ValueError):
+            return '—'
+        if v == 0:
+            return '—'
+        return f'${int(round(v)):,}'
+
+
     # ── pricing calculations ───────────────────────────────────────────────
     skus      = PricingSKU.query.filter_by(active=True).all()
     app_map   = {s.id: s for s in skus if s.category == 'appliance'}
@@ -146,6 +156,9 @@ def export_pptx(customer_slug):
     margin_amt  = round(al_total * margin_pct  / 100)
     annual_rec  = al_total + support_amt + margin_amt
     yr1_total   = annual_rec + services_amt
+
+    # multiplier for exec summary: bake support + margin into per-site cost
+    _sm_mult = 1 + (support_pct / 100) + (margin_pct / 100)
 
     # ── TCO calculations ───────────────────────────────────────────────────
     tco_catalog = {e.id: float(e.annual_cost or 0)
@@ -293,7 +306,7 @@ def export_pptx(customer_slug):
             y_cursor += rh
 
     # ══════════════════════════════════════════════════════════════════════
-    # SLIDE 3 — Pricing BOM + Grand Total
+    # SLIDE 3 — Pricing Executive Summary
     # ══════════════════════════════════════════════════════════════════════
     s3 = prs.slides.add_slide(BL)
     _bg(s3, NAVY)
@@ -301,60 +314,98 @@ def export_pptx(customer_slug):
     _box(s3, 'PRICING SUMMARY',
          Inches(0.4), Inches(0.2), Inches(8), Inches(0.42),
          sz=11, bold=True, color=BLUE)
-    _box(s3, 'Bill of Materials & Grand Total',
+    _box(s3, 'Executive Overview',
          Inches(0.4), Inches(0.6), Inches(8), Inches(0.48),
          sz=22, bold=True, color=WHITE)
     _rect(s3, Inches(0.4), Inches(1.12), Inches(12.7), Emu(40000), BLUE)
 
-    bom_cx  = [Inches(0.4), Inches(2.15), Inches(2.75), Inches(3.85), Inches(4.85), Inches(5.9),  Inches(7.05)]
-    bom_cw  = [Inches(1.65), Inches(0.52), Inches(1.0),  Inches(0.9),  Inches(0.95), Inches(1.05), Inches(1.05)]
-    bom_hdr = ['Site Label','QTY','Appliance $','SD-WAN $','Seg $','Site Total','Line Total']
-    for i, h in enumerate(bom_hdr):
-        _rect(s3, bom_cx[i], Inches(1.2), bom_cw[i], Inches(0.38), NAVY2)
-        _box(s3, h, bom_cx[i]+Inches(0.04), Inches(1.2),
-             bom_cw[i], Inches(0.38), sz=8, bold=True, color=ACCENT)
+    # support + margin baked into per-site cost
+    _sm_mult = 1 + (support_pct / 100) + (margin_pct / 100)
 
-    row_h = Inches(0.45)
-    for ri, (lbl, qty, app_p, sdw_p, seg_p, site_t, line_t) in enumerate(bom_lines[:8]):
-        y   = Inches(1.62) + ri * row_h
-        bg_ = NAVY3 if ri % 2 == 0 else NAVY2
-        vals = [lbl, str(qty), _fmt(app_p), _fmt(sdw_p), _fmt(seg_p), _fmt(site_t), _fmt(line_t)]
-        for i, v in enumerate(vals):
-            _rect(s3, bom_cx[i], y, bom_cw[i], row_h-Emu(30000), bg_)
-            _box(s3, v, bom_cx[i]+Inches(0.04), y+Inches(0.05),
-                 bom_cw[i], row_h, sz=9,
-                 color=ACCENT if i == 0 else WHITE)
+    # column layout: Site Label | Cost per Site | Line Total
+    COL_X = [Inches(0.4),  Inches(6.4),   Inches(9.6)]
+    COL_W = [Inches(5.8),  Inches(3.0),   Inches(3.53)]
 
-    px, py, pw, ph = Inches(8.45), Inches(1.2), Inches(4.6), Inches(5.85)
-    _rect(s3, px, py, pw, ph, NAVY3)
-    _rect(s3, px, py, Inches(0.07), ph, BLUE)
-    _box(s3, 'DEAL SUMMARY', px+Inches(0.18), py+Inches(0.15),
-         pw, Inches(0.38), sz=9, bold=True, color=MUTED)
+    # header row
+    HDR_Y = Inches(1.2)
+    HDR_H = Inches(0.45)
+    hdr_labels = ['SITE LABEL', 'COST PER SITE', 'LINE TOTAL']
+    for i, h in enumerate(hdr_labels):
+        _rect(s3, COL_X[i], HDR_Y, COL_W[i] - Inches(0.06), HDR_H, NAVY2)
+        align = PP_ALIGN.RIGHT if i > 0 else PP_ALIGN.LEFT
+        _box(s3, h, COL_X[i] + Inches(0.18), HDR_Y + Inches(0.05),
+             COL_W[i] - Inches(0.25), HDR_H, sz=10, bold=True, color=ACCENT, align=align)
 
-    gt_rows = [
-        ('Appliances & Licenses',              _fmt(al_total),    WHITE),
-        (f'Support ({support_pct:.0f}%)',       _fmt(support_amt), MUTED),
-        (f'Partner Margin ({margin_pct:.0f}%)', _fmt(margin_amt),  MUTED),
-        ('Annual Recurring',                    _fmt(annual_rec),  ACCENT),
-        ('Services (Yr 1)',                     _fmt(services_amt), AMBER),
+    # build rows with multiplied costs
+    active = [
+        (lbl, round(site_t * _sm_mult), round(qty * site_t * _sm_mult))
+        for lbl, qty, app_p, sdw_p, seg_p, site_t, line_t in bom_lines
     ]
-    yo = py + Inches(0.58)
-    for label, val, col in gt_rows:
-        _box(s3, label, px+Inches(0.18), yo, Inches(2.55), Inches(0.38), sz=9, color=MUTED)
-        _box(s3, val,   px+Inches(2.8),  yo, Inches(1.6),  Inches(0.38),
-             sz=9, bold=True, color=col, align=PP_ALIGN.RIGHT)
-        yo += Inches(0.42)
 
-    _rect(s3, px+Inches(0.15), yo, pw-Inches(0.3), Emu(40000), ACCENT)
-    yo += Inches(0.18)
-    _box(s3, 'YEAR 1 TOTAL', px+Inches(0.18), yo, pw, Inches(0.4),
-         sz=10, bold=True, color=WHITE)
-    yo += Inches(0.42)
-    _box(s3, _fmt(yr1_total), px+Inches(0.1), yo, pw-Inches(0.2), Inches(0.75),
-         sz=34, bold=True, color=ACCENT, align=PP_ALIGN.RIGHT)
-    yo += Inches(0.8)
-    _box(s3, f'Recurring: {_fmt(annual_rec)}/yr  ·  Phase: {phase.upper()}',
-         px+Inches(0.18), yo, pw, Inches(0.38), sz=9, color=MUTED)
+    # fixed row height — no auto-scaling, no gaps
+    TABLE_TOP = Inches(1.65)
+    ROW_H     = int(Inches(0.62))
+
+    y_cur = TABLE_TOP
+    for ri, (lbl, cost_per_site, line_total) in enumerate(active):
+        bg_ = NAVY3 if ri % 2 == 0 else NAVY2
+        PAD = int(Inches(0.1))
+        for i in range(3):
+            _rect(s3, COL_X[i], y_cur,
+                  COL_W[i] - Inches(0.06), ROW_H - int(Inches(0.03)), bg_)
+        _box(s3, lbl,
+             COL_X[0]+Inches(0.18), y_cur+PAD,
+             COL_W[0]-Inches(0.25), ROW_H,
+             sz=16, bold=True, color=ACCENT)
+        _box(s3, _fmt_exact(cost_per_site),
+             COL_X[1]+Inches(0.06), y_cur+PAD,
+             COL_W[1]-Inches(0.18), ROW_H,
+             sz=16, color=WHITE, align=PP_ALIGN.RIGHT)
+        _box(s3, _fmt_exact(line_total),
+             COL_X[2]+Inches(0.06), y_cur+PAD,
+             COL_W[2]-Inches(0.18), ROW_H,
+             sz=16, bold=True, color=WHITE, align=PP_ALIGN.RIGHT)
+        y_cur += ROW_H
+
+    # grand total anchored directly below last row — no fixed Y
+    GT_Y = y_cur + int(Inches(0.15))
+    _rect(s3, Inches(0.4), GT_Y, Inches(12.53), Inches(0.72), NAVY2)
+    _rect(s3, Inches(0.4), GT_Y, Inches(0.08),  Inches(0.72), BLUE)
+    _box(s3, 'GRAND TOTAL',
+         Inches(0.6), GT_Y + Inches(0.12), Inches(6.0), Inches(0.5),
+         sz=16, bold=True, color=WHITE)
+    _box(s3, _fmt_exact(annual_rec),
+         Inches(6.5), GT_Y + Inches(0.08), Inches(6.2), Inches(0.56),
+         sz=24, bold=True, color=ACCENT, align=PP_ALIGN.RIGHT)
+
+    # licenses anchored below grand total
+    LIC_Y = GT_Y + Inches(0.9)
+    _box(s3, 'LICENSES INCLUDED',
+         Inches(0.4), LIC_Y - Inches(0.32), Inches(12), Inches(0.32),
+         sz=10, bold=True, color=MUTED)
+
+    has_sdwan = any(row.get('sdwan_id') for row in pricing_rows)
+    has_seg   = any(row.get('seg_id')   for row in pricing_rows)
+    lic_labels = []
+    if has_sdwan: lic_labels.append('SD-WAN Licenses')
+    if has_seg:   lic_labels.append('Segmentation Licenses')
+    if not lic_labels: lic_labels = ['Appliance only — no software licenses']
+
+    # pills evenly spread across full width
+    n_pills  = len(lic_labels)
+    pill_w   = Inches(12.53 / n_pills - 0.15)
+    pill_x   = Inches(0.4)
+    for lic in lic_labels:
+        _rect(s3, pill_x, LIC_Y, pill_w, Inches(0.55), NAVY2)
+        _rect(s3, pill_x, LIC_Y, Inches(0.07), Inches(0.55), BLUE)
+        _box(s3, lic, pill_x + Inches(0.2), LIC_Y + Inches(0.1),
+             pill_w - Inches(0.28), Inches(0.42), sz=13, bold=True, color=WHITE)
+        pill_x += pill_w + Inches(0.15)
+
+    # footer — anchored below pills
+    _box(s3, f'Phase: {phase.upper()}  ·  Annual Recurring: {_fmt(annual_rec)}',
+         Inches(0.4), LIC_Y + Inches(0.65), Inches(12.5), Inches(0.3),
+         sz=9, color=MUTED, italic=True, align=PP_ALIGN.RIGHT)
 
     # ══════════════════════════════════════════════════════════════════════
     # SLIDE 4 — TCO KPIs + Bar Chart
