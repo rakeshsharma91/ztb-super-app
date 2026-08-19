@@ -453,9 +453,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
 
 {% set documents = [] %}
 {% set guidelines = [] %}
+{% set success_criteria = [] %}
 {% for a in assets %}
-  {% if (a.get('asset_type') or '')|lower == 'guideline' %}
+  {% set atype = (a.get('asset_type') or '')|lower %}
+  {% if atype == 'guideline' %}
     {% set _ = guidelines.append(a) %}
+  {% elif atype == 'success criteria' or atype == 'success_criteria' %}
+    {% set _ = success_criteria.append(a) %}
   {% else %}
     {% set _ = documents.append(a) %}
   {% endif %}
@@ -717,6 +721,28 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
 <!-- ══════════════════════ POV & DEPLOYMENT TAB ══════════════════════ -->
 <div class="tab-panel" id="tab-pov">
   <div class="pov-body">
+    {% if success_criteria %}
+    <div class="section-heading">
+      <h2>Success Criteria</h2>
+      <span class="section-badge">{{ success_criteria | length }}</span>
+    </div>
+    <div class="guidelines-list" style="margin-bottom:1.5rem;">
+      {% for sc in success_criteria %}
+      {% set title = sc.get('asset_name') or sc.get('title') or ('Success Criteria #' ~ sc.get('id','')) %}
+      {% set desc  = sc.get('description') or sc.get('Description') or '' %}
+      {% set url   = sc.get('url') or sc.get('link') or '' %}
+      <div class="guideline-card" style="background:linear-gradient(145deg,#0a1a2e,#071525);border-color:rgba(0,170,255,0.2);border-left-color:#0070c0;">
+        <div class="guideline-header">
+          <div class="guideline-title" style="color:var(--white);">{{ title }}</div>
+          {% if url %}<a class="guideline-link" href="{{ url }}" target="_blank" rel="noopener" style="border-color:rgba(0,170,255,0.4);color:var(--accent);">Reference →</a>{% endif %}
+        </div>
+        {% if desc %}<div class="guideline-body" style="color:var(--text-muted);">{{ desc }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <hr class="section-divider">
+    {% endif %}
+
     {% if guidelines %}
     <div class="section-heading">
       <h2>Guidelines</h2>
