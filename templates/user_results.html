@@ -208,6 +208,26 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
 .pricing-save-ind { font-size: 0.75rem; text-align: right; margin-bottom: 0.75rem; min-height: 18px; color: var(--text-muted); }
 .pricing-save-ind.saving { color: var(--accent); }
 .pricing-save-ind.saved { color: #00dc82; }
+/* ── Deal Modifiers ── */
+.deal-modifiers-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid rgba(0,170,255,0.3); border-radius: 14px; padding: 1.2rem 1.8rem; margin-bottom: 1.5rem; }
+.deal-modifiers-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 1rem; }
+.deal-modifiers-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; }
+@media (max-width: 700px) { .deal-modifiers-grid { grid-template-columns: 1fr; } }
+.deal-modifier-item { display: flex; flex-direction: column; gap: 6px; }
+.deal-modifier-label { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.deal-modifier-hint { font-size: 0.68rem; color: rgba(160,188,216,0.5); margin-top: -3px; }
+.deal-modifier-input-row { display: flex; align-items: center; gap: 6px; }
+.deal-modifier-input { background: rgba(0,0,0,0.3); border: 1px solid rgba(0,170,255,0.25); border-radius: 7px; color: var(--white); font-size: 0.95rem; font-weight: 700; padding: 0.45rem 0.8rem; width: 90px; outline: none; text-align: right; transition: border-color 0.2s; font-family: inherit; }
+.deal-modifier-input:focus { border-color: var(--accent); }
+.deal-modifier-unit { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; }
+.deal-modifier-computed { font-size: 0.82rem; color: var(--accent); font-weight: 700; margin-top: 2px; }
+/* ── Grand Total Breakdown ── */
+.gt-breakdown { display: flex; flex-direction: column; gap: 5px; margin-bottom: 0.5rem; }
+.gt-breakdown-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); }
+.gt-breakdown-row.gt-subtotal { border-top: 1px solid rgba(0,170,255,0.15); padding-top: 5px; margin-top: 2px; color: var(--white); font-weight: 600; }
+.gt-breakdown-row.gt-yr1-note { font-size: 0.7rem; color: rgba(160,188,216,0.45); font-style: italic; }
+.gt-breakdown-val { font-weight: 600; color: var(--white); }
+.gt-recurring-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 3px; }
 .add-row-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.6rem 1.2rem; background: transparent; border: 1px dashed rgba(0,170,255,0.4); border-radius: 9px; color: var(--accent); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.2s, border-color 0.2s; margin-bottom: 1rem; }
 .add-row-btn:hover { background: rgba(0,170,255,0.08); border-color: var(--accent); }
 .pricing-tbl-overflow { overflow-x: auto; }
@@ -799,11 +819,55 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
     </div>
     <button class="add-row-btn" onclick="addPricingRow()">＋ Add Row</button>
     <div class="grand-total-card">
-      <div>
-        <div class="grand-total-label">Grand Total (Annual)</div>
+      <div style="flex:1;">
+        <div class="grand-total-label">Grand Total</div>
+        <div class="gt-breakdown" id="gt-breakdown">
+          <div class="gt-breakdown-row"><span>Appliances &amp; Licenses</span><span class="gt-breakdown-val" id="gt-al">$0</span></div>
+          <div class="gt-breakdown-row"><span>Premium Support (<span id="gt-support-pct-lbl">20</span>%)</span><span class="gt-breakdown-val" id="gt-support-amt">—</span></div>
+          <div class="gt-breakdown-row"><span>Partner Margin (<span id="gt-margin-pct-lbl">20</span>%)</span><span class="gt-breakdown-val" id="gt-margin-amt">—</span></div>
+          <div class="gt-breakdown-row gt-subtotal"><span>Annual Recurring</span><span id="gt-recurring">$0</span></div>
+          <div class="gt-breakdown-row"><span>Services (Year 1 only)</span><span class="gt-breakdown-val" id="gt-services-amt">—</span></div>
+        </div>
         <div class="grand-total-sub" id="grand-total-sub">— sites configured</div>
       </div>
-      <div class="grand-total-value" id="grand-total">$0</div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:4px;">Year 1 Total</div>
+        <div class="grand-total-value" id="grand-total">$0</div>
+        <div class="gt-recurring-sub" id="gt-recurring-sub">Recurring: $0/yr</div>
+      </div>
+    </div>
+    <!-- Deal Modifiers -->
+    <div class="deal-modifiers-card">
+      <div class="deal-modifiers-title">⚙️ Deal Modifiers</div>
+      <div class="deal-modifiers-grid">
+        <div class="deal-modifier-item">
+          <div class="deal-modifier-label">🔧 Premium Support</div>
+          <div class="deal-modifier-hint">% of Appliances &amp; Licenses</div>
+          <div class="deal-modifier-input-row">
+            <input class="deal-modifier-input" type="number" id="mod-support-pct" min="0" max="100" step="1" value="20" oninput="onModifierChange()">
+            <span class="deal-modifier-unit">%</span>
+          </div>
+          <div class="deal-modifier-computed" id="mod-support-computed">—</div>
+        </div>
+        <div class="deal-modifier-item">
+          <div class="deal-modifier-label">🤝 Partner Margin</div>
+          <div class="deal-modifier-hint">% of Appliances &amp; Licenses</div>
+          <div class="deal-modifier-input-row">
+            <input class="deal-modifier-input" type="number" id="mod-margin-pct" min="0" max="100" step="1" value="20" oninput="onModifierChange()">
+            <span class="deal-modifier-unit">%</span>
+          </div>
+          <div class="deal-modifier-computed" id="mod-margin-computed">—</div>
+        </div>
+        <div class="deal-modifier-item">
+          <div class="deal-modifier-label">🛠 Services</div>
+          <div class="deal-modifier-hint">Fixed $ — Year 1 only</div>
+          <div class="deal-modifier-input-row">
+            <span class="deal-modifier-unit">$</span>
+            <input class="deal-modifier-input" type="number" id="mod-services-amt" min="0" step="1000" value="0" oninput="onModifierChange()" style="width:120px;">
+          </div>
+          <div class="deal-modifier-computed" id="mod-services-computed" style="color:#f59e0b;">—</div>
+        </div>
+      </div>
     </div>
     <hr class="section-divider">
     <div class="section-heading"><h2>🧾 Bill of Materials</h2></div>
@@ -1196,6 +1260,32 @@ let _segmentation = [];
 let _pricingSaveTimer = null;
 let _rowCounter = 0;
 let _pricingGrandTotal = 0;
+let _supportPct = 20;
+let _marginPct  = 20;
+let _servicesAmt = 0;
+
+function computeDealTotals() {
+  let alSubtotal = 0;
+  _pricingRows.forEach(row => {
+    const appPrice   = skuPrice(_appliances,  row.appliance_id, _pricingPhase);
+    const sdwanPrice = skuPrice(_sdwan,        row.sdwan_id,    _pricingPhase);
+    const segPrice   = skuPrice(_segmentation, row.seg_id,      _pricingPhase);
+    alSubtotal += (row.qty || 0) * (appPrice + sdwanPrice + segPrice);
+  });
+  const supportAmt     = Math.round(alSubtotal * _supportPct / 100);
+  const marginAmt      = Math.round(alSubtotal * _marginPct  / 100);
+  const annualRecurring = alSubtotal + supportAmt + marginAmt;
+  const yr1Total       = annualRecurring + _servicesAmt;
+  return { alSubtotal, supportAmt, marginAmt, annualRecurring, yr1Total };
+}
+
+function onModifierChange() {
+  _supportPct  = parseFloat(document.getElementById('mod-support-pct').value)  || 0;
+  _marginPct   = parseFloat(document.getElementById('mod-margin-pct').value)   || 0;
+  _servicesAmt = parseFloat(document.getElementById('mod-services-amt').value) || 0;
+  updateTotals();
+  schedulePricingSave();
+}
 
 function fmtMoney(v) {
   if (!v || v === 0) return '—';
@@ -1255,6 +1345,9 @@ async function initPricing() {
   _sdwan        = data.sdwan        || [];
   _segmentation = data.segmentation || [];
   if (data.saved && data.saved.phase) _pricingPhase = data.saved.phase;
+  if (data.saved && data.saved.support_pct != null) { _supportPct = data.saved.support_pct; document.getElementById('mod-support-pct').value = _supportPct; }
+  if (data.saved && data.saved.margin_pct  != null) { _marginPct  = data.saved.margin_pct;  document.getElementById('mod-margin-pct').value  = _marginPct; }
+  if (data.saved && data.saved.services_amt != null) { _servicesAmt = data.saved.services_amt; document.getElementById('mod-services-amt').value = _servicesAmt; }
   if (data.saved && data.saved.rows && data.saved.rows.length) {
     _pricingRows = data.saved.rows.map(r => ({ ...r, id: r.id || (++_rowCounter) }));
     _rowCounter  = Math.max(_rowCounter, ..._pricingRows.map(r => r.id || 0));
@@ -1344,23 +1437,44 @@ function updateRowField(id, field, value) {
 }
 
 function updateTotals() {
-  let grandTotal = 0, totalSites = 0;
-  _pricingRows.forEach(row => {
-    const appPrice   = skuPrice(_appliances,  row.appliance_id, _pricingPhase);
-    const sdwanPrice = skuPrice(_sdwan,        row.sdwan_id,    _pricingPhase);
-    const segPrice   = skuPrice(_segmentation, row.seg_id,      _pricingPhase);
-    grandTotal += (row.qty || 0) * (appPrice + sdwanPrice + segPrice);
-    totalSites += (row.qty || 0);
-  });
-  _pricingGrandTotal = grandTotal;
-  document.getElementById('grand-total').textContent = grandTotal ? ('$' + grandTotal.toLocaleString('en-US',{maximumFractionDigits:0})) : '$0';
+  let totalSites = 0;
+  _pricingRows.forEach(row => { totalSites += (row.qty || 0); });
+
+  // sync modifier inputs → state
+  _supportPct  = parseFloat(document.getElementById('mod-support-pct').value)  || 0;
+  _marginPct   = parseFloat(document.getElementById('mod-margin-pct').value)   || 0;
+  _servicesAmt = parseFloat(document.getElementById('mod-services-amt').value) || 0;
+
+  const { alSubtotal, supportAmt, marginAmt, annualRecurring, yr1Total } = computeDealTotals();
+  _pricingGrandTotal = annualRecurring; // TCO uses annual recurring (no one-time services)
+
+  // Update breakdown display
+  document.getElementById('gt-al').textContent          = alSubtotal   ? fmtMoney(alSubtotal)    : '$0';
+  document.getElementById('gt-support-amt').textContent = supportAmt   ? fmtMoney(supportAmt)    : '—';
+  document.getElementById('gt-margin-amt').textContent  = marginAmt    ? fmtMoney(marginAmt)     : '—';
+  document.getElementById('gt-recurring').textContent   = annualRecurring ? fmtMoney(annualRecurring) : '$0';
+  document.getElementById('gt-services-amt').textContent = _servicesAmt ? fmtMoney(_servicesAmt) : '—';
+  document.getElementById('gt-support-pct-lbl').textContent = _supportPct;
+  document.getElementById('gt-margin-pct-lbl').textContent  = _marginPct;
+
+  // Modifier computed values
+  document.getElementById('mod-support-computed').textContent = supportAmt   ? fmtMoney(supportAmt)    : '—';
+  document.getElementById('mod-margin-computed').textContent  = marginAmt    ? fmtMoney(marginAmt)     : '—';
+  document.getElementById('mod-services-computed').textContent = _servicesAmt ? ('+ ' + fmtMoney(_servicesAmt) + ' Yr1') : '—';
+
+  // Grand total card
+  document.getElementById('grand-total').textContent = fmtMoney(yr1Total) || '$0';
+  document.getElementById('gt-recurring-sub').textContent = 'Recurring: ' + (annualRecurring ? fmtMoney(annualRecurring) : '$0') + '/yr';
   document.getElementById('grand-total-sub').textContent = totalSites + ' total site' + (totalSites !== 1 ? 's' : '') + ' configured';
+
   renderBOM(); renderRampTable();
-  updateHeroGrandTotal(grandTotal);
+  updateHeroGrandTotal(yr1Total);  // Hero shows Year 1 (includes services)
+
+  // TCO ACV uses annual recurring (not yr1 — services are one-time)
   if (window._tcoLoaded && !_tcoACVOverridden) {
-    _tcoACV = grandTotal;
+    _tcoACV = annualRecurring;
     const acvInput = document.getElementById('tco-acv-input');
-    if (acvInput) acvInput.value = grandTotal || '';
+    if (acvInput) acvInput.value = annualRecurring || '';
     updateTCOCalculations();
   }
 }
@@ -1461,7 +1575,8 @@ function renderRampTable() {
     tbody.appendChild(tr);
   });
   const totTr = document.createElement('tr');
-  totTr.innerHTML = `<td>TOTAL</td><td>${totSites}</td><td>—</td><td>${fmtMoney(totY1)}</td><td>${fmtMoney(totY2)}</td><td>${fmtMoney(totY3)}</td><td>${fmtMoney(totY4)}</td>`;
+  const totY1WithSvc = totY1 + (_servicesAmt || 0);
+  totTr.innerHTML = `<td>TOTAL</td><td>${totSites}</td><td>—</td><td>${fmtMoney(totY1WithSvc)}${_servicesAmt ? ' <span style="font-size:0.68rem;color:#f59e0b;" title="Includes $' + Number(_servicesAmt).toLocaleString() + ' services">★</span>' : ''}</td><td>${fmtMoney(totY2)}</td><td>${fmtMoney(totY3)}</td><td>${fmtMoney(totY4)}</td>`;
   tbody.appendChild(totTr);
 }
 
@@ -1476,7 +1591,7 @@ async function savePricing() {
   try {
     const res = await fetch('/user/' + CUSTOMER_SLUG + '/pricing-save', {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phase: _pricingPhase, rows: _pricingRows })
+      body: JSON.stringify({ phase: _pricingPhase, rows: _pricingRows, support_pct: _supportPct, margin_pct: _marginPct, services_amt: _servicesAmt })
     });
     const data = await res.json();
     if (data.success) { const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); ind.textContent = '✓ Saved at ' + now; ind.className = 'pricing-save-ind saved'; setTimeout(() => { ind.textContent = ''; ind.className = 'pricing-save-ind'; }, 4000); }
@@ -1670,9 +1785,9 @@ function onACVInput() {
   updateTCOCalculations();
 }
 function resetACVtoPricing() {
-  _tcoACV = _pricingGrandTotal; _tcoACVOverridden = false;
+  _tcoACV = _pricingGrandTotal; _tcoACVOverridden = false; // _pricingGrandTotal = annualRecurring
   document.getElementById('tco-acv-input').value = _tcoACV || '';
-  document.getElementById('tco-acv-source').textContent = 'Auto-filled from Pricing tab';
+  document.getElementById('tco-acv-source').textContent = 'Auto-filled from Pricing tab (Annual Recurring)';
   updateTCOCalculations(); scheduleTCOSave();
 }
 function saveTCOHeroMetrics() {

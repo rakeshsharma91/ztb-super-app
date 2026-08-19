@@ -184,8 +184,11 @@ def pricing_save(customer_slug):
         return jsonify({'success': False, 'error': 'Customer not found'}), 404
 
     resp.pricing_data = {
-        'phase': data.get('phase', 'standard'),
-        'rows':  data.get('rows', []),
+        'phase':        data.get('phase', 'standard'),
+        'rows':         data.get('rows', []),
+        'support_pct':  data.get('support_pct', 20),
+        'margin_pct':   data.get('margin_pct', 20),
+        'services_amt': data.get('services_amt', 0),
     }
     db.session.commit()
     return jsonify({'success': True})
