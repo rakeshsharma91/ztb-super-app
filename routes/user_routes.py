@@ -560,6 +560,13 @@ def update_assessment(customer_slug):
     results_payload, keyword_answers = _run_mapping(responses)
     full_responses = _inject_hidden_defaults(dict(responses))
 
+    # Preserve keys written by other routes (TCO, technical notes, etc.)
+    _KEEP = {'tco_rows','tco_fte_count','tco_fte_cost','tco_breach_cost',
+             'tco_acv_override','technical_notes'}
+    existing = dict(user_resp.raw_responses or {})
+    for k in _KEEP:
+        if k in existing:
+            full_responses[k] = existing[k]
     user_resp.raw_responses = full_responses
     user_resp.answers       = keyword_answers
     user_resp.results       = results_payload
@@ -582,6 +589,13 @@ def update_single_answer(customer_slug):
     results_payload, keyword_answers = _run_mapping(responses)
     full_responses = _inject_hidden_defaults(dict(responses))
 
+    # Preserve keys written by other routes (TCO, technical notes, etc.)
+    _KEEP = {'tco_rows','tco_fte_count','tco_fte_cost','tco_breach_cost',
+             'tco_acv_override','technical_notes'}
+    existing = dict(user_resp.raw_responses or {})
+    for k in _KEEP:
+        if k in existing:
+            full_responses[k] = existing[k]
     user_resp.raw_responses = full_responses
     user_resp.answers       = keyword_answers
     user_resp.results       = results_payload

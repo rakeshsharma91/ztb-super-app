@@ -341,16 +341,16 @@ def export_pptx(customer_slug):
         if not v: return '$0'
         return '$' + f'{int(v):,}'
 
-    # TCO / ROI
-    raw_resp   = resp.raw_responses or {}
-    tco_data   = raw_resp.get('tco', {}) or {}
-    fte_count  = tco_data.get('fte_count',   0) or 0
-    fte_cost   = tco_data.get('fte_cost',    0) or 0
-    breach_cost= tco_data.get('breach_cost', 0) or 0
-    acv        = tco_data.get('acv_override') or annual_recurring
-    legacy_ann = 0
+    # TCO / ROI  (tco_routes.py saves flat keys into raw_responses)
+    raw_resp    = resp.raw_responses or {}
+    tco_rows    = raw_resp.get('tco_rows',       []) or []
+    fte_count   = raw_resp.get('tco_fte_count',   0) or 0
+    fte_cost    = raw_resp.get('tco_fte_cost',    0) or 0
+    breach_cost = raw_resp.get('tco_breach_cost', 0) or 0
+    acv         = raw_resp.get('tco_acv_override') or annual_recurring
+    legacy_ann  = 0
     from models import TCOEntry
-    for trow in (tco_data.get('rows') or []):
+    for trow in tco_rows:
         qty = trow.get('qty', 0) or 0
         for cat in ['fw_ns','sdwan','mpls','fw_ew','iot_ot','nac','l3sw','pam']:
             entry_id = trow.get(cat + '_id')
