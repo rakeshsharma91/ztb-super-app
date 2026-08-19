@@ -26,7 +26,6 @@ def _find_by_slug(customer_slug):
 
 @export_ppt_bp.route('/user/<customer_slug>/export-pptx', methods=['POST'])
 def export_pptx(customer_slug):
-    # ── all heavy imports are LOCAL — never break app startup ─────────────
     from pptx import Presentation
     from pptx.util import Inches, Pt, Emu
     from pptx.dml.color import RGBColor
@@ -55,7 +54,6 @@ def export_pptx(customer_slug):
 
     section_outcomes = evaluate_sections(user_resp.answers or {})
 
-    # ── colours ────────────────────────────────────────────────────────────
     NAVY   = RGBColor(0x00, 0x22, 0x44)
     NAVY2  = RGBColor(0x00, 0x33, 0x66)
     NAVY3  = RGBColor(0x0D, 0x2D, 0x52)
@@ -73,9 +71,8 @@ def export_pptx(customer_slug):
     prs = Presentation()
     prs.slide_width  = W
     prs.slide_height = H
-    BL = prs.slide_layouts[6]  # blank
+    BL = prs.slide_layouts[6]
 
-    # ── helpers ────────────────────────────────────────────────────────────
     def _bg(slide, color=None):
         fill = slide.background.fill
         fill.solid()
@@ -89,10 +86,10 @@ def export_pptx(customer_slug):
         p   = tf.paragraphs[0]
         p.alignment = align
         run = p.add_run()
-        run.text        = text
-        run.font.size   = Pt(sz)
-        run.font.bold   = bold
-        run.font.italic = italic
+        run.text           = text
+        run.font.size      = Pt(sz)
+        run.font.bold      = bold
+        run.font.italic    = italic
         run.font.color.rgb = color or WHITE
         return txb
 
@@ -117,10 +114,10 @@ def export_pptx(customer_slug):
         return f'${int(round(v)):,}'
 
     # ── pricing calculations ───────────────────────────────────────────────
-    skus       = PricingSKU.query.filter_by(active=True).all()
-    app_map    = {s.id: s for s in skus if s.category == 'appliance'}
-    sdwan_map  = {s.id: s for s in skus if s.category == 'sdwan'}
-    seg_map    = {s.id: s for s in skus if s.category == 'segmentation'}
+    skus      = PricingSKU.query.filter_by(active=True).all()
+    app_map   = {s.id: s for s in skus if s.category == 'appliance'}
+    sdwan_map = {s.id: s for s in skus if s.category == 'sdwan'}
+    seg_map   = {s.id: s for s in skus if s.category == 'segmentation'}
 
     def _sku_price(mapping, sid):
         if not sid:
@@ -132,12 +129,12 @@ def export_pptx(customer_slug):
         return float(getattr(s, phase, 0) or 0) if s else 0
 
     al_total  = 0
-    bom_lines = []   # (label, qty, app_p, sdw_p, seg_p, site_t, line_t)
+    bom_lines = []
     for row in pricing_rows:
-        qty   = int(row.get('qty', 0) or 0)
-        app_p = _sku_price(app_map,   row.get('appliance_id'))
-        sdw_p = _sku_price(sdwan_map, row.get('sdwan_id'))
-        seg_p = _sku_price(seg_map,   row.get('seg_id'))
+        qty    = int(row.get('qty', 0) or 0)
+        app_p  = _sku_price(app_map,   row.get('appliance_id'))
+        sdw_p  = _sku_price(sdwan_map, row.get('sdwan_id'))
+        seg_p  = _sku_price(seg_map,   row.get('seg_id'))
         site_t = app_p + sdw_p + seg_p
         line_t = qty * site_t
         al_total += line_t
@@ -145,10 +142,10 @@ def export_pptx(customer_slug):
             bom_lines.append((row.get('label', '—'), qty,
                               app_p, sdw_p, seg_p, site_t, line_t))
 
-    support_amt  = round(al_total * support_pct / 100)
-    margin_amt   = round(al_total * margin_pct  / 100)
-    annual_rec   = al_total + support_amt + margin_amt
-    yr1_total    = annual_rec + services_amt
+    support_amt = round(al_total * support_pct / 100)
+    margin_amt  = round(al_total * margin_pct  / 100)
+    annual_rec  = al_total + support_amt + margin_amt
+    yr1_total   = annual_rec + services_amt
 
     # ── TCO calculations ───────────────────────────────────────────────────
     tco_catalog = {e.id: float(e.annual_cost or 0)
@@ -178,14 +175,12 @@ def export_pptx(customer_slug):
     _bg(s1, NAVY)
     _rect(s1, Inches(0), Inches(0), Inches(0.2), H, ACCENT)
     _rect(s1, Inches(0.35), Inches(2.25), Inches(12.6), Emu(55000), ACCENT)
-
     _box(s1, 'ZTB OPPORTUNITY PACKAGE',
          Inches(0.5), Inches(0.55), Inches(11), Inches(0.6),
          sz=12, bold=True, color=ACCENT)
     _box(s1, user_resp.customer_name,
          Inches(0.5), Inches(1.05), Inches(12), Inches(1.1),
          sz=46, bold=True, color=WHITE)
-
     meta = []
     if user_resp.se_name:
         meta.append(f'Solutions Consultant: {user_resp.se_name}')
@@ -195,13 +190,12 @@ def export_pptx(customer_slug):
         _box(s1, '     '.join(meta),
              Inches(0.5), Inches(2.5), Inches(11), Inches(0.5),
              sz=14, color=MUTED)
-
     _box(s1, 'Zero Trust Branch  ·  Zscaler',
          Inches(0.5), Inches(6.75), Inches(7), Inches(0.45),
          sz=11, color=MUTED, italic=True)
 
     # ══════════════════════════════════════════════════════════════════════
-    # SLIDE 2 — Value Drivers
+    # SLIDE 2 — Value Drivers  (fully auto-scaling)
     # ══════════════════════════════════════════════════════════════════════
     s2 = prs.slides.add_slide(BL)
     _bg(s2, NAVY)
@@ -222,27 +216,81 @@ def export_pptx(customer_slug):
     else:
         col_x = [Inches(0.4),  Inches(2.75), Inches(7.8)]
         col_w = [Inches(2.2),  Inches(4.9),  Inches(4.9)]
-        hdrs  = ['DRIVER', 'CURRENT STATE', 'FUTURE STATE (ZTB)']
-        for i, h in enumerate(hdrs):
-            _rect(s2, col_x[i], Inches(1.2), col_w[i]-Inches(0.05), Inches(0.38), NAVY2)
-            _box(s2, h, col_x[i]+Inches(0.07), Inches(1.2),
-                 col_w[i], Inches(0.38), sz=9, bold=True, color=ACCENT)
 
-        row_h = Inches(0.72)
-        for ri, drv in enumerate(drivers[:7]):
-            y   = Inches(1.62) + ri * row_h
-            bg_ = NAVY3 if ri % 2 == 0 else NAVY2
+        # Column header row
+        hdrs = ['DRIVER', 'CURRENT STATE', 'FUTURE STATE (ZTB)']
+        HDR_Y  = Inches(1.2)
+        HDR_H  = Inches(0.38)
+        for i, h in enumerate(hdrs):
+            _rect(s2, col_x[i], HDR_Y, col_w[i]-Inches(0.05), HDR_H, NAVY2)
+            _box(s2, h, col_x[i]+Inches(0.07), HDR_Y,
+                 col_w[i], HDR_H, sz=9, bold=True, color=ACCENT)
+
+        TABLE_TOP    = Inches(1.62)
+        TABLE_BOTTOM = Inches(7.2)          # leave small bottom margin
+        AVAILABLE    = TABLE_BOTTOM - TABLE_TOP
+        n            = min(len(drivers), 7)
+
+        # --- estimate relative weights (line count) per row ---
+        LINES_PER_INCH = 8.5   # approximate for sz=8 with word wrap in 4.8" column
+        PAD_INCH       = 0.18  # top+bottom padding per row
+
+        def _est_lines(drv):
+            # count bullet lines; each line ~15 words in a 4.8" col at sz=8
+            def count(lines):
+                total = 0
+                for ln in lines:
+                    words = len((ln or '').split())
+                    total += max(1, -(-words // 10))   # ceiling div at sz=11
+                return total
+            return max(
+                count(drv.get('current_state_lines', [])),
+                count(drv.get('future_state_lines',  [])),
+                1
+            )
+
+        weights   = [_est_lines(d) for d in drivers[:n]]
+        total_w   = sum(weights)
+        # minimum row height = 0.55", scale up proportionally to fill slide
+        MIN_H     = Inches(0.7)
+        raw_heights = [max(MIN_H, (w / total_w) * float(AVAILABLE)) for w in weights]
+
+        # if total raw < available, distribute leftover evenly
+        leftover = float(AVAILABLE) - sum(raw_heights)
+        if leftover > 0:
+            bonus = leftover / n
+            raw_heights = [rh + bonus for rh in raw_heights]
+
+        y_cursor = TABLE_TOP
+        for ri, drv in enumerate(drivers[:n]):
+            rh   = int(raw_heights[ri])
+            bg_  = NAVY3 if ri % 2 == 0 else NAVY2
+            PAD  = Emu(int(Inches(0.06)))
+
+            # background rects
             for i in range(3):
-                _rect(s2, col_x[i], y, col_w[i]-Inches(0.05), row_h-Inches(0.04), bg_)
-            _box(s2, drv.get('label',''),
-                 col_x[0]+Inches(0.07), y+Inches(0.08),
-                 col_w[0], row_h, sz=10, bold=True, color=ACCENT)
+                _rect(s2, col_x[i], y_cursor,
+                      col_w[i]-Inches(0.05), rh - int(Inches(0.03)), bg_)
+
+            # DRIVER label — vertically centred in row
+            _box(s2, drv.get('label', ''),
+                 col_x[0]+Inches(0.1), y_cursor + PAD,
+                 col_w[0]-Inches(0.15), rh,
+                 sz=11, bold=True, color=ACCENT)
+
+            # Current State — textbox height = full row so word-wrap has room
             _box(s2, '\n'.join(drv.get('current_state_lines', [])),
-                 col_x[1]+Inches(0.07), y+Inches(0.06),
-                 col_w[1]-Inches(0.1), row_h, sz=9, color=WHITE)
+                 col_x[1]+Inches(0.08), y_cursor + PAD,
+                 col_w[1]-Inches(0.15), rh,
+                 sz=11, color=WHITE)
+
+            # Future State
             _box(s2, '\n'.join(drv.get('future_state_lines', [])),
-                 col_x[2]+Inches(0.07), y+Inches(0.06),
-                 col_w[2]-Inches(0.1), row_h, sz=9, color=GREEN)
+                 col_x[2]+Inches(0.08), y_cursor + PAD,
+                 col_w[2]-Inches(0.15), rh,
+                 sz=11, color=WHITE)
+
+            y_cursor += rh
 
     # ══════════════════════════════════════════════════════════════════════
     # SLIDE 3 — Pricing BOM + Grand Total
@@ -258,9 +306,8 @@ def export_pptx(customer_slug):
          sz=22, bold=True, color=WHITE)
     _rect(s3, Inches(0.4), Inches(1.12), Inches(12.7), Emu(40000), BLUE)
 
-    # BOM table
-    bom_cx = [Inches(0.4), Inches(2.15), Inches(2.75), Inches(3.85), Inches(4.85), Inches(5.9), Inches(7.05)]
-    bom_cw = [Inches(1.65), Inches(0.52), Inches(1.0),  Inches(0.9),  Inches(0.95), Inches(1.05), Inches(1.05)]
+    bom_cx  = [Inches(0.4), Inches(2.15), Inches(2.75), Inches(3.85), Inches(4.85), Inches(5.9),  Inches(7.05)]
+    bom_cw  = [Inches(1.65), Inches(0.52), Inches(1.0),  Inches(0.9),  Inches(0.95), Inches(1.05), Inches(1.05)]
     bom_hdr = ['Site Label','QTY','Appliance $','SD-WAN $','Seg $','Site Total','Line Total']
     for i, h in enumerate(bom_hdr):
         _rect(s3, bom_cx[i], Inches(1.2), bom_cw[i], Inches(0.38), NAVY2)
@@ -278,20 +325,18 @@ def export_pptx(customer_slug):
                  bom_cw[i], row_h, sz=9,
                  color=ACCENT if i == 0 else WHITE)
 
-    # Grand total panel (right side)
     px, py, pw, ph = Inches(8.45), Inches(1.2), Inches(4.6), Inches(5.85)
     _rect(s3, px, py, pw, ph, NAVY3)
     _rect(s3, px, py, Inches(0.07), ph, BLUE)
-
     _box(s3, 'DEAL SUMMARY', px+Inches(0.18), py+Inches(0.15),
          pw, Inches(0.38), sz=9, bold=True, color=MUTED)
 
     gt_rows = [
-        ('Appliances & Licenses',          _fmt(al_total),    WHITE),
-        (f'Support ({support_pct:.0f}%)',   _fmt(support_amt), MUTED),
-        (f'Partner Margin ({margin_pct:.0f}%)', _fmt(margin_amt), MUTED),
-        ('Annual Recurring',               _fmt(annual_rec),  ACCENT),
-        ('Services (Yr 1)',                _fmt(services_amt), AMBER),
+        ('Appliances & Licenses',              _fmt(al_total),    WHITE),
+        (f'Support ({support_pct:.0f}%)',       _fmt(support_amt), MUTED),
+        (f'Partner Margin ({margin_pct:.0f}%)', _fmt(margin_amt),  MUTED),
+        ('Annual Recurring',                    _fmt(annual_rec),  ACCENT),
+        ('Services (Yr 1)',                     _fmt(services_amt), AMBER),
     ]
     yo = py + Inches(0.58)
     for label, val, col in gt_rows:
@@ -325,7 +370,6 @@ def export_pptx(customer_slug):
          sz=22, bold=True, color=WHITE)
     _rect(s4, Inches(0.4), Inches(1.12), Inches(12.7), Emu(40000), GREEN)
 
-    # 4 KPI cards
     kpis = [
         ('Legacy Annual Spend', _fmt(legacy_total), RED,   'HW + FTE + Breach Risk'),
         ('Annual Savings',      _fmt(annual_sav),   GREEN, 'Legacy − Zscaler ACV'),
@@ -346,7 +390,6 @@ def export_pptx(customer_slug):
             _box(s4, sub, kx+Inches(0.15), Inches(2.3), kw, Inches(0.3),
                  sz=8, color=MUTED, italic=True)
 
-    # bar chart
     fig, ax = plt.subplots(figsize=(12.5, 3.5), facecolor='#002244')
     ax.set_facecolor('#002244')
     x_pos = [0, 1, 2]
@@ -381,7 +424,6 @@ def export_pptx(customer_slug):
     _bg(s5, NAVY)
     _rect(s5, Inches(0), Inches(0), Inches(0.2), H, ACCENT)
     _rect(s5, Inches(0.35), Inches(3.85), Inches(12.6), Emu(55000), ACCENT)
-
     _box(s5, 'Thank You',
          Inches(0.5), Inches(1.3), Inches(12), Inches(1.2),
          sz=54, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
@@ -391,12 +433,10 @@ def export_pptx(customer_slug):
     _box(s5, 'Zscaler Zero Trust Branch',
          Inches(0.5), Inches(4.15), Inches(12), Inches(0.55),
          sz=16, color=MUTED, align=PP_ALIGN.CENTER, italic=True)
-
     if user_resp.se_name:
         _box(s5, user_resp.se_name,
              Inches(0.5), Inches(4.85), Inches(12), Inches(0.45),
              sz=13, color=MUTED, align=PP_ALIGN.CENTER)
-
     _box(s5, '© 2025 Zscaler, Inc. — Internal Sales Engineering Tool',
          Inches(0.5), Inches(6.8), Inches(12), Inches(0.35),
          sz=9, color=RGBColor(0x40, 0x60, 0x80),
@@ -406,7 +446,7 @@ def export_pptx(customer_slug):
     out = io.BytesIO()
     prs.save(out)
     out.seek(0)
-    safe = (user_resp.customer_name or 'Customer').replace(' ', '_').replace('/', '_')
+    safe  = (user_resp.customer_name or 'Customer').replace(' ', '_').replace('/', '_')
     fname = f"ZTB_{safe}_{datetime.utcnow().strftime('%Y%m%d')}.pptx"
     return send_file(
         out,
