@@ -798,6 +798,41 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
 <div class="tab-panel" id="tab-pricing">
   <div class="pricing-body">
     <div class="pricing-save-ind" id="pricing-save-ind"></div>
+
+    <!-- Pricing sub-tabs -->
+    <div style="display:flex;gap:0;margin-bottom:1.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:10px;overflow:hidden;width:fit-content;">
+      <button id="ptab-btn-config" onclick="switchPricingTab('config')"
+        style="padding:0.55rem 1.4rem;font-size:0.82rem;font-weight:700;cursor:pointer;border:none;background:var(--accent);color:var(--navy-dark);letter-spacing:0.04em;transition:background 0.2s,color 0.2s;">
+        ⚙️ Configuration
+      </button>
+      <button id="ptab-btn-exec" onclick="switchPricingTab('exec')"
+        style="padding:0.55rem 1.4rem;font-size:0.82rem;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--text-muted);letter-spacing:0.04em;transition:background 0.2s,color 0.2s;">
+        📋 Executive Summary
+      </button>
+    </div>
+
+    <!-- ── EXEC SUMMARY PANEL ── -->
+    <div id="ptab-exec" style="display:none;">
+      <div style="background:linear-gradient(145deg,#0d2d52,#0a2244);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:1.5rem;">
+        <div style="padding:10px 16px;background:rgba(0,51,102,0.8);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.5rem;">
+          <span style="flex:1;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--accent);">Site Label</span>
+          <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--accent);min-width:140px;text-align:right;">Cost per Site</span>
+          <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--accent);min-width:140px;text-align:right;">Line Total</span>
+        </div>
+        <div id="exec-site-rows" style="display:flex;flex-direction:column;"></div>
+        <div style="padding:14px 16px;border-top:1px solid rgba(0,170,255,0.2);background:rgba(0,170,255,0.06);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:0.9rem;font-weight:700;color:var(--white);">Grand Total</span>
+          <span style="font-size:1.4rem;font-weight:800;color:var(--accent);" id="exec-grand-total">—</span>
+        </div>
+      </div>
+      <div style="background:linear-gradient(145deg,#0d2d52,#0a2244);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;">
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:0.85rem;">Licenses Included</div>
+        <div id="exec-licenses" style="display:flex;gap:0.75rem;flex-wrap:wrap;"></div>
+      </div>
+    </div>
+
+    <!-- ── CONFIGURATION PANEL ── -->
+    <div id="ptab-config">
     <div class="section-heading"><h2>💰 Pricing Phase</h2></div>
     <div class="phase-toggle" id="phase-toggle">
       <button class="phase-btn budgetary" onclick="setPhase('budgetary')">Budgetary</button>
@@ -914,6 +949,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
         </table>
       </div>
     </div>
+    </div><!-- /ptab-config -->
   </div>
 </div>
 
@@ -2152,6 +2188,74 @@ async function exportPPTX(btn) {
   } finally {
     btn.innerHTML = orig;
     btn.disabled  = false;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PRICING SUB-TABS
+// ══════════════════════════════════════════════════════════════════════════════
+function switchPricingTab(tab) {
+  document.getElementById('ptab-config').style.display = tab === 'config' ? '' : 'none';
+  document.getElementById('ptab-exec').style.display   = tab === 'exec'   ? '' : 'none';
+  const cfgBtn = document.getElementById('ptab-btn-config');
+  const exBtn  = document.getElementById('ptab-btn-exec');
+  cfgBtn.style.background = tab === 'config' ? 'var(--accent)' : 'transparent';
+  cfgBtn.style.color      = tab === 'config' ? 'var(--navy-dark)' : 'var(--text-muted)';
+  exBtn.style.background  = tab === 'exec'   ? 'var(--accent)' : 'transparent';
+  exBtn.style.color       = tab === 'exec'   ? 'var(--navy-dark)' : 'var(--text-muted)';
+  if (tab === 'exec') renderPricingExecSummary();
+}
+
+function renderPricingExecSummary() {
+  const rowsEl  = document.getElementById('exec-site-rows');
+  const licEl   = document.getElementById('exec-licenses');
+  const totalEl = document.getElementById('exec-grand-total');
+  if (!rowsEl) return;
+  rowsEl.innerHTML = ''; licEl.innerHTML = '';
+
+  let grandTotal = 0;
+  let hasSDWAN = false, hasSeg = false;
+
+  _pricingRows.forEach((row, i) => {
+    if (!row.qty) return;
+    const appPrice    = skuPrice(_appliances,  row.appliance_id, _pricingPhase);
+    const sdwanPrice  = skuPrice(_sdwan,        row.sdwan_id,    _pricingPhase);
+    const segPrice    = skuPrice(_segmentation, row.seg_id,      _pricingPhase);
+    const costPerSite = appPrice + sdwanPrice + segPrice;
+    const lineTotal   = row.qty * costPerSite;
+    grandTotal += lineTotal;
+    if (row.sdwan_id) hasSDWAN = true;
+    if (row.seg_id)   hasSeg   = true;
+
+    const bg = i % 2 === 0 ? 'rgba(0,0,0,0.15)' : 'rgba(0,170,255,0.03)';
+    const div = document.createElement('div');
+    div.style.cssText = `display:flex;align-items:center;padding:13px 16px;background:${bg};border-bottom:1px solid rgba(0,170,255,0.06);`;
+    div.innerHTML =
+      `<span style="flex:1;font-size:0.95rem;font-weight:700;color:var(--accent);">${escHtml(row.label || '—')}</span>` +
+      `<span style="min-width:140px;text-align:right;font-size:0.9rem;color:var(--white);">${fmtMoney(costPerSite)}</span>` +
+      `<span style="min-width:140px;text-align:right;font-size:0.9rem;font-weight:700;color:var(--white);">${fmtMoney(lineTotal)}</span>`;
+    rowsEl.appendChild(div);
+  });
+
+  totalEl.textContent = grandTotal
+    ? ('$' + grandTotal.toLocaleString('en-US', {maximumFractionDigits:0}))
+    : '—';
+
+  const licTypes = [];
+  if (hasSDWAN) licTypes.push('🌐 SD-WAN Licenses');
+  if (hasSeg)   licTypes.push('🔒 Segmentation Licenses');
+  if (!licTypes.length) {
+    const none = document.createElement('span');
+    none.style.cssText = 'font-size:0.85rem;color:var(--text-muted);font-style:italic;';
+    none.textContent = 'Appliance only — no software licenses';
+    licEl.appendChild(none);
+  } else {
+    licTypes.forEach(lt => {
+      const pill = document.createElement('span');
+      pill.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:7px 18px;background:rgba(0,170,255,0.1);border:1px solid rgba(0,170,255,0.3);border-radius:20px;font-size:0.88rem;font-weight:600;color:var(--white);';
+      pill.textContent = lt;
+      licEl.appendChild(pill);
+    });
   }
 }
 
