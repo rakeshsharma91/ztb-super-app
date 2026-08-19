@@ -319,70 +319,58 @@ def export_pptx(customer_slug):
          sz=22, bold=True, color=WHITE)
     _rect(s3, Inches(0.4), Inches(1.12), Inches(12.7), Emu(40000), BLUE)
 
-    # support + margin baked into per-site cost
-    _sm_mult = 1 + (support_pct / 100) + (margin_pct / 100)
+    # ── LEFT: site table (0.4" to 8.5") ──────────────────────────────────
+    LT_X = [Inches(0.4),  Inches(4.6),  Inches(6.7)]
+    LT_W = [Inches(4.0),  Inches(1.95), Inches(1.95)]
 
-    # column layout: Site Label | Cost per Site | Line Total
-    COL_X = [Inches(0.4),  Inches(6.4),   Inches(9.6)]
-    COL_W = [Inches(5.8),  Inches(3.0),   Inches(3.53)]
-
-    # header row
-    HDR_Y = Inches(1.2)
-    HDR_H = Inches(0.45)
-    hdr_labels = ['SITE LABEL', 'COST PER SITE', 'LINE TOTAL']
-    for i, h in enumerate(hdr_labels):
-        _rect(s3, COL_X[i], HDR_Y, COL_W[i] - Inches(0.06), HDR_H, NAVY2)
+    HDR_Y = Inches(1.22)
+    HDR_H = Inches(0.42)
+    for i, h in enumerate(['SITE LABEL', 'COST / SITE', 'LINE TOTAL']):
+        _rect(s3, LT_X[i], HDR_Y, LT_W[i] - Inches(0.05), HDR_H, NAVY2)
         align = PP_ALIGN.RIGHT if i > 0 else PP_ALIGN.LEFT
-        _box(s3, h, COL_X[i] + Inches(0.18), HDR_Y + Inches(0.05),
-             COL_W[i] - Inches(0.25), HDR_H, sz=10, bold=True, color=ACCENT, align=align)
+        _box(s3, h, LT_X[i] + Inches(0.12), HDR_Y + Inches(0.04),
+             LT_W[i] - Inches(0.15), HDR_H,
+             sz=9, bold=True, color=ACCENT, align=align)
 
-    # build rows with multiplied costs
     active = [
         (lbl, round(site_t * _sm_mult), round(qty * site_t * _sm_mult))
         for lbl, qty, app_p, sdw_p, seg_p, site_t, line_t in bom_lines
     ]
 
-    # fixed row height — no auto-scaling, no gaps
-    TABLE_TOP = Inches(1.65)
-    ROW_H     = int(Inches(0.62))
-
-    y_cur = TABLE_TOP
+    ROW_H = int(Inches(0.58))
+    y_cur = Inches(1.67)
     for ri, (lbl, cost_per_site, line_total) in enumerate(active):
         bg_ = NAVY3 if ri % 2 == 0 else NAVY2
-        PAD = int(Inches(0.1))
+        PAD = int(Inches(0.09))
         for i in range(3):
-            _rect(s3, COL_X[i], y_cur,
-                  COL_W[i] - Inches(0.06), ROW_H - int(Inches(0.03)), bg_)
+            _rect(s3, LT_X[i], y_cur, LT_W[i] - Inches(0.05), ROW_H - int(Inches(0.03)), bg_)
         _box(s3, lbl,
-             COL_X[0]+Inches(0.18), y_cur+PAD,
-             COL_W[0]-Inches(0.25), ROW_H,
-             sz=16, bold=True, color=ACCENT)
+             LT_X[0]+Inches(0.12), y_cur+PAD, LT_W[0]-Inches(0.18), ROW_H,
+             sz=14, bold=True, color=ACCENT)
         _box(s3, _fmt_exact(cost_per_site),
-             COL_X[1]+Inches(0.06), y_cur+PAD,
-             COL_W[1]-Inches(0.18), ROW_H,
-             sz=16, color=WHITE, align=PP_ALIGN.RIGHT)
+             LT_X[1]+Inches(0.04), y_cur+PAD, LT_W[1]-Inches(0.1), ROW_H,
+             sz=14, color=WHITE, align=PP_ALIGN.RIGHT)
         _box(s3, _fmt_exact(line_total),
-             COL_X[2]+Inches(0.06), y_cur+PAD,
-             COL_W[2]-Inches(0.18), ROW_H,
-             sz=16, bold=True, color=WHITE, align=PP_ALIGN.RIGHT)
+             LT_X[2]+Inches(0.04), y_cur+PAD, LT_W[2]-Inches(0.1), ROW_H,
+             sz=14, bold=True, color=WHITE, align=PP_ALIGN.RIGHT)
         y_cur += ROW_H
 
-    # grand total anchored directly below last row — no fixed Y
-    GT_Y = y_cur + int(Inches(0.15))
-    _rect(s3, Inches(0.4), GT_Y, Inches(12.53), Inches(0.72), NAVY2)
-    _rect(s3, Inches(0.4), GT_Y, Inches(0.08),  Inches(0.72), BLUE)
+    # grand total bar — flush below last row
+    GT_Y = y_cur + int(Inches(0.1))
+    _rect(s3, Inches(0.4), GT_Y, Inches(8.7), Inches(0.65), NAVY2)
+    _rect(s3, Inches(0.4), GT_Y, Inches(0.07), Inches(0.65), BLUE)
     _box(s3, 'GRAND TOTAL',
-         Inches(0.6), GT_Y + Inches(0.12), Inches(6.0), Inches(0.5),
-         sz=16, bold=True, color=WHITE)
+         Inches(0.55), GT_Y + Inches(0.1), Inches(4.0), Inches(0.45),
+         sz=14, bold=True, color=WHITE)
     _box(s3, _fmt_exact(annual_rec),
-         Inches(6.5), GT_Y + Inches(0.08), Inches(6.2), Inches(0.56),
-         sz=24, bold=True, color=ACCENT, align=PP_ALIGN.RIGHT)
+         Inches(4.6), GT_Y + Inches(0.06), Inches(4.4), Inches(0.52),
+         sz=20, bold=True, color=ACCENT, align=PP_ALIGN.RIGHT)
 
-    # licenses anchored below grand total
-    LIC_Y = GT_Y + Inches(0.9)
+    # licenses — below grand total
+    LIC_Y = GT_Y + Inches(0.82)
     _box(s3, 'LICENSES INCLUDED',
-         Inches(0.4), LIC_Y - Inches(0.32), Inches(12), Inches(0.32),
-         sz=10, bold=True, color=MUTED)
+         Inches(0.4), LIC_Y - Inches(0.3), Inches(8), Inches(0.28),
+         sz=9, bold=True, color=MUTED)
 
     has_sdwan = any(row.get('sdwan_id') for row in pricing_rows)
     has_seg   = any(row.get('seg_id')   for row in pricing_rows)
@@ -391,21 +379,59 @@ def export_pptx(customer_slug):
     if has_seg:   lic_labels.append('Segmentation Licenses')
     if not lic_labels: lic_labels = ['Appliance only — no software licenses']
 
-    # pills evenly spread across full width
-    n_pills  = len(lic_labels)
-    pill_w   = Inches(12.53 / n_pills - 0.15)
-    pill_x   = Inches(0.4)
+    pill_w = Inches(8.55 / len(lic_labels) - 0.12)
+    pill_x = Inches(0.4)
     for lic in lic_labels:
-        _rect(s3, pill_x, LIC_Y, pill_w, Inches(0.55), NAVY2)
-        _rect(s3, pill_x, LIC_Y, Inches(0.07), Inches(0.55), BLUE)
-        _box(s3, lic, pill_x + Inches(0.2), LIC_Y + Inches(0.1),
-             pill_w - Inches(0.28), Inches(0.42), sz=13, bold=True, color=WHITE)
-        pill_x += pill_w + Inches(0.15)
+        _rect(s3, pill_x, LIC_Y, pill_w, Inches(0.52), NAVY2)
+        _rect(s3, pill_x, LIC_Y, Inches(0.06), Inches(0.52), BLUE)
+        _box(s3, lic, pill_x+Inches(0.16), LIC_Y+Inches(0.09),
+             pill_w-Inches(0.22), Inches(0.38), sz=12, bold=True, color=WHITE)
+        pill_x += pill_w + Inches(0.12)
 
-    # footer — anchored below pills
-    _box(s3, f'Phase: {phase.upper()}  ·  Annual Recurring: {_fmt(annual_rec)}',
-         Inches(0.4), LIC_Y + Inches(0.65), Inches(12.5), Inches(0.3),
-         sz=9, color=MUTED, italic=True, align=PP_ALIGN.RIGHT)
+    # ── RIGHT: deal summary panel (9.0" to 13.1") ────────────────────────
+    PX = Inches(9.05)
+    PY = Inches(1.22)
+    PW = Inches(4.1)
+    PH = Inches(6.0)
+    _rect(s3, PX, PY, PW, PH, NAVY3)
+    _rect(s3, PX, PY, Inches(0.07), PH, BLUE)
+
+    _box(s3, 'DEAL SUMMARY',
+         PX+Inches(0.18), PY+Inches(0.18), PW, Inches(0.35),
+         sz=9, bold=True, color=MUTED)
+
+    deal_rows = [
+        ('Appliances & Licenses', _fmt_exact(al_total),    WHITE),
+        (f'Support ({support_pct:.0f}%)',       _fmt_exact(support_amt), MUTED),
+        (f'Partner Margin ({margin_pct:.0f}%)', _fmt_exact(margin_amt),  MUTED),
+        ('Annual Recurring',      _fmt_exact(annual_rec),  ACCENT),
+        ('Services (Yr 1)',       _fmt_exact(services_amt), AMBER),
+    ]
+    dy = PY + Inches(0.62)
+    for label, val, col in deal_rows:
+        _box(s3, label,
+             PX+Inches(0.18), dy, Inches(2.3), Inches(0.38),
+             sz=10, color=MUTED)
+        _box(s3, val,
+             PX+Inches(2.5), dy, Inches(1.42), Inches(0.38),
+             sz=10, bold=True, color=col, align=PP_ALIGN.RIGHT)
+        dy += Inches(0.48)
+
+    # divider
+    _rect(s3, PX+Inches(0.15), dy+Inches(0.05), PW-Inches(0.3), Emu(35000), BLUE)
+    dy += Inches(0.25)
+
+    _box(s3, 'YEAR 1 TOTAL',
+         PX+Inches(0.18), dy, PW, Inches(0.38),
+         sz=10, bold=True, color=WHITE)
+    dy += Inches(0.44)
+    _box(s3, _fmt_exact(yr1_total),
+         PX+Inches(0.1), dy, PW-Inches(0.2), Inches(0.75),
+         sz=30, bold=True, color=ACCENT, align=PP_ALIGN.RIGHT)
+    dy += Inches(0.82)
+    _box(s3, f'Phase: {phase.upper()}',
+         PX+Inches(0.18), dy, PW, Inches(0.32),
+         sz=9, color=MUTED, italic=True)
 
     # ══════════════════════════════════════════════════════════════════════
     # SLIDE 4 — TCO KPIs + Bar Chart
