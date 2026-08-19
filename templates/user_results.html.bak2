@@ -38,11 +38,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
 .hero-kpi-value { font-size: 1.5rem; font-weight: 800; line-height: 1; }
 .hero-kpi-sub { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.3rem; }
 @media (max-width: 700px) { .hero-kpis { display: none; } }
-
-.hero-pptx-btn { display: inline-flex; align-items: center; gap: 7px; padding: 0.62rem 1.2rem; background: linear-gradient(135deg, #7c3aed, #a855f7); border: none; border-radius: 10px; color: #fff; font-size: 0.82rem; font-weight: 700; cursor: pointer; text-decoration: none; box-shadow: 0 4px 16px rgba(124,58,237,0.4); transition: opacity 0.2s, transform 0.15s; white-space: nowrap; }
-.hero-pptx-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-.hero-pptx-btn:active { transform: scale(0.97); }
-
 .page-tabs { display: flex; gap: 0; padding: 0 2rem; background: rgba(0,22,44,0.7); border-bottom: 1px solid var(--border); overflow-x: auto; }
 .page-tab { padding: 0.85rem 1.4rem; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.2s, border-color 0.2s; user-select: none; }
 .page-tab:hover { color: var(--white); }
@@ -491,9 +486,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
         {% endif %}
       </div>
     </div>
-      <a class="hero-pptx-btn" id="hero-pptx-btn" href="/user/{{ customer_slug }}/export-pptx" title="Generate Executive Summary PowerPoint">
-        📊 Executive Summary
-      </a>
     <div class="hero-kpis">
       <div class="hero-kpi">
         <div class="hero-kpi-label">💰 Grand Total</div>
