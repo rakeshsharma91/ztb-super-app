@@ -4,7 +4,57 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>{% if not not_found %}{{ user_resp.customer_name }} — ZTB Assessment Results{% else %}Not Found — ZTB Super App{% endif %}</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+// ═══════════════════════════════════════════════
+// PPTX EXPORT
+// ═══════════════════════════════════════════════
+async function exportPPTX(btn) {
+  const orig = btn.innerHTML;
+  btn.innerHTML = '&#9203; Building…';
+  btn.disabled  = true;
+
+  const payload = {
+    pricing_rows: _pricingRows  || [],
+    phase:        _pricingPhase || 'standard',
+    support_pct:  _supportPct   || 0,
+    margin_pct:   _marginPct    || 0,
+    services_amt: _servicesAmt  || 0,
+    tco_rows:     _tcoRows      || [],
+    fte_count:    _tcoHeroFTECount  || 0,
+    fte_cost:     _tcoHeroFTECost   || 0,
+    breach_cost:  _tcoHeroBreachCost|| 0,
+    acv:          _tcoACV       || 0,
+  };
+
+  try {
+    const res = await fetch('/user/' + CUSTOMER_SLUG + '/export-pptx', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || ('HTTP ' + res.status));
+    }
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'ZTB_Exec_Summary.pptx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('✓ PowerPoint downloaded');
+  } catch (err) {
+    showToast('Export failed: ' + err.message, true);
+  } finally {
+    btn.innerHTML = orig;
+    btn.disabled  = false;
+  }
+}
+
+</script>
 <style>
 :root {
   --navy-dark: #002244; --navy: #003366; --blue: #0070c0; --accent: #00aaff;
@@ -498,6 +548,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
         <div class="hero-kpi-sub">vs Legacy TCO</div>
       </div>
     </div>
+    <button onclick="exportPPTX(this)"
+      style="display:inline-flex;align-items:center;gap:8px;padding:0.65rem 1.5rem;
+             background:linear-gradient(135deg,#003366,#0070c0);
+             border:1px solid rgba(0,170,255,0.4);border-radius:10px;
+             color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer;
+             white-space:nowrap;transition:opacity 0.2s,transform 0.15s;
+             box-shadow:0 4px 16px rgba(0,112,192,0.35);"
+      onmouseover="this.style.opacity='0.88'"
+      onmouseout="this.style.opacity='1'">
+      &#128202; Export Exec Summary
+    </button>
   </div>
 </div>
 
