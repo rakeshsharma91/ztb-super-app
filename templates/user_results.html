@@ -428,6 +428,115 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
 /* Empty state inside editor */
 .sp-empty-msg { text-align: center; padding: 36px 16px; color: var(--text-muted); font-size: 14px; }
 .sp-empty-icon { font-size: 32px; margin-bottom: 10px; }
+
+/* ══════════════════════════════════════════════════════════════════
+   PRE-POV CHECKLIST
+   ══════════════════════════════════════════════════════════════════ */
+.prepov-section { margin-bottom: 2rem; }
+.prepov-progress-wrap { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.prepov-progress-bar-outer { flex: 1; min-width: 180px; height: 8px; background: rgba(0,170,255,0.12); border-radius: 20px; overflow: hidden; }
+.prepov-progress-bar-inner { height: 100%; border-radius: 20px; background: linear-gradient(90deg, #0070c0, #00aaff); transition: width 0.4s ease; }
+.prepov-progress-label { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
+.prepov-ready-banner { background: linear-gradient(135deg, #052e14, #073d1c); border: 1px solid rgba(0,220,130,0.35); border-left: 4px solid #00dc82; border-radius: 12px; padding: 1rem 1.4rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.85rem; font-size: 0.9rem; font-weight: 700; color: #00dc82; }
+.prepov-ready-banner.hidden { display: none !important; }
+.prepov-checklist-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem; }
+.prepov-checklist-header { padding: 10px 16px; background: rgba(0,51,102,0.8); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.5rem; }
+.prepov-checklist-header span { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent); }
+.prepov-checklist-item { display: flex; align-items: flex-start; gap: 1rem; padding: 14px 16px; border-bottom: 1px solid rgba(0,170,255,0.08); transition: background 0.15s; }
+.prepov-checklist-item:last-child { border-bottom: none; }
+.prepov-checklist-item:hover { background: rgba(0,170,255,0.04); }
+.prepov-checkbox-wrap { flex-shrink: 0; margin-top: 2px; }
+.prepov-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: #00aaff; }
+.prepov-item-body { flex: 1; min-width: 0; }
+.prepov-item-title { font-size: 0.9rem; font-weight: 700; color: var(--white); margin-bottom: 3px; transition: color 0.2s; }
+.prepov-item-title.checked { color: var(--text-muted); text-decoration: line-through; }
+.prepov-item-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.55; }
+.prepov-item-notes { width: 100%; margin-top: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(0,170,255,0.18); border-radius: 7px; color: var(--white); font-size: 0.8rem; font-family: inherit; padding: 7px 10px; outline: none; resize: none; min-height: 52px; transition: border-color 0.2s; }
+.prepov-item-notes:focus { border-color: var(--accent); }
+.prepov-item-notes::placeholder { color: rgba(160,188,216,0.3); }
+.prepov-stakeholders-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem; }
+.prepov-stk-header { padding: 10px 16px; background: rgba(0,51,102,0.8); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.5rem; }
+.prepov-stk-header span { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent); }
+.prepov-stk-tbl { width: 100%; border-collapse: collapse; }
+.prepov-stk-tbl th { padding: 9px 14px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); text-align: left; background: rgba(0,30,70,0.5); border-bottom: 1px solid var(--border); }
+.prepov-stk-tbl td { padding: 10px 14px; border-bottom: 1px solid rgba(0,170,255,0.07); vertical-align: middle; }
+.prepov-stk-tbl tr:last-child td { border-bottom: none; }
+.prepov-stk-tbl tr:hover td { background: rgba(0,170,255,0.04); }
+.prepov-stk-divider td { background: rgba(0,170,255,0.07) !important; padding: 3px 14px !important; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); border-bottom: 1px solid rgba(0,170,255,0.15) !important; }
+.prepov-stk-role { font-size: 0.85rem; font-weight: 700; color: var(--white); white-space: nowrap; }
+.prepov-stk-input { background: transparent; border: 1px solid rgba(0,170,255,0.18); border-radius: 6px; color: var(--white); font-size: 0.82rem; font-family: inherit; padding: 5px 9px; width: 100%; outline: none; transition: border-color 0.2s; }
+.prepov-stk-input:focus { border-color: var(--accent); }
+.prepov-stk-input::placeholder { color: rgba(160,188,216,0.25); }
+.prepov-save-ind { font-size: 0.72rem; text-align: right; min-height: 16px; color: var(--text-muted); margin-bottom: 0.5rem; }
+.prepov-save-ind.saving { color: var(--accent); }
+.prepov-save-ind.saved  { color: #00dc82; }
+
+/* ══════════════════════════════════════════════════════════════════
+   POV TIMELINE
+   ══════════════════════════════════════════════════════════════════ */
+.pov-timeline-wrap { margin-bottom: 2rem; }
+.pov-timeline-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem; }
+.pov-tl-save-ind { font-size: 0.72rem; color: var(--text-muted); min-height: 16px; }
+.pov-tl-save-ind.saving { color: var(--accent); }
+.pov-tl-save-ind.saved  { color: #00dc82; }
+.pov-tl-add-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.5rem 1.1rem; background: transparent; border: 1px dashed rgba(0,170,255,0.4); border-radius: 8px; color: var(--accent); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+.pov-tl-add-btn:hover { background: rgba(0,170,255,0.08); }
+
+/* Scrollable outer container */
+.pov-tl-scroll { overflow-x: auto; padding-bottom: 0.5rem; }
+.pov-tl-stage { min-width: 860px; padding: 0 1rem; position: relative; user-select: none; }
+
+/* Top milestone slots */
+.pov-tl-top-row { display: flex; align-items: flex-end; min-height: 120px; padding: 0; position: relative; }
+/* Bottom milestone slots */
+.pov-tl-bot-row { display: flex; align-items: flex-start; min-height: 120px; padding: 0; position: relative; }
+
+/* The arrow bar */
+.pov-tl-bar-row { display: flex; align-items: center; height: 44px; position: relative; }
+.pov-tl-bar { flex: 1; height: 44px; background: linear-gradient(90deg, #0070c0 0%, #00aaff 60%, #00c8ff 85%, #00d9ff 100%);
+  border-radius: 8px 0 0 8px; position: relative; display: flex; align-items: center; }
+.pov-tl-bar-arrow { width: 0; height: 0; border-top: 22px solid transparent; border-bottom: 22px solid transparent;
+  border-left: 28px solid #00d9ff; flex-shrink: 0; }
+/* Dot markers on bar */
+.pov-tl-dot-row { position: absolute; top: 0; left: 0; right: 28px; height: 44px;
+  display: flex; align-items: center; pointer-events: none; }
+
+/* Each milestone column — evenly spaced */
+.pov-tl-col { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+
+/* Stem lines */
+.pov-tl-stem-top { width: 2px; background: rgba(0,170,255,0.45); flex-shrink: 0; min-height: 24px; }
+.pov-tl-stem-bot { width: 2px; background: rgba(0,170,255,0.45); flex-shrink: 0; min-height: 24px; }
+
+/* Milestone card */
+.pov-tl-card { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid rgba(0,170,255,0.3);
+  border-radius: 10px; padding: 8px 10px; text-align: center; width: 100%; max-width: 130px; cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s; }
+.pov-tl-card:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(0,170,255,0.15); }
+.pov-tl-card.editing { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(0,170,255,0.2); }
+.pov-tl-date { font-size: 0.72rem; font-weight: 800; color: var(--accent); margin-bottom: 3px; white-space: nowrap; }
+.pov-tl-label { font-size: 0.68rem; color: rgba(160,188,216,0.9); line-height: 1.4; }
+
+/* Dot on bar */
+.pov-tl-dot { width: 10px; height: 10px; border-radius: 50%; background: #fff;
+  border: 2px solid rgba(0,120,200,0.6); box-shadow: 0 0 6px rgba(255,255,255,0.5); }
+
+/* Target / end box */
+.pov-tl-target-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; margin-left: 1.5rem; flex-shrink: 0; }
+.pov-tl-target-box { border: 2px solid #e040fb; border-radius: 8px; padding: 7px 14px; text-align: center; min-width: 120px; cursor: pointer; transition: box-shadow 0.2s; }
+.pov-tl-target-box:hover { box-shadow: 0 0 12px rgba(224,64,251,0.3); }
+.pov-tl-target-date { font-size: 0.8rem; font-weight: 800; color: #fff; }
+.pov-tl-target-label { font-size: 0.7rem; color: rgba(255,255,255,0.75); margin-top: 2px; }
+
+/* Inline edit inputs inside card */
+.pov-tl-input { background: rgba(0,0,0,0.3); border: 1px solid rgba(0,170,255,0.4);
+  border-radius: 5px; color: #fff; font-size: 0.72rem; font-family: inherit; padding: 3px 6px;
+  width: 100%; outline: none; text-align: center; margin-bottom: 4px; }
+.pov-tl-input:focus { border-color: var(--accent); }
+.pov-tl-card-del { background: transparent; border: none; color: rgba(248,113,113,0.6);
+  font-size: 0.75rem; cursor: pointer; padding: 0; margin-top: 4px; display: block; width: 100%;
+  text-align: center; transition: color 0.15s; }
+.pov-tl-card-del:hover { color: #f87171; }
 </style>
 </head>
 <body>
@@ -721,6 +830,45 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
 <!-- ══════════════════════ POV & DEPLOYMENT TAB ══════════════════════ -->
 <div class="tab-panel" id="tab-pov">
   <div class="pov-body">
+    <!-- PRE-POV CHECKLIST SECTION -->
+    <div class="prepov-section">
+      <div class="section-heading">
+        <h2>Pre-POV Checklist</h2>
+        <span class="section-badge" id="prepov-badge">0 / 8</span>
+      </div>
+      <div class="prepov-save-ind" id="prepov-save-ind"></div>
+      <div class="prepov-progress-wrap">
+        <div class="prepov-progress-bar-outer">
+          <div class="prepov-progress-bar-inner" id="prepov-progress-bar" style="width:0%;"></div>
+        </div>
+        <span class="prepov-progress-label" id="prepov-progress-label">0 of 8 complete</span>
+      </div>
+      <div class="prepov-ready-banner hidden" id="prepov-ready-banner">
+        🎉 All items complete — ready to generate POV Deck!
+      </div>
+      <div class="prepov-checklist-card">
+        <div class="prepov-checklist-header">
+          <span>✅ Checklist</span>
+          <span style="margin-left:auto;font-size:0.7rem;color:rgba(160,188,216,0.4);">Check each item when complete</span>
+        </div>
+        <div id="prepov-checklist-items"></div>
+      </div>
+      <div class="prepov-stakeholders-card">
+        <div class="prepov-stk-header"><span>👥 Key Stakeholders</span></div>
+        <table class="prepov-stk-tbl">
+          <thead>
+            <tr>
+              <th style="width:25%">Role</th>
+              <th style="width:45%">Name &amp; Title</th>
+              <th style="width:30%">Sign-Off Date</th>
+            </tr>
+          </thead>
+          <tbody id="prepov-stk-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <hr class="section-divider">
+
     {% if success_criteria %}
     <div class="section-heading">
       <h2>Success Criteria</h2>
@@ -2286,6 +2434,402 @@ function renderPricingExecSummary() {
     });
   }
 }
+
+
+// ══════════════════════════════════════════════════════════════════
+// PRE-POV CHECKLIST ENGINE
+// ══════════════════════════════════════════════════════════════════
+const PREPOV_ITEMS = [
+  { id: 'arch_workshops',   title: 'Architecture & Design Workshops',
+    desc: 'Enterprise and POV level network designs and architecture clearly understood, defined, and documented.' },
+  { id: 'stakeholders',     title: 'Stakeholders Defined',
+    desc: 'Customer stakeholders across teams identified and confirmed.' },
+  { id: 'budget_owners',    title: 'Budget Owners Defined',
+    desc: 'Customer budget owners and approvers identified.' },
+  { id: 'costs_defined',    title: 'Estimated Costs & Commercials Defined',
+    desc: 'Includes Zscaler and cloud provider costs, savings, and estimates.' },
+  { id: 'test_cases',       title: 'POV Test Cases, Requirements & Scope Defined',
+    desc: 'POV Plan with clear documentation on all requirements prior to moving forward.' },
+  { id: 'tech_feasibility', title: 'Technical Feasibility Review',
+    desc: 'Customer and Zscaler review; showstoppers and technical risks brought up for final decision to go forward with POV or not.' },
+  { id: 'logistics',        title: 'Logistics, Timeline & Roles Defined',
+    desc: 'Define POV start and finish target dates and schedule regular cadence (weekly minimum).' },
+  { id: 'signoffs',         title: 'POV Sign-Offs Completed by all Parties',
+    desc: 'All parties must sign off before POV tenant is provisioned and started.' },
+];
+
+const PREPOV_STAKEHOLDERS = [
+  { id: 'zs_champion',  role: 'Zscaler Champion',         divider: false, zscaler: false },
+  { id: 'exec_sponsor', role: 'Executive Sponsor',         divider: false, zscaler: false },
+  { id: 'net_lead',     role: 'Networking Lead',           divider: false, zscaler: false },
+  { id: 'sec_lead',     role: 'Security Lead',             divider: false, zscaler: false },
+  { id: 'zs_ae',        role: 'Zscaler Account Executive', divider: true,  zscaler: true  },
+  { id: 'zs_se',        role: 'Zscaler Sales Engineer',    divider: false, zscaler: true  },
+];
+
+let _prepovData = { checks: {}, notes: {}, stakeholders: {} };
+let _prepovSaveTimer = null;
+let _prepovLoaded = false;
+
+async function loadPrePOV() {
+  try {
+    const res  = await fetch('/user/' + CUSTOMER_SLUG + '/prepov');
+    const data = await res.json();
+    if (data.success && data.data) _prepovData = data.data;
+  } catch(e) { /* first load — use empty defaults */ }
+  renderPrePOVChecklist();
+  renderPrePOVStakeholders();
+  updatePrePOVProgress();
+  _prepovLoaded = true;
+}
+
+function renderPrePOVChecklist() {
+  const container = document.getElementById('prepov-checklist-items');
+  if (!container) return;
+  container.innerHTML = '';
+  PREPOV_ITEMS.forEach(function(item) {
+    const checked = !!(_prepovData.checks && _prepovData.checks[item.id]);
+    const div = document.createElement('div');
+    div.className = 'prepov-checklist-item';
+    div.innerHTML =
+      '<div class="prepov-checkbox-wrap">' +
+        '<input class="prepov-checkbox" type="checkbox" id="prepov-cb-' + item.id + '"' + (checked ? ' checked' : '') + '>' +
+      '</div>' +
+      '<div class="prepov-item-body">' +
+        '<div class="prepov-item-title' + (checked ? ' checked' : '') + '" id="prepov-title-' + item.id + '">' + item.title + '</div>' +
+        '<div class="prepov-item-desc">' + item.desc + '</div>' +
+        '<textarea class="prepov-item-notes" id="prepov-notes-' + item.id + '" placeholder="Notes…" rows="2">' +
+          ((_prepovData.notes && _prepovData.notes[item.id]) || '') +
+        '</textarea>' +
+      '</div>';
+    container.appendChild(div);
+
+    document.getElementById('prepov-cb-' + item.id).addEventListener('change', function() {
+      if (!_prepovData.checks) _prepovData.checks = {};
+      _prepovData.checks[item.id] = this.checked;
+      var titleEl = document.getElementById('prepov-title-' + item.id);
+      if (titleEl) titleEl.className = 'prepov-item-title' + (this.checked ? ' checked' : '');
+      updatePrePOVProgress();
+      schedulePrePOVSave();
+    });
+
+    document.getElementById('prepov-notes-' + item.id).addEventListener('input', function() {
+      if (!_prepovData.notes) _prepovData.notes = {};
+      _prepovData.notes[item.id] = this.value;
+      schedulePrePOVSave();
+    });
+  });
+}
+
+function renderPrePOVStakeholders() {
+  const tbody = document.getElementById('prepov-stk-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  PREPOV_STAKEHOLDERS.forEach(function(stk) {
+    if (stk.divider) {
+      const divTr = document.createElement('tr');
+      divTr.className = 'prepov-stk-divider';
+      divTr.innerHTML = '<td colspan="3">Zscaler Team</td>';
+      tbody.appendChild(divTr);
+    }
+    const saved = (_prepovData.stakeholders && _prepovData.stakeholders[stk.id]) || {};
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><span class="prepov-stk-role">' + stk.role + '</span></td>' +
+      '<td><input class="prepov-stk-input" type="text" placeholder="Name, Title"' +
+        ' value="' + escHtml(saved.name || '') + '"' +
+        ' data-stk-id="' + stk.id + '" data-stk-field="name"></td>' +
+      (stk.zscaler
+        ? '<td style="color:rgba(160,188,216,0.25);font-size:0.75rem;font-style:italic;padding-left:14px;">—</td>'
+        : '<td><input class="prepov-stk-input" type="text" placeholder="MM-DD-YYYY"' +
+          ' value="' + escHtml(saved.date || '') + '"' +
+          ' data-stk-id="' + stk.id + '" data-stk-field="date"></td>');
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('.prepov-stk-input').forEach(function(inp) {
+    inp.addEventListener('input', function() {
+      const sid = this.dataset.stkId, field = this.dataset.stkField;
+      if (!_prepovData.stakeholders) _prepovData.stakeholders = {};
+      if (!_prepovData.stakeholders[sid]) _prepovData.stakeholders[sid] = {};
+      _prepovData.stakeholders[sid][field] = this.value;
+      schedulePrePOVSave();
+    });
+  });
+}
+
+function updatePrePOVProgress() {
+  const total  = PREPOV_ITEMS.length;
+  const done   = PREPOV_ITEMS.filter(function(i) { return !!(_prepovData.checks && _prepovData.checks[i.id]); }).length;
+  const pct    = Math.round(done / total * 100);
+  const bar    = document.getElementById('prepov-progress-bar');
+  const label  = document.getElementById('prepov-progress-label');
+  const badge  = document.getElementById('prepov-badge');
+  const banner = document.getElementById('prepov-ready-banner');
+  if (bar)    bar.style.width = pct + '%';
+  if (label)  label.textContent = done + ' of ' + total + ' complete';
+  if (badge)  badge.textContent = done + ' / ' + total;
+  if (banner) { if (done === total) banner.classList.remove('hidden'); else banner.classList.add('hidden'); }
+}
+
+function schedulePrePOVSave() {
+  const ind = document.getElementById('prepov-save-ind');
+  if (ind) { ind.textContent = 'Saving…'; ind.className = 'prepov-save-ind saving'; }
+  clearTimeout(_prepovSaveTimer);
+  _prepovSaveTimer = setTimeout(savePrePOV, 1200);
+}
+
+async function savePrePOV() {
+  const ind = document.getElementById('prepov-save-ind');
+  try {
+    const res = await fetch('/user/' + CUSTOMER_SLUG + '/prepov', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: _prepovData })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (ind) { ind.textContent = '✓ Saved at ' + now; ind.className = 'prepov-save-ind saved';
+        setTimeout(function(){ ind.textContent = ''; ind.className = 'prepov-save-ind'; }, 4000); }
+    } else {
+      if (ind) { ind.textContent = 'Save failed'; ind.className = 'prepov-save-ind'; }
+    }
+  } catch(e) {
+    if (ind) { ind.textContent = 'Save failed'; ind.className = 'prepov-save-ind'; }
+  }
+}
+
+// Hook into existing switchTab to lazy-load Pre-POV when POV tab is first opened
+(function() {
+  var _origSwitch = window.switchTab;
+  window.switchTab = function(name) {
+    _origSwitch(name);
+    if (name === 'pov' && !_prepovLoaded) {
+      loadPrePOV();
+    }
+  };
+})();
+
+
+// ══════════════════════════════════════════════════════════════════
+// POV TIMELINE ENGINE
+// ══════════════════════════════════════════════════════════════════
+const POV_TL_DEFAULTS = [
+  // above bar: position 'top', below bar: 'bot'
+  { id: 1, date: 'Jan 23', label: 'Architecture Workshops',          side: 'top' },
+  { id: 2, date: 'Jan 31', label: 'Stakeholders & Owners Defined',   side: 'bot' },
+  { id: 3, date: 'Feb 3',  label: 'Costs Defined',                   side: 'top' },
+  { id: 4, date: 'Feb 7',  label: 'Define POV Test Cases & Scope',   side: 'bot' },
+  { id: 5, date: 'Feb 10', label: 'Technical Feasibility Review',    side: 'top' },
+  { id: 6, date: 'Feb 14', label: 'Logistics, Timelines & Roles',    side: 'bot' },
+  { id: 7, date: 'Feb 17', label: 'POV Agreement Sign-Offs',         side: 'top' },
+  { id: 8, date: 'Feb 21', label: 'POV Tenant Provisioned',          side: 'bot' },
+  { id: 9, date: 'Feb 24', label: 'POV Kickoff',                     side: 'top' },
+  { id: 10,date: 'Mar 1',  label: 'Weekly Sync Meetings',            side: 'bot' },
+  { id: 11,date: 'Mar 31', label: 'POV Wrap & Procurement Discussion',side: 'top' },
+];
+
+let _povTLMilestones = [];
+let _povTLTarget = { date: 'Apr 30', label: 'Production Rollout' };
+let _povTLSaveTimer = null;
+let _povTLLoaded = false;
+let _povTLCounter = 20;
+
+async function loadPOVTimeline() {
+  try {
+    const res  = await fetch('/user/' + CUSTOMER_SLUG + '/prepov');
+    const data = await res.json();
+    if (data.success && data.data && data.data.pov_timeline) {
+      _povTLMilestones = data.data.pov_timeline.milestones || JSON.parse(JSON.stringify(POV_TL_DEFAULTS));
+      _povTLTarget     = data.data.pov_timeline.target     || _povTLTarget;
+    } else {
+      _povTLMilestones = JSON.parse(JSON.stringify(POV_TL_DEFAULTS));
+    }
+  } catch(e) {
+    _povTLMilestones = JSON.parse(JSON.stringify(POV_TL_DEFAULTS));
+  }
+  if (_povTLMilestones.length) {
+    _povTLCounter = Math.max(_povTLCounter, ..._povTLMilestones.map(m => m.id || 0));
+  }
+  renderPOVTimeline();
+  _povTLLoaded = true;
+}
+
+function renderPOVTimeline() {
+  const stage = document.getElementById('pov-tl-stage');
+  if (!stage) return;
+
+  const topItems = _povTLMilestones.filter(m => m.side === 'top');
+  const botItems = _povTLMilestones.filter(m => m.side === 'bot');
+  const all      = _povTLMilestones;
+  const total    = all.length;
+
+  // Build top row
+  let topHtml = '<div class="pov-tl-top-row">';
+  all.forEach(function(m, i) {
+    topHtml += '<div class="pov-tl-col" id="pov-tl-col-top-' + m.id + '">';
+    if (m.side === 'top') {
+      topHtml += povTLCardHTML(m) + '<div class="pov-tl-stem-top" style="height:' + (20 + (i % 2) * 16) + 'px;"></div>';
+    }
+    topHtml += '</div>';
+  });
+  topHtml += '</div>';
+
+  // Build bar row
+  let barHtml = '<div class="pov-tl-bar-row"><div class="pov-tl-bar"><div class="pov-tl-dot-row">';
+  all.forEach(function(m) {
+    barHtml += '<div class="pov-tl-col" style="justify-content:center;"><div class="pov-tl-dot"></div></div>';
+  });
+  barHtml += '</div></div><div class="pov-tl-bar-arrow"></div>';
+  // Target box
+  barHtml += '<div class="pov-tl-target-wrap">' + povTLTargetHTML() + '</div>';
+  barHtml += '</div>';
+
+  // Build bottom row
+  let botHtml = '<div class="pov-tl-bot-row">';
+  all.forEach(function(m, i) {
+    botHtml += '<div class="pov-tl-col" id="pov-tl-col-bot-' + m.id + '">';
+    if (m.side === 'bot') {
+      botHtml += '<div class="pov-tl-stem-bot" style="height:' + (20 + (i % 2) * 16) + 'px;"></div>' + povTLCardHTML(m);
+    }
+    botHtml += '</div>';
+  });
+  botHtml += '</div>';
+
+  stage.innerHTML = topHtml + barHtml + botHtml;
+}
+
+function povTLCardHTML(m) {
+  return '<div class="pov-tl-card" id="pov-tl-card-' + m.id + '" onclick="povTLEditCard(' + m.id + ')">' +
+    '<div class="pov-tl-date">' + escHtml(m.date) + '</div>' +
+    '<div class="pov-tl-label">' + escHtml(m.label) + '</div>' +
+    '</div>';
+}
+
+function povTLTargetHTML() {
+  return '<div class="pov-tl-target-box" onclick="povTLEditTarget()">' +
+    '<div class="pov-tl-target-date">' + escHtml(_povTLTarget.date) + '</div>' +
+    '<div class="pov-tl-target-label">' + escHtml(_povTLTarget.label) + '</div>' +
+    '</div>';
+}
+
+function povTLEditCard(id) {
+  const m = _povTLMilestones.find(function(x) { return x.id === id; });
+  if (!m) return;
+  const col = document.getElementById('pov-tl-col-top-' + id) || document.getElementById('pov-tl-col-bot-' + id);
+  if (!col) return;
+  const card = document.getElementById('pov-tl-card-' + id);
+  if (!card) return;
+  card.className = 'pov-tl-card editing';
+  card.innerHTML =
+    '<input class="pov-tl-input" id="pov-tl-inp-date-' + id + '" value="' + escHtml(m.date) + '" placeholder="Date" onclick="event.stopPropagation()">' +
+    '<input class="pov-tl-input" id="pov-tl-inp-label-' + id + '" value="' + escHtml(m.label) + '" placeholder="Label" onclick="event.stopPropagation()">' +
+    '<button class="pov-tl-card-del" onclick="event.stopPropagation();povTLDelete(' + id + ')">✕ Remove</button>';
+  document.getElementById('pov-tl-inp-date-' + id).focus();
+
+  // Save on blur of either input
+  function saveCard() {
+    const dateVal  = (document.getElementById('pov-tl-inp-date-' + id) || {}).value || m.date;
+    const labelVal = (document.getElementById('pov-tl-inp-label-' + id) || {}).value || m.label;
+    m.date  = dateVal.trim();
+    m.label = labelVal.trim();
+    renderPOVTimeline();
+    schedulePOVTLSave();
+  }
+  setTimeout(function() {
+    var dEl = document.getElementById('pov-tl-inp-date-' + id);
+    var lEl = document.getElementById('pov-tl-inp-label-' + id);
+    if (dEl) dEl.addEventListener('blur', function() { setTimeout(function() { if (!document.activeElement || !document.activeElement.id || document.activeElement.id !== 'pov-tl-inp-label-' + id) saveCard(); }, 120); });
+    if (lEl) lEl.addEventListener('blur', function() { setTimeout(saveCard, 120); });
+    if (dEl) dEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') { if (lEl) lEl.focus(); else saveCard(); } });
+    if (lEl) lEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') saveCard(); });
+  }, 0);
+}
+
+function povTLEditTarget() {
+  const wrap = document.querySelector('.pov-tl-target-wrap');
+  if (!wrap) return;
+  wrap.innerHTML =
+    '<div style="display:flex;flex-direction:column;gap:5px;align-items:center;">' +
+    '<input class="pov-tl-input" id="pov-tl-inp-tgt-date" value="' + escHtml(_povTLTarget.date) + '" placeholder="Date" style="min-width:110px;">' +
+    '<input class="pov-tl-input" id="pov-tl-inp-tgt-label" value="' + escHtml(_povTLTarget.label) + '" placeholder="Label" style="min-width:110px;">' +
+    '</div>';
+  document.getElementById('pov-tl-inp-tgt-date').focus();
+  function saveTarget() {
+    _povTLTarget.date  = (document.getElementById('pov-tl-inp-tgt-date') || {}).value || _povTLTarget.date;
+    _povTLTarget.label = (document.getElementById('pov-tl-inp-tgt-label') || {}).value || _povTLTarget.label;
+    renderPOVTimeline();
+    schedulePOVTLSave();
+  }
+  setTimeout(function() {
+    var dEl = document.getElementById('pov-tl-inp-tgt-date');
+    var lEl = document.getElementById('pov-tl-inp-tgt-label');
+    if (dEl) dEl.addEventListener('blur', function() { setTimeout(function() { if (document.activeElement !== lEl) saveTarget(); }, 120); });
+    if (lEl) lEl.addEventListener('blur', function() { setTimeout(saveTarget, 120); });
+    if (dEl) dEl.addEventListener('keydown', function(e) { if (e.key === 'Enter' && lEl) lEl.focus(); });
+    if (lEl) lEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') saveTarget(); });
+  }, 0);
+}
+
+function povTLDelete(id) {
+  _povTLMilestones = _povTLMilestones.filter(function(m) { return m.id !== id; });
+  renderPOVTimeline();
+  schedulePOVTLSave();
+}
+
+function povTLAddMilestone() {
+  _povTLCounter++;
+  const sides = ['top','bot'];
+  const lastSide = _povTLMilestones.length ? _povTLMilestones[_povTLMilestones.length - 1].side : 'bot';
+  const newSide  = lastSide === 'top' ? 'bot' : 'top';
+  _povTLMilestones.push({ id: _povTLCounter, date: 'Date', label: 'New Milestone', side: newSide });
+  renderPOVTimeline();
+  schedulePOVTLSave();
+  setTimeout(function() { povTLEditCard(_povTLCounter); }, 50);
+}
+
+function schedulePOVTLSave() {
+  const ind = document.getElementById('pov-tl-save-ind');
+  if (ind) { ind.textContent = 'Saving…'; ind.className = 'pov-tl-save-ind saving'; }
+  clearTimeout(_povTLSaveTimer);
+  _povTLSaveTimer = setTimeout(savePOVTimeline, 1200);
+}
+
+async function savePOVTimeline() {
+  const ind = document.getElementById('pov-tl-save-ind');
+  try {
+    // We piggyback on the prepov endpoint — merge timeline into existing prepov_data
+    const getRes  = await fetch('/user/' + CUSTOMER_SLUG + '/prepov');
+    const getData = await getRes.json();
+    const existing = (getData.success && getData.data) ? getData.data : {};
+    existing.pov_timeline = { milestones: _povTLMilestones, target: _povTLTarget };
+    const res  = await fetch('/user/' + CUSTOMER_SLUG + '/prepov', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: existing })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (ind) { ind.textContent = '✓ Saved at ' + now; ind.className = 'pov-tl-save-ind saved';
+        setTimeout(function(){ if(ind){ ind.textContent = ''; ind.className = 'pov-tl-save-ind'; }}, 4000); }
+    } else {
+      if (ind) { ind.textContent = 'Save failed'; ind.className = 'pov-tl-save-ind'; }
+    }
+  } catch(e) {
+    if (ind) { ind.textContent = 'Save failed'; ind.className = 'pov-tl-save-ind'; }
+  }
+}
+
+// Hook into switchTab to lazy-load timeline when POV tab opens
+(function() {
+  var _origSwitch2 = window.switchTab;
+  window.switchTab = function(name) {
+    _origSwitch2(name);
+    if (name === 'pov' && !_povTLLoaded) {
+      loadPOVTimeline();
+    }
+  };
+})();
 
 </script>
 </body>
