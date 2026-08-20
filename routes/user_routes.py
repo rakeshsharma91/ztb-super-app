@@ -12,6 +12,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from sqlalchemy import text as sa_text
+from sqlalchemy.orm.attributes import flag_modified
 from datetime import datetime
 
 user_bp = Blueprint('user', __name__, url_prefix='/user')
@@ -617,9 +618,33 @@ def update_technical_notes(customer_slug):
     raw = dict(user_resp.raw_responses or {})
     raw['technical_notes'] = notes
     user_resp.raw_responses = raw
+    flag_modified(user_resp, 'raw_responses')
     db.session.commit()
     return jsonify({'success': True})
 
+
+
+@user_bp.route('/<customer_slug>/prepov', methods=['GET'])
+def get_prepov(customer_slug):
+    user_resp = _find_by_slug(customer_slug)
+    if not user_resp:
+        return jsonify({'success': False, 'error': 'Not found'}), 404
+    raw  = user_resp.raw_responses or {}
+    data = raw.get('prepov_data', {})
+    return jsonify({'success': True, 'data': data})
+
+
+@user_bp.route('/<customer_slug>/prepov', methods=['PATCH'])
+def update_prepov(customer_slug):
+    user_resp = _find_by_slug(customer_slug)
+    if not user_resp:
+        return jsonify({'success': False, 'error': 'Not found'}), 404
+    payload = request.get_json()
+    raw = dict(user_resp.raw_responses or {})
+    raw['prepov_data'] = payload.get('data', {})
+    user_resp.raw_responses = raw
+    db.session.commit()
+    return jsonify({'success': True})
 
 @user_bp.route('/<customer_slug>/diagram-data', methods=['GET'])
 def diagram_data(customer_slug):
