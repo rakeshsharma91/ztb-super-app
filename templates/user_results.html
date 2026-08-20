@@ -4,43 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>{% if not not_found %}{{ user_resp.customer_name }} — ZTB Assessment Results{% else %}Not Found — ZTB Super App{% endif %}</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
-// ═══════════════════════════════════════════════
-// POV DECK EXPORT
-// ═══════════════════════════════════════════════
-async function exportPOVDeck(btn) {
-  const orig = btn.innerHTML;
-  btn.innerHTML = '⏳ Building…';
-  btn.disabled  = true;
-  try {
-    const res = await fetch('/user/' + CUSTOMER_SLUG + '/export-pov-deck', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}),
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || ('HTTP ' + res.status));
-    }
-    const blob = await res.blob();
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = 'ZTB_POV_Deck.pptx';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('✓ POV Deck downloaded');
-  } catch (err) {
-    showToast('Export failed: ' + err.message, true);
-  } finally {
-    btn.innerHTML = orig;
-    btn.disabled  = false;
-  }
-}
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root {
   --navy-dark: #002244; --navy: #003366; --blue: #0070c0; --accent: #00aaff;
@@ -3008,6 +2972,41 @@ async function savePOVTLV2() {
   } catch(e) { if (ind) { ind.textContent = 'Save failed'; ind.className = 'pov-tl-save-ind'; } }
 }
 
+
+// ═══════════════════════════════════════════════
+// POV DECK EXPORT
+// ═══════════════════════════════════════════════
+async function exportPOVDeck(btn) {
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳ Building…';
+  btn.disabled  = true;
+  try {
+    const res = await fetch('/user/' + CUSTOMER_SLUG + '/export-pov-deck', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || ('HTTP ' + res.status));
+    }
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'ZTB_POV_Deck.pptx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('✓ POV Deck downloaded');
+  } catch (err) {
+    showToast('Export failed: ' + err.message, true);
+  } finally {
+    btn.innerHTML = orig;
+    btn.disabled  = false;
+  }
+}
 </script>
 </body>
 </html>

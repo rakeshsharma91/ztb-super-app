@@ -633,7 +633,7 @@ def export_pov_deck(customer_slug):
     s2 = prs.slides.add_slide(BL)
     _bg(s2, NAVY)
     _slide_header(s2, 'POV SUCCESS CRITERIA',
-                  'Agreed criteria for a successful Proof of Value', BLUE)
+                  'POV Success Criteria', BLUE)
     if not success_criteria:
         _box(s2, 'No success criteria have been tagged for this assessment.',
              Inches(0.5), Inches(2.0), Inches(12), Inches(0.5),
@@ -657,7 +657,7 @@ def export_pov_deck(customer_slug):
                 _rect(s2, cx, y, cw, ROW_H-int(Inches(0.03)), bg_)
             _box(s2, str(i+1), COL_NUM_X+Inches(0.08), y+PAD, COL_NUM_W, ROW_H,
                  sz=11, bold=True, color=ACCENT, align=PP_ALIGN.CENTER)
-            title = (getattr(sc,'asset_name',None) or getattr(sc,'title',None) or f'Criteria {i+1}')
+            title = (getattr(sc,'asset_name',None) or getattr(sc,'name',None) or getattr(sc,'title',None) or f'Criteria {i+1}')
             _box(s2, title, COL_TIT_X+Inches(0.08), y+PAD, COL_TIT_W-Inches(0.12), ROW_H,
                  sz=11, bold=True, color=WHITE)
             desc = getattr(sc,'description',None) or getattr(sc,'Description',None) or ''
