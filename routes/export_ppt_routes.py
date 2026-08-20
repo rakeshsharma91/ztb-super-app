@@ -504,3 +504,269 @@ def export_pptx(customer_slug):
         as_attachment=True,
         download_name=fname
     )
+
+# ══════════════════════════════════════════════════════════════════════════════
+# POV DECK EXPORT  —  /user/<slug>/export-pov-deck
+# Slides: Title · Success Criteria · Pre-POV Checklist · POV Timeline · Thank You
+# ══════════════════════════════════════════════════════════════════════════════
+
+@export_ppt_bp.route('/user/<customer_slug>/export-pov-deck', methods=['POST'])
+def export_pov_deck(customer_slug):
+    from pptx import Presentation
+    from pptx.util import Inches, Pt, Emu
+    from pptx.dml.color import RGBColor
+    from pptx.enum.text import PP_ALIGN
+
+    user_resp = _find_by_slug(customer_slug)
+    if not user_resp:
+        return jsonify({'error': 'Not found'}), 404
+
+    NAVY   = RGBColor(0x00, 0x22, 0x44)
+    NAVY2  = RGBColor(0x00, 0x33, 0x66)
+    NAVY3  = RGBColor(0x0D, 0x2D, 0x52)
+    ACCENT = RGBColor(0x00, 0xAA, 0xFF)
+    WHITE  = RGBColor(0xFF, 0xFF, 0xFF)
+    MUTED  = RGBColor(0xA0, 0xBC, 0xD8)
+    GREEN  = RGBColor(0x00, 0xDC, 0x82)
+    AMBER  = RGBColor(0xF5, 0x9E, 0x0B)
+    BLUE   = RGBColor(0x00, 0x70, 0xC0)
+
+    W = Inches(13.33)
+    H = Inches(7.5)
+
+    prs = Presentation()
+    prs.slide_width  = W
+    prs.slide_height = H
+    BL = prs.slide_layouts[6]
+
+    def _bg(slide, color=None):
+        fill = slide.background.fill
+        fill.solid()
+        fill.fore_color.rgb = color or NAVY
+
+    def _box(slide, text, l, t, w, h,
+             sz=16, bold=False, color=None, italic=False, align=PP_ALIGN.LEFT):
+        txb = slide.shapes.add_textbox(l, t, w, h)
+        tf  = txb.text_frame
+        tf.word_wrap = True
+        p   = tf.paragraphs[0]
+        p.alignment = align
+        run = p.add_run()
+        run.text           = text
+        run.font.size      = Pt(sz)
+        run.font.bold      = bold
+        run.font.italic    = italic
+        run.font.color.rgb = color or WHITE
+        return txb
+
+    def _rect(slide, l, t, w, h, color):
+        s = slide.shapes.add_shape(1, l, t, w, h)
+        s.fill.solid()
+        s.fill.fore_color.rgb = color
+        s.line.fill.background()
+        return s
+
+    def _slide_header(slide, eyebrow, title, accent_color=None):
+        ac = accent_color or ACCENT
+        _rect(slide, Inches(0), Inches(0), Inches(0.2), H, ac)
+        _box(slide, eyebrow,
+             Inches(0.4), Inches(0.2), Inches(12), Inches(0.42),
+             sz=11, bold=True, color=ac)
+        _box(slide, title,
+             Inches(0.4), Inches(0.6), Inches(12), Inches(0.52),
+             sz=22, bold=True, color=WHITE)
+        _rect(slide, Inches(0.4), Inches(1.15), Inches(12.7), Emu(40000), ac)
+
+    raw       = user_resp.raw_responses or {}
+    prepov    = raw.get('prepov_data', {})
+    checks    = prepov.get('checks', {})
+    notes_map = prepov.get('notes', {})
+    tl_rows   = prepov.get('pov_timeline_v2', [])
+
+    results   = user_resp.results or {}
+    asset_ids = results.get('asset_ids', [])
+    all_assets = []
+    if asset_ids:
+        from models import Asset
+        all_assets = Asset.query.filter(Asset.id.in_(asset_ids)).all()
+    success_criteria = [
+        a for a in all_assets
+        if (a.asset_type or '').lower() in ('success criteria', 'success_criteria')
+    ]
+
+    CHECKLIST_ITEMS = [
+        ('arch_workshops',   'Architecture & Design Workshops'),
+        ('stakeholders',     'Stakeholders Defined'),
+        ('budget_owners',    'Budget Owners Defined'),
+        ('costs_defined',    'Estimated Costs & Commercials Defined'),
+        ('test_cases',       'POV Test Cases, Requirements & Scope Defined'),
+        ('tech_feasibility', 'Technical Feasibility Review'),
+        ('logistics',        'Logistics, Timeline & Roles Defined'),
+        ('signoffs',         'POV Sign-Offs Completed by all Parties'),
+    ]
+
+    # SLIDE 1 — Title
+    s1 = prs.slides.add_slide(BL)
+    _bg(s1, NAVY)
+    _rect(s1, Inches(0), Inches(0), Inches(0.2), H, ACCENT)
+    _rect(s1, Inches(0.35), Inches(2.25), Inches(12.6), Emu(55000), ACCENT)
+    _box(s1, 'PROOF OF VALUE — POV DECK',
+         Inches(0.5), Inches(0.55), Inches(11), Inches(0.6),
+         sz=12, bold=True, color=ACCENT)
+    _box(s1, user_resp.customer_name or 'Customer',
+         Inches(0.5), Inches(1.05), Inches(12), Inches(1.1),
+         sz=46, bold=True, color=WHITE)
+    meta = []
+    if user_resp.se_name:
+        meta.append(f'Solutions Consultant: {user_resp.se_name}')
+    if user_resp.completed_at:
+        meta.append(user_resp.completed_at.strftime('%B %d, %Y'))
+    if meta:
+        _box(s1, '     '.join(meta),
+             Inches(0.5), Inches(2.5), Inches(11), Inches(0.5),
+             sz=14, color=MUTED)
+    _box(s1, 'Zero Trust Branch  ·  Zscaler',
+         Inches(0.5), Inches(6.75), Inches(7), Inches(0.45),
+         sz=11, color=MUTED, italic=True)
+
+    # SLIDE 2 — Success Criteria
+    s2 = prs.slides.add_slide(BL)
+    _bg(s2, NAVY)
+    _slide_header(s2, 'POV SUCCESS CRITERIA',
+                  'Agreed criteria for a successful Proof of Value', BLUE)
+    if not success_criteria:
+        _box(s2, 'No success criteria have been tagged for this assessment.',
+             Inches(0.5), Inches(2.0), Inches(12), Inches(0.5),
+             sz=14, color=MUTED, italic=True)
+    else:
+        TABLE_TOP = Inches(1.32)
+        n         = min(len(success_criteria), 8)
+        ROW_H     = max(int((Inches(7.1) - TABLE_TOP) / n), int(Inches(0.55)))
+        COL_NUM_X = Inches(0.4);  COL_NUM_W = Inches(0.5)
+        COL_TIT_X = Inches(0.95); COL_TIT_W = Inches(5.8)
+        COL_DSC_X = Inches(6.85); COL_DSC_W = Inches(6.25)
+        HDR_Y = int(TABLE_TOP); HDR_H = int(Inches(0.38))
+        for cx, cw, lbl in [(COL_NUM_X,COL_NUM_W,'#'),(COL_TIT_X,COL_TIT_W,'SUCCESS CRITERIA'),(COL_DSC_X,COL_DSC_W,'DESCRIPTION')]:
+            _rect(s2, cx, HDR_Y, cw, HDR_H, NAVY2)
+            _box(s2, lbl, cx+Inches(0.08), HDR_Y, cw, HDR_H, sz=9, bold=True, color=BLUE)
+        y = HDR_Y + HDR_H
+        for i, sc in enumerate(success_criteria[:n]):
+            bg_ = NAVY3 if i%2==0 else NAVY2
+            PAD = int(Inches(0.1))
+            for cx, cw in [(COL_NUM_X,COL_NUM_W),(COL_TIT_X,COL_TIT_W),(COL_DSC_X,COL_DSC_W)]:
+                _rect(s2, cx, y, cw, ROW_H-int(Inches(0.03)), bg_)
+            _box(s2, str(i+1), COL_NUM_X+Inches(0.08), y+PAD, COL_NUM_W, ROW_H,
+                 sz=11, bold=True, color=ACCENT, align=PP_ALIGN.CENTER)
+            title = (getattr(sc,'asset_name',None) or getattr(sc,'title',None) or f'Criteria {i+1}')
+            _box(s2, title, COL_TIT_X+Inches(0.08), y+PAD, COL_TIT_W-Inches(0.12), ROW_H,
+                 sz=11, bold=True, color=WHITE)
+            desc = getattr(sc,'description',None) or getattr(sc,'Description',None) or ''
+            if desc:
+                _box(s2, desc, COL_DSC_X+Inches(0.08), y+PAD, COL_DSC_W-Inches(0.12), ROW_H,
+                     sz=10, color=MUTED)
+            y += ROW_H
+
+    # SLIDE 3 — Pre-POV Checklist
+    s3 = prs.slides.add_slide(BL)
+    _bg(s3, NAVY)
+    done_count = sum(1 for iid,_ in CHECKLIST_ITEMS if checks.get(iid))
+    _slide_header(s3, 'PRE-POV CHECKLIST',
+                  f'Completion: {done_count} of {len(CHECKLIST_ITEMS)} items', GREEN)
+    TABLE_TOP = Inches(1.32)
+    ROW_H = max(int((Inches(7.15)-TABLE_TOP)/len(CHECKLIST_ITEMS)), int(Inches(0.62)))
+    COL_ST_X=Inches(0.4); COL_ST_W=Inches(0.55)
+    COL_TT_X=Inches(1.0); COL_TT_W=Inches(5.6)
+    COL_NT_X=Inches(6.7); COL_NT_W=Inches(6.4)
+    HDR_Y=int(TABLE_TOP); HDR_H=int(Inches(0.38))
+    for cx,cw,lbl in [(COL_ST_X,COL_ST_W,''),(COL_TT_X,COL_TT_W,'CHECKLIST ITEM'),(COL_NT_X,COL_NT_W,'NOTES')]:
+        _rect(s3, cx, HDR_Y, cw, HDR_H, NAVY2)
+        if lbl:
+            _box(s3, lbl, cx+Inches(0.08), HDR_Y, cw, HDR_H, sz=9, bold=True, color=GREEN)
+    y = HDR_Y + HDR_H
+    for i, (item_id, item_title) in enumerate(CHECKLIST_ITEMS):
+        checked = bool(checks.get(item_id))
+        bg_ = NAVY3 if i%2==0 else NAVY2
+        PAD = int(Inches(0.1))
+        for cx,cw in [(COL_ST_X,COL_ST_W),(COL_TT_X,COL_TT_W),(COL_NT_X,COL_NT_W)]:
+            _rect(s3, cx, y, cw, ROW_H-int(Inches(0.03)), bg_)
+        _box(s3, '✅' if checked else '⬜',
+             COL_ST_X+Inches(0.04), y+PAD, COL_ST_W, ROW_H,
+             sz=16, color=GREEN if checked else MUTED, align=PP_ALIGN.CENTER)
+        _box(s3, item_title,
+             COL_TT_X+Inches(0.08), y+PAD, COL_TT_W-Inches(0.12), ROW_H,
+             sz=11, bold=(not checked), color=MUTED if checked else WHITE)
+        note_text = notes_map.get(item_id, '')
+        if note_text:
+            _box(s3, note_text,
+                 COL_NT_X+Inches(0.08), y+PAD, COL_NT_W-Inches(0.12), ROW_H,
+                 sz=10, color=MUTED, italic=True)
+        y += ROW_H
+
+    # SLIDE 4 — POV Timeline
+    s4 = prs.slides.add_slide(BL)
+    _bg(s4, NAVY)
+    _slide_header(s4, 'POV TIMELINE', 'Milestone schedule for the Proof of Value', AMBER)
+    if not tl_rows:
+        _box(s4, 'No timeline milestones have been defined yet.',
+             Inches(0.5), Inches(2.0), Inches(12), Inches(0.5),
+             sz=14, color=MUTED, italic=True)
+    else:
+        TABLE_TOP = Inches(1.32)
+        n = min(len(tl_rows), 14)
+        ROW_H = max(int((Inches(7.15)-TABLE_TOP)/n), int(Inches(0.38)))
+        COL_NUM_X=Inches(0.4); COL_NUM_W=Inches(0.5)
+        COL_MIL_X=Inches(0.95); COL_MIL_W=Inches(8.7)
+        COL_DAT_X=Inches(9.75); COL_DAT_W=Inches(3.25)
+        HDR_Y=int(TABLE_TOP); HDR_H=int(Inches(0.38))
+        for cx,cw,lbl,al in [(COL_NUM_X,COL_NUM_W,'#',PP_ALIGN.CENTER),(COL_MIL_X,COL_MIL_W,'MILESTONE',PP_ALIGN.LEFT),(COL_DAT_X,COL_DAT_W,'TARGET DATE',PP_ALIGN.RIGHT)]:
+            _rect(s4, cx, HDR_Y, cw, HDR_H, NAVY2)
+            _box(s4, lbl, cx+Inches(0.06), HDR_Y, cw, HDR_H, sz=9, bold=True, color=AMBER, align=al)
+        y = HDR_Y + HDR_H
+        for i, row in enumerate(tl_rows[:n]):
+            bg_ = NAVY3 if i%2==0 else NAVY2
+            PAD = int(Inches(0.08))
+            for cx,cw in [(COL_NUM_X,COL_NUM_W),(COL_MIL_X,COL_MIL_W),(COL_DAT_X,COL_DAT_W)]:
+                _rect(s4, cx, y, cw, ROW_H-int(Inches(0.02)), bg_)
+            _box(s4, str(i+1), COL_NUM_X+Inches(0.06), y+PAD, COL_NUM_W, ROW_H,
+                 sz=10, bold=True, color=MUTED, align=PP_ALIGN.CENTER)
+            _box(s4, row.get('label',''), COL_MIL_X+Inches(0.08), y+PAD, COL_MIL_W-Inches(0.12), ROW_H,
+                 sz=11, color=WHITE)
+            if row.get('date',''):
+                _box(s4, row['date'], COL_DAT_X+Inches(0.06), y+PAD, COL_DAT_W-Inches(0.1), ROW_H,
+                     sz=11, bold=True, color=ACCENT, align=PP_ALIGN.RIGHT)
+            y += ROW_H
+
+    # SLIDE 5 — Thank You
+    s5 = prs.slides.add_slide(BL)
+    _bg(s5, NAVY)
+    _rect(s5, Inches(0), Inches(0), Inches(0.2), H, ACCENT)
+    _rect(s5, Inches(0.35), Inches(3.85), Inches(12.6), Emu(55000), ACCENT)
+    _box(s5, 'Thank You',
+         Inches(0.5), Inches(1.3), Inches(12), Inches(1.2),
+         sz=54, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+    _box(s5, user_resp.customer_name or 'Customer',
+         Inches(0.5), Inches(2.65), Inches(12), Inches(0.6),
+         sz=20, color=ACCENT, align=PP_ALIGN.CENTER)
+    _box(s5, 'Zscaler Zero Trust Branch',
+         Inches(0.5), Inches(4.15), Inches(12), Inches(0.55),
+         sz=16, color=MUTED, align=PP_ALIGN.CENTER, italic=True)
+    if user_resp.se_name:
+        _box(s5, user_resp.se_name,
+             Inches(0.5), Inches(4.85), Inches(12), Inches(0.45),
+             sz=13, color=MUTED, align=PP_ALIGN.CENTER)
+    _box(s5, '© 2025 Zscaler, Inc. — Internal Sales Engineering Tool',
+         Inches(0.5), Inches(6.8), Inches(12), Inches(0.35),
+         sz=9, color=RGBColor(0x40, 0x60, 0x80),
+         align=PP_ALIGN.CENTER, italic=True)
+
+    out = io.BytesIO()
+    prs.save(out)
+    out.seek(0)
+    safe  = (user_resp.customer_name or 'Customer').replace(' ','_').replace('/','_')
+    fname = f"ZTB_POV_Deck_{safe}_{datetime.utcnow().strftime('%Y%m%d')}.pptx"
+    return send_file(
+        out,
+        mimetype='application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        as_attachment=True,
+        download_name=fname
+    )

@@ -4,7 +4,43 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>{% if not not_found %}{{ user_resp.customer_name }} — ZTB Assessment Results{% else %}Not Found — ZTB Super App{% endif %}</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+// ═══════════════════════════════════════════════
+// POV DECK EXPORT
+// ═══════════════════════════════════════════════
+async function exportPOVDeck(btn) {
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳ Building…';
+  btn.disabled  = true;
+  try {
+    const res = await fetch('/user/' + CUSTOMER_SLUG + '/export-pov-deck', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || ('HTTP ' + res.status));
+    }
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'ZTB_POV_Deck.pptx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('✓ POV Deck downloaded');
+  } catch (err) {
+    showToast('Export failed: ' + err.message, true);
+  } finally {
+    btn.innerHTML = orig;
+    btn.disabled  = false;
+  }
+}
+
+</script>
 <style>
 :root {
   --navy-dark: #002244; --navy: #003366; --blue: #0070c0; --accent: #00aaff;
@@ -957,6 +993,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
         <p>Download the execution plan and test cases tailored to this opportunity.</p>
       </div>
       <a class="download-btn" href="/user/{{ customer_slug }}/export">⬇ Download Excel</a>
+    </div>
+    <div class="download-section" style="margin-top:1rem;">
+      <div class="download-text">
+        <h3>📊 Export POV Deck</h3>
+        <p>Download a PowerPoint slide deck — title, success criteria, checklist, timeline, and closing slide.</p>
+      </div>
+      <button class="download-btn" onclick="exportPOVDeck(this)">⬇ Export POV Deck</button>
     </div>
     <hr class="section-divider">
     <div class="section-heading"><h2>Technical Notes</h2></div>
