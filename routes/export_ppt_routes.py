@@ -700,12 +700,92 @@ def export_pov_deck(customer_slug):
                  sz=10, color=MUTED, italic=True)
         y += ROW_H
 
-    # SLIDE 4 — POV Timeline
+    # SLIDE 4 — Key Stakeholders
     s4 = prs.slides.add_slide(BL)
     _bg(s4, NAVY)
-    _slide_header(s4, 'POV TIMELINE', 'Milestone schedule for the Proof of Value', AMBER)
+    _slide_header(s4, 'KEY STAKEHOLDERS', 'POV Team & Sign-Off Contacts', ACCENT)
+
+    STAKEHOLDER_DEFS = [
+        ('zs_champion',  'Zscaler Champion',          False),
+        ('exec_sponsor', 'Executive Sponsor',          False),
+        ('net_lead',     'Networking Lead',            False),
+        ('sec_lead',     'Security Lead',              False),
+        ('zs_ae',        'Zscaler Account Executive',  True),
+        ('zs_se',        'Zscaler Sales Engineer',     True),
+    ]
+
+    stk_data = prepov.get('stakeholders', {})
+
+    COL_ROLE_X = Inches(0.4);  COL_ROLE_W = Inches(3.8)
+    COL_NAME_X = Inches(4.3);  COL_NAME_W = Inches(5.3)
+    COL_DATE_X = Inches(9.75); COL_DATE_W = Inches(3.25)
+
+    HDR_Y = int(Inches(1.32)); HDR_H = int(Inches(0.38))
+    for cx, cw, lbl, al in [
+        (COL_ROLE_X, COL_ROLE_W, 'ROLE',        PP_ALIGN.LEFT),
+        (COL_NAME_X, COL_NAME_W, 'NAME & TITLE', PP_ALIGN.LEFT),
+        (COL_DATE_X, COL_DATE_W, 'SIGN-OFF DATE', PP_ALIGN.RIGHT),
+    ]:
+        _rect(s4, cx, HDR_Y, cw, HDR_H, NAVY2)
+        _box(s4, lbl, cx + Inches(0.08), HDR_Y, cw, HDR_H, sz=9, bold=True, color=ACCENT, align=al)
+
+    n_stk   = len(STAKEHOLDER_DEFS)
+    TABLE_TOP    = HDR_Y + HDR_H
+    TABLE_BOTTOM = Inches(7.1)
+    ROW_H   = max(int((TABLE_BOTTOM - TABLE_TOP) / n_stk), int(Inches(0.62)))
+
+    # divider tracking
+    zscaler_div_done = False
+    y = TABLE_TOP
+
+    for i, (stk_id, stk_role, is_zscaler) in enumerate(STAKEHOLDER_DEFS):
+        # Insert a subtle divider row before first Zscaler entry
+        if is_zscaler and not zscaler_div_done:
+            _rect(s4, COL_ROLE_X, y, COL_ROLE_W + COL_NAME_W + Inches(0.1) + COL_DATE_W, int(Inches(0.28)), NAVY2)
+            _box(s4, 'ZSCALER TEAM', COL_ROLE_X + Inches(0.12), y + int(Inches(0.04)),
+                 Inches(4), int(Inches(0.28)), sz=7, bold=True, color=ACCENT)
+            y += int(Inches(0.28))
+            zscaler_div_done = True
+
+        bg_ = NAVY3 if i % 2 == 0 else NAVY2
+        PAD = int(Inches(0.12))
+        for cx, cw in [(COL_ROLE_X, COL_ROLE_W), (COL_NAME_X, COL_NAME_W), (COL_DATE_X, COL_DATE_W)]:
+            _rect(s4, cx, y, cw, ROW_H - int(Inches(0.03)), bg_)
+
+        _box(s4, stk_role,
+             COL_ROLE_X + Inches(0.1), y + PAD, COL_ROLE_W - Inches(0.15), ROW_H,
+             sz=11, bold=True, color=WHITE)
+
+        person = stk_data.get(stk_id, {})
+        name_val = person.get('name', '') if isinstance(person, dict) else ''
+        date_val = person.get('date', '') if isinstance(person, dict) else ''
+
+        if name_val:
+            _box(s4, name_val,
+                 COL_NAME_X + Inches(0.1), y + PAD, COL_NAME_W - Inches(0.15), ROW_H,
+                 sz=11, color=WHITE)
+        else:
+            _box(s4, '—',
+                 COL_NAME_X + Inches(0.1), y + PAD, COL_NAME_W - Inches(0.15), ROW_H,
+                 sz=11, color=MUTED, italic=True)
+
+        if date_val and not is_zscaler:
+            _box(s4, date_val,
+                 COL_DATE_X + Inches(0.06), y + PAD, COL_DATE_W - Inches(0.1), ROW_H,
+                 sz=11, bold=True, color=GREEN, align=PP_ALIGN.RIGHT)
+        elif not is_zscaler:
+            _box(s4, 'Pending',
+                 COL_DATE_X + Inches(0.06), y + PAD, COL_DATE_W - Inches(0.1), ROW_H,
+                 sz=10, color=AMBER, italic=True, align=PP_ALIGN.RIGHT)
+
+        y += ROW_H
+
+    # SLIDE 5 — POV Timeline (was SLIDE 4)
+    s5 = prs.slides.add_slide(BL)
+    _bg(s5, NAVY)
+    _slide_header(s5, 'POV TIMELINE', 'Milestone schedule for the Proof of Value', AMBER)
     if not tl_rows:
-        _box(s4, 'No timeline milestones have been defined yet.',
+        _box(s5, 'No timeline milestones have been defined yet.',
              Inches(0.5), Inches(2.0), Inches(12), Inches(0.5),
              sz=14, color=MUTED, italic=True)
     else:
@@ -717,42 +797,42 @@ def export_pov_deck(customer_slug):
         COL_DAT_X=Inches(9.75); COL_DAT_W=Inches(3.25)
         HDR_Y=int(TABLE_TOP); HDR_H=int(Inches(0.38))
         for cx,cw,lbl,al in [(COL_NUM_X,COL_NUM_W,'#',PP_ALIGN.CENTER),(COL_MIL_X,COL_MIL_W,'MILESTONE',PP_ALIGN.LEFT),(COL_DAT_X,COL_DAT_W,'TARGET DATE',PP_ALIGN.RIGHT)]:
-            _rect(s4, cx, HDR_Y, cw, HDR_H, NAVY2)
-            _box(s4, lbl, cx+Inches(0.06), HDR_Y, cw, HDR_H, sz=9, bold=True, color=AMBER, align=al)
+            _rect(s5, cx, HDR_Y, cw, HDR_H, NAVY2)
+            _box(s5, lbl, cx+Inches(0.06), HDR_Y, cw, HDR_H, sz=9, bold=True, color=AMBER, align=al)
         y = HDR_Y + HDR_H
         for i, row in enumerate(tl_rows[:n]):
             bg_ = NAVY3 if i%2==0 else NAVY2
             PAD = int(Inches(0.08))
             for cx,cw in [(COL_NUM_X,COL_NUM_W),(COL_MIL_X,COL_MIL_W),(COL_DAT_X,COL_DAT_W)]:
-                _rect(s4, cx, y, cw, ROW_H-int(Inches(0.02)), bg_)
-            _box(s4, str(i+1), COL_NUM_X+Inches(0.06), y+PAD, COL_NUM_W, ROW_H,
+                _rect(s5, cx, y, cw, ROW_H-int(Inches(0.02)), bg_)
+            _box(s5, str(i+1), COL_NUM_X+Inches(0.06), y+PAD, COL_NUM_W, ROW_H,
                  sz=10, bold=True, color=MUTED, align=PP_ALIGN.CENTER)
-            _box(s4, row.get('label',''), COL_MIL_X+Inches(0.08), y+PAD, COL_MIL_W-Inches(0.12), ROW_H,
+            _box(s5, row.get('label',''), COL_MIL_X+Inches(0.08), y+PAD, COL_MIL_W-Inches(0.12), ROW_H,
                  sz=11, color=WHITE)
             if row.get('date',''):
-                _box(s4, row['date'], COL_DAT_X+Inches(0.06), y+PAD, COL_DAT_W-Inches(0.1), ROW_H,
+                _box(s5, row['date'], COL_DAT_X+Inches(0.06), y+PAD, COL_DAT_W-Inches(0.1), ROW_H,
                      sz=11, bold=True, color=ACCENT, align=PP_ALIGN.RIGHT)
             y += ROW_H
 
-    # SLIDE 5 — Thank You
-    s5 = prs.slides.add_slide(BL)
-    _bg(s5, NAVY)
-    _rect(s5, Inches(0), Inches(0), Inches(0.2), H, ACCENT)
-    _rect(s5, Inches(0.35), Inches(3.85), Inches(12.6), Emu(55000), ACCENT)
-    _box(s5, 'Thank You',
+    # SLIDE 6 — Thank You
+    s6 = prs.slides.add_slide(BL)
+    _bg(s6, NAVY)
+    _rect(s6, Inches(0), Inches(0), Inches(0.2), H, ACCENT)
+    _rect(s6, Inches(0.35), Inches(3.85), Inches(12.6), Emu(55000), ACCENT)
+    _box(s6, 'Thank You',
          Inches(0.5), Inches(1.3), Inches(12), Inches(1.2),
          sz=54, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-    _box(s5, user_resp.customer_name or 'Customer',
+    _box(s6, user_resp.customer_name or 'Customer',
          Inches(0.5), Inches(2.65), Inches(12), Inches(0.6),
          sz=20, color=ACCENT, align=PP_ALIGN.CENTER)
-    _box(s5, 'Zscaler Zero Trust Branch',
+    _box(s6, 'Zscaler Zero Trust Branch',
          Inches(0.5), Inches(4.15), Inches(12), Inches(0.55),
          sz=16, color=MUTED, align=PP_ALIGN.CENTER, italic=True)
     if user_resp.se_name:
-        _box(s5, user_resp.se_name,
+        _box(s6, user_resp.se_name,
              Inches(0.5), Inches(4.85), Inches(12), Inches(0.45),
              sz=13, color=MUTED, align=PP_ALIGN.CENTER)
-    _box(s5, '© 2025 Zscaler, Inc. — Internal Sales Engineering Tool',
+    _box(s6, '© 2025 Zscaler, Inc. — Internal Sales Engineering Tool',
          Inches(0.5), Inches(6.8), Inches(12), Inches(0.35),
          sz=9, color=RGBColor(0x40, 0x60, 0x80),
          align=PP_ALIGN.CENTER, italic=True)
