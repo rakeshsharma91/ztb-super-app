@@ -583,15 +583,13 @@ def export_pov_deck(customer_slug):
     notes_map = prepov.get('notes', {})
     tl_rows   = prepov.get('pov_timeline_v2', [])
 
+    from routes.user_routes import _collect
     results   = user_resp.results or {}
     asset_ids = results.get('asset_ids', [])
-    all_assets = []
-    if asset_ids:
-        from models import Asset
-        all_assets = Asset.query.filter(Asset.id.in_(asset_ids)).all()
+    all_assets = _collect('assets', asset_ids)
     success_criteria = [
         a for a in all_assets
-        if (a.asset_type or '').lower() in ('success criteria', 'success_criteria')
+        if (a.get('asset_type') or '').lower() in ('success criteria', 'success_criteria')
     ]
 
     CHECKLIST_ITEMS = [
@@ -657,10 +655,10 @@ def export_pov_deck(customer_slug):
                 _rect(s2, cx, y, cw, ROW_H-int(Inches(0.03)), bg_)
             _box(s2, str(i+1), COL_NUM_X+Inches(0.08), y+PAD, COL_NUM_W, ROW_H,
                  sz=11, bold=True, color=ACCENT, align=PP_ALIGN.CENTER)
-            title = (getattr(sc,'asset_name',None) or getattr(sc,'name',None) or getattr(sc,'title',None) or f'Criteria {i+1}')
+            title = sc.get('asset_name') or sc.get('title') or f'Criteria {i+1}'
             _box(s2, title, COL_TIT_X+Inches(0.08), y+PAD, COL_TIT_W-Inches(0.12), ROW_H,
                  sz=11, bold=True, color=WHITE)
-            desc = getattr(sc,'description',None) or getattr(sc,'Description',None) or ''
+            desc = sc.get('description') or ''
             if desc:
                 _box(s2, desc, COL_DSC_X+Inches(0.08), y+PAD, COL_DSC_W-Inches(0.12), ROW_H,
                      sz=10, color=MUTED)
