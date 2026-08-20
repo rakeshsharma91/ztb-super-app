@@ -4,111 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>{% if not not_found %}{{ user_resp.customer_name }} — ZTB Assessment Results{% else %}Not Found — ZTB Super App{% endif %}</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
-// ══════════════════════════════════════════════════════════════════
-// POV TIMELINE TABLE
-// ══════════════════════════════════════════════════════════════════
-var _povTLRows = [];
-var _povTLSaveTimer2 = null;
-var _povTLCounter2 = 20;
-
-var _POV_TL_DEFAULTS_V2 = [
-  { id: 1,  label: 'Architecture & Design Workshops',              date: '' },
-  { id: 2,  label: 'Stakeholders & Budget Owners Defined',         date: '' },
-  { id: 3,  label: 'Estimated Costs & Commercials Defined',        date: '' },
-  { id: 4,  label: 'POV Test Cases, Requirements & Scope Defined', date: '' },
-  { id: 5,  label: 'Technical Feasibility Review',                 date: '' },
-  { id: 6,  label: 'Logistics, Timelines & Roles Defined',         date: '' },
-  { id: 7,  label: 'POV Agreement Sign-Offs',                      date: '' },
-  { id: 8,  label: 'POV Tenant Provisioned',                       date: '' },
-  { id: 9,  label: 'POV Kickoff',                                  date: '' },
-  { id: 10, label: 'Weekly Sync Meetings',                         date: '' },
-  { id: 11, label: 'POV Wrap & Procurement Discussion',            date: '' },
-  { id: 12, label: 'Production Rollout',                           date: '' },
-];
-
-function initPOVTLTable(savedData) {
-  if (savedData && savedData.pov_timeline_v2 && savedData.pov_timeline_v2.length) {
-    _povTLRows = savedData.pov_timeline_v2;
-  } else {
-    _povTLRows = JSON.parse(JSON.stringify(_POV_TL_DEFAULTS_V2));
-  }
-  if (_povTLRows.length)
-    _povTLCounter2 = Math.max(_povTLCounter2, Math.max.apply(null, _povTLRows.map(function(r){ return r.id || 0; })));
-  renderPOVTLTable();
-}
-
-function renderPOVTLTable() {
-  var tbody = document.getElementById('pov-tl-tbody');
-  if (!tbody) return;
-  if (!_povTLRows.length) {
-    tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No milestones — click + Add Milestone.</td></tr>';
-    return;
-  }
-  tbody.innerHTML = '';
-  _povTLRows.forEach(function(row, idx) {
-    var tr = document.createElement('tr');
-    tr.innerHTML =
-      '<td class="pov-tl-num">' + (idx + 1) + '</td>' +
-      '<td><input class="pov-tl-milestone-inp" type="text" value="' + escHtml(row.label) + '" placeholder="Milestone description…"' +
-        ' oninput="povTLV2Update(' + row.id + ','label',this.value)" onblur="schedulePOVTLV2Save()"></td>' +
-      '<td><input class="pov-tl-date-inp" type="text" value="' + escHtml(row.date) + '" placeholder="e.g. Jan 23"' +
-        ' oninput="povTLV2Update(' + row.id + ','date',this.value)" onblur="schedulePOVTLV2Save()"></td>' +
-      '<td><button class="pov-tl-del-btn" onclick="povTLV2Delete(' + row.id + ')" title="Remove">✕</button></td>';
-    tbody.appendChild(tr);
-  });
-}
-
-function povTLV2Update(id, field, value) {
-  var row = _povTLRows.find(function(r){ return r.id === id; });
-  if (row) row[field] = value;
-}
-
-function povTLV2Delete(id) {
-  _povTLRows = _povTLRows.filter(function(r){ return r.id !== id; });
-  renderPOVTLTable();
-  schedulePOVTLV2Save();
-}
-
-function povTLAddRow() {
-  _povTLCounter2++;
-  _povTLRows.push({ id: _povTLCounter2, label: '', date: '' });
-  renderPOVTLTable();
-  schedulePOVTLV2Save();
-  setTimeout(function() {
-    var inputs = document.querySelectorAll('#pov-tl-tbody .pov-tl-milestone-inp');
-    if (inputs.length) inputs[inputs.length - 1].focus();
-  }, 30);
-}
-
-function schedulePOVTLV2Save() {
-  var ind = document.getElementById('pov-tl-save-ind');
-  if (ind) { ind.textContent = 'Saving…'; ind.className = 'pov-tl-save-ind saving'; }
-  clearTimeout(_povTLSaveTimer2);
-  _povTLSaveTimer2 = setTimeout(savePOVTLV2, 1200);
-}
-
-async function savePOVTLV2() {
-  var ind = document.getElementById('pov-tl-save-ind');
-  try {
-    var getRes = await fetch('/user/' + CUSTOMER_SLUG + '/prepov');
-    var getData = await getRes.json();
-    var existing = (getData.success && getData.data) ? getData.data : {};
-    existing.pov_timeline_v2 = _povTLRows;
-    var res = await fetch('/user/' + CUSTOMER_SLUG + '/prepov', {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data: existing })
-    });
-    var data = await res.json();
-    if (data.success) {
-      var now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      if (ind) { ind.textContent = '✓ Saved at ' + now; ind.className = 'pov-tl-save-ind saved';
-        setTimeout(function(){ if(ind){ ind.textContent=''; ind.className='pov-tl-save-ind'; }}, 4000); }
-    } else { if (ind) { ind.textContent = 'Save failed'; ind.className = 'pov-tl-save-ind'; } }
-  } catch(e) { if (ind) { ind.textContent = 'Save failed'; ind.className = 'pov-tl-save-ind'; } }
-}
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root {
   --navy-dark: #002244; --navy: #003366; --blue: #0070c0; --accent: #00aaff;
@@ -2974,6 +2870,109 @@ async function savePOVTimeline() {
     }
   };
 })();
+
+// ══════════════════════════════════════════════════════════════════
+// POV TIMELINE TABLE
+// ══════════════════════════════════════════════════════════════════
+var _povTLRows = [];
+var _povTLSaveTimer2 = null;
+var _povTLCounter2 = 20;
+
+var _POV_TL_DEFAULTS_V2 = [
+  { id: 1,  label: 'Architecture & Design Workshops',              date: '' },
+  { id: 2,  label: 'Stakeholders & Budget Owners Defined',         date: '' },
+  { id: 3,  label: 'Estimated Costs & Commercials Defined',        date: '' },
+  { id: 4,  label: 'POV Test Cases, Requirements & Scope Defined', date: '' },
+  { id: 5,  label: 'Technical Feasibility Review',                 date: '' },
+  { id: 6,  label: 'Logistics, Timelines & Roles Defined',         date: '' },
+  { id: 7,  label: 'POV Agreement Sign-Offs',                      date: '' },
+  { id: 8,  label: 'POV Tenant Provisioned',                       date: '' },
+  { id: 9,  label: 'POV Kickoff',                                  date: '' },
+  { id: 10, label: 'Weekly Sync Meetings',                         date: '' },
+  { id: 11, label: 'POV Wrap & Procurement Discussion',            date: '' },
+  { id: 12, label: 'Production Rollout',                           date: '' },
+];
+
+function initPOVTLTable(savedData) {
+  if (savedData && savedData.pov_timeline_v2 && savedData.pov_timeline_v2.length) {
+    _povTLRows = savedData.pov_timeline_v2;
+  } else {
+    _povTLRows = JSON.parse(JSON.stringify(_POV_TL_DEFAULTS_V2));
+  }
+  if (_povTLRows.length)
+    _povTLCounter2 = Math.max(_povTLCounter2, Math.max.apply(null, _povTLRows.map(function(r){ return r.id || 0; })));
+  renderPOVTLTable();
+}
+
+function renderPOVTLTable() {
+  var tbody = document.getElementById('pov-tl-tbody');
+  if (!tbody) return;
+  if (!_povTLRows.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No milestones — click + Add Milestone.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  _povTLRows.forEach(function(row, idx) {
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="pov-tl-num">' + (idx + 1) + '</td>' +
+      '<td><input class="pov-tl-milestone-inp" type="text" value="' + escHtml(row.label) + '" placeholder="Milestone description…"' +
+        ' oninput="povTLV2Update(' + row.id + ','label',this.value)" onblur="schedulePOVTLV2Save()"></td>' +
+      '<td><input class="pov-tl-date-inp" type="text" value="' + escHtml(row.date) + '" placeholder="e.g. Jan 23"' +
+        ' oninput="povTLV2Update(' + row.id + ','date',this.value)" onblur="schedulePOVTLV2Save()"></td>' +
+      '<td><button class="pov-tl-del-btn" onclick="povTLV2Delete(' + row.id + ')" title="Remove">✕</button></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function povTLV2Update(id, field, value) {
+  var row = _povTLRows.find(function(r){ return r.id === id; });
+  if (row) row[field] = value;
+}
+
+function povTLV2Delete(id) {
+  _povTLRows = _povTLRows.filter(function(r){ return r.id !== id; });
+  renderPOVTLTable();
+  schedulePOVTLV2Save();
+}
+
+function povTLAddRow() {
+  _povTLCounter2++;
+  _povTLRows.push({ id: _povTLCounter2, label: '', date: '' });
+  renderPOVTLTable();
+  schedulePOVTLV2Save();
+  setTimeout(function() {
+    var inputs = document.querySelectorAll('#pov-tl-tbody .pov-tl-milestone-inp');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 30);
+}
+
+function schedulePOVTLV2Save() {
+  var ind = document.getElementById('pov-tl-save-ind');
+  if (ind) { ind.textContent = 'Saving…'; ind.className = 'pov-tl-save-ind saving'; }
+  clearTimeout(_povTLSaveTimer2);
+  _povTLSaveTimer2 = setTimeout(savePOVTLV2, 1200);
+}
+
+async function savePOVTLV2() {
+  var ind = document.getElementById('pov-tl-save-ind');
+  try {
+    var getRes = await fetch('/user/' + CUSTOMER_SLUG + '/prepov');
+    var getData = await getRes.json();
+    var existing = (getData.success && getData.data) ? getData.data : {};
+    existing.pov_timeline_v2 = _povTLRows;
+    var res = await fetch('/user/' + CUSTOMER_SLUG + '/prepov', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: existing })
+    });
+    var data = await res.json();
+    if (data.success) {
+      var now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (ind) { ind.textContent = '✓ Saved at ' + now; ind.className = 'pov-tl-save-ind saved';
+        setTimeout(function(){ if(ind){ ind.textContent=''; ind.className='pov-tl-save-ind'; }}, 4000); }
+    } else { if (ind) { ind.textContent = 'Save failed'; ind.className = 'pov-tl-save-ind'; } }
+  } catch(e) { if (ind) { ind.textContent = 'Save failed'; ind.className = 'pov-tl-save-ind'; } }
+}
 
 </script>
 </body>
