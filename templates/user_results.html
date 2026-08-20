@@ -2860,16 +2860,7 @@ async function savePOVTimeline() {
   }
 }
 
-// Hook into switchTab to lazy-load timeline when POV tab opens
-(function() {
-  var _origSwitch2 = window.switchTab;
-  window.switchTab = function(name) {
-    _origSwitch2(name);
-    if (name === 'pov' && !_povTLLoaded) {
-      loadPOVTimeline();
-    }
-  };
-})();
+// POV timeline table is loaded via initPOVTLTable() called from loadPrePOV()
 
 // ══════════════════════════════════════════════════════════════════
 // POV TIMELINE TABLE
@@ -2917,9 +2908,9 @@ function renderPOVTLTable() {
     tr.innerHTML =
       '<td class="pov-tl-num">' + (idx + 1) + '</td>' +
       '<td><input class="pov-tl-milestone-inp" type="text" value="' + escHtml(row.label) + '" placeholder="Milestone description…"' +
-        ' oninput="povTLV2Update(' + row.id + ','label',this.value)" onblur="schedulePOVTLV2Save()"></td>' +
+        ' oninput="povTLV2Update(' + row.id + ',\'label\',this.value)" onblur="schedulePOVTLV2Save()"></td>' +
       '<td><input class="pov-tl-date-inp" type="text" value="' + escHtml(row.date) + '" placeholder="e.g. Jan 23"' +
-        ' oninput="povTLV2Update(' + row.id + ','date',this.value)" onblur="schedulePOVTLV2Save()"></td>' +
+        ' oninput="povTLV2Update(' + row.id + ',\'date\',this.value)" onblur="schedulePOVTLV2Save()"></td>' +
       '<td><button class="pov-tl-del-btn" onclick="povTLV2Delete(' + row.id + ')" title="Remove">✕</button></td>';
     tbody.appendChild(tr);
   });
