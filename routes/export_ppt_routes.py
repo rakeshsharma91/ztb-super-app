@@ -1,10 +1,13 @@
 from flask import Blueprint, request, jsonify, send_file
 from models import db, UserResponse, PricingSKU, TCOEntry
 from routes.admin_sections_routes import evaluate_sections
-import re, io
+import re, io, copy
 from datetime import datetime
+from lxml import etree
 
 export_ppt_bp = Blueprint('export_ppt', __name__)
+
+TEMPLATE_PATH = '/home/ubuntu/ztb-super-app/static/assets/zscaler_template.pptx'
 
 def _make_slug(name):
     slug = (name or 'unknown').strip().lower()
@@ -23,10 +26,115 @@ def _find_by_slug(customer_slug):
             return r
     return None
 
+def _open_template():
+    """Open the Zscaler template and return (prs, layout_map).
+    Deletes all existing slides so we start fresh but keep masters/layouts.
+    layout_map keys: 'cover', 'title', 'title_sub', 'blank'
+    """
+    from pptx import Presentation
+    from pptx.oxml.ns import qn
+    prs = Presentation(TEMPLATE_PATH)
+    # Properly remove all existing slides including their relationships
+    sl = prs.slides
+    for i in range(len(sl) - 1, -1, -1):
+        rId = sl._sldIdLst[i].get(qn('r:id'))
+        sl._sldIdLst.remove(sl._sldIdLst[i])
+        if rId:
+            try:
+                prs.part.drop_rel(rId)
+            except Exception:
+                pass
+
+    # Map layouts by exact name from Zscaler template
+    layout_map = {}
+    name_to_layout = {l.name: l for l in prs.slide_layouts}
+    blank_navy = name_to_layout.get('Blank [Navy]', prs.slide_layouts[17])
+    layout_map['cover']     = blank_navy
+    layout_map['title']     = blank_navy
+    layout_map['title_sub'] = blank_navy
+    layout_map['blank']     = blank_navy
+
+    return prs, layout_map
+
+
+# ── shared drawing helpers ────────────────────────────────────────────────────
+
+def _box(slide, text, l, t, w, h,
+         sz=16, bold=False, color=None, italic=False, align=None):
+    from pptx.util import Pt
+    from pptx.dml.color import RGBColor
+    from pptx.enum.text import PP_ALIGN
+    WHITE = RGBColor(0xFF, 0xFF, 0xFF)
+    if align is None:
+        align = PP_ALIGN.LEFT
+    txb = slide.shapes.add_textbox(l, t, w, h)
+    tf  = txb.text_frame
+    tf.word_wrap = True
+    p   = tf.paragraphs[0]
+    p.alignment = align
+    run = p.add_run()
+    run.text            = text
+    run.font.name       = 'Century Gothic'
+    run.font.size       = Pt(sz)
+    run.font.bold       = bold
+    run.font.italic     = italic
+    run.font.color.rgb  = color or WHITE
+    return txb
+
+def _rect(slide, l, t, w, h, color):
+    s = slide.shapes.add_shape(1, l, t, w, h)
+    s.fill.solid()
+    s.fill.fore_color.rgb = color
+    s.line.fill.background()
+    return s
+
+def _slide_header(slide, title, subtitle=None):
+    """Standard content slide header — title top-left, optional subtitle below."""
+    from pptx.util import Emu, Pt
+    from pptx.dml.color import RGBColor
+    WHITE = RGBColor(0xFF, 0xFF, 0xFF)
+    _box(slide, title,
+         Emu(370_819), Emu(137_160), Emu(9_274_665), Emu(353_899),
+         sz=23, bold=True, color=WHITE)
+    if subtitle:
+        _box(slide, subtitle,
+             Emu(370_705), Emu(548_640), Emu(9_274_665), Emu(250_853),
+             sz=16, bold=False, color=WHITE)
+
+def _footer(slide):
+    """Tagline + copyright — only needed on blank layout slides (masters handle it on others)."""
+    from pptx.util import Emu
+    from pptx.dml.color import RGBColor
+    from pptx.enum.text import PP_ALIGN
+    WHITE = RGBColor(0xFF, 0xFF, 0xFF)
+    _box(slide, 'Act Fast. Stay Secure.',
+         Emu(370_706), Emu(6_451_135), Emu(2_250_601), Emu(246_220),
+         sz=10, color=WHITE)
+    _box(slide, '© 2025 Zscaler, Inc. All rights reserved.',
+         Emu(9_573_001), Emu(6_472_697), Emu(2_250_601), Emu(223_138),
+         sz=8, color=WHITE, align=PP_ALIGN.RIGHT)
+
+def _fmt(v):
+    try:    v = float(v)
+    except: return '—'
+    if v == 0: return '—'
+    if v >= 1_000_000: return f'${v/1_000_000:.1f}M'
+    if v >= 1_000:     return f'${int(round(v/1000))}K'
+    return f'${int(round(v)):,}'
+
+def _fmt_exact(v):
+    try:    v = float(v)
+    except: return '—'
+    if v == 0: return '—'
+    return f'${int(round(v)):,}'
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# OPPORTUNITY PACKAGE EXPORT
+# ══════════════════════════════════════════════════════════════════════════════
 
 @export_ppt_bp.route('/user/<customer_slug>/export-pptx', methods=['POST'])
 def export_pptx(customer_slug):
-    from pptx import Presentation
     from pptx.util import Inches, Pt, Emu
     from pptx.dml.color import RGBColor
     from pptx.enum.text import PP_ALIGN
@@ -34,7 +142,6 @@ def export_pptx(customer_slug):
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     import matplotlib.ticker as mticker
-    import numpy as np
 
     user_resp = _find_by_slug(customer_slug)
     if not user_resp:
@@ -54,74 +161,17 @@ def export_pptx(customer_slug):
 
     section_outcomes = evaluate_sections(user_resp.answers or {})
 
-    NAVY   = RGBColor(0x00, 0x22, 0x44)
-    NAVY2  = RGBColor(0x00, 0x33, 0x66)
-    NAVY3  = RGBColor(0x0D, 0x2D, 0x52)
-    ACCENT = RGBColor(0x00, 0xAA, 0xFF)
-    WHITE  = RGBColor(0xFF, 0xFF, 0xFF)
-    MUTED  = RGBColor(0xA0, 0xBC, 0xD8)
-    GREEN  = RGBColor(0x00, 0xDC, 0x82)
-    AMBER  = RGBColor(0xF5, 0x9E, 0x0B)
-    RED    = RGBColor(0xF8, 0x71, 0x71)
-    BLUE   = RGBColor(0x00, 0x70, 0xC0)
-
-    W = Inches(13.33)
-    H = Inches(7.5)
-
-    prs = Presentation()
-    prs.slide_width  = W
-    prs.slide_height = H
-    BL = prs.slide_layouts[6]
-
-    def _bg(slide, color=None):
-        fill = slide.background.fill
-        fill.solid()
-        fill.fore_color.rgb = color or NAVY
-
-    def _box(slide, text, l, t, w, h,
-             sz=16, bold=False, color=None, italic=False, align=PP_ALIGN.LEFT):
-        txb = slide.shapes.add_textbox(l, t, w, h)
-        tf  = txb.text_frame
-        tf.word_wrap = True
-        p   = tf.paragraphs[0]
-        p.alignment = align
-        run = p.add_run()
-        run.text           = text
-        run.font.size      = Pt(sz)
-        run.font.bold      = bold
-        run.font.italic    = italic
-        run.font.color.rgb = color or WHITE
-        return txb
-
-    def _rect(slide, l, t, w, h, color):
-        s = slide.shapes.add_shape(1, l, t, w, h)
-        s.fill.solid()
-        s.fill.fore_color.rgb = color
-        s.line.fill.background()
-        return s
-
-    def _fmt(v):
-        try:
-            v = float(v)
-        except (TypeError, ValueError):
-            return '—'
-        if v == 0:
-            return '—'
-        if v >= 1_000_000:
-            return f'${v/1_000_000:.1f}M'
-        if v >= 1_000:
-            return f'${int(round(v/1000))}K'
-        return f'${int(round(v)):,}'
-
-    def _fmt_exact(v):
-        try:
-            v = float(v)
-        except (TypeError, ValueError):
-            return '—'
-        if v == 0:
-            return '—'
-        return f'${int(round(v)):,}'
-
+    # ── Zscaler brand colors ───────────────────────────────────────────────
+    NAVY  = RGBColor(0x00, 0x17, 0x44)
+    WHITE = RGBColor(0xFF, 0xFF, 0xFF)
+    BLUE  = RGBColor(0x24, 0x6C, 0xF7)
+    CYAN  = RGBColor(0x12, 0xD3, 0xFF)
+    RED   = RGBColor(0xED, 0x19, 0x51)
+    GREEN = RGBColor(0x6B, 0xFF, 0xB3)
+    AMBER = RGBColor(0xFF, 0x93, 0x00)
+    MUTED = RGBColor(0xA0, 0xBC, 0xD8)
+    CARD  = RGBColor(0x00, 0x23, 0x6B)   # slightly lighter navy for cards
+    CARD2 = RGBColor(0x00, 0x1F, 0x5E)
 
     # ── pricing calculations ───────────────────────────────────────────────
     skus      = PricingSKU.query.filter_by(active=True).all()
@@ -130,12 +180,9 @@ def export_pptx(customer_slug):
     seg_map   = {s.id: s for s in skus if s.category == 'segmentation'}
 
     def _sku_price(mapping, sid):
-        if not sid:
-            return 0
-        try:
-            s = mapping.get(int(sid))
-        except (ValueError, TypeError):
-            return 0
+        if not sid: return 0
+        try:    s = mapping.get(int(sid))
+        except: return 0
         return float(getattr(s, phase, 0) or 0) if s else 0
 
     al_total  = 0
@@ -156,9 +203,7 @@ def export_pptx(customer_slug):
     margin_amt  = round(al_total * margin_pct  / 100)
     annual_rec  = al_total + support_amt + margin_amt
     yr1_total   = annual_rec + services_amt
-
-    # multiplier for exec summary: bake support + margin into per-site cost
-    _sm_mult = 1 + (support_pct / 100) + (margin_pct / 100)
+    _sm_mult    = 1 + (support_pct / 100) + (margin_pct / 100)
 
     # ── TCO calculations ───────────────────────────────────────────────────
     tco_catalog = {e.id: float(e.annual_cost or 0)
@@ -170,10 +215,8 @@ def export_pptx(customer_slug):
         for cat in TCO_CATS:
             eid = row.get(f'{cat}_id')
             if eid:
-                try:
-                    legacy_hw += tco_catalog.get(int(eid), 0) * qty
-                except (ValueError, TypeError):
-                    pass
+                try:    legacy_hw += tco_catalog.get(int(eid), 0) * qty
+                except: pass
 
     legacy_total = legacy_hw + fte_count * fte_cost + breach_cost
     annual_sav   = legacy_total - acv
@@ -181,45 +224,35 @@ def export_pptx(customer_slug):
     roi_pct      = round(annual_sav / legacy_total * 100) if legacy_total > 0 else 0
     payback_mo   = round((acv / annual_sav) * 12) if annual_sav > 0 else None
 
-    # ══════════════════════════════════════════════════════════════════════
-    # SLIDE 1 — Title
-    # ══════════════════════════════════════════════════════════════════════
-    s1 = prs.slides.add_slide(BL)
-    _bg(s1, NAVY)
-    _rect(s1, Inches(0), Inches(0), Inches(0.2), H, ACCENT)
-    _rect(s1, Inches(0.35), Inches(2.25), Inches(12.6), Emu(55000), ACCENT)
-    _box(s1, 'ZTB OPPORTUNITY PACKAGE',
-         Inches(0.5), Inches(0.55), Inches(11), Inches(0.6),
-         sz=12, bold=True, color=ACCENT)
-    _box(s1, user_resp.customer_name,
-         Inches(0.5), Inches(1.05), Inches(12), Inches(1.1),
-         sz=46, bold=True, color=WHITE)
-    meta = []
-    if user_resp.se_name:
-        meta.append(f'Solutions Consultant: {user_resp.se_name}')
-    if user_resp.completed_at:
-        meta.append(user_resp.completed_at.strftime('%B %d, %Y'))
-    if meta:
-        _box(s1, '     '.join(meta),
-             Inches(0.5), Inches(2.5), Inches(11), Inches(0.5),
-             sz=14, color=MUTED)
-    _box(s1, 'Zero Trust Branch  ·  Zscaler',
-         Inches(0.5), Inches(6.75), Inches(7), Inches(0.45),
-         sz=11, color=MUTED, italic=True)
+    prs, LY = _open_template()
+    W = prs.slide_width
+    H = prs.slide_height
 
     # ══════════════════════════════════════════════════════════════════════
-    # SLIDE 2 — Value Drivers  (fully auto-scaling)
+    # SLIDE 1 — Cover
     # ══════════════════════════════════════════════════════════════════════
-    s2 = prs.slides.add_slide(BL)
-    _bg(s2, NAVY)
-    _rect(s2, Inches(0), Inches(0), Inches(0.2), H, ACCENT)
-    _box(s2, 'VALUE DRIVERS',
-         Inches(0.4), Inches(0.2), Inches(11), Inches(0.42),
-         sz=11, bold=True, color=ACCENT)
-    _box(s2, 'Current State → Future State with Zscaler ZTB',
-         Inches(0.4), Inches(0.6), Inches(11), Inches(0.48),
-         sz=22, bold=True, color=WHITE)
-    _rect(s2, Inches(0.4), Inches(1.12), Inches(12.7), Emu(40000), ACCENT)
+    s1 = prs.slides.add_slide(LY['cover'])
+    # Cover layout has title/subtitle placeholders — fill them if present
+    if True:
+        _box(s1, 'ZTB OPPORTUNITY PACKAGE',
+             Emu(388_620), Emu(2_000_000), Emu(8_229_600), Emu(457_200),
+             sz=12, bold=True, color=CYAN)
+        _box(s1, user_resp.customer_name or 'Customer',
+             Emu(388_620), Emu(2_500_000), Emu(9_144_000), Emu(1_000_000),
+             sz=36, bold=True, color=WHITE)
+        meta = []
+        if user_resp.se_name:    meta.append(f'Solutions Consultant: {user_resp.se_name}')
+        if user_resp.completed_at: meta.append(user_resp.completed_at.strftime('%B %d, %Y'))
+        if meta:
+            _box(s1, '     '.join(meta),
+                 Emu(388_620), Emu(3_600_000), Emu(9_144_000), Emu(457_200),
+                 sz=14, color=WHITE)
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SLIDE 2 — Value Drivers
+    # ══════════════════════════════════════════════════════════════════════
+    s2 = prs.slides.add_slide(LY['title_sub'])
+    _slide_header(s2, 'Value Drivers', 'Current State → Future State with Zscaler ZTB')
 
     drivers = [s for s in section_outcomes if s.get('format') == 'value_driver']
     if not drivers:
@@ -227,198 +260,148 @@ def export_pptx(customer_slug):
              Inches(0.5), Inches(2.0), Inches(11), Inches(0.5),
              sz=14, color=MUTED, italic=True)
     else:
-        col_x = [Inches(0.4),  Inches(2.75), Inches(7.8)]
-        col_w = [Inches(2.2),  Inches(4.9),  Inches(4.9)]
+        col_x = [Emu(370_819),  Emu(2_514_600), Emu(7_131_600)]
+        col_w = [Emu(2_000_000), Emu(4_500_000), Emu(4_500_000)]
 
-        # Column header row
-        hdrs = ['DRIVER', 'CURRENT STATE', 'FUTURE STATE (ZTB)']
-        HDR_Y  = Inches(1.2)
-        HDR_H  = Inches(0.38)
+        HDR_Y = Emu(1_158_750)
+        HDR_H = Emu(347_472)
+        hdrs  = ['DRIVER', 'CURRENT STATE', 'FUTURE STATE (ZTB)']
         for i, h in enumerate(hdrs):
-            _rect(s2, col_x[i], HDR_Y, col_w[i]-Inches(0.05), HDR_H, NAVY2)
-            _box(s2, h, col_x[i]+Inches(0.07), HDR_Y,
-                 col_w[i], HDR_H, sz=9, bold=True, color=ACCENT)
+            _rect(s2, col_x[i], HDR_Y, col_w[i] - Emu(45_720), HDR_H, CARD)
+            _box(s2, h, col_x[i] + Emu(63_500), HDR_Y,
+                 col_w[i], HDR_H, sz=9, bold=True, color=CYAN)
 
-        TABLE_TOP    = Inches(1.62)
-        TABLE_BOTTOM = Inches(7.2)          # leave small bottom margin
+        TABLE_TOP    = int(HDR_Y) + int(HDR_H)
+        TABLE_BOTTOM = int(Inches(7.1))
         AVAILABLE    = TABLE_BOTTOM - TABLE_TOP
         n            = min(len(drivers), 7)
 
-        # --- estimate relative weights (line count) per row ---
-        LINES_PER_INCH = 8.5   # approximate for sz=8 with word wrap in 4.8" column
-        PAD_INCH       = 0.18  # top+bottom padding per row
-
         def _est_lines(drv):
-            # count bullet lines; each line ~15 words in a 4.8" col at sz=8
             def count(lines):
                 total = 0
                 for ln in lines:
                     words = len((ln or '').split())
-                    total += max(1, -(-words // 10))   # ceiling div at sz=11
+                    total += max(1, -(-words // 10))
                 return total
-            return max(
-                count(drv.get('current_state_lines', [])),
-                count(drv.get('future_state_lines',  [])),
-                1
-            )
+            return max(count(drv.get('current_state_lines', [])),
+                       count(drv.get('future_state_lines',  [])), 1)
 
-        weights   = [_est_lines(d) for d in drivers[:n]]
-        total_w   = sum(weights)
-        # minimum row height = 0.55", scale up proportionally to fill slide
-        MIN_H     = Inches(0.7)
-        raw_heights = [max(MIN_H, (w / total_w) * float(AVAILABLE)) for w in weights]
-
-        # if total raw < available, distribute leftover evenly
-        leftover = float(AVAILABLE) - sum(raw_heights)
+        weights     = [_est_lines(d) for d in drivers[:n]]
+        total_w     = sum(weights)
+        MIN_H       = int(Inches(0.7))
+        raw_heights = [max(MIN_H, (w / total_w) * AVAILABLE) for w in weights]
+        leftover    = AVAILABLE - sum(raw_heights)
         if leftover > 0:
             bonus = leftover / n
             raw_heights = [rh + bonus for rh in raw_heights]
 
         y_cursor = TABLE_TOP
         for ri, drv in enumerate(drivers[:n]):
-            rh   = int(raw_heights[ri])
-            bg_  = NAVY3 if ri % 2 == 0 else NAVY2
-            PAD  = Emu(int(Inches(0.06)))
-
-            # background rects
+            rh  = int(raw_heights[ri])
+            bg_ = CARD if ri % 2 == 0 else CARD2
+            PAD = int(Emu(54_864))
             for i in range(3):
-                _rect(s2, col_x[i], y_cursor,
-                      col_w[i]-Inches(0.05), rh - int(Inches(0.03)), bg_)
-
-            # DRIVER label — vertically centred in row
+                _rect(s2, col_x[i], y_cursor, col_w[i] - Emu(45_720),
+                      rh - int(Emu(27_432)), bg_)
             _box(s2, drv.get('label', ''),
-                 col_x[0]+Inches(0.1), y_cursor + PAD,
-                 col_w[0]-Inches(0.15), rh,
-                 sz=11, bold=True, color=ACCENT)
-
-            # Current State — textbox height = full row so word-wrap has room
+                 col_x[0] + Emu(91_440), y_cursor + PAD, col_w[0] - Emu(137_160), rh,
+                 sz=11, bold=True, color=CYAN)
             _box(s2, '\n'.join(drv.get('current_state_lines', [])),
-                 col_x[1]+Inches(0.08), y_cursor + PAD,
-                 col_w[1]-Inches(0.15), rh,
+                 col_x[1] + Emu(73_152), y_cursor + PAD, col_w[1] - Emu(137_160), rh,
                  sz=11, color=WHITE)
-
-            # Future State
             _box(s2, '\n'.join(drv.get('future_state_lines', [])),
-                 col_x[2]+Inches(0.08), y_cursor + PAD,
-                 col_w[2]-Inches(0.15), rh,
+                 col_x[2] + Emu(73_152), y_cursor + PAD, col_w[2] - Emu(137_160), rh,
                  sz=11, color=WHITE)
-
             y_cursor += rh
 
     # ══════════════════════════════════════════════════════════════════════
     # SLIDE 3 — Pricing Executive Summary
     # ══════════════════════════════════════════════════════════════════════
-    s3 = prs.slides.add_slide(BL)
-    _bg(s3, NAVY)
-    _rect(s3, Inches(0), Inches(0), Inches(0.2), H, BLUE)
-    _box(s3, 'PRICING SUMMARY',
-         Inches(0.4), Inches(0.2), Inches(12), Inches(0.42),
-         sz=11, bold=True, color=BLUE)
-    _box(s3, 'Executive Overview',
-         Inches(0.4), Inches(0.6), Inches(12), Inches(0.48),
-         sz=22, bold=True, color=WHITE)
-    _rect(s3, Inches(0.4), Inches(1.12), Inches(12.7), Emu(40000), BLUE)
+    s3 = prs.slides.add_slide(LY['title_sub'])
+    _slide_header(s3, 'Pricing Summary', 'Executive Overview')
 
-    # full-width columns
-    COL_X = [Inches(0.4),  Inches(5.8),  Inches(9.4)]
-    COL_W = [Inches(5.2),  Inches(3.4),  Inches(3.53)]
+    COL_X = [Emu(370_819),  Emu(5_303_520), Emu(8_601_120)]
+    COL_W = [Emu(4_750_000), Emu(3_100_000), Emu(3_200_000)]
 
-    HDR_Y = Inches(1.22)
-    HDR_H = Inches(0.42)
-    for i, h in enumerate(['SITE LABEL', 'COST PER SITE', 'LINE TOTAL']):
-        _rect(s3, COL_X[i], HDR_Y, COL_W[i] - Inches(0.05), HDR_H, NAVY2)
-        align = PP_ALIGN.RIGHT if i > 0 else PP_ALIGN.LEFT
-        _box(s3, h, COL_X[i]+Inches(0.14), HDR_Y+Inches(0.05),
-             COL_W[i]-Inches(0.18), HDR_H,
-             sz=10, bold=True, color=ACCENT, align=align)
+    HDR_Y = Emu(1_158_750); HDR_H = Emu(383_731)
+    for i, (h, al) in enumerate([('SITE LABEL', PP_ALIGN.LEFT),
+                                  ('COST PER SITE', PP_ALIGN.RIGHT),
+                                  ('LINE TOTAL', PP_ALIGN.RIGHT)]):
+        _rect(s3, COL_X[i], HDR_Y, COL_W[i] - Emu(45_720), HDR_H, CARD)
+        _box(s3, h, COL_X[i] + Emu(127_000), HDR_Y + Emu(45_720),
+             COL_W[i] - Emu(165_100), HDR_H, sz=10, bold=True, color=CYAN, align=al)
 
     active = [
         (lbl, round(site_t * _sm_mult), round(qty * site_t * _sm_mult))
         for lbl, qty, app_p, sdw_p, seg_p, site_t, line_t in bom_lines
     ]
 
-    # rows fill available space; cap so GT+pills+footer always fit below
-    TABLE_TOP    = Inches(1.67)
-    BELOW_BUDGET = Inches(3.1)   # GT bar + gap + label + pills + footer
-    MAX_BOTTOM   = H - BELOW_BUDGET
-    MIN_ROW_H    = int(Inches(0.45))
+    TABLE_TOP    = int(HDR_Y) + int(HDR_H)
+    TABLE_BOTTOM = int(Inches(3.8))
     n_rows       = max(len(active), 1)
-    TABLE_BOTTOM = min(Inches(4.2), MAX_BOTTOM)
-    ROW_H        = max(MIN_ROW_H, int((TABLE_BOTTOM - TABLE_TOP) / n_rows))
+    ROW_H        = max(int(Inches(0.45)), int((TABLE_BOTTOM - TABLE_TOP) / n_rows))
 
-    y_cur = int(TABLE_TOP)
+    y_cur = TABLE_TOP
     for ri, (lbl, cost_per_site, line_total) in enumerate(active):
-        bg_  = NAVY3 if ri % 2 == 0 else NAVY2
-        PAD  = int(Inches(0.12))
+        bg_  = CARD if ri % 2 == 0 else CARD2
+        PAD  = int(Emu(109_728))
         for i in range(3):
-            _rect(s3, COL_X[i], y_cur,
-                  COL_W[i]-Inches(0.05), ROW_H-int(Inches(0.03)), bg_)
+            _rect(s3, COL_X[i], y_cur, COL_W[i] - Emu(45_720),
+                  ROW_H - int(Emu(27_432)), bg_)
         _box(s3, lbl,
-             COL_X[0]+Inches(0.14), y_cur+PAD,
-             COL_W[0]-Inches(0.2), ROW_H,
-             sz=18, bold=True, color=ACCENT)
+             COL_X[0] + Emu(127_000), y_cur + PAD,
+             COL_W[0] - Emu(182_880), ROW_H, sz=14, bold=True, color=CYAN)
         _box(s3, _fmt_exact(cost_per_site),
-             COL_X[1]+Inches(0.05), y_cur+PAD,
-             COL_W[1]-Inches(0.1), ROW_H,
-             sz=18, color=WHITE, align=PP_ALIGN.RIGHT)
+             COL_X[1] + Emu(45_720), y_cur + PAD,
+             COL_W[1] - Emu(91_440), ROW_H, sz=14, color=WHITE, align=PP_ALIGN.RIGHT)
         _box(s3, _fmt_exact(line_total),
-             COL_X[2]+Inches(0.05), y_cur+PAD,
-             COL_W[2]-Inches(0.1), ROW_H,
-             sz=18, bold=True, color=WHITE, align=PP_ALIGN.RIGHT)
+             COL_X[2] + Emu(45_720), y_cur + PAD,
+             COL_W[2] - Emu(91_440), ROW_H, sz=14, bold=True, color=WHITE, align=PP_ALIGN.RIGHT)
         y_cur += ROW_H
 
-    # grand total — full width, flush below last row
-    GT_Y = y_cur + int(Inches(0.12))
-    _rect(s3, Inches(0.4), GT_Y, Inches(12.53), Inches(0.7), NAVY2)
-    _rect(s3, Inches(0.4), GT_Y, Inches(0.08), Inches(0.7), BLUE)
+    # Grand total bar
+    GT_Y = y_cur + int(Emu(109_728))
+    _rect(s3, Emu(370_819), GT_Y, Emu(11_430_381), Emu(640_080), CARD)
+    _rect(s3, Emu(370_819), GT_Y, Emu(73_152),     Emu(640_080), BLUE)
     _box(s3, 'GRAND TOTAL',
-         Inches(0.6), GT_Y+Inches(0.12), Inches(5.0), Inches(0.48),
+         Emu(548_640), GT_Y + Emu(109_728), Emu(4_572_000), Emu(457_200),
          sz=16, bold=True, color=WHITE)
     _box(s3, _fmt_exact(annual_rec),
-         Inches(5.8), GT_Y+Inches(0.08), Inches(6.9), Inches(0.54),
-         sz=22, bold=True, color=ACCENT, align=PP_ALIGN.RIGHT)
+         Emu(5_303_520), GT_Y + Emu(73_152), Emu(6_400_000), Emu(548_640),
+         sz=22, bold=True, color=CYAN, align=PP_ALIGN.RIGHT)
 
-    # licenses — full width, flush below grand total
-    LIC_Y = GT_Y + Inches(1.3)
+    # Licenses row
+    LIC_Y = GT_Y + int(Emu(1_188_720))
     _box(s3, 'LICENSES INCLUDED',
-         Inches(0.4), LIC_Y-Inches(0.28), Inches(12), Inches(0.26),
+         Emu(370_819), LIC_Y - Emu(256_032), Emu(10_972_800), Emu(237_744),
          sz=9, bold=True, color=MUTED)
 
-    has_sdwan = any(row.get('sdwan_id') for row in pricing_rows)
-    has_seg   = any(row.get('seg_id')   for row in pricing_rows)
+    has_sdwan  = any(row.get('sdwan_id') for row in pricing_rows)
+    has_seg    = any(row.get('seg_id')   for row in pricing_rows)
     lic_labels = []
     if has_sdwan: lic_labels.append('SD-WAN Licenses')
     if has_seg:   lic_labels.append('Segmentation Licenses')
     if not lic_labels: lic_labels = ['Appliance only — no software licenses']
 
     n_pills = len(lic_labels)
-    pill_w  = int((Inches(12.53) - int(Inches(0.15)) * (n_pills - 1)) / n_pills)
-    pill_x  = int(Inches(0.4))
+    pill_w  = int((int(Emu(11_430_381)) - int(Emu(137_160)) * (n_pills - 1)) / n_pills)
+    pill_x  = int(Emu(370_819))
     for lic in lic_labels:
-        _rect(s3, pill_x, LIC_Y, pill_w, int(Inches(0.55)), NAVY2)
-        _rect(s3, pill_x, LIC_Y, int(Inches(0.07)), int(Inches(0.55)), BLUE)
-        _box(s3, lic, pill_x+int(Inches(0.16)), LIC_Y+int(Inches(0.1)),
-             pill_w-int(Inches(0.24)), int(Inches(0.42)),
-             sz=13, bold=True, color=WHITE)
-        pill_x += pill_w + int(Inches(0.15))
+        _rect(s3, pill_x, LIC_Y, pill_w, int(Emu(502_920)), CARD)
+        _rect(s3, pill_x, LIC_Y, int(Emu(64_008)), int(Emu(502_920)), BLUE)
+        _box(s3, lic, pill_x + int(Emu(146_304)), LIC_Y + int(Emu(91_440)),
+             pill_w - int(Emu(219_456)), int(Emu(383_731)), sz=13, bold=True, color=WHITE)
+        pill_x += pill_w + int(Emu(137_160))
 
     _box(s3, f'Phase: {phase.upper()}  ·  Annual Recurring: {_fmt(annual_rec)}',
-         Inches(0.4), LIC_Y+Inches(0.65), Inches(12.5), Inches(0.3),
+         Emu(370_819), LIC_Y + Emu(594_360), Emu(11_430_381), Emu(274_320),
          sz=9, color=MUTED, italic=True, align=PP_ALIGN.RIGHT)
 
     # ══════════════════════════════════════════════════════════════════════
     # SLIDE 4 — TCO KPIs + Bar Chart
     # ══════════════════════════════════════════════════════════════════════
-    s4 = prs.slides.add_slide(BL)
-    _bg(s4, NAVY)
-    _rect(s4, Inches(0), Inches(0), Inches(0.2), H, ACCENT)
-    _box(s4, 'TCO ANALYSIS',
-         Inches(0.4), Inches(0.2), Inches(8), Inches(0.42),
-         sz=11, bold=True, color=ACCENT)
-    _box(s4, 'Legacy Infrastructure vs. Zscaler ZTB',
-         Inches(0.4), Inches(0.6), Inches(8), Inches(0.48),
-         sz=22, bold=True, color=WHITE)
-    _rect(s4, Inches(0.4), Inches(1.12), Inches(12.7), Emu(40000), ACCENT)
+    s4 = prs.slides.add_slide(LY['title_sub'])
+    _slide_header(s4, 'TCO Analysis', 'Legacy Infrastructure vs. Zscaler ZTB')
 
     kpis = [
         ('Legacy Annual Spend', _fmt(legacy_total), RED,   'HW + FTE + Breach Risk'),
@@ -427,73 +410,61 @@ def export_pptx(customer_slug):
         ('ROI',                 f'{roi_pct}%',       AMBER,
          f'Payback: ~{payback_mo} months' if payback_mo else 'Set ACV above'),
     ]
-    kw = Inches(3.0); kh = Inches(1.55); kg = Inches(0.18)
+    kw = Emu(2_743_200); kh = Emu(1_417_320); kg = Emu(164_592)
     for i, (title, val, col, sub) in enumerate(kpis):
-        kx = Inches(0.4) + i * (kw + kg)
-        _rect(s4, kx, Inches(1.25), kw, kh, NAVY3)
-        _rect(s4, kx, Inches(1.25), Inches(0.07), kh, col)
-        _box(s4, title, kx+Inches(0.15), Inches(1.37), kw, Inches(0.35),
+        kx = int(Emu(370_819)) + i * (int(kw) + int(kg))
+        _rect(s4, kx, Emu(868_680), kw, kh, CARD)
+        _rect(s4, kx, Emu(1_143_000), Emu(64_008), kh, col)
+        _box(s4, title, kx + Emu(137_160), Emu(978_408), kw, Emu(320_040),
              sz=8, bold=True, color=MUTED)
-        _box(s4, val, kx+Inches(0.1), Inches(1.7), kw-Inches(0.1), Inches(0.6),
+        _box(s4, val,   kx + Emu(91_440),  Emu(1_280_160), kw - Emu(91_440), Emu(548_640),
              sz=26, bold=True, color=col)
         if sub:
-            _box(s4, sub, kx+Inches(0.15), Inches(2.3), kw, Inches(0.3),
+            _box(s4, sub, kx + Emu(137_160), Emu(1_826_640), kw, Emu(274_320),
                  sz=8, color=MUTED, italic=True)
 
-    fig, ax = plt.subplots(figsize=(12.5, 3.5), facecolor='#002244')
-    ax.set_facecolor('#002244')
+    fig, ax = plt.subplots(figsize=(12.5, 3.5), facecolor='#001744')
+    ax.set_facecolor('#001744')
     x_pos = [0, 1, 2]
-    ax.bar([x-0.22 for x in x_pos], [legacy_total]*3, 0.38,
-           color='#f87171', label='Legacy Annual Cost', zorder=3)
-    ax.bar([x+0.22 for x in x_pos], [acv]*3, 0.38,
-           color='#00d9ff', label='Zscaler ACV', zorder=3)
+    ax.bar([x - 0.22 for x in x_pos], [legacy_total] * 3, 0.38,
+           color='#ED1951', label='Legacy Annual Cost', zorder=3)
+    ax.bar([x + 0.22 for x in x_pos], [acv] * 3, 0.38,
+           color='#12D3FF', label='Zscaler ACV', zorder=3)
     ax.set_xticks(x_pos)
-    ax.set_xticklabels(['Year 1','Year 2','Year 3'], color='#a0bcd8', fontsize=11)
+    ax.set_xticklabels(['Year 1', 'Year 2', 'Year 3'],
+                       color='#FFFFFF', fontsize=11, fontfamily='DejaVu Sans')
     ax.yaxis.set_major_formatter(mticker.FuncFormatter(
         lambda v, _: f'${v/1e6:.1f}M' if v >= 1e6 else f'${v/1e3:.0f}K'))
-    ax.tick_params(axis='y', colors='#a0bcd8', labelsize=10)
+    ax.tick_params(axis='y', colors='#FFFFFF', labelsize=10)
     for sp in ax.spines.values():
         sp.set_visible(False)
-    ax.yaxis.grid(True, color='#0a2a50', linewidth=0.7, zorder=0)
+    ax.yaxis.grid(True, color='#002466', linewidth=0.7, zorder=0)
     ax.set_axisbelow(True)
-    ax.legend(facecolor='#0a2244', edgecolor='#003366',
-              labelcolor='#a0bcd8', fontsize=10, loc='upper right')
+    ax.legend(facecolor='#001744', edgecolor='#246CF7',
+              labelcolor='#FFFFFF', fontsize=10, loc='upper right')
     plt.tight_layout(pad=0.3)
     chart_buf = io.BytesIO()
     fig.savefig(chart_buf, format='png', dpi=130,
-                facecolor='#002244', bbox_inches='tight')
+                facecolor='#001744', bbox_inches='tight')
     plt.close(fig)
     chart_buf.seek(0)
-    s4.shapes.add_picture(chart_buf, Inches(0.35), Inches(2.95),
-                          Inches(12.6), Inches(4.25))
+    s4.shapes.add_picture(chart_buf, Emu(320_040), Emu(2_697_480),
+                          Emu(11_521_440), Emu(3_886_200))
 
     # ══════════════════════════════════════════════════════════════════════
-    # SLIDE 5 — Thank You
+    # SLIDE 5 — Thank You  (cover layout reused)
     # ══════════════════════════════════════════════════════════════════════
-    s5 = prs.slides.add_slide(BL)
-    _bg(s5, NAVY)
-    _rect(s5, Inches(0), Inches(0), Inches(0.2), H, ACCENT)
-    _rect(s5, Inches(0.35), Inches(3.85), Inches(12.6), Emu(55000), ACCENT)
+    s5 = prs.slides.add_slide(LY['cover'])
     _box(s5, 'Thank You',
-         Inches(0.5), Inches(1.3), Inches(12), Inches(1.2),
-         sz=54, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-    _box(s5, user_resp.customer_name,
-         Inches(0.5), Inches(2.65), Inches(12), Inches(0.6),
-         sz=20, color=ACCENT, align=PP_ALIGN.CENTER)
-    _box(s5, 'Zscaler Zero Trust Branch',
-         Inches(0.5), Inches(4.15), Inches(12), Inches(0.55),
-         sz=16, color=MUTED, align=PP_ALIGN.CENTER, italic=True)
-    if user_resp.se_name:
-        _box(s5, user_resp.se_name,
-             Inches(0.5), Inches(4.85), Inches(12), Inches(0.45),
-             sz=13, color=MUTED, align=PP_ALIGN.CENTER)
-    _box(s5, '© 2025 Zscaler, Inc. — Internal Sales Engineering Tool',
-         Inches(0.5), Inches(6.8), Inches(12), Inches(0.35),
-         sz=9, color=RGBColor(0x40, 0x60, 0x80),
-         align=PP_ALIGN.CENTER, italic=True)
+         Emu(388_620), Emu(2_500_000), Emu(9_144_000), Emu(914_400),
+         sz=40, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+    line = user_resp.customer_name or ''
+    if user_resp.se_name: line += f'  ·  {user_resp.se_name}'
+    _box(s5, line,
+         Emu(388_620), Emu(3_500_000), Emu(9_144_000), Emu(457_200),
+         sz=18, color=CYAN, align=PP_ALIGN.CENTER)
 
-    # ── stream ─────────────────────────────────────────────────────────────
-    out = io.BytesIO()
+    out   = io.BytesIO()
     prs.save(out)
     out.seek(0)
     safe  = (user_resp.customer_name or 'Customer').replace(' ', '_').replace('/', '_')
@@ -505,14 +476,13 @@ def export_pptx(customer_slug):
         download_name=fname
     )
 
+
 # ══════════════════════════════════════════════════════════════════════════════
-# POV DECK EXPORT  —  /user/<slug>/export-pov-deck
-# Slides: Title · Success Criteria · Pre-POV Checklist · POV Timeline · Thank You
+# POV DECK EXPORT
 # ══════════════════════════════════════════════════════════════════════════════
 
 @export_ppt_bp.route('/user/<customer_slug>/export-pov-deck', methods=['POST'])
 def export_pov_deck(customer_slug):
-    from pptx import Presentation
     from pptx.util import Inches, Pt, Emu
     from pptx.dml.color import RGBColor
     from pptx.enum.text import PP_ALIGN
@@ -521,61 +491,19 @@ def export_pov_deck(customer_slug):
     if not user_resp:
         return jsonify({'error': 'Not found'}), 404
 
-    NAVY   = RGBColor(0x00, 0x22, 0x44)
-    NAVY2  = RGBColor(0x00, 0x33, 0x66)
-    NAVY3  = RGBColor(0x0D, 0x2D, 0x52)
-    ACCENT = RGBColor(0x00, 0xAA, 0xFF)
-    WHITE  = RGBColor(0xFF, 0xFF, 0xFF)
-    MUTED  = RGBColor(0xA0, 0xBC, 0xD8)
-    GREEN  = RGBColor(0x00, 0xDC, 0x82)
-    AMBER  = RGBColor(0xF5, 0x9E, 0x0B)
-    BLUE   = RGBColor(0x00, 0x70, 0xC0)
+    NAVY  = RGBColor(0x00, 0x17, 0x44)
+    WHITE = RGBColor(0xFF, 0xFF, 0xFF)
+    BLUE  = RGBColor(0x24, 0x6C, 0xF7)
+    CYAN  = RGBColor(0x12, 0xD3, 0xFF)
+    GREEN = RGBColor(0x6B, 0xFF, 0xB3)
+    AMBER = RGBColor(0xFF, 0x93, 0x00)
+    MUTED = RGBColor(0xA0, 0xBC, 0xD8)
+    CARD  = RGBColor(0x00, 0x23, 0x6B)
+    CARD2 = RGBColor(0x00, 0x1F, 0x5E)
 
-    W = Inches(13.33)
-    H = Inches(7.5)
-
-    prs = Presentation()
-    prs.slide_width  = W
-    prs.slide_height = H
-    BL = prs.slide_layouts[6]
-
-    def _bg(slide, color=None):
-        fill = slide.background.fill
-        fill.solid()
-        fill.fore_color.rgb = color or NAVY
-
-    def _box(slide, text, l, t, w, h,
-             sz=16, bold=False, color=None, italic=False, align=PP_ALIGN.LEFT):
-        txb = slide.shapes.add_textbox(l, t, w, h)
-        tf  = txb.text_frame
-        tf.word_wrap = True
-        p   = tf.paragraphs[0]
-        p.alignment = align
-        run = p.add_run()
-        run.text           = text
-        run.font.size      = Pt(sz)
-        run.font.bold      = bold
-        run.font.italic    = italic
-        run.font.color.rgb = color or WHITE
-        return txb
-
-    def _rect(slide, l, t, w, h, color):
-        s = slide.shapes.add_shape(1, l, t, w, h)
-        s.fill.solid()
-        s.fill.fore_color.rgb = color
-        s.line.fill.background()
-        return s
-
-    def _slide_header(slide, eyebrow, title, accent_color=None):
-        ac = accent_color or ACCENT
-        _rect(slide, Inches(0), Inches(0), Inches(0.2), H, ac)
-        _box(slide, eyebrow,
-             Inches(0.4), Inches(0.2), Inches(12), Inches(0.42),
-             sz=11, bold=True, color=ac)
-        _box(slide, title,
-             Inches(0.4), Inches(0.6), Inches(12), Inches(0.52),
-             sz=22, bold=True, color=WHITE)
-        _rect(slide, Inches(0.4), Inches(1.15), Inches(12.7), Emu(40000), ac)
+    prs, LY = _open_template()
+    W = prs.slide_width
+    H = prs.slide_height
 
     raw       = user_resp.raw_responses or {}
     prepov    = raw.get('prepov_data', {})
@@ -603,107 +531,97 @@ def export_pov_deck(customer_slug):
         ('signoffs',         'POV Sign-Offs Completed by all Parties'),
     ]
 
-    # SLIDE 1 — Title
-    s1 = prs.slides.add_slide(BL)
-    _bg(s1, NAVY)
-    _rect(s1, Inches(0), Inches(0), Inches(0.2), H, ACCENT)
-    _rect(s1, Inches(0.35), Inches(2.25), Inches(12.6), Emu(55000), ACCENT)
-    _box(s1, 'PROOF OF VALUE — POV DECK',
-         Inches(0.5), Inches(0.55), Inches(11), Inches(0.6),
-         sz=12, bold=True, color=ACCENT)
-    _box(s1, user_resp.customer_name or 'Customer',
-         Inches(0.5), Inches(1.05), Inches(12), Inches(1.1),
-         sz=46, bold=True, color=WHITE)
-    meta = []
-    if user_resp.se_name:
-        meta.append(f'Solutions Consultant: {user_resp.se_name}')
-    if user_resp.completed_at:
-        meta.append(user_resp.completed_at.strftime('%B %d, %Y'))
-    if meta:
-        _box(s1, '     '.join(meta),
-             Inches(0.5), Inches(2.5), Inches(11), Inches(0.5),
-             sz=14, color=MUTED)
-    _box(s1, 'Zero Trust Branch  ·  Zscaler',
-         Inches(0.5), Inches(6.75), Inches(7), Inches(0.45),
-         sz=11, color=MUTED, italic=True)
+    # ── SLIDE 1 — Cover ───────────────────────────────────────────────────
+    s1 = prs.slides.add_slide(LY['cover'])
+    if True:
+        _box(s1, 'PROOF OF VALUE — POV DECK',
+             Emu(388_620), Emu(1_800_000), Emu(9_144_000), Emu(457_200),
+             sz=12, bold=True, color=CYAN)
+        _box(s1, user_resp.customer_name or 'Customer',
+             Emu(388_620), Emu(2_300_000), Emu(9_144_000), Emu(1_000_000),
+             sz=36, bold=True, color=WHITE)
 
-    # SLIDE 2 — Success Criteria
-    s2 = prs.slides.add_slide(BL)
-    _bg(s2, NAVY)
-    _slide_header(s2, 'POV SUCCESS CRITERIA',
-                  'POV Success Criteria', BLUE)
+    # ── SLIDE 2 — Success Criteria ────────────────────────────────────────
+    s2 = prs.slides.add_slide(LY['title_sub'])
+    _slide_header(s2, 'POV Success Criteria', 'Defined test cases and acceptance criteria')
+
     if not success_criteria:
         _box(s2, 'No success criteria have been tagged for this assessment.',
              Inches(0.5), Inches(2.0), Inches(12), Inches(0.5),
              sz=14, color=MUTED, italic=True)
     else:
-        TABLE_TOP = Inches(1.32)
+        TABLE_TOP    = int(Emu(1_158_750)) + int(Emu(347_472))
+        TABLE_BOTTOM = int(Inches(6.7))
         n         = min(len(success_criteria), 8)
-        ROW_H     = max(int((Inches(7.1) - TABLE_TOP) / n), int(Inches(0.55)))
-        COL_NUM_X = Inches(0.4);  COL_NUM_W = Inches(0.5)
-        COL_TIT_X = Inches(0.95); COL_TIT_W = Inches(5.8)
-        COL_DSC_X = Inches(6.85); COL_DSC_W = Inches(6.25)
-        HDR_Y = int(TABLE_TOP); HDR_H = int(Inches(0.38))
-        for cx, cw, lbl in [(COL_NUM_X,COL_NUM_W,'#'),(COL_TIT_X,COL_TIT_W,'SUCCESS CRITERIA'),(COL_DSC_X,COL_DSC_W,'DESCRIPTION')]:
-            _rect(s2, cx, HDR_Y, cw, HDR_H, NAVY2)
-            _box(s2, lbl, cx+Inches(0.08), HDR_Y, cw, HDR_H, sz=9, bold=True, color=BLUE)
+        ROW_H     = max(int(Inches(0.55)), int((TABLE_BOTTOM - TABLE_TOP) / n))
+        COL_NUM_X = Emu(370_819);  COL_NUM_W = Emu(457_200)
+        COL_TIT_X = Emu(868_019);  COL_TIT_W = Emu(5_303_520)
+        COL_DSC_X = Emu(6_217_399); COL_DSC_W = Emu(5_713_981)
+        HDR_Y = TABLE_TOP; HDR_H = int(Emu(347_472))
+        for cx, cw, lbl in [(COL_NUM_X, COL_NUM_W, '#'),
+                             (COL_TIT_X, COL_TIT_W, 'SUCCESS CRITERIA'),
+                             (COL_DSC_X, COL_DSC_W, 'DESCRIPTION')]:
+            _rect(s2, cx, HDR_Y, cw, HDR_H, CARD)
+            _box(s2, lbl, cx + Emu(73_152), HDR_Y, cw, HDR_H, sz=9, bold=True, color=BLUE)
         y = HDR_Y + HDR_H
         for i, sc in enumerate(success_criteria[:n]):
-            bg_ = NAVY3 if i%2==0 else NAVY2
-            PAD = int(Inches(0.1))
-            for cx, cw in [(COL_NUM_X,COL_NUM_W),(COL_TIT_X,COL_TIT_W),(COL_DSC_X,COL_DSC_W)]:
-                _rect(s2, cx, y, cw, ROW_H-int(Inches(0.03)), bg_)
-            _box(s2, str(i+1), COL_NUM_X+Inches(0.08), y+PAD, COL_NUM_W, ROW_H,
-                 sz=11, bold=True, color=ACCENT, align=PP_ALIGN.CENTER)
+            bg_ = CARD if i % 2 == 0 else CARD2
+            PAD = int(Emu(91_440))
+            for cx, cw in [(COL_NUM_X, COL_NUM_W), (COL_TIT_X, COL_TIT_W), (COL_DSC_X, COL_DSC_W)]:
+                _rect(s2, cx, y, cw, ROW_H - int(Emu(27_432)), bg_)
+            _box(s2, str(i + 1), COL_NUM_X + Emu(73_152), y + PAD, COL_NUM_W, ROW_H,
+                 sz=11, bold=True, color=CYAN, align=PP_ALIGN.CENTER)
             title = sc.get('asset_name') or sc.get('title') or f'Criteria {i+1}'
-            _box(s2, title, COL_TIT_X+Inches(0.08), y+PAD, COL_TIT_W-Inches(0.12), ROW_H,
-                 sz=11, bold=True, color=WHITE)
+            _box(s2, title, COL_TIT_X + Emu(73_152), y + PAD,
+                 COL_TIT_W - Emu(109_728), ROW_H, sz=11, bold=True, color=WHITE)
             desc = sc.get('description') or ''
             if desc:
-                _box(s2, desc, COL_DSC_X+Inches(0.08), y+PAD, COL_DSC_W-Inches(0.12), ROW_H,
-                     sz=10, color=MUTED)
+                _box(s2, desc, COL_DSC_X + Emu(73_152), y + PAD,
+                     COL_DSC_W - Emu(109_728), ROW_H, sz=10, color=MUTED)
             y += ROW_H
 
-    # SLIDE 3 — Pre-POV Checklist
-    s3 = prs.slides.add_slide(BL)
-    _bg(s3, NAVY)
-    done_count = sum(1 for iid,_ in CHECKLIST_ITEMS if checks.get(iid))
-    _slide_header(s3, 'PRE-POV CHECKLIST',
-                  f'Completion: {done_count} of {len(CHECKLIST_ITEMS)} items', GREEN)
-    TABLE_TOP = Inches(1.32)
-    ROW_H = max(int((Inches(7.15)-TABLE_TOP)/len(CHECKLIST_ITEMS)), int(Inches(0.62)))
-    COL_ST_X=Inches(0.4); COL_ST_W=Inches(0.55)
-    COL_TT_X=Inches(1.0); COL_TT_W=Inches(5.6)
-    COL_NT_X=Inches(6.7); COL_NT_W=Inches(6.4)
-    HDR_Y=int(TABLE_TOP); HDR_H=int(Inches(0.38))
-    for cx,cw,lbl in [(COL_ST_X,COL_ST_W,''),(COL_TT_X,COL_TT_W,'CHECKLIST ITEM'),(COL_NT_X,COL_NT_W,'NOTES')]:
-        _rect(s3, cx, HDR_Y, cw, HDR_H, NAVY2)
+    # ── SLIDE 3 — Pre-POV Checklist ───────────────────────────────────────
+    s3 = prs.slides.add_slide(LY['title_sub'])
+    done_count = sum(1 for iid, _ in CHECKLIST_ITEMS if checks.get(iid))
+    _slide_header(s3, 'Pre-POV Checklist',
+                  f'Completion: {done_count} of {len(CHECKLIST_ITEMS)} items')
+
+    TABLE_TOP    = int(Emu(1_158_750)) + int(Emu(347_472))
+    TABLE_BOTTOM = int(Inches(6.7))
+    ROW_H = max(int((TABLE_BOTTOM - TABLE_TOP) / len(CHECKLIST_ITEMS)), int(Inches(0.62)))
+    COL_ST_X = Emu(370_819);  COL_ST_W = Emu(502_920)
+    COL_TT_X = Emu(914_399);  COL_TT_W = Emu(5_121_960)
+    COL_NT_X = Emu(6_127_679); COL_NT_W = Emu(5_850_721)
+    HDR_Y = TABLE_TOP; HDR_H = int(Emu(347_472))
+    for cx, cw, lbl in [(COL_ST_X, COL_ST_W, ''),
+                         (COL_TT_X, COL_TT_W, 'CHECKLIST ITEM'),
+                         (COL_NT_X, COL_NT_W, 'NOTES')]:
+        _rect(s3, cx, HDR_Y, cw, HDR_H, CARD)
         if lbl:
-            _box(s3, lbl, cx+Inches(0.08), HDR_Y, cw, HDR_H, sz=9, bold=True, color=GREEN)
+            _box(s3, lbl, cx + Emu(73_152), HDR_Y, cw, HDR_H, sz=9, bold=True, color=GREEN)
     y = HDR_Y + HDR_H
     for i, (item_id, item_title) in enumerate(CHECKLIST_ITEMS):
         checked = bool(checks.get(item_id))
-        bg_ = NAVY3 if i%2==0 else NAVY2
-        PAD = int(Inches(0.1))
-        for cx,cw in [(COL_ST_X,COL_ST_W),(COL_TT_X,COL_TT_W),(COL_NT_X,COL_NT_W)]:
-            _rect(s3, cx, y, cw, ROW_H-int(Inches(0.03)), bg_)
+        bg_ = CARD if i % 2 == 0 else CARD2
+        PAD = int(Emu(91_440))
+        for cx, cw in [(COL_ST_X, COL_ST_W), (COL_TT_X, COL_TT_W), (COL_NT_X, COL_NT_W)]:
+            _rect(s3, cx, y, cw, ROW_H - int(Emu(27_432)), bg_)
         _box(s3, '✅' if checked else '⬜',
-             COL_ST_X+Inches(0.04), y+PAD, COL_ST_W, ROW_H,
+             COL_ST_X + Emu(36_576), y + PAD, COL_ST_W, ROW_H,
              sz=16, color=GREEN if checked else MUTED, align=PP_ALIGN.CENTER)
         _box(s3, item_title,
-             COL_TT_X+Inches(0.08), y+PAD, COL_TT_W-Inches(0.12), ROW_H,
+             COL_TT_X + Emu(73_152), y + PAD, COL_TT_W - Emu(109_728), ROW_H,
              sz=11, bold=(not checked), color=MUTED if checked else WHITE)
         note_text = notes_map.get(item_id, '')
         if note_text:
             _box(s3, note_text,
-                 COL_NT_X+Inches(0.08), y+PAD, COL_NT_W-Inches(0.12), ROW_H,
+                 COL_NT_X + Emu(73_152), y + PAD, COL_NT_W - Emu(109_728), ROW_H,
                  sz=10, color=MUTED, italic=True)
         y += ROW_H
 
-    # SLIDE 4 — Key Stakeholders
-    s4 = prs.slides.add_slide(BL)
-    _bg(s4, NAVY)
-    _slide_header(s4, 'KEY STAKEHOLDERS', 'POV Team & Sign-Off Contacts', ACCENT)
+    # ── SLIDE 4 — Key Stakeholders ────────────────────────────────────────
+    s4 = prs.slides.add_slide(LY['title_sub'])
+    _slide_header(s4, 'Key Stakeholders', 'POV Team & Sign-Off Contacts')
 
     STAKEHOLDER_DEFS = [
         ('zs_champion',  'Zscaler Champion',          False),
@@ -713,134 +631,118 @@ def export_pov_deck(customer_slug):
         ('zs_ae',        'Zscaler Account Executive',  True),
         ('zs_se',        'Zscaler Sales Engineer',     True),
     ]
-
     stk_data = prepov.get('stakeholders', {})
 
-    COL_ROLE_X = Inches(0.4);  COL_ROLE_W = Inches(3.8)
-    COL_NAME_X = Inches(4.3);  COL_NAME_W = Inches(5.3)
-    COL_DATE_X = Inches(9.75); COL_DATE_W = Inches(3.25)
+    COL_ROLE_X = Emu(370_819);  COL_ROLE_W = Emu(3_474_720)
+    COL_NAME_X = Emu(3_936_339); COL_NAME_W = Emu(4_846_320)
+    COL_DATE_X = Emu(8_874_099); COL_DATE_W = Emu(2_970_381)
 
-    HDR_Y = int(Inches(1.32)); HDR_H = int(Inches(0.38))
+    HDR_Y = int(Emu(1_158_750)) + int(Emu(347_472)); HDR_H = int(Emu(347_472))
     for cx, cw, lbl, al in [
-        (COL_ROLE_X, COL_ROLE_W, 'ROLE',        PP_ALIGN.LEFT),
-        (COL_NAME_X, COL_NAME_W, 'NAME & TITLE', PP_ALIGN.LEFT),
+        (COL_ROLE_X, COL_ROLE_W, 'ROLE',         PP_ALIGN.LEFT),
+        (COL_NAME_X, COL_NAME_W, 'NAME & TITLE',  PP_ALIGN.LEFT),
         (COL_DATE_X, COL_DATE_W, 'SIGN-OFF DATE', PP_ALIGN.RIGHT),
     ]:
-        _rect(s4, cx, HDR_Y, cw, HDR_H, NAVY2)
-        _box(s4, lbl, cx + Inches(0.08), HDR_Y, cw, HDR_H, sz=9, bold=True, color=ACCENT, align=al)
+        _rect(s4, cx, HDR_Y, cw, HDR_H, CARD)
+        _box(s4, lbl, cx + Emu(73_152), HDR_Y, cw, HDR_H,
+             sz=9, bold=True, color=CYAN, align=al)
 
-    n_stk   = len(STAKEHOLDER_DEFS)
     TABLE_TOP    = HDR_Y + HDR_H
-    TABLE_BOTTOM = Inches(7.1)
-    ROW_H   = max(int((TABLE_BOTTOM - TABLE_TOP) / n_stk), int(Inches(0.62)))
-
-    # divider tracking
+    TABLE_BOTTOM = int(Inches(6.7))
+    n_stk = len(STAKEHOLDER_DEFS)
+    ROW_H = max(int((TABLE_BOTTOM - TABLE_TOP) / n_stk), int(Inches(0.62)))
     zscaler_div_done = False
     y = TABLE_TOP
 
     for i, (stk_id, stk_role, is_zscaler) in enumerate(STAKEHOLDER_DEFS):
-        # Insert a subtle divider row before first Zscaler entry
         if is_zscaler and not zscaler_div_done:
-            _rect(s4, COL_ROLE_X, y, COL_ROLE_W + COL_NAME_W + Inches(0.1) + COL_DATE_W, int(Inches(0.28)), NAVY2)
-            _box(s4, 'ZSCALER TEAM', COL_ROLE_X + Inches(0.12), y + int(Inches(0.04)),
-                 Inches(4), int(Inches(0.28)), sz=7, bold=True, color=ACCENT)
-            y += int(Inches(0.28))
+            total_w = int(COL_ROLE_W) + int(COL_NAME_W) + int(Emu(91_440)) + int(COL_DATE_W)
+            _rect(s4, COL_ROLE_X, y, total_w, int(Emu(256_032)), CARD)
+            _box(s4, 'ZSCALER TEAM', COL_ROLE_X + Emu(109_728), y + Emu(36_576),
+                 Emu(3_657_600), int(Emu(256_032)), sz=7, bold=True, color=CYAN)
+            y += int(Emu(256_032))
             zscaler_div_done = True
 
-        bg_ = NAVY3 if i % 2 == 0 else NAVY2
-        PAD = int(Inches(0.12))
+        bg_ = CARD if i % 2 == 0 else CARD2
+        PAD = int(Emu(109_728))
         for cx, cw in [(COL_ROLE_X, COL_ROLE_W), (COL_NAME_X, COL_NAME_W), (COL_DATE_X, COL_DATE_W)]:
-            _rect(s4, cx, y, cw, ROW_H - int(Inches(0.03)), bg_)
-
+            _rect(s4, cx, y, cw, ROW_H - int(Emu(27_432)), bg_)
         _box(s4, stk_role,
-             COL_ROLE_X + Inches(0.1), y + PAD, COL_ROLE_W - Inches(0.15), ROW_H,
+             COL_ROLE_X + Emu(91_440), y + PAD, COL_ROLE_W - Emu(137_160), ROW_H,
              sz=11, bold=True, color=WHITE)
-
-        person = stk_data.get(stk_id, {})
+        person   = stk_data.get(stk_id, {})
         name_val = person.get('name', '') if isinstance(person, dict) else ''
         date_val = person.get('date', '') if isinstance(person, dict) else ''
-
         if name_val:
             _box(s4, name_val,
-                 COL_NAME_X + Inches(0.1), y + PAD, COL_NAME_W - Inches(0.15), ROW_H,
+                 COL_NAME_X + Emu(91_440), y + PAD, COL_NAME_W - Emu(137_160), ROW_H,
                  sz=11, color=WHITE)
         else:
             _box(s4, '—',
-                 COL_NAME_X + Inches(0.1), y + PAD, COL_NAME_W - Inches(0.15), ROW_H,
+                 COL_NAME_X + Emu(91_440), y + PAD, COL_NAME_W - Emu(137_160), ROW_H,
                  sz=11, color=MUTED, italic=True)
-
-        if date_val and not is_zscaler:
-            _box(s4, date_val,
-                 COL_DATE_X + Inches(0.06), y + PAD, COL_DATE_W - Inches(0.1), ROW_H,
-                 sz=11, bold=True, color=GREEN, align=PP_ALIGN.RIGHT)
-        elif not is_zscaler:
-            _box(s4, 'Pending',
-                 COL_DATE_X + Inches(0.06), y + PAD, COL_DATE_W - Inches(0.1), ROW_H,
-                 sz=10, color=AMBER, italic=True, align=PP_ALIGN.RIGHT)
-
+        if not is_zscaler:
+            if date_val:
+                _box(s4, date_val,
+                     COL_DATE_X + Emu(54_864), y + PAD, COL_DATE_W - Emu(91_440), ROW_H,
+                     sz=11, bold=True, color=GREEN, align=PP_ALIGN.RIGHT)
+            else:
+                _box(s4, 'Pending',
+                     COL_DATE_X + Emu(54_864), y + PAD, COL_DATE_W - Emu(91_440), ROW_H,
+                     sz=10, color=AMBER, italic=True, align=PP_ALIGN.RIGHT)
         y += ROW_H
 
-    # SLIDE 5 — POV Timeline (was SLIDE 4)
-    s5 = prs.slides.add_slide(BL)
-    _bg(s5, NAVY)
-    _slide_header(s5, 'POV TIMELINE', 'Milestone schedule for the Proof of Value', AMBER)
+    # ── SLIDE 5 — POV Timeline ────────────────────────────────────────────
+    s5 = prs.slides.add_slide(LY['title_sub'])
+    _slide_header(s5, 'POV Timeline', 'Milestone schedule for the Proof of Value')
+
     if not tl_rows:
         _box(s5, 'No timeline milestones have been defined yet.',
              Inches(0.5), Inches(2.0), Inches(12), Inches(0.5),
              sz=14, color=MUTED, italic=True)
     else:
-        TABLE_TOP = Inches(1.32)
+        TABLE_TOP    = int(Emu(1_158_750)) + int(Emu(347_472))
+        TABLE_BOTTOM = int(Inches(6.7))
         n = min(len(tl_rows), 14)
-        ROW_H = max(int((Inches(7.15)-TABLE_TOP)/n), int(Inches(0.38)))
-        COL_NUM_X=Inches(0.4); COL_NUM_W=Inches(0.5)
-        COL_MIL_X=Inches(0.95); COL_MIL_W=Inches(8.7)
-        COL_DAT_X=Inches(9.75); COL_DAT_W=Inches(3.25)
-        HDR_Y=int(TABLE_TOP); HDR_H=int(Inches(0.38))
-        for cx,cw,lbl,al in [(COL_NUM_X,COL_NUM_W,'#',PP_ALIGN.CENTER),(COL_MIL_X,COL_MIL_W,'MILESTONE',PP_ALIGN.LEFT),(COL_DAT_X,COL_DAT_W,'TARGET DATE',PP_ALIGN.RIGHT)]:
-            _rect(s5, cx, HDR_Y, cw, HDR_H, NAVY2)
-            _box(s5, lbl, cx+Inches(0.06), HDR_Y, cw, HDR_H, sz=9, bold=True, color=AMBER, align=al)
+        ROW_H = max(int((TABLE_BOTTOM - TABLE_TOP) / n), int(Inches(0.38)))
+        COL_NUM_X = Emu(370_819);  COL_NUM_W = Emu(457_200)
+        COL_MIL_X = Emu(868_019);  COL_MIL_W = Emu(7_940_160)
+        COL_DAT_X = Emu(8_899_419); COL_DAT_W = Emu(2_945_061)
+        HDR_Y = TABLE_TOP; HDR_H = int(Emu(347_472))
+        for cx, cw, lbl, al in [
+            (COL_NUM_X, COL_NUM_W, '#',           PP_ALIGN.CENTER),
+            (COL_MIL_X, COL_MIL_W, 'MILESTONE',  PP_ALIGN.LEFT),
+            (COL_DAT_X, COL_DAT_W, 'TARGET DATE', PP_ALIGN.RIGHT),
+        ]:
+            _rect(s5, cx, HDR_Y, cw, HDR_H, CARD)
+            _box(s5, lbl, cx + Emu(54_864), HDR_Y, cw, HDR_H,
+                 sz=9, bold=True, color=AMBER, align=al)
         y = HDR_Y + HDR_H
         for i, row in enumerate(tl_rows[:n]):
-            bg_ = NAVY3 if i%2==0 else NAVY2
-            PAD = int(Inches(0.08))
-            for cx,cw in [(COL_NUM_X,COL_NUM_W),(COL_MIL_X,COL_MIL_W),(COL_DAT_X,COL_DAT_W)]:
-                _rect(s5, cx, y, cw, ROW_H-int(Inches(0.02)), bg_)
-            _box(s5, str(i+1), COL_NUM_X+Inches(0.06), y+PAD, COL_NUM_W, ROW_H,
+            bg_ = CARD if i % 2 == 0 else CARD2
+            PAD = int(Emu(73_152))
+            for cx, cw in [(COL_NUM_X, COL_NUM_W), (COL_MIL_X, COL_MIL_W), (COL_DAT_X, COL_DAT_W)]:
+                _rect(s5, cx, y, cw, ROW_H - int(Emu(18_288)), bg_)
+            _box(s5, str(i + 1), COL_NUM_X + Emu(54_864), y + PAD, COL_NUM_W, ROW_H,
                  sz=10, bold=True, color=MUTED, align=PP_ALIGN.CENTER)
-            _box(s5, row.get('label',''), COL_MIL_X+Inches(0.08), y+PAD, COL_MIL_W-Inches(0.12), ROW_H,
-                 sz=11, color=WHITE)
-            if row.get('date',''):
-                _box(s5, row['date'], COL_DAT_X+Inches(0.06), y+PAD, COL_DAT_W-Inches(0.1), ROW_H,
-                     sz=11, bold=True, color=ACCENT, align=PP_ALIGN.RIGHT)
+            _box(s5, row.get('label', ''), COL_MIL_X + Emu(73_152), y + PAD,
+                 COL_MIL_W - Emu(109_728), ROW_H, sz=11, color=WHITE)
+            if row.get('date', ''):
+                _box(s5, row['date'], COL_DAT_X + Emu(54_864), y + PAD,
+                     COL_DAT_W - Emu(91_440), ROW_H, sz=11, bold=True,
+                     color=CYAN, align=PP_ALIGN.RIGHT)
             y += ROW_H
 
-    # SLIDE 6 — Thank You
-    s6 = prs.slides.add_slide(BL)
-    _bg(s6, NAVY)
-    _rect(s6, Inches(0), Inches(0), Inches(0.2), H, ACCENT)
-    _rect(s6, Inches(0.35), Inches(3.85), Inches(12.6), Emu(55000), ACCENT)
+    # ── SLIDE 6 — Thank You ───────────────────────────────────────────────
+    s6 = prs.slides.add_slide(LY['cover'])
     _box(s6, 'Thank You',
-         Inches(0.5), Inches(1.3), Inches(12), Inches(1.2),
-         sz=54, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-    _box(s6, user_resp.customer_name or 'Customer',
-         Inches(0.5), Inches(2.65), Inches(12), Inches(0.6),
-         sz=20, color=ACCENT, align=PP_ALIGN.CENTER)
-    _box(s6, 'Zscaler Zero Trust Branch',
-         Inches(0.5), Inches(4.15), Inches(12), Inches(0.55),
-         sz=16, color=MUTED, align=PP_ALIGN.CENTER, italic=True)
-    if user_resp.se_name:
-        _box(s6, user_resp.se_name,
-             Inches(0.5), Inches(4.85), Inches(12), Inches(0.45),
-             sz=13, color=MUTED, align=PP_ALIGN.CENTER)
-    _box(s6, '© 2025 Zscaler, Inc. — Internal Sales Engineering Tool',
-         Inches(0.5), Inches(6.8), Inches(12), Inches(0.35),
-         sz=9, color=RGBColor(0x40, 0x60, 0x80),
-         align=PP_ALIGN.CENTER, italic=True)
+         Emu(388_620), Emu(2_500_000), Emu(9_144_000), Emu(914_400),
+         sz=40, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
 
-    out = io.BytesIO()
+    out   = io.BytesIO()
     prs.save(out)
     out.seek(0)
-    safe  = (user_resp.customer_name or 'Customer').replace(' ','_').replace('/','_')
+    safe  = (user_resp.customer_name or 'Customer').replace(' ', '_').replace('/', '_')
     fname = f"ZTB_POV_Deck_{safe}_{datetime.utcnow().strftime('%Y%m%d')}.pptx"
     return send_file(
         out,
