@@ -4,7 +4,111 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>{% if not not_found %}{{ user_resp.customer_name }} — ZTB Assessment Results{% else %}Not Found — ZTB Super App{% endif %}</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+// ══════════════════════════════════════════════════════════════════
+// POV TIMELINE TABLE
+// ══════════════════════════════════════════════════════════════════
+var _povTLRows = [];
+var _povTLSaveTimer2 = null;
+var _povTLCounter2 = 20;
+
+var _POV_TL_DEFAULTS_V2 = [
+  { id: 1,  label: 'Architecture & Design Workshops',              date: '' },
+  { id: 2,  label: 'Stakeholders & Budget Owners Defined',         date: '' },
+  { id: 3,  label: 'Estimated Costs & Commercials Defined',        date: '' },
+  { id: 4,  label: 'POV Test Cases, Requirements & Scope Defined', date: '' },
+  { id: 5,  label: 'Technical Feasibility Review',                 date: '' },
+  { id: 6,  label: 'Logistics, Timelines & Roles Defined',         date: '' },
+  { id: 7,  label: 'POV Agreement Sign-Offs',                      date: '' },
+  { id: 8,  label: 'POV Tenant Provisioned',                       date: '' },
+  { id: 9,  label: 'POV Kickoff',                                  date: '' },
+  { id: 10, label: 'Weekly Sync Meetings',                         date: '' },
+  { id: 11, label: 'POV Wrap & Procurement Discussion',            date: '' },
+  { id: 12, label: 'Production Rollout',                           date: '' },
+];
+
+function initPOVTLTable(savedData) {
+  if (savedData && savedData.pov_timeline_v2 && savedData.pov_timeline_v2.length) {
+    _povTLRows = savedData.pov_timeline_v2;
+  } else {
+    _povTLRows = JSON.parse(JSON.stringify(_POV_TL_DEFAULTS_V2));
+  }
+  if (_povTLRows.length)
+    _povTLCounter2 = Math.max(_povTLCounter2, Math.max.apply(null, _povTLRows.map(function(r){ return r.id || 0; })));
+  renderPOVTLTable();
+}
+
+function renderPOVTLTable() {
+  var tbody = document.getElementById('pov-tl-tbody');
+  if (!tbody) return;
+  if (!_povTLRows.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No milestones — click + Add Milestone.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  _povTLRows.forEach(function(row, idx) {
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="pov-tl-num">' + (idx + 1) + '</td>' +
+      '<td><input class="pov-tl-milestone-inp" type="text" value="' + escHtml(row.label) + '" placeholder="Milestone description…"' +
+        ' oninput="povTLV2Update(' + row.id + ','label',this.value)" onblur="schedulePOVTLV2Save()"></td>' +
+      '<td><input class="pov-tl-date-inp" type="text" value="' + escHtml(row.date) + '" placeholder="e.g. Jan 23"' +
+        ' oninput="povTLV2Update(' + row.id + ','date',this.value)" onblur="schedulePOVTLV2Save()"></td>' +
+      '<td><button class="pov-tl-del-btn" onclick="povTLV2Delete(' + row.id + ')" title="Remove">✕</button></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function povTLV2Update(id, field, value) {
+  var row = _povTLRows.find(function(r){ return r.id === id; });
+  if (row) row[field] = value;
+}
+
+function povTLV2Delete(id) {
+  _povTLRows = _povTLRows.filter(function(r){ return r.id !== id; });
+  renderPOVTLTable();
+  schedulePOVTLV2Save();
+}
+
+function povTLAddRow() {
+  _povTLCounter2++;
+  _povTLRows.push({ id: _povTLCounter2, label: '', date: '' });
+  renderPOVTLTable();
+  schedulePOVTLV2Save();
+  setTimeout(function() {
+    var inputs = document.querySelectorAll('#pov-tl-tbody .pov-tl-milestone-inp');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 30);
+}
+
+function schedulePOVTLV2Save() {
+  var ind = document.getElementById('pov-tl-save-ind');
+  if (ind) { ind.textContent = 'Saving…'; ind.className = 'pov-tl-save-ind saving'; }
+  clearTimeout(_povTLSaveTimer2);
+  _povTLSaveTimer2 = setTimeout(savePOVTLV2, 1200);
+}
+
+async function savePOVTLV2() {
+  var ind = document.getElementById('pov-tl-save-ind');
+  try {
+    var getRes = await fetch('/user/' + CUSTOMER_SLUG + '/prepov');
+    var getData = await getRes.json();
+    var existing = (getData.success && getData.data) ? getData.data : {};
+    existing.pov_timeline_v2 = _povTLRows;
+    var res = await fetch('/user/' + CUSTOMER_SLUG + '/prepov', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: existing })
+    });
+    var data = await res.json();
+    if (data.success) {
+      var now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (ind) { ind.textContent = '✓ Saved at ' + now; ind.className = 'pov-tl-save-ind saved';
+        setTimeout(function(){ if(ind){ ind.textContent=''; ind.className='pov-tl-save-ind'; }}, 4000); }
+    } else { if (ind) { ind.textContent = 'Save failed'; ind.className = 'pov-tl-save-ind'; } }
+  } catch(e) { if (ind) { ind.textContent = 'Save failed'; ind.className = 'pov-tl-save-ind'; } }
+}
+
+</script>
 <style>
 :root {
   --navy-dark: #002244; --navy: #003366; --blue: #0070c0; --accent: #00aaff;
@@ -537,6 +641,23 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
   font-size: 0.75rem; cursor: pointer; padding: 0; margin-top: 4px; display: block; width: 100%;
   text-align: center; transition: color 0.15s; }
 .pov-tl-card-del:hover { color: #f87171; }
+
+/* ── POV Timeline Table ── */
+.pov-tl-tbl-wrap { background: linear-gradient(145deg, #0d2d52, #0a2244); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.pov-tl-tbl { width: 100%; border-collapse: collapse; }
+.pov-tl-tbl th { padding: 10px 16px; background: rgba(0,51,102,0.8); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent); text-align: left; border-bottom: 1px solid var(--border); }
+.pov-tl-tbl td { padding: 8px 12px; border-bottom: 1px solid rgba(0,170,255,0.07); vertical-align: middle; }
+.pov-tl-tbl tr:last-child td { border-bottom: none; }
+.pov-tl-tbl tr:hover td { background: rgba(0,170,255,0.04); }
+.pov-tl-num { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); width: 36px; text-align: center; }
+.pov-tl-milestone-inp { background: transparent; border: 1px solid rgba(0,170,255,0.15); border-radius: 6px; color: var(--white); font-size: 0.87rem; font-family: inherit; padding: 6px 10px; width: 100%; outline: none; transition: border-color 0.2s; }
+.pov-tl-milestone-inp:focus { border-color: var(--accent); background: rgba(0,170,255,0.06); }
+.pov-tl-milestone-inp::placeholder { color: rgba(160,188,216,0.3); }
+.pov-tl-date-inp { background: transparent; border: 1px solid rgba(0,170,255,0.15); border-radius: 6px; color: var(--accent); font-size: 0.85rem; font-weight: 600; font-family: inherit; padding: 6px 10px; width: 140px; outline: none; transition: border-color 0.2s; }
+.pov-tl-date-inp:focus { border-color: var(--accent); background: rgba(0,170,255,0.06); }
+.pov-tl-date-inp::placeholder { color: rgba(160,188,216,0.2); font-weight: 400; }
+.pov-tl-del-btn { background: transparent; border: none; color: rgba(248,113,113,0.5); font-size: 1rem; cursor: pointer; padding: 4px 8px; border-radius: 5px; transition: color 0.15s, background 0.15s; line-height: 1; }
+.pov-tl-del-btn:hover { color: #f87171; background: rgba(248,113,113,0.1); }
 </style>
 </head>
 <body>
@@ -867,6 +988,28 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
         </table>
       </div>
     </div>
+    <hr class="section-divider">
+
+    <!-- POV TIMELINE TABLE -->
+    <div style="margin-bottom:2rem;">
+      <div class="section-heading"><h2>📅 POV Timeline</h2></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem;">
+        <button class="pov-tl-add-btn" onclick="povTLAddRow()">＋ Add Milestone</button>
+        <span class="pov-tl-save-ind" id="pov-tl-save-ind"></span>
+      </div>
+      <div class="pov-tl-tbl-wrap">
+        <table class="pov-tl-tbl">
+          <thead><tr>
+            <th style="width:40px;">#</th>
+            <th>Milestone</th>
+            <th style="width:160px;">Target Date</th>
+            <th style="width:44px;"></th>
+          </tr></thead>
+          <tbody id="pov-tl-tbody"><tr><td colspan="4" class="empty-state">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
     <hr class="section-divider">
 
     {% if success_criteria %}
@@ -2480,6 +2623,7 @@ async function loadPrePOV() {
   renderPrePOVChecklist();
   renderPrePOVStakeholders();
   updatePrePOVProgress();
+  initPOVTLTable(_prepovData);
   _prepovLoaded = true;
 }
 
