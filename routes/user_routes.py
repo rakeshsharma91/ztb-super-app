@@ -615,10 +615,7 @@ def update_technical_notes(customer_slug):
     if not user_resp:
         return jsonify({'error': 'Not found'}), 404
 
-    raw = dict(user_resp.raw_responses or {})
-    raw['technical_notes'] = notes
-    user_resp.raw_responses = raw
-    flag_modified(user_resp, 'raw_responses')
+    user_resp.technical_notes = notes
     db.session.commit()
     return jsonify({'success': True})
 
