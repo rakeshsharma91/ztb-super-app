@@ -414,7 +414,7 @@ def export_pptx(customer_slug):
     for i, (title, val, col, sub) in enumerate(kpis):
         kx = int(Emu(370_819)) + i * (int(kw) + int(kg))
         _rect(s4, kx, Emu(868_680), kw, kh, CARD)
-        _rect(s4, kx, Emu(1_143_000), Emu(64_008), kh, col)
+        _rect(s4, kx, Emu(868_680), Emu(64_008), kh, col)
         _box(s4, title, kx + Emu(137_160), Emu(978_408), kw, Emu(320_040),
              sz=8, bold=True, color=MUTED)
         _box(s4, val,   kx + Emu(91_440),  Emu(1_280_160), kw - Emu(91_440), Emu(548_640),
@@ -448,8 +448,8 @@ def export_pptx(customer_slug):
                 facecolor='#001744', bbox_inches='tight')
     plt.close(fig)
     chart_buf.seek(0)
-    s4.shapes.add_picture(chart_buf, Emu(320_040), Emu(2_697_480),
-                          Emu(11_521_440), Emu(3_886_200))
+    s4.shapes.add_picture(chart_buf, Emu(320_040), Emu(2_400_000),
+                          Emu(11_521_440), Emu(3_700_000))
 
     # ══════════════════════════════════════════════════════════════════════
     # SLIDE 5 — Thank You  (cover layout reused)
