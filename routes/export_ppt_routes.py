@@ -234,14 +234,14 @@ def export_pptx(customer_slug):
     s1 = prs.slides.add_slide(LY['cover'])
     # Cover layout has title/subtitle placeholders — fill them if present
     if True:
-        _box(s1, 'ZTB OPPORTUNITY PACKAGE',
+        _box(s1, 'Zero Trust Branch',
              Emu(388_620), Emu(2_000_000), Emu(8_229_600), Emu(457_200),
              sz=12, bold=True, color=CYAN)
         _box(s1, user_resp.customer_name or 'Customer',
              Emu(388_620), Emu(2_500_000), Emu(9_144_000), Emu(1_000_000),
              sz=36, bold=True, color=WHITE)
         meta = []
-        if user_resp.se_name:    meta.append(f'Solutions Consultant: {user_resp.se_name}')
+        if user_resp.se_name:    meta.append(user_resp.se_name)
         if user_resp.completed_at: meta.append(user_resp.completed_at.strftime('%B %d, %Y'))
         if meta:
             _box(s1, '     '.join(meta),
