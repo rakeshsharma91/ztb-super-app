@@ -590,8 +590,8 @@ def export_pov_deck(customer_slug):
         ('budget_owners',    'Budget Owners Defined'),
         ('costs_defined',    'Estimated Costs & Commercials Defined'),
         ('test_cases',       'POV Test Cases, Requirements & Scope Defined'),
-        ('tech_feasibility', 'Technical Feasibility Review'),
-        ('logistics',        'Logistics, Timeline & Roles Defined'),
+        ('tech_feasibility', 'POV Go/No Go'),
+        ('logistics',        'Logistics, Timelines, Roles and Weekly Meetings Defined'),
         ('signoffs',         'POV Sign-Offs Completed by all Parties'),
     ]
 
