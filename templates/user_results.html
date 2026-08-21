@@ -1037,7 +1037,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
         <div style="padding:10px 16px;background:rgba(0,51,102,0.8);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.5rem;">
           <span style="flex:1;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--accent);">Site Label</span>
           <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--accent);min-width:140px;text-align:right;">Cost per Site</span>
-          <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--accent);min-width:140px;text-align:right;">Line Total</span>
         </div>
         <div id="exec-site-rows" style="display:flex;flex-direction:column;"></div>
         <div style="padding:14px 16px;border-top:1px solid rgba(0,170,255,0.2);background:rgba(0,170,255,0.06);display:flex;justify-content:space-between;align-items:center;">
@@ -2454,8 +2453,7 @@ function renderPricingExecSummary() {
     div.style.cssText = `display:flex;align-items:center;padding:13px 16px;background:${bg};border-bottom:1px solid rgba(0,170,255,0.06);`;
     div.innerHTML =
       `<span style="flex:1;font-size:0.95rem;font-weight:700;color:var(--accent);">${escHtml(row.label || '—')}</span>` +
-      `<span style="min-width:140px;text-align:right;font-size:0.9rem;color:var(--white);">${fmtMoney(costPerSite)}</span>` +
-      `<span style="min-width:140px;text-align:right;font-size:0.9rem;font-weight:700;color:var(--white);">${fmtMoney(lineTotal)}</span>`;
+      `<span style="min-width:140px;text-align:right;font-size:0.9rem;color:var(--white);">${fmtMoney(costPerSite)}</span>`;
     rowsEl.appendChild(div);
   });
 

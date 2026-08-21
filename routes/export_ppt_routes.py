@@ -384,13 +384,12 @@ def export_pptx(customer_slug):
     s3 = prs.slides.add_slide(LY['title_sub'])
     _slide_header(s3, 'Pricing Summary', 'Executive Overview')
 
-    COL_X = [Emu(370_819),  Emu(5_303_520), Emu(8_601_120)]
-    COL_W = [Emu(4_750_000), Emu(3_100_000), Emu(3_200_000)]
+    COL_X = [Emu(370_819),  Emu(6_000_000)]
+    COL_W = [Emu(5_500_000), Emu(5_800_000)]
 
     HDR_Y = Emu(1_158_750); HDR_H = Emu(383_731)
     for i, (h, al) in enumerate([('SITE LABEL', PP_ALIGN.LEFT),
-                                  ('COST PER SITE', PP_ALIGN.RIGHT),
-                                  ('LINE TOTAL', PP_ALIGN.RIGHT)]):
+                                  ('COST PER SITE', PP_ALIGN.RIGHT)]):
         _rect(s3, COL_X[i], HDR_Y, COL_W[i] - Emu(45_720), HDR_H, CARD)
         _box(s3, h, COL_X[i] + Emu(127_000), HDR_Y + Emu(45_720),
              COL_W[i] - Emu(165_100), HDR_H, sz=10, bold=True, color=CYAN, align=al)
@@ -409,7 +408,7 @@ def export_pptx(customer_slug):
     for ri, (lbl, cost_per_site, line_total) in enumerate(active):
         bg_  = CARD if ri % 2 == 0 else CARD2
         PAD  = int(Emu(109_728))
-        for i in range(3):
+        for i in range(2):
             _rect(s3, COL_X[i], y_cur, COL_W[i] - Emu(45_720),
                   ROW_H - int(Emu(27_432)), bg_)
         _box(s3, lbl,
@@ -418,9 +417,6 @@ def export_pptx(customer_slug):
         _box(s3, _fmt_exact(cost_per_site),
              COL_X[1] + Emu(45_720), y_cur + PAD,
              COL_W[1] - Emu(91_440), ROW_H, sz=14, color=WHITE, align=PP_ALIGN.RIGHT)
-        _box(s3, _fmt_exact(line_total),
-             COL_X[2] + Emu(45_720), y_cur + PAD,
-             COL_W[2] - Emu(91_440), ROW_H, sz=14, bold=True, color=WHITE, align=PP_ALIGN.RIGHT)
         y_cur += ROW_H
 
     GT_Y = y_cur + int(Emu(109_728))
