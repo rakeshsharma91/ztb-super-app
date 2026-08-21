@@ -120,10 +120,9 @@ def _fmt_exact(v):
 
 
 def _append_slides_from_file(prs, source_path, slide_index=None):
-    """Clone slides from source_path into prs, carrying over all image/media relationships."""
+    """Clone ALL non-image shapes from source PPTX slide (preserving text/formatting),
+    then inject the matching diagram PNG onto the right half of the slide."""
     from pptx import Presentation
-    from pptx.opc.constants import RELATIONSHIP_TYPE as RT
-    from lxml import etree
     import copy
 
     src = Presentation(source_path)
@@ -133,35 +132,32 @@ def _append_slides_from_file(prs, source_path, slide_index=None):
         blank = prs.slide_layouts[17]
         new_slide = prs.slides.add_slide(blank)
 
-        # Build a rId mapping: src rId -> new rId for all relationships on this slide
-        rId_map = {}
-        for rel in src_slide.part.rels.values():
-            if rel.is_external:
-                new_rId = new_slide.part.relate_to(rel.target_ref, rel.reltype, is_external=True)
-            else:
-                # Copy the blob (image/media/etc) into the new presentation package
-                target_part = rel.target_part
-                new_rId = new_slide.part.relate_to(target_part, rel.reltype)
-            rId_map[rel.rId] = new_rId
-
-        # Deep-copy the shape tree and rewrite any rId references
+        # Copy only non-picture shapes (text boxes, shapes) — skip all pic/image elements
         sp_tree = new_slide.shapes._spTree
         for el in list(sp_tree):
             sp_tree.remove(el)
 
-        src_tree = copy.deepcopy(src_slide.shapes._spTree)
+        for el in src_slide.shapes._spTree:
+            tag = el.tag.split('}')[-1] if '}' in el.tag else el.tag
+            # Skip picture shapes (pic:pic) and group shapes that may contain broken images
+            if tag in ('pic',):
+                continue
+            sp_tree.append(copy.deepcopy(el))
 
-        # Rewrite r:embed, r:link, r:id attributes that reference relationships
-        nsmap = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
-        for el in src_tree.iter():
-            for attr in list(el.attrib):
-                if attr.endswith('}embed') or attr.endswith('}link') or attr.endswith('}id'):
-                    old_rId = el.attrib[attr]
-                    if old_rId in rId_map:
-                        el.attrib[attr] = rId_map[old_rId]
 
-        for el in src_tree:
-            sp_tree.append(el)
+def _inject_diagram_png(slide, diagram_path):
+    """Add the diagram PNG to the right 55% of the slide, vertically centred."""
+    from pptx.util import Emu
+    import os
+    if not os.path.exists(diagram_path):
+        return
+    slide_w = Emu(12_192_000)
+    slide_h = Emu(6_858_000)
+    img_w   = Emu(6_700_000)   # ~55% of slide width
+    img_h   = Emu(5_400_000)   # leave room for header/footer
+    img_l   = slide_w - img_w - Emu(100_000)
+    img_t   = (slide_h - img_h) // 2
+    slide.shapes.add_picture(diagram_path, img_l, img_t, img_w, img_h)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # OPPORTUNITY PACKAGE EXPORT
@@ -823,7 +819,12 @@ def export_pov_deck(customer_slug):
             y += ROW_H
 
     # ── SLIDE 7 — Deployment Pattern (driven by assessment outcome) ─────────
-    DEPLOY_PATH = '/home/ubuntu/ztb-super-app/static/assets/pov_deployment_patterns.pptx'
+    DEPLOY_PATH   = '/home/ubuntu/ztb-super-app/static/assets/pov_deployment_patterns.pptx'
+    DIAGRAM_PATHS = [
+        '/home/ubuntu/ztb-super-app/static/assets/diagram_type1.png',
+        '/home/ubuntu/ztb-super-app/static/assets/diagram_type2.png',
+        '/home/ubuntu/ztb-super-app/static/assets/diagram_type3.png',
+    ]
     try:
         deploy_outcome = next(
             (s for s in section_outcomes if s.get('name', '').strip().lower() == 'deployment type'),
@@ -837,7 +838,10 @@ def export_pov_deck(customer_slug):
         else:
             slide_idx = 0  # TYPE 1 default
         _append_slides_from_file(prs, DEPLOY_PATH, slide_index=slide_idx)
-    except Exception:
+        # Inject the clean diagram PNG onto the right half of the just-added slide
+        _inject_diagram_png(prs.slides[-1], DIAGRAM_PATHS[slide_idx])
+    except Exception as e:
+        import traceback; traceback.print_exc()
         pass  # skip silently if file missing
 
     # ── SLIDES 8, 9, 10 — Universal POV slides ───────────────────────────
