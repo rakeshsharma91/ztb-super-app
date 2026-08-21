@@ -120,8 +120,6 @@ def _fmt_exact(v):
 
 
 def _append_slides_from_file(prs, source_path, slide_index=None):
-    """Clone ALL non-image shapes from source PPTX slide (preserving text/formatting),
-    forcing all text colors to white for visibility on dark background."""
     from pptx import Presentation
     from lxml import etree
     import copy
@@ -145,20 +143,16 @@ def _append_slides_from_file(prs, source_path, slide_index=None):
             if tag in ('pic',):
                 continue
             cloned = copy.deepcopy(el)
-            # Only recolor text run properties (a:rPr), not shape/background fills
             RPR_TAG = f'{{{A_NS}}}rPr'
             for rpr in cloned.iter(RPR_TAG):
-                # Remove any existing color children from this run
                 for color_tag in (f'{{{A_NS}}}solidFill', f'{{{A_NS}}}gradFill',
                                   f'{{{A_NS}}}noFill', f'{{{A_NS}}}pattFill'):
                     for child in rpr.findall(color_tag):
                         rpr.remove(child)
-                # Insert white solidFill as first child
                 solid = etree.Element(f'{{{A_NS}}}solidFill')
                 srgb  = etree.SubElement(solid, f'{{{A_NS}}}srgbClr')
                 srgb.set('val', WHITE_HEX)
                 rpr.insert(0, solid)
-            # Also handle paragraphs with no runs but a:endParaRPr
             END_RPR_TAG = f'{{{A_NS}}}endParaRPr'
             for rpr in cloned.iter(END_RPR_TAG):
                 for color_tag in (f'{{{A_NS}}}solidFill', f'{{{A_NS}}}gradFill',
@@ -173,8 +167,6 @@ def _append_slides_from_file(prs, source_path, slide_index=None):
 
 
 def _inject_diagram_png(slide, diagram_path):
-    """Add the diagram PNG to the right half of the slide at native aspect ratio,
-    on a white background card so light icons remain visible."""
     from pptx.util import Emu
     from pptx.dml.color import RGBColor
     import os
@@ -187,23 +179,19 @@ def _inject_diagram_png(slide, diagram_path):
         with PILImage.open(diagram_path) as im:
             px_w, px_h = im.size
     except Exception:
-        px_w, px_h = 1600, 1200  # safe fallback
+        px_w, px_h = 1600, 1200
 
-    # Right half available area (shifted left ~600K to clear top-right Z icon)
     available_w = Emu(6_400_000)
     available_h = Emu(5_800_000)
     img_l_start = Emu(5_400_000)
 
-    # Scale to fit preserving aspect ratio
     ratio = min(int(available_w) / px_w, int(available_h) / px_h)
     img_w = int(px_w * ratio)
     img_h = int(px_h * ratio)
 
-    # Centre within right half
     img_l = int(img_l_start) + (int(available_w) - img_w) // 2
     img_t = (int(Emu(6_858_000)) - img_h) // 2
 
-    # White background card behind the image
     PAD = int(Emu(91_440))
     card = slide.shapes.add_shape(1,
         img_l - PAD, img_t - PAD,
@@ -212,8 +200,8 @@ def _inject_diagram_png(slide, diagram_path):
     card.fill.fore_color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
     card.line.fill.background()
 
-    # Diagram on top
     slide.shapes.add_picture(diagram_path, img_l, img_t, img_w, img_h)
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # OPPORTUNITY PACKAGE EXPORT
@@ -315,20 +303,19 @@ def export_pptx(customer_slug):
     # SLIDE 1 — Cover
     # ══════════════════════════════════════════════════════════════════════
     s1 = prs.slides.add_slide(LY['cover'])
-    if True:
-        _box(s1, 'Zero Trust Branch',
-             Emu(388_620), Emu(2_000_000), Emu(8_229_600), Emu(457_200),
-             sz=12, bold=True, color=CYAN)
-        _box(s1, user_resp.customer_name or 'Customer',
-             Emu(388_620), Emu(2_500_000), Emu(9_144_000), Emu(1_000_000),
-             sz=36, bold=True, color=WHITE)
-        meta = []
-        if user_resp.se_name:    meta.append(user_resp.se_name)
-        if user_resp.completed_at: meta.append(user_resp.completed_at.strftime('%B %d, %Y'))
-        if meta:
-            _box(s1, '     '.join(meta),
-                 Emu(388_620), Emu(3_600_000), Emu(9_144_000), Emu(457_200),
-                 sz=14, color=WHITE)
+    _box(s1, 'Zero Trust Branch',
+         Emu(388_620), Emu(2_000_000), Emu(8_229_600), Emu(457_200),
+         sz=12, bold=True, color=CYAN)
+    _box(s1, user_resp.customer_name or 'Customer',
+         Emu(388_620), Emu(2_500_000), Emu(9_144_000), Emu(1_000_000),
+         sz=36, bold=True, color=WHITE)
+    meta = []
+    if user_resp.se_name:      meta.append(user_resp.se_name)
+    if user_resp.completed_at: meta.append(user_resp.completed_at.strftime('%B %d, %Y'))
+    if meta:
+        _box(s1, '     '.join(meta),
+             Emu(388_620), Emu(3_600_000), Emu(9_144_000), Emu(457_200),
+             sz=14, color=WHITE)
 
     # ══════════════════════════════════════════════════════════════════════
     # SLIDE 2 — Value Drivers
@@ -344,7 +331,6 @@ def export_pptx(customer_slug):
     else:
         col_x = [Emu(370_819),  Emu(2_514_600), Emu(7_131_600)]
         col_w = [Emu(2_000_000), Emu(4_500_000), Emu(4_500_000)]
-
         HDR_Y = Emu(1_158_750)
         HDR_H = Emu(347_472)
         hdrs  = ['DRIVER', 'CURRENT STATE', 'FUTURE STATE (ZTB)']
@@ -352,12 +338,10 @@ def export_pptx(customer_slug):
             _rect(s2, col_x[i], HDR_Y, col_w[i] - Emu(45_720), HDR_H, CARD)
             _box(s2, h, col_x[i] + Emu(63_500), HDR_Y,
                  col_w[i], HDR_H, sz=9, bold=True, color=CYAN)
-
         TABLE_TOP    = int(HDR_Y) + int(HDR_H)
         TABLE_BOTTOM = int(Inches(7.1))
         AVAILABLE    = TABLE_BOTTOM - TABLE_TOP
         n            = min(len(drivers), 7)
-
         def _est_lines(drv):
             def count(lines):
                 total = 0
@@ -367,7 +351,6 @@ def export_pptx(customer_slug):
                 return total
             return max(count(drv.get('current_state_lines', [])),
                        count(drv.get('future_state_lines',  [])), 1)
-
         weights     = [_est_lines(d) for d in drivers[:n]]
         total_w     = sum(weights)
         MIN_H       = int(Inches(0.7))
@@ -376,7 +359,6 @@ def export_pptx(customer_slug):
         if leftover > 0:
             bonus = leftover / n
             raw_heights = [rh + bonus for rh in raw_heights]
-
         y_cursor = TABLE_TOP
         for ri, drv in enumerate(drivers[:n]):
             rh  = int(raw_heights[ri])
@@ -613,23 +595,186 @@ def export_pov_deck(customer_slug):
         ('signoffs',         'POV Sign-Offs Completed by all Parties'),
     ]
 
+    STAKEHOLDER_DEFS = [
+        ('zs_champion',  'Zscaler Champion',         False),
+        ('exec_sponsor', 'Executive Sponsor',         False),
+        ('net_lead',     'Networking Lead',           False),
+        ('sec_lead',     'Security Lead',             False),
+        ('zs_ae',        'Zscaler Account Executive', True),
+        ('zs_se',        'Zscaler Sales Engineer',    True),
+    ]
+
     # ── SLIDE 1 — Cover ───────────────────────────────────────────────────
     s1 = prs.slides.add_slide(LY['cover'])
-    if True:
-        _box(s1, 'PROOF OF VALUE — POV DECK',
-             Emu(388_620), Emu(1_800_000), Emu(9_144_000), Emu(457_200),
-             sz=12, bold=True, color=CYAN)
-        _box(s1, user_resp.customer_name or 'Customer',
-             Emu(388_620), Emu(2_300_000), Emu(9_144_000), Emu(1_000_000),
-             sz=36, bold=True, color=WHITE)
+    _box(s1, 'PROOF OF VALUE — POV DECK',
+         Emu(388_620), Emu(1_800_000), Emu(9_144_000), Emu(457_200),
+         sz=12, bold=True, color=CYAN)
+    _box(s1, user_resp.customer_name or 'Customer',
+         Emu(388_620), Emu(2_300_000), Emu(9_144_000), Emu(1_000_000),
+         sz=36, bold=True, color=WHITE)
+    meta = []
+    if user_resp.se_name:      meta.append(user_resp.se_name)
+    if user_resp.completed_at: meta.append(user_resp.completed_at.strftime('%B %d, %Y'))
+    if meta:
+        _box(s1, '     '.join(meta),
+             Emu(388_620), Emu(3_400_000), Emu(9_144_000), Emu(457_200),
+             sz=14, color=WHITE)
 
-    # ── SLIDE 2 — Value Drivers ───────────────────────────────────────────
+    # ── SLIDE 2 — Pre-POV Checklist ───────────────────────────────────────
     s2 = prs.slides.add_slide(LY['title_sub'])
-    _slide_header(s2, 'Value Drivers', 'Current State → Future State with Zscaler ZTB')
+    done_count = sum(1 for iid, _ in CHECKLIST_ITEMS if checks.get(iid))
+    _slide_header(s2, 'Pre-POV Checklist',
+                  f'Completion: {done_count} of {len(CHECKLIST_ITEMS)} items')
+
+    TABLE_TOP    = int(Emu(1_158_750)) + int(Emu(347_472))
+    TABLE_BOTTOM = int(Inches(6.7))
+    ROW_H = max(int((TABLE_BOTTOM - TABLE_TOP) / len(CHECKLIST_ITEMS)), int(Inches(0.62)))
+    COL_ST_X = Emu(370_819);   COL_ST_W = Emu(502_920)
+    COL_TT_X = Emu(914_399);   COL_TT_W = Emu(5_121_960)
+    COL_NT_X = Emu(6_127_679); COL_NT_W = Emu(5_850_721)
+    HDR_Y = TABLE_TOP; HDR_H = int(Emu(347_472))
+    for cx, cw, lbl in [(COL_ST_X, COL_ST_W, ''),
+                         (COL_TT_X, COL_TT_W, 'CHECKLIST ITEM'),
+                         (COL_NT_X, COL_NT_W, 'NOTES')]:
+        _rect(s2, cx, HDR_Y, cw, HDR_H, CARD)
+        if lbl:
+            _box(s2, lbl, cx + Emu(73_152), HDR_Y, cw, HDR_H,
+                 sz=9, bold=True, color=GREEN)
+    y = HDR_Y + HDR_H
+    for i, (item_id, item_title) in enumerate(CHECKLIST_ITEMS):
+        checked = bool(checks.get(item_id))
+        bg_ = CARD if i % 2 == 0 else CARD2
+        PAD = int(Emu(91_440))
+        for cx, cw in [(COL_ST_X, COL_ST_W), (COL_TT_X, COL_TT_W), (COL_NT_X, COL_NT_W)]:
+            _rect(s2, cx, y, cw, ROW_H - int(Emu(27_432)), bg_)
+        _box(s2, '✅' if checked else '⬜',
+             COL_ST_X + Emu(36_576), y + PAD, COL_ST_W, ROW_H,
+             sz=16, color=GREEN if checked else MUTED, align=PP_ALIGN.CENTER)
+        _box(s2, item_title,
+             COL_TT_X + Emu(73_152), y + PAD, COL_TT_W - Emu(109_728), ROW_H,
+             sz=11, bold=(not checked), color=MUTED if checked else WHITE)
+        note_text = notes_map.get(item_id, '')
+        if note_text:
+            _box(s2, note_text,
+                 COL_NT_X + Emu(73_152), y + PAD, COL_NT_W - Emu(109_728), ROW_H,
+                 sz=10, color=MUTED, italic=True)
+        y += ROW_H
+
+    # ── SLIDE 3 — Key Stakeholders ────────────────────────────────────────
+    s3 = prs.slides.add_slide(LY['title_sub'])
+    _slide_header(s3, 'Key Stakeholders', 'POV Team & Sign-Off Contacts')
+
+    stk_data = prepov.get('stakeholders', {})
+
+    COL_ROLE_X = Emu(370_819);   COL_ROLE_W = Emu(3_474_720)
+    COL_NAME_X = Emu(3_936_339); COL_NAME_W = Emu(4_846_320)
+    COL_DATE_X = Emu(8_874_099); COL_DATE_W = Emu(2_970_381)
+
+    HDR_Y = int(Emu(1_158_750)) + int(Emu(347_472)); HDR_H = int(Emu(347_472))
+    for cx, cw, lbl, al in [
+        (COL_ROLE_X, COL_ROLE_W, 'ROLE',          PP_ALIGN.LEFT),
+        (COL_NAME_X, COL_NAME_W, 'NAME & TITLE',   PP_ALIGN.LEFT),
+        (COL_DATE_X, COL_DATE_W, 'SIGN-OFF DATE',  PP_ALIGN.RIGHT),
+    ]:
+        _rect(s3, cx, HDR_Y, cw, HDR_H, CARD)
+        _box(s3, lbl, cx + Emu(73_152), HDR_Y, cw, HDR_H,
+             sz=9, bold=True, color=CYAN, align=al)
+
+    TABLE_TOP    = HDR_Y + HDR_H
+    TABLE_BOTTOM = int(Inches(6.7))
+    n_stk = len(STAKEHOLDER_DEFS)
+    ROW_H = max(int((TABLE_BOTTOM - TABLE_TOP) / n_stk), int(Inches(0.62)))
+    zscaler_div_done = False
+    y = TABLE_TOP
+
+    for i, (stk_id, stk_role, is_zscaler) in enumerate(STAKEHOLDER_DEFS):
+        if is_zscaler and not zscaler_div_done:
+            total_w = int(COL_ROLE_W) + int(COL_NAME_W) + int(Emu(91_440)) + int(COL_DATE_W)
+            _rect(s3, COL_ROLE_X, y, total_w, int(Emu(256_032)), CARD)
+            _box(s3, 'ZSCALER TEAM', COL_ROLE_X + Emu(109_728), y + Emu(36_576),
+                 Emu(3_657_600), int(Emu(256_032)), sz=7, bold=True, color=CYAN)
+            y += int(Emu(256_032))
+            zscaler_div_done = True
+
+        bg_ = CARD if i % 2 == 0 else CARD2
+        PAD = int(Emu(109_728))
+        for cx, cw in [(COL_ROLE_X, COL_ROLE_W), (COL_NAME_X, COL_NAME_W),
+                       (COL_DATE_X, COL_DATE_W)]:
+            _rect(s3, cx, y, cw, ROW_H - int(Emu(27_432)), bg_)
+        _box(s3, stk_role,
+             COL_ROLE_X + Emu(91_440), y + PAD, COL_ROLE_W - Emu(137_160), ROW_H,
+             sz=11, bold=True, color=WHITE)
+        person   = stk_data.get(stk_id, {})
+        name_val = person.get('name', '') if isinstance(person, dict) else ''
+        date_val = person.get('date', '') if isinstance(person, dict) else ''
+        if name_val:
+            _box(s3, name_val,
+                 COL_NAME_X + Emu(91_440), y + PAD, COL_NAME_W - Emu(137_160), ROW_H,
+                 sz=11, color=WHITE)
+        else:
+            _box(s3, '—',
+                 COL_NAME_X + Emu(91_440), y + PAD, COL_NAME_W - Emu(137_160), ROW_H,
+                 sz=11, color=MUTED, italic=True)
+        if not is_zscaler:
+            if date_val:
+                _box(s3, date_val,
+                     COL_DATE_X + Emu(54_864), y + PAD, COL_DATE_W - Emu(91_440), ROW_H,
+                     sz=11, bold=True, color=GREEN, align=PP_ALIGN.RIGHT)
+            else:
+                _box(s3, 'Pending',
+                     COL_DATE_X + Emu(54_864), y + PAD, COL_DATE_W - Emu(91_440), ROW_H,
+                     sz=10, color=AMBER, italic=True, align=PP_ALIGN.RIGHT)
+        y += ROW_H
+
+    # ── SLIDE 4 — POV Timeline ────────────────────────────────────────────
+    s4 = prs.slides.add_slide(LY['title_sub'])
+    _slide_header(s4, 'POV Timeline', 'Milestone schedule for the Proof of Value')
+
+    if not tl_rows:
+        _box(s4, 'No timeline milestones have been defined yet.',
+             Inches(0.5), Inches(2.0), Inches(12), Inches(0.5),
+             sz=14, color=MUTED, italic=True)
+    else:
+        TABLE_TOP    = int(Emu(1_158_750)) + int(Emu(347_472))
+        TABLE_BOTTOM = int(Inches(6.7))
+        n = min(len(tl_rows), 14)
+        ROW_H = max(int((TABLE_BOTTOM - TABLE_TOP) / n), int(Inches(0.38)))
+        COL_NUM_X = Emu(370_819);   COL_NUM_W = Emu(457_200)
+        COL_MIL_X = Emu(868_019);   COL_MIL_W = Emu(7_940_160)
+        COL_DAT_X = Emu(8_899_419); COL_DAT_W = Emu(2_945_061)
+        HDR_Y = TABLE_TOP; HDR_H = int(Emu(347_472))
+        for cx, cw, lbl, al in [
+            (COL_NUM_X, COL_NUM_W, '#',            PP_ALIGN.CENTER),
+            (COL_MIL_X, COL_MIL_W, 'MILESTONE',   PP_ALIGN.LEFT),
+            (COL_DAT_X, COL_DAT_W, 'TARGET DATE',  PP_ALIGN.RIGHT),
+        ]:
+            _rect(s4, cx, HDR_Y, cw, HDR_H, CARD)
+            _box(s4, lbl, cx + Emu(54_864), HDR_Y, cw, HDR_H,
+                 sz=9, bold=True, color=AMBER, align=al)
+        y = HDR_Y + HDR_H
+        for i, row in enumerate(tl_rows[:n]):
+            bg_ = CARD if i % 2 == 0 else CARD2
+            PAD = int(Emu(73_152))
+            for cx, cw in [(COL_NUM_X, COL_NUM_W), (COL_MIL_X, COL_MIL_W),
+                           (COL_DAT_X, COL_DAT_W)]:
+                _rect(s4, cx, y, cw, ROW_H - int(Emu(18_288)), bg_)
+            _box(s4, str(i + 1), COL_NUM_X + Emu(54_864), y + PAD, COL_NUM_W, ROW_H,
+                 sz=10, bold=True, color=MUTED, align=PP_ALIGN.CENTER)
+            _box(s4, row.get('label', ''), COL_MIL_X + Emu(73_152), y + PAD,
+                 COL_MIL_W - Emu(109_728), ROW_H, sz=11, color=WHITE)
+            if row.get('date', ''):
+                _box(s4, row['date'], COL_DAT_X + Emu(54_864), y + PAD,
+                     COL_DAT_W - Emu(91_440), ROW_H, sz=11, bold=True,
+                     color=CYAN, align=PP_ALIGN.RIGHT)
+            y += ROW_H
+
+    # ── SLIDE 5 — Value Drivers ───────────────────────────────────────────
+    s5 = prs.slides.add_slide(LY['title_sub'])
+    _slide_header(s5, 'Value Drivers', 'Current State → Future State with Zscaler ZTB')
 
     drivers = [s for s in section_outcomes if s.get('format') == 'value_driver']
     if not drivers:
-        _box(s2, 'No value drivers configured for this assessment.',
+        _box(s5, 'No value drivers configured for this assessment.',
              Inches(0.5), Inches(2.0), Inches(11), Inches(0.5),
              sz=14, color=MUTED, italic=True)
     else:
@@ -639,8 +784,8 @@ def export_pov_deck(customer_slug):
         HDR_H = Emu(347_472)
         hdrs  = ['DRIVER', 'CURRENT STATE', 'FUTURE STATE (ZTB)']
         for i, h in enumerate(hdrs):
-            _rect(s2, col_x[i], HDR_Y, col_w[i] - Emu(45_720), HDR_H, CARD)
-            _box(s2, h, col_x[i] + Emu(63_500), HDR_Y,
+            _rect(s5, col_x[i], HDR_Y, col_w[i] - Emu(45_720), HDR_H, CARD)
+            _box(s5, h, col_x[i] + Emu(63_500), HDR_Y,
                  col_w[i], HDR_H, sz=9, bold=True, color=CYAN)
         TABLE_TOP    = int(HDR_Y) + int(HDR_H)
         TABLE_BOTTOM = int(Inches(7.1))
@@ -669,25 +814,25 @@ def export_pov_deck(customer_slug):
             bg_ = CARD if ri % 2 == 0 else CARD2
             PAD = int(Emu(54_864))
             for i in range(3):
-                _rect(s2, col_x[i], y_cursor, col_w[i] - Emu(45_720),
+                _rect(s5, col_x[i], y_cursor, col_w[i] - Emu(45_720),
                       rh - int(Emu(27_432)), bg_)
-            _box(s2, drv.get('label', ''),
+            _box(s5, drv.get('label', ''),
                  col_x[0] + Emu(91_440), y_cursor + PAD, col_w[0] - Emu(137_160), rh,
                  sz=11, bold=True, color=CYAN)
-            _box(s2, '\n'.join(drv.get('current_state_lines', [])),
+            _box(s5, '\n'.join(drv.get('current_state_lines', [])),
                  col_x[1] + Emu(73_152), y_cursor + PAD, col_w[1] - Emu(137_160), rh,
                  sz=11, color=WHITE)
-            _box(s2, '\n'.join(drv.get('future_state_lines', [])),
+            _box(s5, '\n'.join(drv.get('future_state_lines', [])),
                  col_x[2] + Emu(73_152), y_cursor + PAD, col_w[2] - Emu(137_160), rh,
                  sz=11, color=WHITE)
             y_cursor += rh
 
-    # ── SLIDE 3 — Success Criteria ────────────────────────────────────────
-    s3 = prs.slides.add_slide(LY['title_sub'])
-    _slide_header(s3, 'POV Success Criteria', 'Defined test cases and acceptance criteria')
+    # ── SLIDE 6 — Success Criteria ────────────────────────────────────────
+    s6 = prs.slides.add_slide(LY['title_sub'])
+    _slide_header(s6, 'POV Success Criteria', 'Defined test cases and acceptance criteria')
 
     if not success_criteria:
-        _box(s3, 'No success criteria have been tagged for this assessment.',
+        _box(s6, 'No success criteria have been tagged for this assessment.',
              Inches(0.5), Inches(2.0), Inches(12), Inches(0.5),
              sz=14, color=MUTED, italic=True)
     else:
@@ -695,186 +840,35 @@ def export_pov_deck(customer_slug):
         TABLE_BOTTOM = int(Inches(6.7))
         n         = min(len(success_criteria), 8)
         ROW_H     = max(int(Inches(0.55)), int((TABLE_BOTTOM - TABLE_TOP) / n))
-        COL_NUM_X = Emu(370_819);  COL_NUM_W = Emu(457_200)
-        COL_TIT_X = Emu(868_019);  COL_TIT_W = Emu(5_303_520)
+        COL_NUM_X = Emu(370_819);   COL_NUM_W = Emu(457_200)
+        COL_TIT_X = Emu(868_019);   COL_TIT_W = Emu(5_303_520)
         COL_DSC_X = Emu(6_217_399); COL_DSC_W = Emu(5_713_981)
         HDR_Y = TABLE_TOP; HDR_H = int(Emu(347_472))
         for cx, cw, lbl in [(COL_NUM_X, COL_NUM_W, '#'),
                              (COL_TIT_X, COL_TIT_W, 'SUCCESS CRITERIA'),
                              (COL_DSC_X, COL_DSC_W, 'DESCRIPTION')]:
-            _rect(s3, cx, HDR_Y, cw, HDR_H, CARD)
-            _box(s3, lbl, cx + Emu(73_152), HDR_Y, cw, HDR_H, sz=9, bold=True, color=BLUE)
+            _rect(s6, cx, HDR_Y, cw, HDR_H, CARD)
+            _box(s6, lbl, cx + Emu(73_152), HDR_Y, cw, HDR_H,
+                 sz=9, bold=True, color=BLUE)
         y = HDR_Y + HDR_H
         for i, sc in enumerate(success_criteria[:n]):
             bg_ = CARD if i % 2 == 0 else CARD2
             PAD = int(Emu(91_440))
-            for cx, cw in [(COL_NUM_X, COL_NUM_W), (COL_TIT_X, COL_TIT_W), (COL_DSC_X, COL_DSC_W)]:
-                _rect(s3, cx, y, cw, ROW_H - int(Emu(27_432)), bg_)
-            _box(s3, str(i + 1), COL_NUM_X + Emu(73_152), y + PAD, COL_NUM_W, ROW_H,
+            for cx, cw in [(COL_NUM_X, COL_NUM_W), (COL_TIT_X, COL_TIT_W),
+                           (COL_DSC_X, COL_DSC_W)]:
+                _rect(s6, cx, y, cw, ROW_H - int(Emu(27_432)), bg_)
+            _box(s6, str(i + 1), COL_NUM_X + Emu(73_152), y + PAD, COL_NUM_W, ROW_H,
                  sz=11, bold=True, color=CYAN, align=PP_ALIGN.CENTER)
             title = sc.get('asset_name') or sc.get('title') or f'Criteria {i+1}'
-            _box(s3, title, COL_TIT_X + Emu(73_152), y + PAD,
+            _box(s6, title, COL_TIT_X + Emu(73_152), y + PAD,
                  COL_TIT_W - Emu(109_728), ROW_H, sz=11, bold=True, color=WHITE)
             desc = sc.get('description') or ''
             if desc:
-                _box(s3, desc, COL_DSC_X + Emu(73_152), y + PAD,
+                _box(s6, desc, COL_DSC_X + Emu(73_152), y + PAD,
                      COL_DSC_W - Emu(109_728), ROW_H, sz=10, color=MUTED)
             y += ROW_H
 
-    # ── SLIDE 4 — Pre-POV Checklist ───────────────────────────────────────
-    s4 = prs.slides.add_slide(LY['title_sub'])
-    done_count = sum(1 for iid, _ in CHECKLIST_ITEMS if checks.get(iid))
-    _slide_header(s4, 'Pre-POV Checklist',
-                  f'Completion: {done_count} of {len(CHECKLIST_ITEMS)} items')
-
-    TABLE_TOP    = int(Emu(1_158_750)) + int(Emu(347_472))
-    TABLE_BOTTOM = int(Inches(6.7))
-    ROW_H = max(int((TABLE_BOTTOM - TABLE_TOP) / len(CHECKLIST_ITEMS)), int(Inches(0.62)))
-    COL_ST_X = Emu(370_819);  COL_ST_W = Emu(502_920)
-    COL_TT_X = Emu(914_399);  COL_TT_W = Emu(5_121_960)
-    COL_NT_X = Emu(6_127_679); COL_NT_W = Emu(5_850_721)
-    HDR_Y = TABLE_TOP; HDR_H = int(Emu(347_472))
-    for cx, cw, lbl in [(COL_ST_X, COL_ST_W, ''),
-                         (COL_TT_X, COL_TT_W, 'CHECKLIST ITEM'),
-                         (COL_NT_X, COL_NT_W, 'NOTES')]:
-        _rect(s4, cx, HDR_Y, cw, HDR_H, CARD)
-        if lbl:
-            _box(s4, lbl, cx + Emu(73_152), HDR_Y, cw, HDR_H, sz=9, bold=True, color=GREEN)
-    y = HDR_Y + HDR_H
-    for i, (item_id, item_title) in enumerate(CHECKLIST_ITEMS):
-        checked = bool(checks.get(item_id))
-        bg_ = CARD if i % 2 == 0 else CARD2
-        PAD = int(Emu(91_440))
-        for cx, cw in [(COL_ST_X, COL_ST_W), (COL_TT_X, COL_TT_W), (COL_NT_X, COL_NT_W)]:
-            _rect(s4, cx, y, cw, ROW_H - int(Emu(27_432)), bg_)
-        _box(s4, '✅' if checked else '⬜',
-             COL_ST_X + Emu(36_576), y + PAD, COL_ST_W, ROW_H,
-             sz=16, color=GREEN if checked else MUTED, align=PP_ALIGN.CENTER)
-        _box(s4, item_title,
-             COL_TT_X + Emu(73_152), y + PAD, COL_TT_W - Emu(109_728), ROW_H,
-             sz=11, bold=(not checked), color=MUTED if checked else WHITE)
-        note_text = notes_map.get(item_id, '')
-        if note_text:
-            _box(s4, note_text,
-                 COL_NT_X + Emu(73_152), y + PAD, COL_NT_W - Emu(109_728), ROW_H,
-                 sz=10, color=MUTED, italic=True)
-        y += ROW_H
-
-    # ── SLIDE 5 — Key Stakeholders ────────────────────────────────────────
-    s5 = prs.slides.add_slide(LY['title_sub'])
-    _slide_header(s5, 'Key Stakeholders', 'POV Team & Sign-Off Contacts')
-
-    STAKEHOLDER_DEFS = [
-        ('zs_champion',  'Zscaler Champion',          False),
-        ('exec_sponsor', 'Executive Sponsor',          False),
-        ('net_lead',     'Networking Lead',            False),
-        ('sec_lead',     'Security Lead',              False),
-        ('zs_ae',        'Zscaler Account Executive',  True),
-        ('zs_se',        'Zscaler Sales Engineer',     True),
-    ]
-    stk_data = prepov.get('stakeholders', {})
-
-    COL_ROLE_X = Emu(370_819);  COL_ROLE_W = Emu(3_474_720)
-    COL_NAME_X = Emu(3_936_339); COL_NAME_W = Emu(4_846_320)
-    COL_DATE_X = Emu(8_874_099); COL_DATE_W = Emu(2_970_381)
-
-    HDR_Y = int(Emu(1_158_750)) + int(Emu(347_472)); HDR_H = int(Emu(347_472))
-    for cx, cw, lbl, al in [
-        (COL_ROLE_X, COL_ROLE_W, 'ROLE',         PP_ALIGN.LEFT),
-        (COL_NAME_X, COL_NAME_W, 'NAME & TITLE',  PP_ALIGN.LEFT),
-        (COL_DATE_X, COL_DATE_W, 'SIGN-OFF DATE', PP_ALIGN.RIGHT),
-    ]:
-        _rect(s5, cx, HDR_Y, cw, HDR_H, CARD)
-        _box(s5, lbl, cx + Emu(73_152), HDR_Y, cw, HDR_H,
-             sz=9, bold=True, color=CYAN, align=al)
-
-    TABLE_TOP    = HDR_Y + HDR_H
-    TABLE_BOTTOM = int(Inches(6.7))
-    n_stk = len(STAKEHOLDER_DEFS)
-    ROW_H = max(int((TABLE_BOTTOM - TABLE_TOP) / n_stk), int(Inches(0.62)))
-    zscaler_div_done = False
-    y = TABLE_TOP
-
-    for i, (stk_id, stk_role, is_zscaler) in enumerate(STAKEHOLDER_DEFS):
-        if is_zscaler and not zscaler_div_done:
-            total_w = int(COL_ROLE_W) + int(COL_NAME_W) + int(Emu(91_440)) + int(COL_DATE_W)
-            _rect(s5, COL_ROLE_X, y, total_w, int(Emu(256_032)), CARD)
-            _box(s5, 'ZSCALER TEAM', COL_ROLE_X + Emu(109_728), y + Emu(36_576),
-                 Emu(3_657_600), int(Emu(256_032)), sz=7, bold=True, color=CYAN)
-            y += int(Emu(256_032))
-            zscaler_div_done = True
-
-        bg_ = CARD if i % 2 == 0 else CARD2
-        PAD = int(Emu(109_728))
-        for cx, cw in [(COL_ROLE_X, COL_ROLE_W), (COL_NAME_X, COL_NAME_W), (COL_DATE_X, COL_DATE_W)]:
-            _rect(s5, cx, y, cw, ROW_H - int(Emu(27_432)), bg_)
-        _box(s5, stk_role,
-             COL_ROLE_X + Emu(91_440), y + PAD, COL_ROLE_W - Emu(137_160), ROW_H,
-             sz=11, bold=True, color=WHITE)
-        person   = stk_data.get(stk_id, {})
-        name_val = person.get('name', '') if isinstance(person, dict) else ''
-        date_val = person.get('date', '') if isinstance(person, dict) else ''
-        if name_val:
-            _box(s5, name_val,
-                 COL_NAME_X + Emu(91_440), y + PAD, COL_NAME_W - Emu(137_160), ROW_H,
-                 sz=11, color=WHITE)
-        else:
-            _box(s5, '—',
-                 COL_NAME_X + Emu(91_440), y + PAD, COL_NAME_W - Emu(137_160), ROW_H,
-                 sz=11, color=MUTED, italic=True)
-        if not is_zscaler:
-            if date_val:
-                _box(s5, date_val,
-                     COL_DATE_X + Emu(54_864), y + PAD, COL_DATE_W - Emu(91_440), ROW_H,
-                     sz=11, bold=True, color=GREEN, align=PP_ALIGN.RIGHT)
-            else:
-                _box(s5, 'Pending',
-                     COL_DATE_X + Emu(54_864), y + PAD, COL_DATE_W - Emu(91_440), ROW_H,
-                     sz=10, color=AMBER, italic=True, align=PP_ALIGN.RIGHT)
-        y += ROW_H
-
-    # ── SLIDE 6 — POV Timeline ────────────────────────────────────────────
-    s6 = prs.slides.add_slide(LY['title_sub'])
-    _slide_header(s6, 'POV Timeline', 'Milestone schedule for the Proof of Value')
-
-    if not tl_rows:
-        _box(s6, 'No timeline milestones have been defined yet.',
-             Inches(0.5), Inches(2.0), Inches(12), Inches(0.5),
-             sz=14, color=MUTED, italic=True)
-    else:
-        TABLE_TOP    = int(Emu(1_158_750)) + int(Emu(347_472))
-        TABLE_BOTTOM = int(Inches(6.7))
-        n = min(len(tl_rows), 14)
-        ROW_H = max(int((TABLE_BOTTOM - TABLE_TOP) / n), int(Inches(0.38)))
-        COL_NUM_X = Emu(370_819);  COL_NUM_W = Emu(457_200)
-        COL_MIL_X = Emu(868_019);  COL_MIL_W = Emu(7_940_160)
-        COL_DAT_X = Emu(8_899_419); COL_DAT_W = Emu(2_945_061)
-        HDR_Y = TABLE_TOP; HDR_H = int(Emu(347_472))
-        for cx, cw, lbl, al in [
-            (COL_NUM_X, COL_NUM_W, '#',           PP_ALIGN.CENTER),
-            (COL_MIL_X, COL_MIL_W, 'MILESTONE',  PP_ALIGN.LEFT),
-            (COL_DAT_X, COL_DAT_W, 'TARGET DATE', PP_ALIGN.RIGHT),
-        ]:
-            _rect(s6, cx, HDR_Y, cw, HDR_H, CARD)
-            _box(s6, lbl, cx + Emu(54_864), HDR_Y, cw, HDR_H,
-                 sz=9, bold=True, color=AMBER, align=al)
-        y = HDR_Y + HDR_H
-        for i, row in enumerate(tl_rows[:n]):
-            bg_ = CARD if i % 2 == 0 else CARD2
-            PAD = int(Emu(73_152))
-            for cx, cw in [(COL_NUM_X, COL_NUM_W), (COL_MIL_X, COL_MIL_W), (COL_DAT_X, COL_DAT_W)]:
-                _rect(s6, cx, y, cw, ROW_H - int(Emu(18_288)), bg_)
-            _box(s6, str(i + 1), COL_NUM_X + Emu(54_864), y + PAD, COL_NUM_W, ROW_H,
-                 sz=10, bold=True, color=MUTED, align=PP_ALIGN.CENTER)
-            _box(s6, row.get('label', ''), COL_MIL_X + Emu(73_152), y + PAD,
-                 COL_MIL_W - Emu(109_728), ROW_H, sz=11, color=WHITE)
-            if row.get('date', ''):
-                _box(s6, row['date'], COL_DAT_X + Emu(54_864), y + PAD,
-                     COL_DAT_W - Emu(91_440), ROW_H, sz=11, bold=True,
-                     color=CYAN, align=PP_ALIGN.RIGHT)
-            y += ROW_H
-
-    # ── SLIDE 7 — Deployment Pattern (driven by assessment outcome) ─────────
+    # ── SLIDE 7 — Deployment Pattern ─────────────────────────────────────
     DEPLOY_PATH   = '/home/ubuntu/ztb-super-app/static/assets/pov_deployment_patterns.pptx'
     DIAGRAM_PATHS = [
         '/home/ubuntu/ztb-super-app/static/assets/diagram_type1.png',
@@ -892,40 +886,33 @@ def export_pov_deck(customer_slug):
         elif 'TYPE 2' in outcome_str:
             slide_idx = 1
         else:
-            slide_idx = 0  # TYPE 1 default
+            slide_idx = 0
         _append_slides_from_file(prs, DEPLOY_PATH, slide_index=slide_idx)
-        # Inject the clean diagram PNG onto the right half of the just-added slide
         _inject_diagram_png(prs.slides[-1], DIAGRAM_PATHS[slide_idx])
-    except Exception as e:
+    except Exception:
         import traceback; traceback.print_exc()
-        pass  # skip silently if file missing
 
     # ── SLIDES 8, 9, 10 — Universal POV slides ───────────────────────────
     UNIVERSAL_PATH = '/home/ubuntu/ztb-super-app/static/assets/pov_deck_universal_slides.pptx'
     try:
         _append_slides_from_file(prs, UNIVERSAL_PATH)
-        # Slide 10 is the last of the 3 universal slides (index -1 after append)
-        # Its title shape sits too high — nudge it down by 400K EMU
-        from pptx.util import Emu as _Emu
-        from lxml import etree as _et
-        _A_NS  = 'http://schemas.openxmlformats.org/drawingml/2006/main'
-        _SP_NS = 'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing'
-        _PML   = 'http://schemas.openxmlformats.org/presentationml/2006/main'
-        _OFF_TAG = '{http://schemas.openxmlformats.org/drawingml/2006/main}off'
-        _XFM_TAG = '{http://schemas.openxmlformats.org/drawingml/2006/main}xfrm'
         slide10 = prs.slides[-1]
         for shape in slide10.shapes:
-            # Target shapes whose top is very close to 0 (within 300K EMU)
-            if shape.top is not None and shape.top < int(_Emu(300_000)):
-                shape.top = shape.top + int(_Emu(400_000))
+            if shape.top is not None and shape.top < int(Emu(300_000)):
+                shape.top = shape.top + int(Emu(400_000))
     except Exception:
-        pass  # skip silently if file missing
+        pass
 
     # ── SLIDE 11 — Thank You ──────────────────────────────────────────────
-    s7 = prs.slides.add_slide(LY['cover'])
-    _box(s7, 'Thank You',
+    s_ty = prs.slides.add_slide(LY['cover'])
+    _box(s_ty, 'Thank You',
          Emu(388_620), Emu(2_500_000), Emu(9_144_000), Emu(914_400),
          sz=40, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+    line = user_resp.customer_name or ''
+    if user_resp.se_name: line += f'  ·  {user_resp.se_name}'
+    _box(s_ty, line,
+         Emu(388_620), Emu(3_500_000), Emu(9_144_000), Emu(457_200),
+         sz=18, color=CYAN, align=PP_ALIGN.CENTER)
 
     out   = io.BytesIO()
     prs.save(out)
