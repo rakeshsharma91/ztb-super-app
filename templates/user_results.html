@@ -744,6 +744,40 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
 
         <hr class="section-divider">
 
+        <!-- ── Site Profile section ── -->
+        <div class="sp-res-header">
+          <div class="section-heading" style="margin-bottom:0;">
+            <h2>Site Profile</h2>
+            <span class="section-badge" id="sp-res-badge">0</span>
+          </div>
+          <button class="sp-res-edit-btn" id="sp-edit-btn" onclick="toggleSiteProfileEditor()">✏ Edit Site Profile</button>
+        </div>
+        <div id="sp-res-cards"></div>
+        <div class="empty-state" id="sp-res-empty" style="display:none;">No site profile defined yet. Click Edit Site Profile to add sites.</div>
+
+        <!-- Inline Site Profile Editor -->
+        <div id="sp-inline-editor">
+          <div class="sp-ie-header">
+            <span class="sp-ie-title">🏢 Edit Site Profile</span>
+            <button class="sp-ie-close" onclick="closeSiteProfileEditor()">✕ Close</button>
+          </div>
+          <div class="sp-ie-body">
+            <div id="sp-ie-cards-container"></div>
+            <div class="sp-empty-msg" id="sp-ie-empty" style="display:none;">
+              <div class="sp-empty-icon">🏢</div>No sites yet. Click + Add Site below.
+            </div>
+          </div>
+          <div class="sp-ie-footer">
+            <button class="sp-add-btn" onclick="spIEAddRow()">＋ Add Site</button>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <button class="btn-inline-edit" onclick="closeSiteProfileEditor()" style="padding:7px 16px;">Cancel</button>
+              <button class="ie-save-btn" id="sp-ie-save-btn" onclick="saveSiteProfile()" style="padding:8px 22px;">✓ Save Site Profile</button>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
         <div class="section-heading">
           <h2>Assessment Responses</h2>
           <span class="section-badge">{{ qa_pairs | length }}</span>
@@ -785,39 +819,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
         <div class="empty-state">No responses recorded.</div>
         {% endif %}
 
-        <hr class="section-divider">
-
-        <!-- ── Site Profile section ── -->
-        <div class="sp-res-header">
-          <div class="section-heading" style="margin-bottom:0;">
-            <h2>Site Profile</h2>
-            <span class="section-badge" id="sp-res-badge">0</span>
-          </div>
-          <button class="sp-res-edit-btn" id="sp-edit-btn" onclick="toggleSiteProfileEditor()">✏ Edit Site Profile</button>
-        </div>
-        <div id="sp-res-cards"></div>
-        <div class="empty-state" id="sp-res-empty" style="display:none;">No site profile defined yet. Click Edit Site Profile to add sites.</div>
-
-        <!-- Inline Site Profile Editor -->
-        <div id="sp-inline-editor">
-          <div class="sp-ie-header">
-            <span class="sp-ie-title">🏢 Edit Site Profile</span>
-            <button class="sp-ie-close" onclick="closeSiteProfileEditor()">✕ Close</button>
-          </div>
-          <div class="sp-ie-body">
-            <div id="sp-ie-cards-container"></div>
-            <div class="sp-empty-msg" id="sp-ie-empty" style="display:none;">
-              <div class="sp-empty-icon">🏢</div>No sites yet. Click + Add Site below.
-            </div>
-          </div>
-          <div class="sp-ie-footer">
-            <button class="sp-add-btn" onclick="spIEAddRow()">＋ Add Site</button>
-            <div style="display:flex;gap:10px;align-items:center;">
-              <button class="btn-inline-edit" onclick="closeSiteProfileEditor()" style="padding:7px 16px;">Cancel</button>
-              <button class="ie-save-btn" id="sp-ie-save-btn" onclick="saveSiteProfile()" style="padding:8px 22px;">✓ Save Site Profile</button>
-            </div>
-          </div>
-        </div>
 
       </div><!-- /results-main -->
 
