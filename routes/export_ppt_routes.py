@@ -119,12 +119,15 @@ def _fmt_exact(v):
     return f'${int(round(v)):,}'
 
 
-def _append_slides_from_file(prs, source_path):
-    """Clone all slides from source_path into prs verbatim."""
+def _append_slides_from_file(prs, source_path, slide_index=None):
+    """Clone slides from source_path into prs verbatim.
+    slide_index: if set, only clone that 0-based slide. Otherwise clone all.
+    """
     from pptx import Presentation
     import copy
     src = Presentation(source_path)
-    for src_slide in src.slides:
+    slides_to_copy = [src.slides[slide_index]] if slide_index is not None else list(src.slides)
+    for src_slide in slides_to_copy:
         blank = prs.slide_layouts[17]
         new_slide = prs.slides.add_slide(blank)
         sp_tree = new_slide.shapes._spTree
@@ -792,14 +795,32 @@ def export_pov_deck(customer_slug):
                      color=CYAN, align=PP_ALIGN.RIGHT)
             y += ROW_H
 
-    # ── SLIDES 7, 8, 9 — Universal POV slides ────────────────────────────────
+    # ── SLIDE 7 — Deployment Pattern (driven by assessment outcome) ─────────
+    DEPLOY_PATH = '/home/ubuntu/ztb-super-app/static/assets/pov_deployment_patterns.pptx'
+    try:
+        deploy_outcome = next(
+            (s for s in section_outcomes if s.get('name', '').strip().lower() == 'deployment type'),
+            None
+        )
+        outcome_str = (deploy_outcome.get('outcome', '') or '').strip().upper() if deploy_outcome else ''
+        if 'TYPE 3' in outcome_str:
+            slide_idx = 2
+        elif 'TYPE 2' in outcome_str:
+            slide_idx = 1
+        else:
+            slide_idx = 0  # TYPE 1 default
+        _append_slides_from_file(prs, DEPLOY_PATH, slide_index=slide_idx)
+    except Exception:
+        pass  # skip silently if file missing
+
+    # ── SLIDES 8, 9, 10 — Universal POV slides ───────────────────────────
     UNIVERSAL_PATH = '/home/ubuntu/ztb-super-app/static/assets/pov_deck_universal_slides.pptx'
     try:
         _append_slides_from_file(prs, UNIVERSAL_PATH)
     except Exception:
         pass  # skip silently if file missing
 
-    # ── SLIDE 10 — Thank You ──────────────────────────────────────────────
+    # ── SLIDE 11 — Thank You ──────────────────────────────────────────────
     s7 = prs.slides.add_slide(LY['cover'])
     _box(s7, 'Thank You',
          Emu(388_620), Emu(2_500_000), Emu(9_144_000), Emu(914_400),
