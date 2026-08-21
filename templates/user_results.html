@@ -1868,7 +1868,7 @@ async function savePricing() {
 
 (function() {
   const dl = document.createElement('datalist'); dl.id = 'label-suggestions';
-  ['Small','Medium','Large','XL'].forEach(v => { const o = document.createElement('option'); o.value = v; dl.appendChild(o); });
+  ['Small (Upto 200Mbps for SDWAN, Upto 200 Users for Segmentation)','Medium (Upto 400Mbps for SDWAN, Upto 500 Users for Segmentation)','Large (Upto 1Gbps for SDWAN, Upto 1000 Users for Segmentation)','XL (Upto 5Gbps for SDWAN, Upto 5000 Users for Segmentation)'].forEach(v => { const o = document.createElement('option'); o.value = v; dl.appendChild(o); });
   document.body.appendChild(dl);
 })();
 
@@ -2092,7 +2092,7 @@ const SP_CATS_R = ['fw_ns','sdwan','mpls','fw_ew','iot_ot','nac','l3sw','pam'];
 const SP_CAT_LABELS_R = { fw_ns:'🔥 FW N/S', sdwan:'🌐 SD-WAN', mpls:'📡 MPLS', fw_ew:'🔒 FW E/W', iot_ot:'🤖 IoT/OT', nac:'🛡 NAC', l3sw:'🔀 L3 Switch', pam:'🔑 PAM' };
 const SP_VENDOR_FIELDS_R = { fw_ns:'fw_ns_vendor', sdwan:'sdwan_vendor', mpls:'mpls_vendor', fw_ew:'fw_ew_vendor', iot_ot:'iot_ot_vendor', nac:'nac_vendor', l3sw:'l3sw_vendor', pam:'pam_vendor' };
 const WAN_TYPES_R = ['Internet Only','Internet + MPLS','MPLS Only','Internet + SD-WAN','Internet + MPLS + SD-WAN'];
-const SIZES_R = ['Small','Medium','Large','XL'];
+const SIZES_R = ['Small (Upto 200Mbps for SDWAN, Upto 200 Users for Segmentation)','Medium (Upto 400Mbps for SDWAN, Upto 500 Users for Segmentation)','Large (Upto 1Gbps for SDWAN, Upto 1000 Users for Segmentation)','XL (Upto 5Gbps for SDWAN, Upto 5000 Users for Segmentation)'];
 
 let _spResRows    = [];
 let _spResVendors = {};
