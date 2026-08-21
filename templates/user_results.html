@@ -703,34 +703,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helv
 
         <hr class="section-divider">
 
-        <div class="section-heading">
-          <h2>Documents</h2>
-          <span class="section-badge">{{ documents | length }}</span>
-        </div>
-        {% if documents %}
-        <div class="assets-list">
-          {% for asset in documents %}
-          {% set title = asset.get('asset_name') or asset.get('title') or ('Asset #' ~ asset.get('id','')) %}
-          {% set atype = asset.get('asset_type') or '' %}
-          {% set url   = asset.get('url') or asset.get('link') or '' %}
-          {% set desc  = asset.get('description') or asset.get('Description') or '' %}
-          <div class="asset-row">
-            <div class="asset-icon">📄</div>
-            <div class="asset-info">
-              <div class="asset-title">{{ title }}</div>
-              {% if atype %}<div class="asset-type">{{ atype }}</div>{% endif %}
-              {% if desc %}<div class="asset-desc">{{ desc }}</div>{% endif %}
-            </div>
-            {% if url %}<a class="asset-link" href="{{ url }}" target="_blank" rel="noopener">Open →</a>{% endif %}
-          </div>
-          {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">No documents tagged for this assessment.</div>
-        {% endif %}
-
-        <hr class="section-divider">
-
         <div class="section-heading"><h2>Opportunity Notes</h2></div>
         <div class="notes-card">
           <textarea class="notes-textarea" id="opportunityNotes"
@@ -2341,11 +2313,8 @@ async function saveSiteProfile() {
     showToast('✓ Site profile saved');
     // Rebuild Pricing rows from new site profile (only if no manually-overridden rows)
     if (_spResRows.length) {
-      console.log('DEBUG site profile sizes:', _spResRows.map(r => r.size));
-      console.log('DEBUG appliances:', _appliances.map(a => a.size + '|ha=' + a.is_ha));
       _rowCounter = 0;
       _pricingRows = buildPricingRowsFromSiteProfile(_spResRows);
-      console.log('DEBUG pricing rows built:', JSON.stringify(_pricingRows));
       renderPricingRows();
       updateTotals();
     }
