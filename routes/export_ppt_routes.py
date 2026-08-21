@@ -192,7 +192,7 @@ def _inject_diagram_png(slide, diagram_path):
     # Right half available area (shifted left ~600K to clear top-right Z icon)
     available_w = Emu(6_400_000)
     available_h = Emu(5_800_000)
-    img_l_start = Emu(5_100_000)
+    img_l_start = Emu(5_400_000)
 
     # Scale to fit preserving aspect ratio
     ratio = min(int(available_w) / px_w, int(available_h) / px_h)
@@ -904,6 +904,20 @@ def export_pov_deck(customer_slug):
     UNIVERSAL_PATH = '/home/ubuntu/ztb-super-app/static/assets/pov_deck_universal_slides.pptx'
     try:
         _append_slides_from_file(prs, UNIVERSAL_PATH)
+        # Slide 10 is the last of the 3 universal slides (index -1 after append)
+        # Its title shape sits too high — nudge it down by 400K EMU
+        from pptx.util import Emu as _Emu
+        from lxml import etree as _et
+        _A_NS  = 'http://schemas.openxmlformats.org/drawingml/2006/main'
+        _SP_NS = 'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing'
+        _PML   = 'http://schemas.openxmlformats.org/presentationml/2006/main'
+        _OFF_TAG = '{http://schemas.openxmlformats.org/drawingml/2006/main}off'
+        _XFM_TAG = '{http://schemas.openxmlformats.org/drawingml/2006/main}xfrm'
+        slide10 = prs.slides[-1]
+        for shape in slide10.shapes:
+            # Target shapes whose top is very close to 0 (within 300K EMU)
+            if shape.top is not None and shape.top < int(_Emu(300_000)):
+                shape.top = shape.top + int(_Emu(400_000))
     except Exception:
         pass  # skip silently if file missing
 
