@@ -2336,6 +2336,7 @@ async function saveSiteProfile() {
     if (!data.success) throw new Error('Save failed');
     _spResRows = _spIERows.map(function(r) { return Object.assign({}, r); });
     renderSiteProfileReadOnly();
+    btn.disabled = false; btn.textContent = '✓ Save Site Profile';
     closeSiteProfileEditor();
     showToast('✓ Site profile saved');
     // Rebuild Pricing rows from new site profile (only if no manually-overridden rows)
