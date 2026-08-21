@@ -145,21 +145,30 @@ def _append_slides_from_file(prs, source_path, slide_index=None):
             if tag in ('pic',):
                 continue
             cloned = copy.deepcopy(el)
-            # Force all solidFill colors to white
-            for solid_fill in cloned.iter(f'{{{A_NS}}}solidFill'):
-                for child in list(solid_fill):
-                    solid_fill.remove(child)
-                srgb = etree.SubElement(solid_fill, f'{{{A_NS}}}srgbClr')
+            # Only recolor text run properties (a:rPr), not shape/background fills
+            RPR_TAG = f'{{{A_NS}}}rPr'
+            for rpr in cloned.iter(RPR_TAG):
+                # Remove any existing color children from this run
+                for color_tag in (f'{{{A_NS}}}solidFill', f'{{{A_NS}}}gradFill',
+                                  f'{{{A_NS}}}noFill', f'{{{A_NS}}}pattFill'):
+                    for child in rpr.findall(color_tag):
+                        rpr.remove(child)
+                # Insert white solidFill as first child
+                solid = etree.Element(f'{{{A_NS}}}solidFill')
+                srgb  = etree.SubElement(solid, f'{{{A_NS}}}srgbClr')
                 srgb.set('val', WHITE_HEX)
-            # Replace schemeClr with white srgbClr
-            for scheme_clr in cloned.iter(f'{{{A_NS}}}schemeClr'):
-                parent = scheme_clr.getparent()
-                if parent is not None:
-                    idx = list(parent).index(scheme_clr)
-                    parent.remove(scheme_clr)
-                    srgb = etree.Element(f'{{{A_NS}}}srgbClr')
-                    srgb.set('val', WHITE_HEX)
-                    parent.insert(idx, srgb)
+                rpr.insert(0, solid)
+            # Also handle paragraphs with no runs but a:endParaRPr
+            END_RPR_TAG = f'{{{A_NS}}}endParaRPr'
+            for rpr in cloned.iter(END_RPR_TAG):
+                for color_tag in (f'{{{A_NS}}}solidFill', f'{{{A_NS}}}gradFill',
+                                  f'{{{A_NS}}}noFill', f'{{{A_NS}}}pattFill'):
+                    for child in rpr.findall(color_tag):
+                        rpr.remove(child)
+                solid = etree.Element(f'{{{A_NS}}}solidFill')
+                srgb  = etree.SubElement(solid, f'{{{A_NS}}}srgbClr')
+                srgb.set('val', WHITE_HEX)
+                rpr.insert(0, solid)
             sp_tree.append(cloned)
 
 
@@ -180,10 +189,10 @@ def _inject_diagram_png(slide, diagram_path):
     except Exception:
         px_w, px_h = 1600, 1200  # safe fallback
 
-    # Right half available area
+    # Right half available area (shifted left ~600K to clear top-right Z icon)
     available_w = Emu(6_400_000)
     available_h = Emu(5_800_000)
-    img_l_start = Emu(5_700_000)
+    img_l_start = Emu(5_100_000)
 
     # Scale to fit preserving aspect ratio
     ratio = min(int(available_w) / px_w, int(available_h) / px_h)
