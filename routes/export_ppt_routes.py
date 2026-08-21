@@ -120,21 +120,48 @@ def _fmt_exact(v):
 
 
 def _append_slides_from_file(prs, source_path, slide_index=None):
-    """Clone slides from source_path into prs verbatim.
-    slide_index: if set, only clone that 0-based slide. Otherwise clone all.
-    """
+    """Clone slides from source_path into prs, carrying over all image/media relationships."""
     from pptx import Presentation
+    from pptx.opc.constants import RELATIONSHIP_TYPE as RT
+    from lxml import etree
     import copy
+
     src = Presentation(source_path)
     slides_to_copy = [src.slides[slide_index]] if slide_index is not None else list(src.slides)
+
     for src_slide in slides_to_copy:
         blank = prs.slide_layouts[17]
         new_slide = prs.slides.add_slide(blank)
+
+        # Build a rId mapping: src rId -> new rId for all relationships on this slide
+        rId_map = {}
+        for rel in src_slide.part.rels.values():
+            if rel.is_external:
+                new_rId = new_slide.part.relate_to(rel.target_ref, rel.reltype, is_external=True)
+            else:
+                # Copy the blob (image/media/etc) into the new presentation package
+                target_part = rel.target_part
+                new_rId = new_slide.part.relate_to(target_part, rel.reltype)
+            rId_map[rel.rId] = new_rId
+
+        # Deep-copy the shape tree and rewrite any rId references
         sp_tree = new_slide.shapes._spTree
         for el in list(sp_tree):
             sp_tree.remove(el)
-        for el in src_slide.shapes._spTree:
-            sp_tree.append(copy.deepcopy(el))
+
+        src_tree = copy.deepcopy(src_slide.shapes._spTree)
+
+        # Rewrite r:embed, r:link, r:id attributes that reference relationships
+        nsmap = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
+        for el in src_tree.iter():
+            for attr in list(el.attrib):
+                if attr.endswith('}embed') or attr.endswith('}link') or attr.endswith('}id'):
+                    old_rId = el.attrib[attr]
+                    if old_rId in rId_map:
+                        el.attrib[attr] = rId_map[old_rId]
+
+        for el in src_tree:
+            sp_tree.append(el)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # OPPORTUNITY PACKAGE EXPORT
