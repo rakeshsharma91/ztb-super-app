@@ -244,7 +244,13 @@ const SP_VENDOR_FIELDS = {
   iot_ot:'iot_ot_vendor', nac:'nac_vendor', l3sw:'l3sw_vendor', pam:'pam_vendor'
 };
 const WAN_TYPES = ['Internet Only','Internet + MPLS','MPLS Only','Internet + SD-WAN','Internet + MPLS + SD-WAN'];
-const SIZES     = ['Small','Medium','Large','XL'];
+const SIZES       = ['Small','Medium','Large','XL'];
+const SIZE_LABELS = [
+  'Small (Upto 200Mbps for SDWAN, Upto 200 Users for Segmentation)',
+  'Medium (Upto 400Mbps for SDWAN, Upto 500 Users for Segmentation)',
+  'Large (Upto 1Gbps for SDWAN, Upto 1000 Users for Segmentation)',
+  'XL (Upto 5Gbps for SDWAN, Upto 5000 Users for Segmentation)',
+];
 
 // ── Utility ───────────────────────────────────────────────────────────────────
 function normalise(t) {
@@ -403,7 +409,7 @@ function spRenderCards() {
     // Row 1: Size + WAN Type
     const row1 = document.createElement('div');
     row1.className = 'sp-row-2col';
-    row1.appendChild(spMakeSelectField('Size', SIZES, row.size, function(v) { spSetField(idx, 'size', v); }));
+    row1.appendChild(spMakeSelectFieldFull('Size', SIZES, SIZE_LABELS, row.size, function(v) { spSetField(idx, 'size', v); }));
     row1.appendChild(spMakeSelectField('WAN Type', WAN_TYPES, row.wan_type, function(v) { spSetField(idx, 'wan_type', v); }));
     body.appendChild(row1);
 

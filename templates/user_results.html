@@ -2093,6 +2093,12 @@ const SP_CAT_LABELS_R = { fw_ns:'🔥 FW N/S', sdwan:'🌐 SD-WAN', mpls:'📡 M
 const SP_VENDOR_FIELDS_R = { fw_ns:'fw_ns_vendor', sdwan:'sdwan_vendor', mpls:'mpls_vendor', fw_ew:'fw_ew_vendor', iot_ot:'iot_ot_vendor', nac:'nac_vendor', l3sw:'l3sw_vendor', pam:'pam_vendor' };
 const WAN_TYPES_R = ['Internet Only','Internet + MPLS','MPLS Only','Internet + SD-WAN','Internet + MPLS + SD-WAN'];
 const SIZES_R = ['Small','Medium','Large','XL'];
+const SIZE_LABELS_R = [
+  'Small (Upto 200Mbps for SDWAN, Upto 200 Users for Segmentation)',
+  'Medium (Upto 400Mbps for SDWAN, Upto 500 Users for Segmentation)',
+  'Large (Upto 1Gbps for SDWAN, Upto 1000 Users for Segmentation)',
+  'XL (Upto 5Gbps for SDWAN, Upto 5000 Users for Segmentation)',
+];
 
 let _spResRows    = [];
 let _spResVendors = {};
@@ -2259,7 +2265,7 @@ function spIERenderCards() {
 
     // Size + WAN
     const row1 = document.createElement('div'); row1.className = 'sp-row-2col';
-    row1.appendChild(spIEMakeSelect('Size', SIZES_R, row.size, function(v){ spIESetField(idx,'size',v); }));
+    row1.appendChild(spIEMakeSelectFull('Size', SIZES_R, SIZE_LABELS_R, row.size, function(v){ spIESetField(idx,'size',v); }));
     row1.appendChild(spIEMakeSelect('WAN Type', WAN_TYPES_R, row.wan_type, function(v){ spIESetField(idx,'wan_type',v); }));
     body.appendChild(row1);
 
@@ -2334,8 +2340,11 @@ async function saveSiteProfile() {
     showToast('✓ Site profile saved');
     // Rebuild Pricing rows from new site profile (only if no manually-overridden rows)
     if (_spResRows.length) {
+      console.log('DEBUG site profile sizes:', _spResRows.map(r => r.size));
+      console.log('DEBUG appliances:', _appliances.map(a => a.size + '|ha=' + a.is_ha));
       _rowCounter = 0;
       _pricingRows = buildPricingRowsFromSiteProfile(_spResRows);
+      console.log('DEBUG pricing rows built:', JSON.stringify(_pricingRows));
       renderPricingRows();
       updateTotals();
     }
