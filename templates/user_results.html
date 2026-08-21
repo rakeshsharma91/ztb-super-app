@@ -2317,6 +2317,7 @@ async function saveSiteProfile() {
       _pricingRows = buildPricingRowsFromSiteProfile(_spResRows);
       renderPricingRows();
       updateTotals();
+      savePricing();  // persist immediately so refresh loads the new rows
     }
     // Rebuild TCO rows from new site profile (only if no manually-overridden rows)
     if (_spResRows.length) {
@@ -2376,7 +2377,7 @@ async function exportPPTX(btn) {
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href     = url;
-    a.download = 'ZTB_Exec_Summary.pptx';
+    a.download = 'ZTB_Exec_Summary_' + CUSTOMER_SLUG + '.pptx';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -2972,7 +2973,7 @@ async function exportPOVDeck(btn) {
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href     = url;
-    a.download = 'ZTB_POV_Deck.pptx';
+    a.download = 'ZTB_POV_Deck_' + CUSTOMER_SLUG + '.pptx';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
