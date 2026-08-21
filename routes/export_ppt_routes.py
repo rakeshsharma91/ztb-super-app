@@ -121,9 +121,13 @@ def _fmt_exact(v):
 
 def _append_slides_from_file(prs, source_path, slide_index=None):
     """Clone ALL non-image shapes from source PPTX slide (preserving text/formatting),
-    then inject the matching diagram PNG onto the right half of the slide."""
+    forcing all text colors to white for visibility on dark background."""
     from pptx import Presentation
+    from lxml import etree
     import copy
+
+    WHITE_HEX = 'FFFFFF'
+    A_NS = 'http://schemas.openxmlformats.org/drawingml/2006/main'
 
     src = Presentation(source_path)
     slides_to_copy = [src.slides[slide_index]] if slide_index is not None else list(src.slides)
@@ -132,31 +136,74 @@ def _append_slides_from_file(prs, source_path, slide_index=None):
         blank = prs.slide_layouts[17]
         new_slide = prs.slides.add_slide(blank)
 
-        # Copy only non-picture shapes (text boxes, shapes) — skip all pic/image elements
         sp_tree = new_slide.shapes._spTree
         for el in list(sp_tree):
             sp_tree.remove(el)
 
         for el in src_slide.shapes._spTree:
             tag = el.tag.split('}')[-1] if '}' in el.tag else el.tag
-            # Skip picture shapes (pic:pic) and group shapes that may contain broken images
             if tag in ('pic',):
                 continue
-            sp_tree.append(copy.deepcopy(el))
+            cloned = copy.deepcopy(el)
+            # Force all solidFill colors to white
+            for solid_fill in cloned.iter(f'{{{A_NS}}}solidFill'):
+                for child in list(solid_fill):
+                    solid_fill.remove(child)
+                srgb = etree.SubElement(solid_fill, f'{{{A_NS}}}srgbClr')
+                srgb.set('val', WHITE_HEX)
+            # Replace schemeClr with white srgbClr
+            for scheme_clr in cloned.iter(f'{{{A_NS}}}schemeClr'):
+                parent = scheme_clr.getparent()
+                if parent is not None:
+                    idx = list(parent).index(scheme_clr)
+                    parent.remove(scheme_clr)
+                    srgb = etree.Element(f'{{{A_NS}}}srgbClr')
+                    srgb.set('val', WHITE_HEX)
+                    parent.insert(idx, srgb)
+            sp_tree.append(cloned)
 
 
 def _inject_diagram_png(slide, diagram_path):
-    """Add the diagram PNG to the right 55% of the slide, vertically centred."""
+    """Add the diagram PNG to the right half of the slide at native aspect ratio,
+    on a white background card so light icons remain visible."""
     from pptx.util import Emu
+    from pptx.dml.color import RGBColor
     import os
+
     if not os.path.exists(diagram_path):
         return
-    slide_w = Emu(12_192_000)
-    slide_h = Emu(6_858_000)
-    img_w   = Emu(6_700_000)   # ~55% of slide width
-    img_h   = Emu(5_400_000)   # leave room for header/footer
-    img_l   = slide_w - img_w - Emu(100_000)
-    img_t   = (slide_h - img_h) // 2
+
+    try:
+        from PIL import Image as PILImage
+        with PILImage.open(diagram_path) as im:
+            px_w, px_h = im.size
+    except Exception:
+        px_w, px_h = 1600, 1200  # safe fallback
+
+    # Right half available area
+    available_w = Emu(6_400_000)
+    available_h = Emu(5_800_000)
+    img_l_start = Emu(5_700_000)
+
+    # Scale to fit preserving aspect ratio
+    ratio = min(int(available_w) / px_w, int(available_h) / px_h)
+    img_w = int(px_w * ratio)
+    img_h = int(px_h * ratio)
+
+    # Centre within right half
+    img_l = int(img_l_start) + (int(available_w) - img_w) // 2
+    img_t = (int(Emu(6_858_000)) - img_h) // 2
+
+    # White background card behind the image
+    PAD = int(Emu(91_440))
+    card = slide.shapes.add_shape(1,
+        img_l - PAD, img_t - PAD,
+        img_w + PAD * 2, img_h + PAD * 2)
+    card.fill.solid()
+    card.fill.fore_color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
+    card.line.fill.background()
+
+    # Diagram on top
     slide.shapes.add_picture(diagram_path, img_l, img_t, img_w, img_h)
 
 # ══════════════════════════════════════════════════════════════════════════════
