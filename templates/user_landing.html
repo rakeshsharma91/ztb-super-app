@@ -246,6 +246,27 @@
     }
     .footer-sep { color: rgba(160,188,216,0.25); margin: 0 0.15rem; }
     .footer-copy { font-size: 0.76rem; color: rgba(160,188,216,0.4); }
+
+    /* ── NAV LINKS ── */
+    .nav-links {
+      display: flex; align-items: center; gap: 1.25rem; margin-right: 1.25rem;
+    }
+    .nav-link-item {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+    }
+    .nav-link-label {
+      font-size: 0.62rem; color: var(--text-muted); white-space: nowrap;
+    }
+    .nav-action-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 0.32rem 0.85rem;
+      background: transparent; border: 1px solid rgba(0,170,255,0.4);
+      border-radius: 7px; color: var(--accent);
+      font-size: 0.78rem; font-weight: 600; text-decoration: none;
+      transition: background 0.2s, color 0.2s; white-space: nowrap;
+    }
+    .nav-action-btn:hover { background: var(--accent); color: var(--navy-dark); }
+    @media (max-width: 860px) { .nav-links { display: none; } }
     @media (max-width: 600px) {
       .hero { padding: 3.2rem 1rem 7.5rem; }
       .form-card-wrapper { margin-top: -3.5rem; }
@@ -265,6 +286,20 @@
     <span class="nav-brand">ZTB Super App</span>
     <span class="nav-badge">Zero Trust Branch</span>
     <div class="nav-spacer"></div>
+    <div class="nav-links">
+      <div class="nav-link-item">
+        <span class="nav-link-label">For the latest Zero Trust Branch Resources, visit</span>
+        <a class="nav-action-btn" href="https://sites.google.com/zscaler.com/gss/zt-branch" target="_blank" rel="noopener noreferrer">
+          🌐 GSS ZT-Branch Page
+        </a>
+      </div>
+      <div class="nav-link-item">
+        <span class="nav-link-label">Want to view your previous submission? Look here.</span>
+        <a class="nav-action-btn" href="/user/submissions">
+          📋 View All Assessments
+        </a>
+      </div>
+    </div>
     <div class="nav-status">
       <span class="nav-status-dot"></span>
       <span>Ready</span>
@@ -345,18 +380,7 @@
   </div>
   {% endif %}
 
-  <!-- RESOURCES SECTION -->
-  <div class="resources-section">
-    <p class="resources-text">For the latest Zero Trust Branch Resources, visit</p>
-    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-      <a class="resources-btn" href="https://sites.google.com/zscaler.com/gss/zt-branch" target="_blank" rel="noopener noreferrer">
-        🌐 GSS ZT-Branch Page
-      </a>
-      <a class="resources-btn" href="/user/submissions" style="border-color:rgba(0,170,255,0.5);">
-        📋 View All Assessments
-      </a>
-    </div>
-  </div>
+
 
   <!-- FOOTER -->
   <footer class="footer">
