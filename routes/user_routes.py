@@ -450,6 +450,19 @@ def bom():
     return render_template('user_bom.html')
 
 
+
+@user_bp.route('/submissions')
+def submissions():
+    # Query all completed assessments, newest first
+    completed = (UserResponse.query
+                 .filter_by(status='completed')
+                 .order_by(UserResponse.completed_at.desc())
+                 .all())
+    # Attach slug to each object for template link building
+    for r in completed:
+        r.slug = _make_slug(r.customer_name)
+    return render_template('user_submission_list.html', submissions=completed)
+
 # ── Variable routes — MUST stay last ─────────────────────────────────────────
 
 

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Assessments — ZTB Super App</title>
+  <style>
+    :root {
+      --navy-dark: #002244; --navy: #003366; --blue: #0070c0; --accent: #00aaff;
+      --white: #ffffff; --text-muted: #a0bcd8;
+      --border: rgba(0,170,255,0.25); --shadow: 0 8px 40px rgba(0,0,0,0.55);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--navy-dark); color: var(--white); min-height: 100vh;
+    }
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0 2rem; height: 58px;
+      background: rgba(0,22,44,0.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--blue), var(--accent));
+      border-radius: 8px; display: flex; align-items: center;
+      justify-content: center; font-size: 1rem; font-weight: 800;
+      color: var(--white); text-decoration: none;
+      box-shadow: 0 0 10px rgba(0,170,255,0.35); flex-shrink: 0;
+    }
+    .nav-brand { font-size: 1rem; font-weight: 700; color: var(--white); }
+    .nav-spacer { flex: 1; }
+    .nav-back {
+      font-size: 0.82rem; color: var(--text-muted); text-decoration: none;
+      display: flex; align-items: center; gap: 5px; transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--accent); }
+
+    /* PAGE HEADER */
+    .page-header {
+      background: linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 60%, #004d99 100%);
+      padding: 2.5rem 2rem 2.2rem; position: relative; overflow: hidden;
+    }
+    .page-header::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(0,170,255,0.04) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0,170,255,0.04) 1px, transparent 1px);
+      background-size: 48px 48px; pointer-events: none;
+    }
+    .page-header-inner {
+      position: relative; z-index: 2; max-width: 960px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .page-header h1 { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.02em; }
+    .page-header-sub { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.3rem; }
+    .count-badge {
+      background: rgba(0,170,255,0.12); border: 1px solid rgba(0,170,255,0.3);
+      border-radius: 20px; padding: 4px 16px;
+      font-size: 0.8rem; font-weight: 700; color: var(--accent);
+      white-space: nowrap;
+    }
+
+    /* PAGE BODY */
+    .page-body { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+
+    /* SEARCH */
+    .search-wrap { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .search-input {
+      flex: 1; min-width: 200px;
+      background: rgba(0,0,0,0.28); border: 1px solid rgba(0,170,255,0.2);
+      border-radius: 10px; color: var(--white);
+      font-size: 0.9rem; padding: 0.7rem 1rem;
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+    .search-input::placeholder { color: rgba(160,188,216,0.4); }
+    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,170,255,0.12); }
+    .search-clear {
+      display: none; background: transparent;
+      border: 1px solid rgba(0,170,255,0.25); border-radius: 10px;
+      color: var(--text-muted); font-size: 0.82rem;
+      padding: 0.7rem 1rem; cursor: pointer;
+      transition: color 0.2s, border-color 0.2s; font-family: inherit;
+    }
+    .search-clear.visible { display: block; }
+    .search-clear:hover { color: var(--accent); border-color: var(--accent); }
+    .results-count {
+      font-size: 0.78rem; color: var(--text-muted);
+      align-self: center; white-space: nowrap;
+    }
+    .results-count span { color: var(--accent); font-weight: 700; }
+
+    /* TABLE */
+    .table-wrap {
+      background: linear-gradient(145deg, #0d2d52, #0a2244);
+      border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+    }
+    .results-tbl { width: 100%; border-collapse: collapse; }
+    .results-tbl thead tr { background: rgba(0,51,102,0.8); }
+    .results-tbl th {
+      padding: 12px 16px; text-align: left;
+      font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      color: var(--accent); border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .results-tbl td {
+      padding: 13px 16px; font-size: 0.87rem;
+      border-bottom: 1px solid rgba(0,170,255,0.07);
+      vertical-align: middle;
+    }
+    .results-tbl tbody tr:last-child td { border-bottom: none; }
+    .results-tbl tbody tr:hover td { background: rgba(0,170,255,0.05); }
+    .results-tbl tbody tr.hidden-row { display: none; }
+
+    .td-customer { font-weight: 700; color: var(--white); }
+    .td-se { color: var(--text-muted); }
+    .td-date { color: var(--text-muted); font-size: 0.8rem; white-space: nowrap; }
+    .td-link { text-align: right; white-space: nowrap; }
+
+    .open-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 0.42rem 1rem;
+      background: transparent; border: 1px solid rgba(0,170,255,0.4);
+      border-radius: 7px; color: var(--accent);
+      font-size: 0.78rem; font-weight: 600;
+      text-decoration: none; transition: background 0.2s, color 0.2s;
+      white-space: nowrap;
+    }
+    .open-btn:hover { background: var(--accent); color: var(--navy-dark); }
+
+    .copy-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 0.42rem 0.85rem;
+      background: transparent; border: 1px solid rgba(0,170,255,0.2);
+      border-radius: 7px; color: var(--text-muted);
+      font-size: 0.75rem; font-weight: 600; cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      font-family: inherit; margin-left: 6px;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .copy-btn.copied { border-color: #00dc82; color: #00dc82; }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center; padding: 4rem 1rem;
+      color: var(--text-muted); font-size: 0.9rem;
+    }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .empty-state p { margin-top: 0.4rem; }
+
+    /* FOOTER */
+    .footer {
+      border-top: 1px solid var(--border); padding: 1.6rem 2rem;
+      text-align: center; background: rgba(0,0,0,0.2);
+      display: flex; align-items: center; justify-content: center;
+      flex-wrap: wrap; gap: 0.55rem;
+    }
+    .footer-logo { display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+    .footer-z {
+      width: 20px; height: 20px;
+      background: linear-gradient(135deg, var(--blue), var(--accent));
+      border-radius: 5px; display: flex; align-items: center;
+      justify-content: center; font-size: 0.65rem; font-weight: 800; color: var(--white);
+    }
+    .footer-sep { color: rgba(160,188,216,0.25); margin: 0 0.15rem; }
+    .footer-copy { font-size: 0.76rem; color: rgba(160,188,216,0.4); }
+
+    @media (max-width: 600px) {
+      .navbar { padding: 0 1rem; }
+      .page-header { padding: 1.75rem 1rem 1.5rem; }
+      .page-body { padding: 1.5rem 1rem 4rem; }
+      .td-date { display: none; }
+      .copy-btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="nav-logo" href="/user">Z</a>
+  <span class="nav-brand">ZTB Super App</span>
+  <div class="nav-spacer"></div>
+  <a class="nav-back" href="/user">← Back to Home</a>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div>
+      <h1>📋 All Assessments</h1>
+      <div class="page-header-sub">All completed ZTB opportunity assessments</div>
+    </div>
+    <span class="count-badge" id="total-badge">{{ submissions | length }} total</span>
+  </div>
+</div>
+
+<div class="page-body">
+
+  <div class="search-wrap">
+    <input class="search-input" id="search-customer" type="text"
+           placeholder="🔍 Search by customer name…" autocomplete="off" />
+    <input class="search-input" id="search-se" type="text"
+           placeholder="🔍 Search by AE / SE name…" autocomplete="off" />
+    <button class="search-clear" id="search-clear-btn" onclick="clearSearch()">✕ Clear</button>
+    <span class="results-count" id="results-count"></span>
+  </div>
+
+  {% if submissions %}
+  <div class="table-wrap">
+    <table class="results-tbl" id="results-tbl">
+      <thead>
+        <tr>
+          <th style="width:35%">Customer</th>
+          <th style="width:25%">AE / SE</th>
+          <th style="width:15%">Completed</th>
+          <th style="width:25%"></th>
+        </tr>
+      </thead>
+      <tbody id="results-tbody">
+        {% for s in submissions %}
+        <tr class="result-row"
+            data-customer="{{ s.customer_name | lower }}"
+            data-se="{{ s.se_name | lower }}">
+          <td class="td-customer">{{ s.customer_name }}</td>
+          <td class="td-se">{{ s.se_name }}</td>
+          <td class="td-date">
+            {% if s.completed_at %}
+              {{ s.completed_at.strftime('%b %d, %Y') }}
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td class="td-link">
+            <a class="open-btn" href="/user/{{ s.slug }}" target="_blank">
+              Open →
+            </a>
+            <button class="copy-btn" onclick="copyLink('{{ request.host_url }}user/{{ s.slug }}', this)">
+              🔗 Copy Link
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="empty-state" id="no-results" style="display:none;">
+    <div class="empty-icon">🔍</div>
+    <strong>No matches found</strong>
+    <p>Try a different customer or SE name.</p>
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📭</div>
+    <strong>No completed assessments yet</strong>
+    <p>Submitted assessments will appear here.</p>
+  </div>
+  {% endif %}
+
+</div>
+
+<footer class="footer">
+  <div class="footer-logo"><div class="footer-z">Z</div><span>ZTB Super App</span></div>
+  <span class="footer-sep">&bull;</span>
+  <span class="footer-copy">&copy; 2025 Zscaler, Inc. &mdash; Internal Sales Engineering Tool</span>
+</footer>
+
+<script>
+(function () {
+  const customerInput = document.getElementById('search-customer');
+  const seInput       = document.getElementById('search-se');
+  const clearBtn      = document.getElementById('search-clear-btn');
+  const countEl       = document.getElementById('results-count');
+  const noResults     = document.getElementById('no-results');
+  const rows          = Array.from(document.querySelectorAll('.result-row'));
+  const totalBadge    = document.getElementById('total-badge');
+  const total         = rows.length;
+
+  function filter() {
+    const cust = customerInput.value.trim().toLowerCase();
+    const se   = seInput.value.trim().toLowerCase();
+    const hasFilter = cust || se;
+
+    clearBtn.classList.toggle('visible', hasFilter);
+
+    let visible = 0;
+    rows.forEach(function (row) {
+      const matchCust = !cust || row.dataset.customer.includes(cust);
+      const matchSE   = !se   || row.dataset.se.includes(se);
+      const show = matchCust && matchSE;
+      row.classList.toggle('hidden-row', !show);
+      if (show) visible++;
+    });
+
+    if (hasFilter) {
+      countEl.innerHTML = 'Showing <span>' + visible + '</span> of ' + total;
+      noResults.style.display = visible === 0 ? 'block' : 'none';
+      document.querySelector('.table-wrap') && (document.querySelector('.table-wrap').style.display = visible === 0 ? 'none' : '');
+    } else {
+      countEl.innerHTML = '';
+      noResults.style.display = 'none';
+      document.querySelector('.table-wrap') && (document.querySelector('.table-wrap').style.display = '');
+    }
+  }
+
+  function clearSearch() {
+    customerInput.value = '';
+    seInput.value = '';
+    filter();
+    customerInput.focus();
+  }
+
+  customerInput.addEventListener('input', filter);
+  seInput.addEventListener('input', filter);
+  window.clearSearch = clearSearch;
+
+  // Copy link to clipboard
+  window.copyLink = function (url, btn) {
+    var orig = btn.textContent;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () {
+        btn.textContent = '✓ Copied!';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = orig; btn.classList.remove('copied'); }, 2200);
+      });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = url; ta.style.cssText = 'position:fixed;opacity:0;';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      btn.textContent = '✓ Copied!'; btn.classList.add('copied');
+      setTimeout(function () { btn.textContent = orig; btn.classList.remove('copied'); }, 2200);
+    }
+  };
+})();
+</script>
+</body>
+</html>
