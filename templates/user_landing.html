@@ -218,16 +218,20 @@
     }
     .resume-btn:hover { background: var(--accent); color: var(--white); }
 
-    .bom-section { text-align: center; margin: 3.5rem auto 4rem; padding: 0 1.5rem; }
-    .bom-btn {
+    .resources-section { text-align: center; margin: 3.5rem auto 4rem; padding: 0 1.5rem; }
+    .resources-text {
+      font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.85rem;
+    }
+    .resources-btn {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 0.78rem 2rem;
       background: transparent; border: 1px solid var(--accent);
       border-radius: 10px; color: var(--accent);
       font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      text-decoration: none;
       transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
     }
-    .bom-btn:hover { background: var(--accent); color: var(--white); box-shadow: 0 4px 18px rgba(0,170,255,0.35); transform: translateY(-1px); }
+    .resources-btn:hover { background: var(--accent); color: var(--white); box-shadow: 0 4px 18px rgba(0,170,255,0.35); transform: translateY(-1px); }
     .footer {
       border-top: 1px solid var(--border); padding: 1.6rem 2rem;
       text-align: center; background: rgba(0,0,0,0.2);
@@ -341,11 +345,12 @@
   </div>
   {% endif %}
 
-  <!-- BOM SECTION -->
-  <div class="bom-section">
-    <button class="bom-btn" onclick="window.location.href='/user/bom'">
-      📋 Generate a BOM
-    </button>
+  <!-- RESOURCES SECTION -->
+  <div class="resources-section">
+    <p class="resources-text">For the latest Zero Trust Branch Resources, visit</p>
+    <a class="resources-btn" href="https://sites.google.com/zscaler.com/gss/zt-branch" target="_blank" rel="noopener noreferrer">
+      🌐 GSS ZT-Branch Page
+    </a>
   </div>
 
   <!-- FOOTER -->
