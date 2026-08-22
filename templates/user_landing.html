@@ -62,7 +62,7 @@
     .hero {
       position: relative;
       background: linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 55%, #004d99 100%);
-      padding: 5rem 2rem 9rem;
+      padding: 2.5rem 2rem 7rem;
       text-align: center;
       overflow: hidden;
     }
@@ -247,26 +247,47 @@
     .footer-sep { color: rgba(160,188,216,0.25); margin: 0 0.15rem; }
     .footer-copy { font-size: 0.76rem; color: rgba(160,188,216,0.4); }
 
-    /* ── NAV LINKS ── */
-    .nav-links {
-      display: flex; align-items: center; gap: 1.25rem; margin-right: 1.25rem;
+    /* ── QUICK LINKS BANNER ── */
+    .quick-links-banner {
+      position: relative; z-index: 10;
+      max-width: 700px; margin: 0 auto;
+      padding: 0;
+      display: flex; align-items: stretch; gap: 0;
     }
-    .nav-link-item {
-      display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+    .quick-link-card {
+      flex: 1;
+      background: linear-gradient(145deg, #0d2d52, #0a2244);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 0.65rem; text-align: center;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .nav-link-label {
-      font-size: 0.62rem; color: var(--text-muted); white-space: nowrap;
+    .quick-link-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,170,255,0.12); }
+    .quick-link-divider {
+      width: 1.25rem; flex-shrink: 0;
     }
-    .nav-action-btn {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 0.32rem 0.85rem;
-      background: transparent; border: 1px solid rgba(0,170,255,0.4);
-      border-radius: 7px; color: var(--accent);
-      font-size: 0.78rem; font-weight: 600; text-decoration: none;
-      transition: background 0.2s, color 0.2s; white-space: nowrap;
+    .quick-link-label {
+      font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;
     }
-    .nav-action-btn:hover { background: var(--accent); color: var(--navy-dark); }
-    @media (max-width: 860px) { .nav-links { display: none; } }
+    .quick-link-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 0.6rem 1.4rem;
+      background: transparent; border: 1px solid var(--accent);
+      border-radius: 9px; color: var(--accent);
+      font-size: 0.92rem; font-weight: 700; text-decoration: none;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+    .quick-link-btn:hover {
+      background: var(--accent); color: var(--navy-dark);
+      box-shadow: 0 4px 16px rgba(0,170,255,0.3); transform: translateY(-1px);
+    }
+    @media (max-width: 600px) {
+      .quick-links-banner { flex-direction: column; margin-top: -2rem; }
+      .quick-link-divider { width: 0; height: 0.75rem; }
+    }
     @media (max-width: 600px) {
       .hero { padding: 3.2rem 1rem 7.5rem; }
       .form-card-wrapper { margin-top: -3.5rem; }
@@ -286,20 +307,7 @@
     <span class="nav-brand">ZTB Super App</span>
     <span class="nav-badge">Zero Trust Branch</span>
     <div class="nav-spacer"></div>
-    <div class="nav-links">
-      <div class="nav-link-item">
-        <span class="nav-link-label">For the latest Zero Trust Branch Resources, visit</span>
-        <a class="nav-action-btn" href="https://sites.google.com/zscaler.com/gss/zt-branch" target="_blank" rel="noopener noreferrer">
-          🌐 GSS ZT-Branch Page
-        </a>
-      </div>
-      <div class="nav-link-item">
-        <span class="nav-link-label">Want to view your previous submission? Look here.</span>
-        <a class="nav-action-btn" href="/user/submissions">
-          📋 View All Assessments
-        </a>
-      </div>
-    </div>
+
     <div class="nav-status">
       <span class="nav-status-dot"></span>
       <span>Ready</span>
@@ -309,7 +317,21 @@
   <!-- HERO -->
   <section class="hero">
     <div class="hero-content">
-      <h1>Ready to assess your<br>Zero Trust Branch deal?</h1>
+      <div class="quick-links-banner">
+        <div class="quick-link-card">
+          <div class="quick-link-label">For the latest Zero Trust Branch Resources, visit</div>
+          <a class="quick-link-btn" href="https://sites.google.com/zscaler.com/gss/zt-branch" target="_blank" rel="noopener noreferrer">
+            🌐 GSS ZT-Branch Page
+          </a>
+        </div>
+        <div class="quick-link-divider"></div>
+        <div class="quick-link-card">
+          <div class="quick-link-label">Want to view your previous submission? Look here.</div>
+          <a class="quick-link-btn" href="/user/submissions">
+            📋 View All Assessments
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 
