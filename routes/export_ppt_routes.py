@@ -8,6 +8,7 @@ from lxml import etree
 export_ppt_bp = Blueprint('export_ppt', __name__)
 
 TEMPLATE_PATH = '/home/ubuntu/ztb-super-app/static/assets/zscaler_template.pptx'
+DIAGRAM_PATH  = '/home/ubuntu/ztb-super-app/static/assets/Current-Future-State.pptx'
 
 def _make_slug(name):
     slug = (name or 'unknown').strip().lower()
@@ -203,6 +204,222 @@ def _inject_diagram_png(slide, diagram_path):
     slide.shapes.add_picture(diagram_path, img_l, img_t, img_w, img_h)
 
 
+# ── Current State / Future State diagram injection ───────────────────────────
+
+def _resolve_answer_labels(answers, keyword):
+    val = answers.get(keyword)
+    if not val:
+        return []
+    if isinstance(val, list):
+        return [str(v).strip() for v in val if v]
+    return [str(val).strip()]
+
+
+def _replace_text_in_shape(shape, token, replacement):
+    if not shape.has_text_frame:
+        return
+    for para in shape.text_frame.paragraphs:
+        full_text = ''.join(r.text for r in para.runs)
+        if token in full_text:
+            new_text = full_text.replace(token, replacement)
+            if para.runs:
+                para.runs[0].text = new_text
+                for r in para.runs[1:]:
+                    r.text = ''
+            return
+
+
+def _copy_slide_from_source(prs, src_prs, slide_index, hide_shape=None):
+    """
+    Copy a single slide from an already-open src_prs into prs.
+    Opens source only once (caller's responsibility) to avoid duplicate part blobs.
+    Skips layout/theme rels, removes light fills, forces text white.
+    """
+    A_NS = 'http://schemas.openxmlformats.org/drawingml/2006/main'
+    PML  = 'http://schemas.openxmlformats.org/presentationml/2006/main'
+    PREL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
+
+    SKIP_RELTYPES = {
+        'http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout',
+        'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme',
+        'http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster',
+        'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
+        'http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesSlide',
+    }
+
+    LIGHT_FILL_THRESHOLD = 200
+
+    src_slide = src_prs.slides[slide_index]
+    new_slide = prs.slides.add_slide(prs.slide_layouts[17])
+    sp_tree   = new_slide.shapes._spTree
+    for el in list(sp_tree):
+        sp_tree.remove(el)
+
+    def _shape_name(el):
+        for cNvPr in el.iter(f'{{{PML}}}cNvPr'):
+            return cNvPr.get('name', '')
+        return ''
+
+    # Copy image/media rels only — skip structural rels that already exist
+    rId_map = {}
+    for rel in src_slide.part.rels.values():
+        if rel.reltype in SKIP_RELTYPES:
+            continue
+        try:
+            if rel.is_external:
+                new_rId = new_slide.part.relate_to(
+                    rel.target_ref, rel.reltype, is_external=True)
+            else:
+                new_rId = new_slide.part.relate_to(
+                    rel.target_part, rel.reltype)
+            rId_map[rel.rId] = new_rId
+        except Exception:
+            pass
+
+    def _hex_to_rgb(hex_str):
+        hex_str = (hex_str or '').strip().upper().lstrip('#')
+        if len(hex_str) != 6:
+            return None
+        try:
+            return int(hex_str[0:2], 16), int(hex_str[2:4], 16), int(hex_str[4:6], 16)
+        except Exception:
+            return None
+
+    def _is_light_fill(cloned_el):
+        for spPr in cloned_el.iter(f'{{{A_NS}}}spPr'):
+            solid = spPr.find(f'{{{A_NS}}}solidFill')
+            if solid is None:
+                continue
+            srgb = solid.find(f'{{{A_NS}}}srgbClr')
+            if srgb is None:
+                continue
+            rgb = _hex_to_rgb(srgb.get('val', ''))
+            if rgb and all(c > LIGHT_FILL_THRESHOLD for c in rgb):
+                return True
+        return False
+
+    def _remove_shape_fill(cloned_el):
+        for spPr in cloned_el.iter(f'{{{A_NS}}}spPr'):
+            solid = spPr.find(f'{{{A_NS}}}solidFill')
+            if solid is not None:
+                spPr.remove(solid)
+                etree.SubElement(spPr, f'{{{A_NS}}}noFill')
+
+    def _force_text_white(cloned_el):
+        WHITE_HEX = 'FFFFFF'
+        for tag in (f'{{{A_NS}}}rPr', f'{{{A_NS}}}endParaRPr'):
+            for rpr in cloned_el.iter(tag):
+                for child in list(rpr):
+                    if child.tag in (
+                        f'{{{A_NS}}}solidFill', f'{{{A_NS}}}gradFill',
+                        f'{{{A_NS}}}noFill',    f'{{{A_NS}}}pattFill',
+                        f'{{{A_NS}}}sysClr',    f'{{{A_NS}}}schemeClr',
+                    ):
+                        rpr.remove(child)
+                solid = etree.Element(f'{{{A_NS}}}solidFill')
+                srgb  = etree.SubElement(solid, f'{{{A_NS}}}srgbClr')
+                srgb.set('val', WHITE_HEX)
+                rpr.insert(0, solid)
+
+    for el in src_slide.shapes._spTree:
+        if hide_shape and _shape_name(el) == hide_shape:
+            continue
+
+        cloned = copy.deepcopy(el)
+
+        for node in cloned.iter():
+            for attr in (f'{{{PREL}}}id', f'{{{PREL}}}embed', f'{{{PREL}}}link'):
+                old_rId = node.get(attr)
+                if old_rId and old_rId in rId_map:
+                    node.set(attr, rId_map[old_rId])
+
+        if _is_light_fill(cloned):
+            _remove_shape_fill(cloned)
+
+        _force_text_white(cloned)
+
+        sp_tree.append(cloned)
+
+    return new_slide
+
+
+def _inject_current_future_slides(prs, answers, customer_name=''):
+    """
+    Opens Current-Future-State.pptx ONCE and copies relevant slides.
+    Opening once prevents duplicate part blobs that corrupt the file.
+    """
+    import os
+    from pptx import Presentation
+
+    if not os.path.exists(DIAGRAM_PATH):
+        return
+
+    scope_labels = _resolve_answer_labels(answers, 'vp_scope')
+    want_seg   = any('segmentation' in s.lower() for s in scope_labels)
+    want_sdwan = any('sd-wan' in s.lower() or 'sdwan' in s.lower() for s in scope_labels)
+
+    if not want_seg and not want_sdwan:
+        return
+
+    slide_indices = []
+    if want_seg:   slide_indices += [0, 1]
+    if want_sdwan: slide_indices += [2, 3]
+
+    sdwan_vendor    = _resolve_answer_labels(answers, 'vp_sdwan_vendor')
+    sdwan_vendor    = sdwan_vendor[0] if sdwan_vendor else ''
+    firewall_vendor = _resolve_answer_labels(answers, 'vp_firewall_vendor')
+    firewall_vendor = firewall_vendor[0] if firewall_vendor else ''
+    no_of_sites     = str(answers.get('vp_no_of_sites', '') or '')
+
+    integrations  = _resolve_answer_labels(answers, 'seg_asset_visibility')
+    integration_1 = integrations[0] if len(integrations) > 0 else ''
+    integration_2 = integrations[1] if len(integrations) > 1 else ''
+
+    fw_is_na = (not firewall_vendor
+                or firewall_vendor.lower() in ('n/a', 'no firewall', 'none', ''))
+
+    FIREWALL_SHAPE  = 'TextBox 16734'
+    SDWAN_SHP_SL0   = 'TextBox 16636'
+    SDWAN_SHP_SL2   = 'TextBox 44'
+    BRANCH_X_SHP    = 'Rounded Rectangle 81'
+    CUSTOMER_SHAPES = {'TextBox 16511', 'TextBox 16'}
+    INTEG_1_SHP     = 'TextBox 58'
+    INTEG_2_SHP     = 'TextBox 61'
+
+    # ── Open source ONCE ─────────────────────────────────────────────────
+    src_prs = Presentation(DIAGRAM_PATH)
+
+    for idx in slide_indices:
+        new_slide = _copy_slide_from_source(
+            prs, src_prs, idx,
+            hide_shape=FIREWALL_SHAPE if (idx == 0 and fw_is_na) else None
+        )
+
+        for shape in new_slide.shapes:
+            sname = shape.name
+
+            if sname in CUSTOMER_SHAPES:
+                _replace_text_in_shape(shape, '<Customer Name>', customer_name)
+
+            if idx == 0 and sname == SDWAN_SHP_SL0:
+                _replace_text_in_shape(shape, '<SDWAN_vendor>', sdwan_vendor)
+
+            if idx == 0 and sname == FIREWALL_SHAPE and not fw_is_na:
+                _replace_text_in_shape(shape, '<Firewall Vendor>', firewall_vendor)
+
+            if idx == 2 and sname == SDWAN_SHP_SL2:
+                _replace_text_in_shape(shape, '<SDWAN_vendor>', sdwan_vendor)
+
+            if idx == 2 and sname == BRANCH_X_SHP:
+                _replace_text_in_shape(shape, '<X>', no_of_sites)
+
+            if idx == 1 and sname == INTEG_1_SHP:
+                _replace_text_in_shape(shape, '<integration 1>', integration_1)
+
+            if idx == 1 and sname == INTEG_2_SHP:
+                _replace_text_in_shape(shape, '<integration 2>', integration_2)
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # OPPORTUNITY PACKAGE EXPORT
 # ══════════════════════════════════════════════════════════════════════════════
@@ -321,7 +538,7 @@ def export_pptx(customer_slug):
     # SLIDE 2 — Value Drivers
     # ══════════════════════════════════════════════════════════════════════
     s2 = prs.slides.add_slide(LY['title_sub'])
-    _slide_header(s2, 'Value Drivers', 'Current State → Future State with Zscaler ZTB')
+    _slide_header(s2, 'Value Drivers', 'Current State -> Future State with Zscaler ZTB')
 
     drivers = [s for s in section_outcomes if s.get('format') == 'value_driver']
     if not drivers:
@@ -379,7 +596,16 @@ def export_pptx(customer_slug):
             y_cursor += rh
 
     # ══════════════════════════════════════════════════════════════════════
-    # SLIDE 3 — Pricing Executive Summary
+    # SLIDES 3-6 — Current State / Future State Diagrams (conditional)
+    # ══════════════════════════════════════════════════════════════════════
+    _inject_current_future_slides(
+        prs,
+        user_resp.answers or {},
+        customer_name=user_resp.customer_name or ''
+    )
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SLIDE 3/7 — Pricing Executive Summary
     # ══════════════════════════════════════════════════════════════════════
     s3 = prs.slides.add_slide(LY['title_sub'])
     _slide_header(s3, 'Pricing Summary', 'Executive Overview')
@@ -456,15 +682,15 @@ def export_pptx(customer_slug):
          sz=9, color=MUTED, italic=True, align=PP_ALIGN.RIGHT)
 
     # ══════════════════════════════════════════════════════════════════════
-    # SLIDE 4 — TCO KPIs + Bar Chart
+    # SLIDE 4/8 — TCO KPIs + Bar Chart
     # ══════════════════════════════════════════════════════════════════════
     s4 = prs.slides.add_slide(LY['title_sub'])
     _slide_header(s4, 'TCO Analysis', 'Legacy Infrastructure vs. Zscaler ZTB')
 
     kpis = [
         ('Legacy Annual Spend', _fmt(legacy_total), RED,   'HW + FTE + Breach Risk'),
-        ('Annual Savings',      _fmt(annual_sav),   GREEN, 'Legacy − Zscaler ACV'),
-        ('3-Year Savings',      _fmt(yr3_sav),      GREEN, '3× Annual Savings'),
+        ('Annual Savings',      _fmt(annual_sav),   GREEN, 'Legacy - Zscaler ACV'),
+        ('3-Year Savings',      _fmt(yr3_sav),      GREEN, '3x Annual Savings'),
         ('ROI',                 f'{roi_pct}%',       AMBER,
          f'Payback: ~{payback_mo} months' if payback_mo else 'Set ACV above'),
     ]
@@ -510,7 +736,7 @@ def export_pptx(customer_slug):
                           Emu(11_521_440), Emu(3_700_000))
 
     # ══════════════════════════════════════════════════════════════════════
-    # SLIDE 5 — Thank You
+    # SLIDE 5/9 — Thank You
     # ══════════════════════════════════════════════════════════════════════
     s5 = prs.slides.add_slide(LY['cover'])
     _box(s5, 'Thank You',
@@ -766,7 +992,7 @@ def export_pov_deck(customer_slug):
 
     # ── SLIDE 5 — Value Drivers ───────────────────────────────────────────
     s5 = prs.slides.add_slide(LY['title_sub'])
-    _slide_header(s5, 'Value Drivers', 'Current State → Future State with Zscaler ZTB')
+    _slide_header(s5, 'Value Drivers', 'Current State -> Future State with Zscaler ZTB')
 
     drivers = [s for s in section_outcomes if s.get('format') == 'value_driver']
     if not drivers:
