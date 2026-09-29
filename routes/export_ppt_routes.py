@@ -230,11 +230,6 @@ def _replace_text_in_shape(shape, token, replacement):
 
 
 def _copy_slide_from_source(prs, src_prs, slide_index, hide_shape=None):
-    """
-    Copy a single slide from an already-open src_prs into prs.
-    Opens source only once (caller's responsibility) to avoid duplicate part blobs.
-    Skips layout/theme rels, removes light fills, forces text white.
-    """
     A_NS = 'http://schemas.openxmlformats.org/drawingml/2006/main'
     PML  = 'http://schemas.openxmlformats.org/presentationml/2006/main'
     PREL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
@@ -260,7 +255,6 @@ def _copy_slide_from_source(prs, src_prs, slide_index, hide_shape=None):
             return cNvPr.get('name', '')
         return ''
 
-    # Copy image/media rels only — skip structural rels that already exist
     rId_map = {}
     for rel in src_slide.part.rels.values():
         if rel.reltype in SKIP_RELTYPES:
@@ -344,10 +338,6 @@ def _copy_slide_from_source(prs, src_prs, slide_index, hide_shape=None):
 
 
 def _inject_current_future_slides(prs, answers, customer_name=''):
-    """
-    Opens Current-Future-State.pptx ONCE and copies relevant slides.
-    Opening once prevents duplicate part blobs that corrupt the file.
-    """
     import os
     from pptx import Presentation
 
@@ -365,18 +355,41 @@ def _inject_current_future_slides(prs, answers, customer_name=''):
     if want_seg:   slide_indices += [0, 1]
     if want_sdwan: slide_indices += [2, 3]
 
-    sdwan_vendor    = _resolve_answer_labels(answers, 'vp_sdwan_vendor')
-    sdwan_vendor    = sdwan_vendor[0] if sdwan_vendor else ''
+    # ── Firewall vendor ───────────────────────────────────────────────────
     firewall_vendor = _resolve_answer_labels(answers, 'vp_firewall_vendor')
     firewall_vendor = firewall_vendor[0] if firewall_vendor else ''
-    no_of_sites     = str(answers.get('vp_no_of_sites', '') or '')
+    fw_na_keywords  = (
+        'n/a',
+        'n/a or no firewall vendor',
+        'no firewall vendor',
+        'no firewall',
+        'none',
+        '',
+    )
+    fw_is_na    = firewall_vendor.strip().lower() in fw_na_keywords
+    fw_display  = '' if fw_is_na else firewall_vendor
+
+    # ── SD-WAN vendor ─────────────────────────────────────────────────────
+    sdwan_vendor      = _resolve_answer_labels(answers, 'vp_sdwan_vendor')
+    sdwan_vendor      = sdwan_vendor[0] if sdwan_vendor else ''
+    sdwan_na_keywords = (
+        'not in list',
+        'not in list or no sd-wan vendor',
+        'no sd-wan vendor',
+        'no sdwan vendor',
+        'none',
+        '',
+    )
+    sdwan_is_na   = sdwan_vendor.strip().lower() in sdwan_na_keywords
+    sdwan_display = '' if sdwan_is_na else sdwan_vendor
+
+    # ── Other fields ──────────────────────────────────────────────────────
+    no_of_sites   = str(answers.get('vp_no_of_sites', '') or '')
 
     integrations  = _resolve_answer_labels(answers, 'seg_asset_visibility')
-    integration_1 = integrations[0] if len(integrations) > 0 else ''
+    raw_integ_1   = integrations[0] if len(integrations) > 0 else ''
+    integration_1 = '' if raw_integ_1.strip().lower() == 'not yet discovered' else raw_integ_1
     integration_2 = integrations[1] if len(integrations) > 1 else ''
-
-    fw_is_na = (not firewall_vendor
-                or firewall_vendor.lower() in ('n/a', 'no firewall', 'none', ''))
 
     FIREWALL_SHAPE  = 'TextBox 16734'
     SDWAN_SHP_SL0   = 'TextBox 16636'
@@ -386,14 +399,10 @@ def _inject_current_future_slides(prs, answers, customer_name=''):
     INTEG_1_SHP     = 'TextBox 58'
     INTEG_2_SHP     = 'TextBox 61'
 
-    # ── Open source ONCE ─────────────────────────────────────────────────
     src_prs = Presentation(DIAGRAM_PATH)
 
     for idx in slide_indices:
-        new_slide = _copy_slide_from_source(
-            prs, src_prs, idx,
-            hide_shape=FIREWALL_SHAPE if (idx == 0 and fw_is_na) else None
-        )
+        new_slide = _copy_slide_from_source(prs, src_prs, idx)
 
         for shape in new_slide.shapes:
             sname = shape.name
@@ -402,13 +411,13 @@ def _inject_current_future_slides(prs, answers, customer_name=''):
                 _replace_text_in_shape(shape, '<Customer Name>', customer_name)
 
             if idx == 0 and sname == SDWAN_SHP_SL0:
-                _replace_text_in_shape(shape, '<SDWAN_vendor>', sdwan_vendor)
+                _replace_text_in_shape(shape, '<SDWAN_vendor>', sdwan_display)
 
-            if idx == 0 and sname == FIREWALL_SHAPE and not fw_is_na:
-                _replace_text_in_shape(shape, '<Firewall Vendor>', firewall_vendor)
+            if idx == 0 and sname == FIREWALL_SHAPE:
+                _replace_text_in_shape(shape, '<Firewall Vendor>', fw_display)
 
             if idx == 2 and sname == SDWAN_SHP_SL2:
-                _replace_text_in_shape(shape, '<SDWAN_vendor>', sdwan_vendor)
+                _replace_text_in_shape(shape, '<SDWAN_vendor>', sdwan_display)
 
             if idx == 2 and sname == BRANCH_X_SHP:
                 _replace_text_in_shape(shape, '<X>', no_of_sites)
